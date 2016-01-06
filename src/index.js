@@ -15,6 +15,7 @@ exports.import = function (options, callback) {
   var pathStats = fs.statSync(options.path)
   if (pathStats.isFile()) {
 
+
   } else if (pathStats.isDir() && options.recursive) {
 
   } else {

@@ -8,7 +8,7 @@ exports = module.exports = FixedSizeChunker
 function FixedSizeChunker (size) {
   var stream = through2(transform, flush)
 
-  var buf = new Buffer(0)
+  var buf = new Buffer(0, 'binary')
 
   function transform (chunk, enc, cb) {
     var that = this
@@ -20,8 +20,8 @@ function FixedSizeChunker (size) {
     }
 
     function slice () {
-      var chunk = new Buffer(size)
-      var newBuf = new Buffer(buf.length - size)
+      var chunk = new Buffer(size, 'binary')
+      var newBuf = new Buffer(buf.length - size, 'binary')
       buf.copy(chunk, 0, 0, size - 1)
       buf.copy(newBuf, 0, size - 1, buf.length - size)
       buf = newBuf

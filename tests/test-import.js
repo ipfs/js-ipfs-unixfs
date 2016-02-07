@@ -3,8 +3,7 @@
 var importer = require('./../src')
 var expect = require('chai').expect
 var IPFSRepo = require('ipfs-repo')
-var mDAG = require('ipfs-merkle-dag')
-var BlockService = mDAG.BlockService
+var BlockService = require('ipfs-blocks').BlockService
 const fs = require('fs-blob-store')
 var bs58 = require('bs58')
 

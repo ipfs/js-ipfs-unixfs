@@ -25,6 +25,8 @@
     "bs58": "^3.0.0",
     "chai": "^3.4.1",
     "fs-blob-store": "^5.2.1",
+    "ipfs-blocks": "^0.1.0",
+    "ipfs-merkle-dag": "^0.2.1",
     "ipfs-repo": "^0.5.0",
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4",

@@ -3,6 +3,7 @@ var log = debug('importer')
 log.err = debug('importer:error')
 var fs = require('fs')
 var mDAG = require('ipfs-merkle-dag')
+var Block = require('ipfs-blocks').Block
 var FixedSizeChunker = require('./chunker-fixed-size')
 var through2 = require('through2')
 
@@ -28,7 +29,7 @@ exports.import = function (options, callback) {
         // store it and flush it
         // store the hash and size
         var node = new mDAG.DAGNode(chunk)
-        var block = new mDAG.Block(node.marshal())
+        var block = new Block(node.marshal())
         bs.addBlock(block, function (err) {
           if (err) {
             return log.err(err)
@@ -52,7 +53,7 @@ exports.import = function (options, callback) {
             var link = new mDAG.DAGLink(l.Name, l.Size, l.Hash)
             parentNode.addNodeLink('', link)
           })
-          var block = new mDAG.Block(parentNode.marshal())
+          var block = new Block(parentNode.marshal())
           bs.addBlock(block, function (err) {
             if (err) {
               return log.err(err)

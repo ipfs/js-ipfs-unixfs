@@ -1,0 +1,28 @@
+{
+  "name": "ipfs-unixfs",
+  "version": "0.0.0",
+  "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha tests/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
+  },
+  "keywords": [
+    "IPFS"
+  ],
+  "author": "David Dias <daviddias@ipfs.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
+  },
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "pre-commit": "^1.1.2",
+    "standard": "^6.0.4"
+  }
+}

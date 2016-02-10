@@ -38,10 +38,45 @@ describe('unixfs-format', () => {
     done()
   })
 
-  it.skip('file add blocksize', (done) => {})
-  it.skip('file add and remove blocksize', (done) => {})
+  it('file add blocksize', (done) => {
+    const data = new UnixfsFormat('file')
+    data.addBlockSize(256)
+    const marsheled = data.marshal()
+    const unmarsheled = UnixfsFormat.unmarshal(marsheled)
+    expect(data.type).to.equal(unmarsheled.type)
+    expect(data.data).to.deep.equal(unmarsheled.data)
+    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
+    done()
+  })
+
+  it('file add and remove blocksize', (done) => {
+    const data = new UnixfsFormat('file')
+    data.addBlockSize(256)
+    const marsheled = data.marshal()
+    const unmarsheled = UnixfsFormat.unmarshal(marsheled)
+    expect(data.type).to.equal(unmarsheled.type)
+    expect(data.data).to.deep.equal(unmarsheled.data)
+    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
+    unmarsheled.removeBlockSize(0)
+    expect(data.blockSizes).to.not.deep.equal(unmarsheled.blockSizes)
+    done()
+  })
+
+  // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
   it.skip('metadata', (done) => {})
-  it.skip('symlink', (done) => {})
+
+  it('symlink', (done) => {
+    const data = new UnixfsFormat('symlink')
+    const marsheled = data.marshal()
+    const unmarsheled = UnixfsFormat.unmarshal(marsheled)
+    expect(data.type).to.equal(unmarsheled.type)
+    expect(data.data).to.deep.equal(unmarsheled.data)
+    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
+    done()
+  })
   it('wrong type', (done) => {
     var data
     try {

@@ -6,6 +6,7 @@ var mDAG = require('ipfs-merkle-dag')
 var Block = require('ipfs-blocks').Block
 var FixedSizeChunker = require('./chunker-fixed-size')
 var through2 = require('through2')
+var UnixFS = require('ipfs-unixfs')
 
 exports = module.exports
 
@@ -28,7 +29,9 @@ exports.import = function (options, callback) {
         // chunk is a 256KiB, create a MerkleDAG node with it
         // store it and flush it
         // store the hash and size
-        var node = new mDAG.DAGNode(chunk)
+
+        var raw = new UnixFS('raw', chunk)
+        var node = new mDAG.DAGNode(raw.marshal())
         var block = new Block(node.marshal())
         bs.addBlock(block, function (err) {
           if (err) {
@@ -44,28 +47,30 @@ exports.import = function (options, callback) {
       }, function flush (cb) {
         // create the MerkleDAG node that points to all the chunks (shift, not pop)
         // if there is only one, leave it
-        // log('links', links)
-        if (links.length === 1) {
-          callback(null, links[0]) && cb()
-        } else {
-          var parentNode = new mDAG.DAGNode()
-          links.forEach(function (l) {
-            var link = new mDAG.DAGLink(l.Name, l.Size, l.Hash)
-            parentNode.addNodeLink('', link)
-          })
-          var block = new Block(parentNode.marshal())
-          bs.addBlock(block, function (err) {
-            if (err) {
-              return log.err(err)
-            }
+        // if (links.length === 1) {
+        //  callback(null, links[0]) && cb()
+        // } else {
+        var file = new UnixFS('file')
+        var parentNode = new mDAG.DAGNode()
+        links.forEach(function (l) {
+          file.addBlockSize(l.Size)
+          var link = new mDAG.DAGLink(l.Name, l.Size, l.Hash)
+          parentNode.addRawLink(link)
+        })
+        parentNode.data = file.marshal()
+        var block = new Block(parentNode.marshal())
+        bs.addBlock(block, function (err) {
+          if (err) {
+            return log.err(err)
+          }
 
-            callback(null, {
-              Hash: block.key,
-              Size: parentNode.size(),
-              Name: ''
-            }) && cb()
-          })
-        }
+          callback(null, {
+            Hash: block.key,
+            Size: parentNode.size(),
+            Name: ''
+          }) && cb()
+        })
+        // }
       }))
   } else if (pathStats.isDir() && options.recursive) {
 

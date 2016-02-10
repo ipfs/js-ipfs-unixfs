@@ -59,12 +59,17 @@ function Data (type, data) {
       case 'metadata': type = unixfsData.DataType.Metadata; break
       case 'symlink': type = unixfsData.DataType.Symlink; break
     }
+    var fileSize = this.fileSize()
+
+    if (fileSize === 0) {
+      fileSize = undefined
+    }
 
     return unixfsData.encode({
       Type: type,
       Data: this.data,
-      filesize: this.fileSize(),
-      blocksizes: this.blockSizes
+      filesize: fileSize,
+      blocksizes: this.blockSizes.length > 0 ? this.blockSizes : undefined
     })
   }
 }

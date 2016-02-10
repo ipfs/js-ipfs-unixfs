@@ -1,6 +1,7 @@
 /* globals describe, it */
 
 const expect = require('chai').expect
+const fs = require('fs')
 
 const UnixfsFormat = require('../src').format
 
@@ -89,10 +90,44 @@ describe('unixfs-format', () => {
   })
 
   describe('interop', () => {
-    it.skip('raw', (done) => {})
-    it.skip('directory', (done) => {})
-    it.skip('file', (done) => {})
-    it.skip('metadata', (done) => {})
-    it.skip('symlink', (done) => {})
+    it('raw', (done) => {
+      var raw = fs.readFileSync(__dirname + '/test-data/raw.unixfs')
+      const unmarsheled = UnixfsFormat.unmarshal(raw)
+      expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
+      expect(unmarsheled.type).to.equal('file')
+      expect(unmarsheled.marshal()).to.deep.equal(raw)
+      done()
+    })
+
+    it('directory', (done) => {
+      var raw = fs.readFileSync(__dirname + '/test-data/directory.unixfs')
+      const unmarsheled = UnixfsFormat.unmarshal(raw)
+      expect(unmarsheled.data).to.deep.equal(undefined)
+      expect(unmarsheled.type).to.equal('directory')
+      expect(unmarsheled.marshal()).to.deep.equal(raw)
+      done()
+    })
+
+    it('file', (done) => {
+      var raw = fs.readFileSync(__dirname + '/test-data/file.txt.unixfs')
+      const unmarsheled = UnixfsFormat.unmarshal(raw)
+      expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
+      expect(unmarsheled.type).to.equal('file')
+      expect(unmarsheled.marshal()).to.deep.equal(raw)
+      done()
+    })
+
+    it.skip('metadata', (done) => {
+    })
+
+    it('symlink', (done) => {
+      var raw = fs.readFileSync(__dirname + '/test-data/symlink.txt.unixfs')
+      const unmarsheled = UnixfsFormat.unmarshal(raw)
+      expect(unmarsheled.data).to.deep.equal(new Buffer('file.txt'))
+      expect(unmarsheled.type).to.equal('symlink')
+      // TODO: waiting on https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182440079
+      // expect(unmarsheled.marshal()).to.deep.equal(raw)
+      done()
+    })
   })
 })

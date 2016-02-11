@@ -13,7 +13,7 @@ describe('core', () => {
 
   before(done => {
     ncp(repoExample, repoTests, err => {
-      process.env.IPFS_PATH = '/Users/ground-control/.ipfs' // just for testing - repoTests
+      process.env.IPFS_PATH = repoTests
       expect(err).to.equal(null)
       done()
     })

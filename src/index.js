@@ -35,7 +35,9 @@ exports.import = (options, callback) => {
       fs.createReadStream(options.path)
         .pipe(new FixedSizeChunker(CHUNK_SIZE))
         .pipe(through2((chunk, enc, cb) => {
-          const raw = new UnixFS('raw', chunk)
+          // TODO: check if this is right (I believe it should be type 'raw'
+          // https://github.com/ipfs/go-ipfs/issues/2331
+          const raw = new UnixFS('file', chunk)
 
           const node = new mDAG.DAGNode(raw.marshal())
 
@@ -46,6 +48,7 @@ exports.import = (options, callback) => {
             links.push({
               Hash: node.multihash(),
               Size: node.size(),
+              leafSize: raw.fileSize(),
               Name: ''
             })
 
@@ -54,9 +57,8 @@ exports.import = (options, callback) => {
         }, (cb) => {
           const file = new UnixFS('file')
           const parentNode = new mDAG.DAGNode()
-
           links.forEach((l) => {
-            file.addBlockSize(l.Size)
+            file.addBlockSize(l.leafSize)
             const link = new mDAG.DAGLink(l.Name, l.Size, l.Hash)
             parentNode.addRawLink(link)
           })

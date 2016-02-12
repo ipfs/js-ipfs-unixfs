@@ -1,6 +1,6 @@
 {
   "name": "ipfs-data-importing",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "JavaScript implementation of the layout and chunking mechanisms used by IPFS",
   "main": "src/index.js",
   "scripts": {

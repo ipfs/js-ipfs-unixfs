@@ -7,13 +7,15 @@ const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
 const DAGNode = require('ipfs-merkle-dag').DAGNode
 const fsBlobStore = require('fs-blob-store')
-// const bs58 = require('bs58')
+const bs58 = require('bs58')
 const fs = require('fs')
 const UnixFS = require('ipfs-unixfs')
 
 describe('layout: importer', function () {
   const big = __dirname + '/test-data/1.2MiB.txt'
   const small = __dirname + '/test-data/200Bytes.txt'
+  const dirSmall = __dirname + '/test-data/dir-small'
+  const dirBig = __dirname + '/test-data/dir-big'
 
   var ds
 
@@ -56,8 +58,6 @@ describe('layout: importer', function () {
   })
 
   it('import a big file', (done) => {
-    // const big = __dirname + '/test-data/test-file.txt'
-
     importer.import({
       path: big,
       dagService: ds
@@ -103,7 +103,62 @@ describe('layout: importer', function () {
     })
   })
 
-  it.skip('import a directory', (done) => {})
+  it('import a small directory', (done) => {
+    importer.import({
+      path: dirSmall,
+      dagService: ds,
+      recursive: true
+    }, function (err, stats) {
+      expect(err).to.not.exist
+
+      ds.get(stats.Hash, (err, node) => {
+        expect(err).to.not.exist
+        const dirSmallNode = new DAGNode()
+        dirSmallNode.unMarshal(fs.readFileSync(dirSmall + '.block'))
+        expect(node.links).to.deep.equal(dirSmallNode.links)
+
+        const nodeUnixFS = UnixFS.unmarshal(node.data)
+        const dirUnixFS = UnixFS.unmarshal(dirSmallNode.data)
+
+        expect(nodeUnixFS.type).to.equal(dirUnixFS.type)
+        expect(nodeUnixFS.fileSize()).to.equal(dirUnixFS.fileSize())
+        expect(nodeUnixFS.data).to.deep.equal(dirUnixFS.data)
+        expect(nodeUnixFS.blockSizes).to.deep.equal(dirUnixFS.blockSizes)
+        expect(node.data).to.deep.equal(dirSmallNode.data)
+        expect(node.marshal()).to.deep.equal(dirSmallNode.marshal())
+        done()
+      })
+    })
+  })
+
+  it('import a big directory', (done) => {
+    importer.import({
+      path: dirBig,
+      dagService: ds,
+      recursive: true
+    }, function (err, stats) {
+      expect(err).to.not.exist
+
+      ds.get(stats.Hash, (err, node) => {
+        expect(err).to.not.exist
+        const dirNode = new DAGNode()
+        dirNode.unMarshal(fs.readFileSync(dirBig + '.block'))
+        expect(node.links).to.deep.equal(dirNode.links)
+
+        const nodeUnixFS = UnixFS.unmarshal(node.data)
+        const dirUnixFS = UnixFS.unmarshal(dirNode.data)
+
+        expect(nodeUnixFS.type).to.equal(dirUnixFS.type)
+        expect(nodeUnixFS.fileSize()).to.equal(dirUnixFS.fileSize())
+        expect(nodeUnixFS.data).to.deep.equal(dirUnixFS.data)
+        expect(nodeUnixFS.blockSizes).to.deep.equal(dirUnixFS.blockSizes)
+        expect(node.data).to.deep.equal(dirNode.data)
+        expect(node.marshal()).to.deep.equal(dirNode.marshal())
+        done()
+      })
+    })
+  })
+
   it.skip('import a buffer', (done) => {})
   it.skip('import from a stream', (done) => {})
 })

@@ -6,6 +6,7 @@ const mDAG = require('ipfs-merkle-dag')
 const FixedSizeChunker = require('./chunker-fixed-size')
 const through2 = require('through2')
 const UnixFS = require('ipfs-unixfs')
+const async = require('async')
 
 exports = module.exports
 
@@ -21,18 +22,19 @@ exports.import = (options, callback) => {
 
   const stats = fs.statSync(options.path)
   if (stats.isFile()) {
-    fileImporter(options, callback)
-  } else if (stats.isDir() && options.recursive) {
+    fileImporter(options.path, callback)
+  } else if (stats.isDirectory() && options.recursive) {
     dirImporter(options.path, callback)
   } else {
     return callback(new Error('recursive must be true to add a directory'))
   }
 
   function fileImporter (path, callback) {
+    const stats = fs.statSync(path)
     if (stats.size > CHUNK_SIZE) {
       const links = [] // { Hash: , Size: , Name: }
 
-      fs.createReadStream(options.path)
+      fs.createReadStream(path)
         .pipe(new FixedSizeChunker(CHUNK_SIZE))
         .pipe(through2((chunk, enc, cb) => {
           // TODO: check if this is right (I believe it should be type 'raw'
@@ -69,7 +71,7 @@ exports.import = (options, callback) => {
               return log.err(err)
             }
 
-            const pathSplit = options.path.split('/')
+            const pathSplit = path.split('/')
             const fileName = pathSplit[pathSplit.length - 1]
 
             callback(null, {
@@ -78,11 +80,10 @@ exports.import = (options, callback) => {
               Name: fileName
             }) && cb()
           })
-          // }
         }))
     } else {
       // create just one file node with the data directly
-      const fileUnixFS = new UnixFS('file', fs.readFileSync(options.path))
+      const fileUnixFS = new UnixFS('file', fs.readFileSync(path))
       const fileNode = new mDAG.DAGNode(fileUnixFS.marshal())
 
       dagService.add(fileNode, (err) => {
@@ -90,8 +91,8 @@ exports.import = (options, callback) => {
           return log.err(err)
         }
 
-        const pathSplit = options.path.split('/')
-        const fileName = pathSplit[pathSplit.length - 1]
+        const split = path.split('/')
+        const fileName = split[split.length - 1]
 
         callback(null, {
           Hash: fileNode.multihash(),
@@ -102,10 +103,71 @@ exports.import = (options, callback) => {
     }
   }
 
-  function dirImporter (path) {}
+  function dirImporter (path, callback) {
+    const files = fs.readdirSync(path)
+    const dirUnixFS = new UnixFS('directory')
+    const dirNode = new mDAG.DAGNode()
+
+    if (files.length === 0) {
+      dirNode.data = dirUnixFS.marshal()
+      dagService.add(dirNode, (err) => {
+        if (err) {
+          return callback(err)
+        }
+
+        const split = path.split('/')
+        const dirName = split[split.length - 1]
+
+        callback(null, {
+          Hash: dirNode.multihash(),
+          Size: dirNode.size(),
+          Name: dirName
+        })
+      })
+      return
+    }
+
+    async.map(
+      files,
+      (file, cb) => {
+        const filePath = path + '/' + file
+        const stats = fs.statSync(filePath)
+        if (stats.isFile()) {
+          return fileImporter(filePath, cb)
+        } if (stats.isDirectory()) {
+          return dirImporter(filePath, cb)
+        } else {
+          return callback(new Error('Found a weird file' + path + file))
+        }
+      },
+      (err, results) => {
+        if (err) {
+          return callback(err)
+        }
+        results.forEach((result) => {
+          dirNode.addRawLink(new mDAG.DAGLink(result.Name, result.Size, result.Hash))
+          dirNode.data = dirUnixFS.marshal()
+          dagService.add(dirNode, (err) => {
+            if (err) {
+              return callback(err)
+            }
+
+            const split = path.split('/')
+            const dirName = split[split.length - 1]
+
+            callback(null, {
+              Hash: dirNode.multihash(),
+              Size: dirNode.size(),
+              Name: dirName
+            })
+          })
+        })
+      })
+  }
   // function bufferImporter (path) {}
   // function streamImporter (path) {}
 }
 
 exports.export = function () {
+  // export into files by hash
 }

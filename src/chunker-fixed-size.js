@@ -20,9 +20,9 @@ function FixedSizeChunker (size) {
     }
 
     function slice () {
-      var chunk = new Buffer(size)
-      var newBuf = new Buffer(buf.length - size)
-      buf.copy(chunk, 0, 0, size - 1)
+      var chunk = new Buffer(size, 'binary')
+      var newBuf = new Buffer(buf.length - size, 'binary')
+      buf.copy(chunk, 0, 0, size)
       buf.copy(newBuf, 0, size - 1, buf.length - size)
       buf = newBuf
       that.push(chunk)

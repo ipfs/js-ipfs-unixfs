@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "standard",
-    "coverage": "istanbul cover --print both -- _mocha tests/test-*.js",
-    "test": "mocha tests/test-*.js"
+    "coverage": "istanbul cover --print both -- _mocha tests/index.js",
+    "test": "mocha tests/index.js"
   },
   "repository": {
     "type": "git",
@@ -22,14 +22,23 @@
   },
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
+    "bs58": "^3.0.0",
     "chai": "^3.4.1",
+    "fs-blob-store": "^5.2.1",
+    "ipfs-repo": "^0.5.0",
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4",
+    "ncp": "^2.0.0",
     "pre-commit": "^1.1.2",
+    "rimraf": "^2.5.1",
     "standard": "^5.4.1"
   },
   "dependencies": {
+    "async": "^1.5.2",
     "debug": "^2.2.0",
+    "ipfs-blocks": "^0.1.0",
+    "ipfs-merkle-dag": "^0.2.1",
+    "ipfs-unixfs": "^0.1.0",
     "through2": "^2.0.0"
   }
 }

@@ -16,6 +16,7 @@ describe('layout: importer', function () {
   const small = __dirname + '/test-data/200Bytes.txt'
   const dirSmall = __dirname + '/test-data/dir-small'
   const dirBig = __dirname + '/test-data/dir-big'
+  const dirNested = __dirname + '/test-data/dir-nested'
 
   var ds
 
@@ -154,6 +155,28 @@ describe('layout: importer', function () {
         expect(nodeUnixFS.blockSizes).to.deep.equal(dirUnixFS.blockSizes)
         expect(node.data).to.deep.equal(dirNode.data)
         expect(node.marshal()).to.deep.equal(dirNode.marshal())
+        done()
+      })
+    })
+  })
+
+  it('import a nested directory', (done) => {
+    importer.import({
+      path: dirNested,
+      dagService: ds,
+      recursive: true
+    }, function (err, stats) {
+      expect(err).to.not.exist
+      expect(bs58.encode(stats.Hash).toString()).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN')
+
+      ds.get(stats.Hash, (err, node) => {
+        expect(err).to.not.exist
+        expect(node.links.length).to.equal(3)
+
+        const dirNode = new DAGNode()
+        dirNode.unMarshal(fs.readFileSync(dirNested + '.block'))
+        expect(node.links).to.deep.equal(dirNode.links)
+        expect(node.data).to.deep.equal(dirNode.data)
         done()
       })
     })

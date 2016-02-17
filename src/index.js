@@ -14,10 +14,10 @@ const CHUNK_SIZE = 262144
 
 // Use a layout + chunkers to convert a directory (or file) to the layout format
 exports.import = (options, callback) => {
-  // options.path -> what to import
-  // options.recursive -> follow dirs
-  // options.chunkers -> obj with chunkers to each type of data, { default: dumb-chunker }
-  // options.dag-service-> instance of block service
+  // options.path : what to import
+  // options.recursive : follow dirs
+  // options.chunkers : obj with chunkers to each type of data, { default: dumb-chunker }
+  // options.dag-service : instance of block service
   const dagService = options.dagService
 
   const stats = fs.statSync(options.path)
@@ -137,7 +137,7 @@ exports.import = (options, callback) => {
         } if (stats.isDirectory()) {
           return dirImporter(filePath, cb)
         } else {
-          return callback(new Error('Found a weird file' + path + file))
+          return cb(new Error('Found a weird file' + path + file))
         }
       },
       (err, results) => {
@@ -146,24 +146,27 @@ exports.import = (options, callback) => {
         }
         results.forEach((result) => {
           dirNode.addRawLink(new mDAG.DAGLink(result.Name, result.Size, result.Hash))
-          dirNode.data = dirUnixFS.marshal()
-          dagService.add(dirNode, (err) => {
-            if (err) {
-              return callback(err)
-            }
+        })
 
-            const split = path.split('/')
-            const dirName = split[split.length - 1]
+        dirNode.data = dirUnixFS.marshal()
 
-            callback(null, {
-              Hash: dirNode.multihash(),
-              Size: dirNode.size(),
-              Name: dirName
-            })
+        dagService.add(dirNode, (err) => {
+          if (err) {
+            return callback(err)
+          }
+
+          const split = path.split('/')
+          const dirName = split[split.length - 1]
+
+          callback(null, {
+            Hash: dirNode.multihash(),
+            Size: dirNode.size(),
+            Name: dirName
           })
         })
       })
   }
+
   // function bufferImporter (path) {}
   // function streamImporter (path) {}
 }

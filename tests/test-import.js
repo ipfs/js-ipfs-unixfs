@@ -16,6 +16,7 @@ describe('layout: importer', function () {
   const small = __dirname + '/test-data/200Bytes.txt'
   const dirSmall = __dirname + '/test-data/dir-small'
   const dirBig = __dirname + '/test-data/dir-big'
+  const dirNested = __dirname + '/test-data/dir-nested'
 
   var ds
 
@@ -156,6 +157,18 @@ describe('layout: importer', function () {
         expect(node.marshal()).to.deep.equal(dirNode.marshal())
         done()
       })
+    })
+  })
+
+  it('import a nested directory', (done) => {
+    importer.import({
+      path: dirNested,
+      dagService: ds,
+      recursive: true
+    }, function (err, stats) {
+      expect(err).to.not.exist
+      expect(bs58.encode(stats.Hash).toString()).to.equal('QmVBrtxs5Ndxih2J52RrCai3FVKDQtZQjrgV21Baku1ggo')
+      // done()
     })
   })
 

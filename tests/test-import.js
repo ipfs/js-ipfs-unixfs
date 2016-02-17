@@ -167,8 +167,18 @@ describe('layout: importer', function () {
       recursive: true
     }, function (err, stats) {
       expect(err).to.not.exist
-      expect(bs58.encode(stats.Hash).toString()).to.equal('QmVBrtxs5Ndxih2J52RrCai3FVKDQtZQjrgV21Baku1ggo')
-      // done()
+      expect(bs58.encode(stats.Hash).toString()).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN')
+
+      ds.get(stats.Hash, (err, node) => {
+        expect(err).to.not.exist
+        expect(node.links.length).to.equal(3)
+
+        const dirNode = new DAGNode()
+        dirNode.unMarshal(fs.readFileSync(dirNested + '.block'))
+        expect(node.links).to.deep.equal(dirNode.links)
+        expect(node.data).to.deep.equal(dirNode.data)
+        done()
+      })
     })
   })
 

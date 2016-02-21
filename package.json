@@ -5,9 +5,14 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "standard",
-    "coverage": "istanbul cover --print both -- _mocha tests/index.js",
-    "test": "mocha tests/index.js"
+    "test": "npm run test:node && npm run test:browser",
+    "test:node": "mocha tests/index.js",
+    "test:browser": "karma start karma.conf.js"
   },
+  "pre-commit": [
+    "lint",
+    "test"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/diasdavid/js-ipfs-data-importing.git"
@@ -22,16 +27,34 @@
   },
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
+    "2": "0.0.1",
+    "brfs": "^1.4.3",
     "bs58": "^3.0.0",
+    "buffer-loader": "0.0.1",
     "chai": "^3.4.1",
     "fs-blob-store": "^5.2.1",
-    "ipfs-repo": "^0.5.0",
+    "highland": "^2.7.1",
+    "idb-plus-blob-store": "^1.0.0",
+    "ipfs-repo": "^0.5.1",
     "istanbul": "^0.4.1",
+    "json-loader": "^0.5.4",
+    "karma": "^0.13.19",
+    "karma-chrome-launcher": "^0.2.2",
+    "karma-cli": "^0.1.2",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-mocha": "^0.2.1",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-spec-reporter": "0.0.24",
+    "karma-webpack": "^1.7.0",
     "mocha": "^2.3.4",
     "ncp": "^2.0.0",
     "pre-commit": "^1.1.2",
+    "raw-loader": "^0.5.1",
     "rimraf": "^2.5.1",
-    "standard": "^5.4.1"
+    "standard": "^6.0.8",
+    "string-to-stream": "^1.0.1",
+    "transform-loader": "^0.2.3",
+    "webpack": "^2.0.7-beta"
   },
   "dependencies": {
     "async": "^1.5.2",

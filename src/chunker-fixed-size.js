@@ -23,7 +23,7 @@ function FixedSizeChunker (size) {
       var chunk = new Buffer(size, 'binary')
       var newBuf = new Buffer(buf.length - size, 'binary')
       buf.copy(chunk, 0, 0, size)
-      buf.copy(newBuf, 0, size - 1, buf.length - size)
+      buf.copy(newBuf, 0, size, buf.length)
       buf = newBuf
       that.push(chunk)
 

@@ -12,39 +12,29 @@ exports = module.exports
 const CHUNK_SIZE = 262144
 
 // Use a layout + chunkers to convert a directory (or file) to the layout format
-exports.import = (dagService, options, callback) => {
+exports.import = (target, dagService, options, callback) => {
   if (typeof options === 'function') { callback = options; options = {} }
-  if (!dagService) { return callback(new Error('no dag service provided')) }
+
+  if (!target) { return callback(new Error('must specify target')) }
+  if (!dagService) { return callback(new Error('must specify dag service')) }
 
   // options.recursive : follow dirs
   // options.chunkers : obj with chunkers to each type of data, { default: dumb-chunker }
-  // options.path : import a file hierarchy from a path
-  // options.stream : import a stream
-  // options.buffer : import a buffer
 
-  // TODO: make first param be 'target' and check type to decide how to import
-  // path
-  // stream
-  // buffer
+  options = options || {}
 
-  if (options.buffer) {
-    if (!Buffer.isBuffer(options.buffer)) {
-      return callback(new Error('buffer importer must take a buffer'))
-    }
-    bufferImporter(options.buffer, callback)
-  } else if (options.stream) {
-    if (!(typeof options.stream.on === 'function')) {
-      return callback(new Error('stream importer must take a readable stream'))
-    }
+  if (Buffer.isBuffer(target)) {
+    bufferImporter(target, callback)
+  } else if (typeof target.on === 'function') {
     // TODO Create Stream Importer
     // streamImporter(options.stream, callback)
     return callback(new Error('stream importer has not been built yet'))
-  } else if (options.path) {
-    const stats = fs.statSync(options.path)
+  } else if (typeof target === 'string') {
+    const stats = fs.statSync(target)
     if (stats.isFile()) {
-      fileImporter(options.path, callback)
+      fileImporter(target, callback)
     } else if (stats.isDirectory() && options.recursive) {
-      dirImporter(options.path, callback)
+      dirImporter(target, callback)
     } else {
       return callback(new Error('recursive must be true to add a directory'))
     }

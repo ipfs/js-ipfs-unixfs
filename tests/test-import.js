@@ -191,10 +191,7 @@ describe('layout: importer', function () {
   it('import a small buffer', (done) => {
     // this is just like "import a small file"
     var buf = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
-    importer.import({
-      buffer: buf,
-      dagService: ds
-    }, function (err, stat) {
+    importer.import(buf, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
@@ -211,10 +208,7 @@ describe('layout: importer', function () {
   it('import a big buffer', (done) => {
     // this is just like "import a big file"
     var buf = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
-    importer.import({
-      buffer: buf,
-      dagService: ds
-    }, function (err, stat) {
+    importer.import(buf, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist

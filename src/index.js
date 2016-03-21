@@ -12,15 +12,20 @@ exports = module.exports
 const CHUNK_SIZE = 262144
 
 // Use a layout + chunkers to convert a directory (or file) to the layout format
-exports.import = function (options, callback) {
-  // options.path : what to import
-  // options.buffer : import a buffer
-  // options.filename : optional file name for buffer
-  // options.stream : import a stream
+exports.import = (dagService, options, callback) => {
+  if (typeof options === 'function') { callback = options; options = {} }
+  if (!dagService) { return callback(new Error('no dag service provided')) }
+
   // options.recursive : follow dirs
   // options.chunkers : obj with chunkers to each type of data, { default: dumb-chunker }
-  // options.dag-service : instance of block service
-  const dagService = options.dagService
+  // options.path : import a file hierarchy from a path
+  // options.stream : import a stream
+  // options.buffer : import a buffer
+
+  // TODO: make first param be 'target' and check type to decide how to import
+  // path
+  // stream
+  // buffer
 
   if (options.buffer) {
     if (!Buffer.isBuffer(options.buffer)) {
@@ -219,13 +224,10 @@ exports.import = function (options, callback) {
           if (err) {
             return log.err(err)
           }
-          // an optional file name provided
-          const fileName = options.filename
 
           callback(null, {
             Hash: parentNode.multihash(),
-            Size: parentNode.size(),
-            Name: fileName
+            Size: parentNode.size()
           }) && cb()
         })
       }))
@@ -241,8 +243,7 @@ exports.import = function (options, callback) {
 
         callback(null, {
           Hash: fileNode.multihash(),
-          Size: fileNode.size(),
-          Name: options.filename
+          Size: fileNode.size()
         })
       })
     }

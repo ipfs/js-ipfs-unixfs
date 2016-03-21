@@ -54,10 +54,7 @@ describe('layout: importer', function () {
   })
 
   it('import a small file', (done) => {
-    importer.import({
-      path: small,
-      dagService: ds
-    }, function (err, stat) {
+    importer.import(small, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
@@ -72,10 +69,7 @@ describe('layout: importer', function () {
   })
 
   it('import a big file', (done) => {
-    importer.import({
-      path: big,
-      dagService: ds
-    }, function (err, stat) {
+    importer.import(big, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
@@ -120,9 +114,7 @@ describe('layout: importer', function () {
   })
 
   it('import a small directory', (done) => {
-    importer.import({
-      path: dirSmall,
-      dagService: ds,
+    importer.import(dirSmall, ds, {
       recursive: true
     }, function (err, stats) {
       expect(err).to.not.exist
@@ -149,9 +141,7 @@ describe('layout: importer', function () {
   })
 
   it('import a big directory', (done) => {
-    importer.import({
-      path: dirBig,
-      dagService: ds,
+    importer.import(dirBig, ds, {
       recursive: true
     }, function (err, stats) {
       expect(err).to.not.exist
@@ -178,9 +168,7 @@ describe('layout: importer', function () {
   })
 
   it('import a nested directory', (done) => {
-    importer.import({
-      path: dirNested,
-      dagService: ds,
+    importer.import(dirNested, ds, {
       recursive: true
     }, function (err, stats) {
       expect(err).to.not.exist
@@ -225,8 +213,7 @@ describe('layout: importer', function () {
     var buf = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
     importer.import({
       buffer: buf,
-      dagService: ds,
-      filename: 'Test.txt'
+      dagService: ds
     }, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {

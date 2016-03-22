@@ -1,3 +1,5 @@
+'use strict'
+
 const debug = require('debug')
 const log = debug('importer')
 log.err = debug('importer:error')
@@ -7,6 +9,7 @@ const FixedSizeChunker = require('./chunker-fixed-size')
 const through2 = require('through2')
 const UnixFS = require('ipfs-unixfs')
 const async = require('async')
+
 exports = module.exports
 
 const CHUNK_SIZE = 262144

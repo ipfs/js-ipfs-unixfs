@@ -1,4 +1,6 @@
 /* eslint-env mocha */
+'use strict'
+
 const importer = require('./../src')
 const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
@@ -14,12 +16,69 @@ const bigLink = require('buffer!./test-data/1.2MiB.txt.link-block0')
 const marbuf = require('buffer!./test-data/200Bytes.txt.block')
 
 module.exports = function (repo) {
+  describe('chunker: fixed size', function () {
+    this.timeout(10000)
+
+    it('256 Bytes chunks', function (done) {
+      let counter = 0
+      fileStream()
+        .pipe(FixedSizeChunker(256))
+        .pipe(through(function (chunk, enc, cb) {
+          if (chunk.length < 256) {
+            expect(counter).to.be.below(1)
+            counter += 1
+            return cb()
+          }
+          expect(chunk.length).to.equal(256)
+          cb()
+        }, () => {
+          done()
+        }))
+    })
+
+    it('256 KiB chunks', function (done) {
+      let counter = 0
+      const KiB256 = 262144
+      fileStream()
+        .pipe(FixedSizeChunker(KiB256))
+        .pipe(through((chunk, enc, cb) => {
+          if (chunk.length < 262144) {
+            expect(counter).to.be.below(1)
+            counter += 1
+            return cb()
+          }
+          expect(chunk.length).to.equal(262144)
+          cb()
+        }, () => {
+          done()
+        }))
+    })
+
+    it('256 KiB chunks of non scalar filesize', function (done) {
+      let counter = 0
+      const KiB256 = 262144
+      fileStream()
+        .pipe(FixedSizeChunker(KiB256))
+        .pipe(through((chunk, enc, cb) => {
+          if (chunk.length < KiB256) {
+            expect(counter).to.be.below(2)
+            counter += 1
+            return cb()
+          }
+          expect(chunk.length).to.equal(KiB256)
+          cb()
+        }, () => {
+          done()
+        }))
+    })
+  })
+
   describe('layout: importer', function () {
     it('import a small buffer', function (done) {
       // this is just like "import a small file"
-      var bs = new BlockService(repo)
-      var ds = new DAGService(bs)
-      var buf = smallBuf
+      const bs = new BlockService(repo)
+      const ds = new DAGService(bs)
+      const buf = smallBuf
       importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
@@ -35,9 +94,9 @@ module.exports = function (repo) {
 
     it('import a big buffer', function (done) {
       // this is just like "import a big file"
-      var buf = bigBuf
-      var bs = new BlockService(repo)
-      var ds = new DAGService(bs)
+      const buf = bigBuf
+      const bs = new BlockService(repo)
+      const ds = new DAGService(bs)
       importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
@@ -61,7 +120,7 @@ module.exports = function (repo) {
             expect(err).to.not.exist
             const leaf = new DAGNode()
 
-            var marbuf2 = bigLink
+            const marbuf2 = bigLink
             leaf.unMarshal(marbuf2)
             expect(node.links).to.deep.equal(leaf.links)
             expect(node.links.length).to.equal(0)

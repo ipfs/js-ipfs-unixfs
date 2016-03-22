@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
-    "block-stream2": "^1.1.0",
     "brfs": "^1.4.3",
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",
@@ -58,6 +57,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
+    "block-stream2": "^1.1.0",
     "debug": "^2.2.0",
     "ipfs-blocks": "^0.1.0",
     "ipfs-merkle-dag": "^0.3.0",

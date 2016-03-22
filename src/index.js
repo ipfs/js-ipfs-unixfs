@@ -30,7 +30,12 @@ exports.import = (target, dagService, options, callback) => {
     // streamImporter(options.stream, callback)
     return callback(new Error('stream importer has not been built yet'))
   } else if (typeof target === 'string') {
-    const stats = fs.statSync(target)
+    var stats
+    try {
+      stats = fs.statSync(target)
+    } catch (e) {
+      return callback(e)
+    }
     if (stats.isFile()) {
       fileImporter(target, callback)
     } else if (stats.isDirectory() && options.recursive) {

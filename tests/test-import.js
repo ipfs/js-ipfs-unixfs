@@ -53,6 +53,13 @@ describe('layout: importer', function () {
     done()
   })
 
+  it('import a bad path', (done) => {
+    importer.import('/foo/bar/quux/a!wofjaeiwojfoiew', ds, function (err, stat) {
+      expect(err).to.exist
+      done()
+    })
+  })
+
   it('import a small file', (done) => {
     importer.import(small, ds, function (err, stat) {
       expect(err).to.not.exist

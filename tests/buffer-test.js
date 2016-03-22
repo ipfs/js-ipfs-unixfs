@@ -24,6 +24,7 @@ const marbuf = require('buffer!./test-data/200Bytes.txt.block')
 module.exports = function (repo) {
   describe('chunker: fixed size', function () {
     this.timeout(10000)
+
     it('256 Bytes chunks', function (done) {
       var counter = 0
       fileStream()
@@ -84,10 +85,7 @@ module.exports = function (repo) {
       var bs = new BlockService(repo)
       var ds = new DAGService(bs)
       var buf = smallBuf
-      importer.import({
-        buffer: buf,
-        dagService: ds
-      }, function (err, stat) {
+      importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
           expect(err).to.not.exist
@@ -105,11 +103,7 @@ module.exports = function (repo) {
       var buf = bigBuf
       var bs = new BlockService(repo)
       var ds = new DAGService(bs)
-      importer.import({
-        buffer: buf,
-        dagService: ds,
-        filename: 'Test.txt'
-      }, function (err, stat) {
+      importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
           expect(err).to.not.exist

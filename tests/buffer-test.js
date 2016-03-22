@@ -5,15 +5,7 @@ const DAGService = require('ipfs-merkle-dag').DAGService
 const DAGNode = require('ipfs-merkle-dag').DAGNode
 const UnixFS = require('ipfs-unixfs')
 
-const FixedSizeChunker = require('./../src/chunker-fixed-size')
 const expect = require('chai').expect
-const stringToStream = require('string-to-stream')
-const through = require('through2')
-
-const myFile = require('buffer!./test-data/1.2MiB.txt')
-const fileStream = function () {
-  return stringToStream(myFile)
-}
 
 const smallBuf = require('buffer!./test-data/200Bytes.txt')
 const bigBuf = require('buffer!./test-data/1.2MiB.txt')
@@ -22,63 +14,6 @@ const bigLink = require('buffer!./test-data/1.2MiB.txt.link-block0')
 const marbuf = require('buffer!./test-data/200Bytes.txt.block')
 
 module.exports = function (repo) {
-  describe('chunker: fixed size', function () {
-    this.timeout(10000)
-
-    it('256 Bytes chunks', function (done) {
-      var counter = 0
-      fileStream()
-        .pipe(FixedSizeChunker(256))
-        .pipe(through(function (chunk, enc, cb) {
-          if (chunk.length < 256) {
-            expect(counter).to.be.below(1)
-            counter += 1
-            return cb()
-          }
-          expect(chunk.length).to.equal(256)
-          cb()
-        }, () => {
-          done()
-        }))
-    })
-
-    it('256 KiB chunks', function (done) {
-      var counter = 0
-      var KiB256 = 262144
-      fileStream()
-        .pipe(FixedSizeChunker(KiB256))
-        .pipe(through((chunk, enc, cb) => {
-          if (chunk.length < 262144) {
-            expect(counter).to.be.below(1)
-            counter += 1
-            return cb()
-          }
-          expect(chunk.length).to.equal(262144)
-          cb()
-        }, () => {
-          done()
-        }))
-    })
-
-    it('256 KiB chunks of non scalar filesize', function (done) {
-      var counter = 0
-      var KiB256 = 262144
-      fileStream()
-        .pipe(FixedSizeChunker(KiB256))
-        .pipe(through((chunk, enc, cb) => {
-          if (chunk.length < KiB256) {
-            expect(counter).to.be.below(2)
-            counter += 1
-            return cb()
-          }
-          expect(chunk.length).to.equal(KiB256)
-          cb()
-        }, () => {
-          done()
-        }))
-    })
-  })
-
   describe('layout: importer', function () {
     it('import a small buffer', function (done) {
       // this is just like "import a small file"

@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
-    "2": "0.0.1",
     "brfs": "^1.4.3",
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",

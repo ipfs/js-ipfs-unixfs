@@ -1,9 +1,12 @@
+'use strict'
+
 const fs = require('fs')
 const path = require('path')
 const protobuf = require('protocol-buffers')
-const schema = fs.readFileSync(path.resolve(__dirname, 'unixfs.proto'))
+const schema = fs.readFileSync(path.resolve(__dirname, '../protos/unixfs.proto'))
 const pb = protobuf(schema)
-const unixfsData = pb.Data // encode/decode
+// encode/decode
+const unixfsData = pb.Data
 // const unixfsMetadata = pb.MetaData // encode/decode
 
 const types = [
@@ -13,8 +16,6 @@ const types = [
   'metadata',
   'symlink'
 ]
-
-exports = module.exports = Data
 
 function Data (type, data) {
   if (!(this instanceof Data)) {
@@ -38,7 +39,7 @@ function Data (type, data) {
 
   // data.length + blockSizes
   this.fileSize = () => {
-    var sum = 0
+    let sum = 0
     this.blockSizes.forEach((size) => {
       sum += size
     })
@@ -50,7 +51,7 @@ function Data (type, data) {
 
   // encode to protobuf
   this.marshal = () => {
-    var type
+    let type
 
     switch (this.type) {
       case 'raw': type = unixfsData.DataType.Raw; break
@@ -58,8 +59,10 @@ function Data (type, data) {
       case 'file': type = unixfsData.DataType.File; break
       case 'metadata': type = unixfsData.DataType.Metadata; break
       case 'symlink': type = unixfsData.DataType.Symlink; break
+      default:
+        throw new Error(`Unkown type: "${this.type}"`)
     }
-    var fileSize = this.fileSize()
+    let fileSize = this.fileSize()
 
     if (fileSize === 0) {
       fileSize = undefined
@@ -75,7 +78,7 @@ function Data (type, data) {
 }
 
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
-exports.unmarshal = (marsheled) => {
+Data.unmarshal = (marsheled) => {
   const decoded = unixfsData.decode(marsheled)
   if (!decoded.Data) {
     decoded.Data = undefined
@@ -84,3 +87,5 @@ exports.unmarshal = (marsheled) => {
   obj.blockSizes = decoded.blocksizes
   return obj
 }
+
+exports = module.exports = Data

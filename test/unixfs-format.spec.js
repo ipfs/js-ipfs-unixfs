@@ -1,7 +1,9 @@
-/* globals describe, it */
+/* eslint-env mocha */
+'use strict'
 
 const expect = require('chai').expect
 const fs = require('fs')
+const path = require('path')
 
 const UnixFS = require('../src')
 
@@ -79,7 +81,7 @@ describe('unixfs-format', () => {
     done()
   })
   it('wrong type', (done) => {
-    var data
+    let data
     try {
       data = new UnixFS('bananas')
     } catch (err) {
@@ -91,7 +93,7 @@ describe('unixfs-format', () => {
 
   describe('interop', () => {
     it('raw', (done) => {
-      var raw = fs.readFileSync(__dirname + '/test-data/raw.unixfs')
+      const raw = fs.readFileSync(path.join(__dirname, '/test-data/raw.unixfs'))
       const unmarsheled = UnixFS.unmarshal(raw)
       expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
       expect(unmarsheled.type).to.equal('file')
@@ -100,7 +102,7 @@ describe('unixfs-format', () => {
     })
 
     it('directory', (done) => {
-      var raw = fs.readFileSync(__dirname + '/test-data/directory.unixfs')
+      const raw = fs.readFileSync(path.join(__dirname, '/test-data/directory.unixfs'))
       const unmarsheled = UnixFS.unmarshal(raw)
       expect(unmarsheled.data).to.deep.equal(undefined)
       expect(unmarsheled.type).to.equal('directory')
@@ -109,7 +111,7 @@ describe('unixfs-format', () => {
     })
 
     it('file', (done) => {
-      var raw = fs.readFileSync(__dirname + '/test-data/file.txt.unixfs')
+      const raw = fs.readFileSync(path.join(__dirname, '/test-data/file.txt.unixfs'))
       const unmarsheled = UnixFS.unmarshal(raw)
       expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
       expect(unmarsheled.type).to.equal('file')
@@ -121,7 +123,7 @@ describe('unixfs-format', () => {
     })
 
     it('symlink', (done) => {
-      var raw = fs.readFileSync(__dirname + '/test-data/symlink.txt.unixfs')
+      const raw = fs.readFileSync(path.join(__dirname, '/test-data/symlink.txt.unixfs'))
       const unmarsheled = UnixFS.unmarshal(raw)
       expect(unmarsheled.data).to.deep.equal(new Buffer('file.txt'))
       expect(unmarsheled.type).to.equal('symlink')

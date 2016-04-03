@@ -10,7 +10,9 @@
     "test:browser": "dignified-test browser",
     "build": "dignified-build",
     "lint": "dignified-lint",
-    "release": "dignified-release"
+    "release": "dignified-release",
+    "release-minor": "dignified-release --minor",
+    "release-major": "dignified-release --major"
   },
   "repository": {
     "type": "git",

@@ -5,7 +5,7 @@ const path = require('path')
 const protobuf = require('protocol-buffers')
 
 const isNode = !global.window
-const schema = isNode ? fs.readFileSync(path.resolve(__dirname, '../protos/unixfs.proto')) : protobuf(require('buffer!../protos/unixfs.proto'))
+const schema = isNode ? fs.readFileSync(path.resolve(__dirname, '../protos/unixfs.proto')) : protobuf(require('buffer!'+path.resolve(__dirname, '../protos/unixfs.proto')))
 const pb = protobuf(schema)
 // encode/decode
 const unixfsData = pb.Data

@@ -34,3 +34,7 @@ node_modules
 
 dist
 lib
+
+# IntelliJ IDEA
+.idea
+js-ipfs-unixfs.iml

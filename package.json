@@ -34,7 +34,7 @@
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.4.1",
-    "dignified.js": "github:dignifiedquire/dignified.js",
+    "dignified.js": "^1.0.0",
     "fs-blob-store": "^5.2.1",
     "highland": "^2.7.1",
     "idb-plus-blob-store": "^1.0.0",

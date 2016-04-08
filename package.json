@@ -32,7 +32,7 @@
     "buffer-loader": "0.0.1",
     "chai": "^3.4.1",
     "fs-blob-store": "^5.2.1",
-    "highland": "^2.7.1",
+    "highland": "^2.7.4",
     "idb-plus-blob-store": "^1.0.0",
     "ipfs-repo": "^0.5.1",
     "istanbul": "^0.4.1",

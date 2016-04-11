@@ -1,4 +1,6 @@
 /* eslint-env mocha */
+'use strict'
+
 const importer = require('./../src')
 const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
@@ -17,9 +19,9 @@ module.exports = function (repo) {
   describe('layout: importer', function () {
     it('import a small buffer', function (done) {
       // this is just like "import a small file"
-      var bs = new BlockService(repo)
-      var ds = new DAGService(bs)
-      var buf = smallBuf
+      const bs = new BlockService(repo)
+      const ds = new DAGService(bs)
+      const buf = smallBuf
       importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
@@ -35,9 +37,9 @@ module.exports = function (repo) {
 
     it('import a big buffer', function (done) {
       // this is just like "import a big file"
-      var buf = bigBuf
-      var bs = new BlockService(repo)
-      var ds = new DAGService(bs)
+      const buf = bigBuf
+      const bs = new BlockService(repo)
+      const ds = new DAGService(bs)
       importer.import(buf, ds, function (err, stat) {
         expect(err).to.not.exist
         ds.get(stat.Hash, function (err, node) {
@@ -61,7 +63,7 @@ module.exports = function (repo) {
             expect(err).to.not.exist
             const leaf = new DAGNode()
 
-            var marbuf2 = bigLink
+            const marbuf2 = bigLink
             leaf.unMarshal(marbuf2)
             expect(node.links).to.deep.equal(leaf.links)
             expect(node.links.length).to.equal(0)

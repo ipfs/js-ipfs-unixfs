@@ -1,4 +1,6 @@
 /* eslint-env mocha */
+'use strict'
+
 const tests = require('./buffer-test')
 const async = require('async')
 const store = require('idb-plus-blob-store')
@@ -17,7 +19,7 @@ idb.deleteDatabase('ipfs/blocks')
 describe('IPFS data importing tests on the Browser', function () {
   before(function (done) {
     this.timeout(23000)
-    var repoData = []
+    const repoData = []
     repoContext.keys().forEach(function (key) {
       repoData.push({
         key: key.replace('./', ''),

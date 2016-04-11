@@ -1,4 +1,6 @@
 /* eslint-env mocha */
+'use strict'
+
 const importer = require('./../src')
 const expect = require('chai').expect
 const IPFSRepo = require('ipfs-repo')
@@ -31,7 +33,7 @@ describe('layout: importer', function () {
     }
   })
 
-  var ds
+  let ds
 
   it('start dag service', function (done) {
     const options = {
@@ -45,8 +47,8 @@ describe('layout: importer', function () {
         version: fsBlobStore
       }
     }
-    var repo = new IPFSRepo(process.env.IPFS_PATH, options)
-    var bs = new BlockService(repo)
+    const repo = new IPFSRepo(process.env.IPFS_PATH, options)
+    const bs = new BlockService(repo)
     ds = new DAGService(bs)
     expect(bs).to.exist
     expect(ds).to.exist
@@ -66,7 +68,7 @@ describe('layout: importer', function () {
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
         const smallDAGNode = new DAGNode()
-        var buf = fs.readFileSync(small + '.block')
+        const buf = fs.readFileSync(small + '.block')
         smallDAGNode.unMarshal(buf)
         expect(node.size()).to.equal(smallDAGNode.size())
         expect(node.multihash()).to.deep.equal(smallDAGNode.multihash())
@@ -82,7 +84,7 @@ describe('layout: importer', function () {
         expect(err).to.not.exist
 
         const bigDAGNode = new DAGNode()
-        var buf = fs.readFileSync(big + '.block')
+        const buf = fs.readFileSync(big + '.block')
         bigDAGNode.unMarshal(buf)
         expect(node.size()).to.equal(bigDAGNode.size())
         expect(node.links).to.deep.equal(bigDAGNode.links)
@@ -100,7 +102,7 @@ describe('layout: importer', function () {
         ds.get(node.links[0].hash, (err, node) => {
           expect(err).to.not.exist
           const leaf = new DAGNode()
-          var buf2 = fs.readFileSync(big + '.link-block0')
+          const buf2 = fs.readFileSync(big + '.link-block0')
           leaf.unMarshal(buf2)
           expect(node.links).to.deep.equal(leaf.links)
           expect(node.links.length).to.equal(0)
@@ -129,7 +131,7 @@ describe('layout: importer', function () {
       ds.get(stats.Hash, (err, node) => {
         expect(err).to.not.exist
         const dirSmallNode = new DAGNode()
-        var buf = fs.readFileSync(dirSmall + '.block')
+        const buf = fs.readFileSync(dirSmall + '.block')
         dirSmallNode.unMarshal(buf)
         expect(node.links).to.deep.equal(dirSmallNode.links)
 
@@ -156,7 +158,7 @@ describe('layout: importer', function () {
       ds.get(stats.Hash, (err, node) => {
         expect(err).to.not.exist
         const dirNode = new DAGNode()
-        var buf = fs.readFileSync(dirBig + '.block')
+        const buf = fs.readFileSync(dirBig + '.block')
         dirNode.unMarshal(buf)
         expect(node.links).to.deep.equal(dirNode.links)
 
@@ -186,7 +188,7 @@ describe('layout: importer', function () {
         expect(node.links.length).to.equal(3)
 
         const dirNode = new DAGNode()
-        var buf = fs.readFileSync(dirNested + '.block')
+        const buf = fs.readFileSync(dirNested + '.block')
         dirNode.unMarshal(buf)
         expect(node.links).to.deep.equal(dirNode.links)
         expect(node.data).to.deep.equal(dirNode.data)
@@ -197,13 +199,13 @@ describe('layout: importer', function () {
 
   it('import a small buffer', (done) => {
     // this is just like "import a small file"
-    var buf = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
+    const buf = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
     importer.import(buf, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
         const smallDAGNode = new DAGNode()
-        var marbuf = fs.readFileSync(small + '.block')
+        const marbuf = fs.readFileSync(small + '.block')
         smallDAGNode.unMarshal(marbuf)
         expect(node.size()).to.equal(smallDAGNode.size())
         expect(node.multihash()).to.deep.equal(smallDAGNode.multihash())
@@ -214,14 +216,14 @@ describe('layout: importer', function () {
 
   it('import a big buffer', (done) => {
     // this is just like "import a big file"
-    var buf = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
+    const buf = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
     importer.import(buf, ds, function (err, stat) {
       expect(err).to.not.exist
       ds.get(stat.Hash, (err, node) => {
         expect(err).to.not.exist
 
         const bigDAGNode = new DAGNode()
-        var marbuf = fs.readFileSync(big + '.block')
+        const marbuf = fs.readFileSync(big + '.block')
         bigDAGNode.unMarshal(marbuf)
         expect(node.size()).to.equal(bigDAGNode.size())
         expect(node.links).to.deep.equal(bigDAGNode.links)
@@ -240,7 +242,7 @@ describe('layout: importer', function () {
           expect(err).to.not.exist
           const leaf = new DAGNode()
 
-          var marbuf2 = fs.readFileSync(big + '.link-block0')
+          const marbuf2 = fs.readFileSync(big + '.link-block0')
           leaf.unMarshal(marbuf2)
           expect(node.links).to.deep.equal(leaf.links)
           expect(node.links.length).to.equal(0)
@@ -266,7 +268,7 @@ describe('layout: importer', function () {
 
   it.skip('export a file by hash', (done) => {
     // TODO Create tests and function for exporting data
-    var hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
+    const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
     importer.export({
       hash: hash,
       dagService: ds
@@ -276,4 +278,3 @@ describe('layout: importer', function () {
     })
   })
 })
-

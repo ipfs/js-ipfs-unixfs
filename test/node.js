@@ -6,10 +6,11 @@ const fs = require('fs')
 const ncp = require('ncp').ncp
 const rimraf = require('rimraf')
 const expect = require('chai').expect
+const path = require('path')
 
 describe('core', () => {
-  const repoExample = process.cwd() + '/tests/repo-example'
-  const repoTests = process.cwd() + '/tests/repo-tests' + Date.now()
+  const repoExample = path.join(process.cwd(), '/test/repo-example')
+  const repoTests = path.join(process.cwd(), '/test/repo-tests' + Date.now())
 
   before((done) => {
     ncp(repoExample, repoTests, (err) => {
@@ -35,9 +36,9 @@ describe('core', () => {
         file === 'buffer-test.js' ||
         file.indexOf('repo-tests') > -1) {
       return false
-    } else {
-      return true
     }
+
+    return true
   }).forEach((file) => {
     require('./' + file)
   })

@@ -4,10 +4,12 @@
   "description": "JavaScript implementation of the layout and chunking mechanisms used by IPFS",
   "main": "src/index.js",
   "scripts": {
-    "lint": "standard",
-    "test": "npm run test:node && npm run test:browser",
-    "test:node": "mocha tests/index.js",
-    "test:browser": "karma start karma.conf.js"
+    "lint": "dignified-lint",
+    "build": "dignified-build",
+    "test": "dignified-test",
+    "test:node": "dignified-test node",
+    "test:browser": "dignified-test browser",
+    "release": "dignified-release"
   },
   "pre-commit": [
     "lint",
@@ -15,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/diasdavid/js-ipfs-data-importing.git"
+    "url": "git+https://github.com/ipfs/js-ipfs-data-importing.git"
   },
   "keywords": [
     "IPFS"
@@ -28,9 +30,11 @@
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
     "brfs": "^1.4.3",
+    "block-stream2": "^1.1.0",
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.4.1",
+    "dignified.js": "^1.0.0",
     "fs-blob-store": "^5.2.1",
     "highland": "^2.7.1",
     "idb-plus-blob-store": "^1.0.0",
@@ -50,10 +54,7 @@
     "pre-commit": "^1.1.2",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.5.1",
-    "standard": "^6.0.8",
-    "string-to-stream": "^1.0.1",
-    "transform-loader": "^0.2.3",
-    "webpack": "^2.0.7-beta"
+    "string-to-stream": "^1.0.1"
   },
   "dependencies": {
     "async": "^1.5.2",

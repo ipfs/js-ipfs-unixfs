@@ -36,7 +36,7 @@
     "chai": "^3.4.1",
     "dignified.js": "^1.0.0",
     "fs-blob-store": "^5.2.1",
-    "highland": "^2.7.1",
+    "highland": "^2.7.4",
     "idb-plus-blob-store": "^1.0.0",
     "ipfs-repo": "^0.6.1",
     "istanbul": "^0.4.1",

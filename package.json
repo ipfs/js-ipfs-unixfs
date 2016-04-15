@@ -5,14 +5,16 @@
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",
   "scripts": {
-    "test": "dignified-test",
-    "test:node": "dignified-test node",
-    "test:browser": "dignified-test browser",
-    "build": "dignified-build",
-    "lint": "dignified-lint",
-    "release": "dignified-release",
-    "release-minor": "dignified-release --minor",
-    "release-major": "dignified-release --major"
+    "test": "aegir-test",
+    "test:node": "aegir-test node",
+    "test:browser": "aegir-test browser",
+    "build": "aegir-build",
+    "lint": "aegir-lint",
+    "release": "aegir-release",
+    "release-minor": "aegir-release --minor",
+    "release-major": "aegir-release --major",
+    "coverage": "aegir-coverage",
+    "coverage-publish": "aegir-coverage publish"
   },
   "repository": {
     "type": "git",
@@ -28,11 +30,15 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
+    "aegir": "^2.1.1",
     "chai": "^3.5.0",
-    "dignified.js": "github:dignifiedquire/dignified.js",
     "pre-commit": "^1.1.2"
   },
   "dependencies": {
     "protocol-buffers": "^3.1.5"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
 }

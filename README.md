@@ -4,7 +4,7 @@ ipfs-unixfs JavaScript Implementation
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
 [![Build Status](https://travis-ci.org/ipfs/js-ipfs-unixfs.svg?style=flat-square&branch=master)](https://travis-ci.org/ipfs/js-ipfs-unixfs)
-![](https://img.shields.io/badge/coverage-%3F%25-yellow.svg?style=flat-square)
+[![Coverage Status](https://coveralls.io/repos/github/ipfs/js-ipfs-unixfs/badge.svg?branch=master)](https://coveralls.io/github/ipfs/js-ipfs-unixfs?branch=master)
 [![Dependency Status](https://david-dm.org/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-unixfs)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
 

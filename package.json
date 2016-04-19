@@ -11,6 +11,8 @@
     "test:node": "aegir-test node",
     "test:browser": "aegir-test browser",
     "release": "aegir-release",
+    "release-minor": "aegir-release minor",
+    "release-major": "aegir-release major",
     "coverage": "aegir-coverage",
     "coverage-publish": "aegir-coverage publish"
   },

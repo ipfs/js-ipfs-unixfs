@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('./../src')
+const unixFSEngine = require('./../src')
+const importer = unixFSEngine.importer
+const exporter = unixFSEngine.exporter
 const expect = require('chai').expect
 const IPFSRepo = require('ipfs-repo')
 const BlockService = require('ipfs-blocks').BlockService
@@ -269,7 +271,7 @@ describe('layout: importer', function () {
 describe('layout: exporter', function () {
   it('export a file with no links', (done) => {
     const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
-    const testExport = importer.export(hash, ds)
+    const testExport = exporter(hash, ds)
     testExport.on('file', (data) => {
       ds.get(hash, (err, fetchedNode) => {
         expect(err).to.not.exist
@@ -282,7 +284,7 @@ describe('layout: exporter', function () {
 
   it('export a small file with links', (done) => {
     const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
-    const testExport = importer.export(hash, ds)
+    const testExport = exporter(hash, ds)
     testExport.on('file', (data) => {
       var ws = fs.createWriteStream(path.join(process.cwd(), '/test', data.path))
       data.stream.pipe(ws)
@@ -297,7 +299,7 @@ describe('layout: exporter', function () {
 
   it('export a large file > 5mb', (done) => {
     const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
-    const testExport = importer.export(hash, ds)
+    const testExport = exporter(hash, ds)
     testExport.on('file', (data) => {
       var ws = fs.createWriteStream(path.join(process.cwd(), '/test', data.path))
       data.stream.pipe(ws)
@@ -312,7 +314,7 @@ describe('layout: exporter', function () {
 
   it('export a directory', (done) => {
     const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
-    var testExport = importer.export(hash, ds)
+    var testExport = exporter(hash, ds)
     var fs = []
     var x = 0
     testExport.on('file', (data) => {

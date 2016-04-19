@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('./../src')
+const unixFSEngine = require('./../src')
+const importer = unixFSEngine.importer
+const exporter = unixFSEngine.exporter
 const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
 const DAGNode = require('ipfs-merkle-dag').DAGNode
@@ -87,7 +89,7 @@ module.exports = function (repo) {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
-      const testExport = importer.export(hash, ds)
+      const testExport = exporter(hash, ds)
       testExport.on('file', (data) => {
         ds.get(hash, (err, fetchedNode) => {
           expect(err).to.not.exist
@@ -102,7 +104,7 @@ module.exports = function (repo) {
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
-      const testExport = importer.export(hash, ds)
+      const testExport = exporter(hash, ds)
       testExport.on('file', (data) => {
         expect(data.stream).to.exist
         done()
@@ -113,7 +115,7 @@ module.exports = function (repo) {
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
-      const testExport = importer.export(hash, ds)
+      const testExport = exporter(hash, ds)
       testExport.on('file', (data) => {
         expect(data.stream).to.exist
         done()
@@ -124,7 +126,7 @@ module.exports = function (repo) {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
-      const testExport = importer.export(hash, ds)
+      const testExport = exporter(hash, ds)
       var fs = []
       testExport.on('file', (data) => {
         fs.push(data)

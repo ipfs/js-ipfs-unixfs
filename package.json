@@ -49,12 +49,14 @@
     "pre-commit": "^1.1.2",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.5.1",
+    "streamifier": "^0.1.1",
     "string-to-stream": "^1.0.1"
   },
   "dependencies": {
     "async": "^1.5.2",
     "block-stream2": "^1.1.0",
     "debug": "^2.2.0",
+    "eventemitter2": "^1.0.0",
     "ipfs-blocks": "^0.2.0",
     "ipfs-merkle-dag": "^0.4.0",
     "ipfs-unixfs": "^0.1.0",

@@ -16,8 +16,9 @@ let ds
 
 module.exports = function (repo) {
   describe('importer', function () {
-    const big = path.join(__dirname, '/test-data/1.2MiB.txt')
-    const small = path.join(__dirname, '/test-data/200Bytes.txt')
+    const bigFile = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
+    const smallFile = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
+
     // const dirSmall = path.join(__dirname, '/test-data/dir-small')
     // const dirBig = path.join(__dirname, '/test-data/dir-big')
     // const dirNested = path.join(__dirname, '/test-data/dir-nested')
@@ -31,7 +32,7 @@ module.exports = function (repo) {
     })
 
     it('small file (smaller than a chunk)', (done) => {
-      const buffered = fs.readFileSync(small)
+      const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
       i.on('file', (file) => {
@@ -45,7 +46,7 @@ module.exports = function (repo) {
     })
 
     it('small file (smaller than a chunk) inside a dir', (done) => {
-      const buffered = fs.readFileSync(small)
+      const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
       var counter = 0
@@ -75,7 +76,7 @@ module.exports = function (repo) {
     })
 
     it('file bigger than a single chunk', (done) => {
-      const buffered = fs.readFileSync(big)
+      const buffered = bigFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
       i.on('file', (file) => {
@@ -89,7 +90,7 @@ module.exports = function (repo) {
     })
 
     it('file bigger than a single chunk inside a dir', (done) => {
-      const buffered = fs.readFileSync(big)
+      const buffered = bigFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
       var counter = 0

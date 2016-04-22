@@ -69,5 +69,12 @@
     "dignifiedquire <dignifiedquire@gmail.com>",
     "greenkeeperio-bot <support@greenkeeper.io>",
     "nginnever <ginneversource@gmail.com>"
-  ]
+  ],
+  "aegir": {
+    "webpack": {
+      "node": {
+        "stream": true
+      }
+    }
+  }
 }

@@ -10,15 +10,17 @@ const path = require('path')
 const isNode = !global.window
 
 let fileStream
+
 if (isNode) {
-  fileStream = function () {
-    return fs.createReadStream(path.join(__dirname, '/test-data/1MiB.txt'))
-  }
+  fileStream = () => stringToStream(
+    fs.readFileSync(
+      path.join(__dirname, '/test-data/1MiB.txt')
+    ).toString('hex')
+  )
 } else {
-  const myFile = require('buffer!./test-data/1MiB.txt')
-  fileStream = function () {
-    return stringToStream(myFile)
-  }
+  fileStream = () => stringToStream(
+    require('buffer!./test-data/1MiB.txt')
+  )
 }
 
 describe('chunker: fixed size', function () {

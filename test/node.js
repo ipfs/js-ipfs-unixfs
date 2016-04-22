@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-
 'use strict'
 
 const fs = require('fs')
@@ -7,6 +6,7 @@ const ncp = require('ncp').ncp
 const rimraf = require('rimraf')
 const expect = require('chai').expect
 const path = require('path')
+const IPFSRepo = require('ipfs-repo')
 
 describe('core', () => {
   const repoExample = path.join(process.cwd(), '/test/repo-example')
@@ -27,19 +27,10 @@ describe('core', () => {
     })
   })
 
+  const fsb = require ('fs-blob-store')
+  const repo = new IPFSRepo(repoTests, {stores: fsb})
   const tests = fs.readdirSync(__dirname)
-  tests.filter((file) => {
-    if (file === 'index.js' ||
-        file === 'browser.js' ||
-        file === 'test-data' ||
-        file === 'repo-example' ||
-        file === 'browser-test.js' ||
-        file.indexOf('repo-tests') > -1) {
-      return false
-    }
-
-    return true
-  }).forEach((file) => {
-    require('./' + file)
-  })
+  require('./test-exporter')(repo)
+  require('./test-importer')(repo)
+  require('./test-fixed-size-chunker')
 })

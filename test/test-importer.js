@@ -15,7 +15,9 @@ const path = require('path')
 const streamifier = require('streamifier')
 
 let ds
+let r
 
+module.exports = function (repo) {
 describe('importer', function () {
   const big = path.join(__dirname, '/test-data/1.2MiB.txt')
   const small = path.join(__dirname, '/test-data/200Bytes.txt')
@@ -42,7 +44,7 @@ describe('importer', function () {
 
   before((done) => {
     const options = { stores: fsBS }
-    const r = new Repo(process.env.IPFS_PATH, options)
+    r = repo
     const bs = new BlockService(r)
     expect(bs).to.exist
     ds = new DAGService(bs)
@@ -287,3 +289,4 @@ describe('importer', function () {
     })
   })
 */
+}

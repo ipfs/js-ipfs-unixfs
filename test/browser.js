@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const tests = require('./browser-test')
 const async = require('async')
 const store = require('idb-plus-blob-store')
 const _ = require('lodash')
@@ -51,12 +50,13 @@ describe('IPFS data importing tests on the Browser', function () {
       keys: store,
       config: store,
       datastore: store,
-      // datastoreLegacy: needs https://github.com/ipfs/js-ipfs-repo/issues/6#issuecomment-164650642
       logs: store,
       locks: store,
       version: store
     }
   }
   const repo = new IPFSRepo('ipfs', options)
-  tests(repo)
+  require('./test-exporter')(repo)
+  require('./test-importer')(repo)
+  require('./test-fixed-size-chunker')
 })

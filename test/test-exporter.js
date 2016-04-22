@@ -4,20 +4,27 @@
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
 const expect = require('chai').expect
-const IPFSRepo = require('ipfs-repo')
 const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
-const DAGNode = require('ipfs-merkle-dag').DAGNode
-const fsBlobStore = require('fs-blob-store')
-const bs58 = require('bs58')
+const fsBS = require('fs-blob-store')
 const fs = require('fs')
 const UnixFS = require('ipfs-unixfs')
 const path = require('path')
+const Repo = require('ipfs-repo')
 
 let ds
 
-/*
 describe('exporter', function () {
+  before((done) => {
+    const options = { stores: fsBS }
+    const r = new Repo(process.env.IPFS_PATH, options)
+    const bs = new BlockService(r)
+    expect(bs).to.exist
+    ds = new DAGService(bs)
+    expect(ds).to.exist
+    done()
+  })
+
   it('export a file with no links', (done) => {
     const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
     const testExport = exporter(hash, ds)
@@ -79,4 +86,4 @@ describe('exporter', function () {
     })
   })
 })
-*/
+

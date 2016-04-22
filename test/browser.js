@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const tests = require('./buffer-test')
+const tests = require('./browser-test')
 const async = require('async')
 const store = require('idb-plus-blob-store')
 const _ = require('lodash')

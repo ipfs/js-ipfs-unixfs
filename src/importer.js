@@ -7,7 +7,7 @@ const fsc = require('./chunker-fixed-size')
 const through2 = require('through2')
 const merkleDAG = require('ipfs-merkle-dag')
 const UnixFS = require('ipfs-unixfs')
-const EE2 = require('EventEmitter2').EventEmitter2
+const EE2 = require('eventemitter2').EventEmitter2
 const util = require('util')
 const bs58 = require('bs58')
 

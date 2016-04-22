@@ -33,7 +33,7 @@ describe('core', () => {
         file === 'browser.js' ||
         file === 'test-data' ||
         file === 'repo-example' ||
-        file === 'buffer-test.js' ||
+        file === 'browser-test.js' ||
         file.indexOf('repo-tests') > -1) {
       return false
     }

@@ -36,28 +36,28 @@
   "devDependencies": {
     "aegir": "^2.1.1",
     "block-stream2": "^1.1.0",
-    "brfs": "^1.4.3",
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.5.0",
     "fs-blob-store": "^5.2.1",
-    "highland": "^2.7.4",
     "idb-plus-blob-store": "^1.0.0",
     "ipfs-repo": "^0.6.1",
-    "mocha": "^2.3.4",
     "ncp": "^2.0.0",
     "pre-commit": "^1.1.2",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.5.1",
+    "streamifier": "^0.1.1",
     "string-to-stream": "^1.0.1"
   },
   "dependencies": {
     "async": "^1.5.2",
     "block-stream2": "^1.1.0",
     "debug": "^2.2.0",
+    "eventemitter2": "^1.0.0",
     "ipfs-blocks": "^0.2.0",
     "ipfs-merkle-dag": "^0.4.0",
     "ipfs-unixfs": "^0.1.0",
+    "readable-stream": "2.0.6",
     "through2": "^2.0.0"
   },
   "contributors": [

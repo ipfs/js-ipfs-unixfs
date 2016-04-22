@@ -1,6 +1,5 @@
-
 .DS_Store
-tests/repo-tests*
+test/repo-tests*
 
 # Logs
 logs

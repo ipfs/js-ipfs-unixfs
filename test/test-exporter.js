@@ -6,21 +6,14 @@ const exporter = unixFSEngine.exporter
 const expect = require('chai').expect
 const BlockService = require('ipfs-blocks').BlockService
 const DAGService = require('ipfs-merkle-dag').DAGService
-const fsBS = require('fs-blob-store')
-const fs = require('fs')
 const UnixFS = require('ipfs-unixfs')
-const path = require('path')
-const Repo = require('ipfs-repo')
 
 let ds
-let r
 
 module.exports = function (repo) {
   describe('exporter', function () {
     before((done) => {
-      const options = { stores: fsBS }
-      r = repo
-      const bs = new BlockService(r)
+      const bs = new BlockService(repo)
       expect(bs).to.exist
       ds = new DAGService(bs)
       expect(ds).to.exist

@@ -7,21 +7,12 @@ const expect = require('chai').expect
 const stringToStream = require('string-to-stream')
 const through = require('through2')
 const path = require('path')
-const isNode = !global.window
 
-let fileStream
-
-if (isNode) {
-  fileStream = () => stringToStream(
-    fs.readFileSync(
-      path.join(__dirname, '/test-data/1MiB.txt')
-    ).toString('hex')
-  )
-} else {
-  fileStream = () => stringToStream(
-    require('buffer!./test-data/1MiB.txt')
-  )
-}
+const fileStream = () => stringToStream(
+  fs.readFileSync(
+    path.join(__dirname, '/test-data/1MiB.txt')
+  ).toString('hex')
+)
 
 describe('chunker: fixed size', function () {
   it('256 Bytes chunks', function (done) {

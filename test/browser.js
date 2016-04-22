@@ -45,17 +45,8 @@ describe('IPFS data importing tests on the Browser', function () {
   })
 
   // create the repo constant to be used in the import a small buffer test
-  const options = {
-    stores: {
-      keys: store,
-      config: store,
-      datastore: store,
-      logs: store,
-      locks: store,
-      version: store
-    }
-  }
-  const repo = new IPFSRepo('ipfs', options)
+  const repo = new IPFSRepo('ipfs', {stores: store})
+
   require('./test-exporter')(repo)
   require('./test-importer')(repo)
   require('./test-fixed-size-chunker')

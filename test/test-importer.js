@@ -68,7 +68,7 @@ module.exports = function (repo) {
           done()
         }
       })
-      i.on('err', (err) => {
+      i.on('error', (err) => {
         expect(err).to.not.exist
       })
       i.add({path: 'foo/bar/200Bytes.txt', stream: r})
@@ -152,7 +152,7 @@ module.exports = function (repo) {
           done()
         }
       })
-      i.on('err', (err) => {
+      i.on('error', (err) => {
         expect(err).to.not.exist
       })
       i.add({path: 'pim/200Bytes.txt', stream: r1})
@@ -193,7 +193,7 @@ module.exports = function (repo) {
           done()
         }
       })
-      i.on('err', (err) => {
+      i.on('error', (err) => {
         expect(err).to.not.exist
       })
       i.add({path: 'pam/pum/200Bytes.txt', stream: r1})

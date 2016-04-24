@@ -41,7 +41,8 @@ function Importer (dagService, options) {
       n.data = d.marshal()
       dagService.add(n, (err) => {
         if (err) {
-          return this.emit('err', 'Failed to store' + fl.path)
+          this.emit('error', `Failed to store: ${fl.path}`)
+          return
         }
         const el = {
           path: fl.path,
@@ -72,9 +73,10 @@ function Importer (dagService, options) {
         const l = new UnixFS('file', chunk)
         const n = new merkleDAG.DAGNode(l.marshal())
 
-        dagService.add(n, function (err) {
+        dagService.add(n, (err) => {
           if (err) {
-            return this.emit('err', 'Failed to store chunk of' + fl.path)
+            this.emit('error', `Failed to store chunk of: ${fl.path}`)
+            return cb(err)
           }
 
           leaves.push({
@@ -118,7 +120,7 @@ function Importer (dagService, options) {
         n.data = f.marshal()
         dagService.add(n, (err) => {
           if (err) {
-            this.emit('err', 'Failed to store' + fl.path)
+            this.emit('error', `Failed to store: ${fl.path}`)
             return cb()
           }
 
@@ -134,6 +136,7 @@ function Importer (dagService, options) {
           return done(cb)
         })
       }))
+
     function done (cb) {
       counter--
       cb()
@@ -242,7 +245,7 @@ function Importer (dagService, options) {
       n.data = d.marshal()
       dagService.add(n, (err) => {
         if (err) {
-          this.emit('err', 'failed to store dirNode')
+          this.emit('error', 'failed to store dirNode')
         }
       })
 

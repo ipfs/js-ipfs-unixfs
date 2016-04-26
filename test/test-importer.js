@@ -31,36 +31,27 @@ module.exports = function (repo) {
       done()
     })
 
-    it.skip('small file (smaller than a chunk)', (done) => {
+    it('small file (smaller than a chunk)', (done) => {
       const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
-      console.log('zeeeee')
-      i.on('readable', () => {
-        console.log('yeee')
-        const obj = i.read()
-        console.log(obj)
+      i.on('data', (obj) => {
         expect(obj.path).to.equal('200Bytes.txt')
         expect(bs58.encode(obj.multihash)).to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
         expect(obj.size).to.equal(211)
-        i.finish()
       })
       i.write({path: '200Bytes.txt', stream: r})
       i.end()
-      i.on('end', ()=>{
-        //done()
-        console.log('end fired')
+      i.on('end', () => {
+        done()
       })
-      //i.finish()
     })
 
-    it.skip('small file (smaller than a chunk) inside a dir', (done) => {
+    it('small file (smaller than a chunk) inside a dir', (done) => {
       const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
-      var counter = 0
-      i.on('file', (file) => {
-        counter++
+      i.on('data', (file) => {
         if (file.path === 'foo/bar/200Bytes.txt') {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
@@ -73,38 +64,38 @@ module.exports = function (repo) {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmQrb6KKWGo8w7zKfx2JksptY6wN7B2ysSBdKZr4xMU36d')
         }
-        if (counter === 3) {
-          done()
-        }
       })
       i.on('error', (err) => {
         expect(err).to.not.exist
       })
-      i.add({path: 'foo/bar/200Bytes.txt', stream: r})
-      i.finish()
+      i.on('end', () => {
+        done()
+      })
+      i.write({path: 'foo/bar/200Bytes.txt', stream: r})
+      i.end()
     })
 
-    it.skip('file bigger than a single chunk', (done) => {
+    it('file bigger than a single chunk', (done) => {
       const buffered = bigFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
-      i.on('file', (file) => {
+      i.on('data', (file) => {
         expect(file.path).to.equal('1.2MiB.txt')
         expect(bs58.encode(file.multihash)).to.equal('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
         expect(file.size).to.equal(1258318)
+      })
+      i.on('end', () => {
         done()
       })
-      i.add({path: '1.2MiB.txt', stream: r})
-      i.finish()
+      i.write({path: '1.2MiB.txt', stream: r})
+      i.end()
     })
 
-    it.skip('file bigger than a single chunk inside a dir', (done) => {
+    it('file bigger than a single chunk inside a dir', (done) => {
       const buffered = bigFile
       const r = streamifier.createReadStream(buffered)
       const i = new Importer(ds)
-      var counter = 0
-      i.on('file', (file) => {
-        counter++
+      i.on('data', (file) => {
         if (file.path === 'foo-big/1.2Mib.txt') {
           expect(bs58.encode(file.multihash)).to.equal('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
           expect(file.size).to.equal(1258318)
@@ -113,38 +104,41 @@ module.exports = function (repo) {
           expect(bs58.encode(file.multihash)).to.equal('QmaFgyFJUP4fxFySJCddg2Pj6rpwSywopWk87VEVv52RSj')
           expect(file.size).to.equal(1258376)
         }
-        if (counter === 2) {
-          done()
-        }
       })
-      i.add({path: 'foo-big/1.2MiB.txt', stream: r})
-      i.finish()
+      i.on('end', () => {
+        done()
+      })
+      i.write({path: 'foo-big/1.2MiB.txt', stream: r})
+      i.end()
     })
 
     it.skip('file (that chunk number exceeds max links)', (done) => {
       // TODO
     })
 
-    it.skip('empty directory', (done) => {
+    it('empty directory', (done) => {
       const i = new Importer(ds)
-      i.on('file', (file) => {
+      i.on('data', (file) => {
         expect(file.path).to.equal('empty-dir')
         expect(bs58.encode(file.multihash)).to.equal('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
         expect(file.size).to.equal(4)
+      })
+      i.on('error', (err) => {
+        expect(err).to.not.exist
+      })
+      i.on('end', () => {
         done()
       })
-      i.add({path: 'empty-dir'})
-      i.finish()
+      i.write({path: 'empty-dir'})
+      i.end()
     })
 
-    it.skip('directory with files', (done) => {
+    it('directory with files', (done) => {
       const r1 = streamifier.createReadStream(smallFile)
       const r2 = streamifier.createReadStream(bigFile)
 
       const i = new Importer(ds)
-      var counter = 0
-      i.on('file', (file) => {
-        counter++
+      i.on('data', (file) => {
         if (file.path === 'pim/200Bytes.txt') {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
@@ -157,27 +151,25 @@ module.exports = function (repo) {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i')
         }
-        if (counter === 3) {
-          done()
-        }
       })
       i.on('error', (err) => {
         expect(err).to.not.exist
       })
-      i.add({path: 'pim/200Bytes.txt', stream: r1})
-      i.add({path: 'pim/1.2MiB.txt', stream: r2})
-      i.finish()
+      i.on('end', () => {
+        done()
+      })
+      i.write({path: 'pim/200Bytes.txt', stream: r1})
+      i.write({path: 'pim/1.2MiB.txt', stream: r2})
+      i.end()
     })
 
-    it.skip('nested directory (2 levels deep)', (done) => {
+    it('nested directory (2 levels deep)', (done) => {
       const r1 = streamifier.createReadStream(smallFile)
       const r2 = streamifier.createReadStream(bigFile)
       const r3 = streamifier.createReadStream(bigFile)
 
       const i = new Importer(ds)
-      var counter = 0
-      i.on('file', (file) => {
-        counter++
+      i.on('data', (file) => {
         if (file.path === 'pam/pum/200Bytes.txt') {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
@@ -198,17 +190,17 @@ module.exports = function (repo) {
           expect(bs58.encode(file.multihash).toString())
             .to.equal('QmRgdtzNx1H1BPJqShdhvWZ2D4DA2HUgZJ3XLtoXei27Av')
         }
-        if (counter === 5) {
-          done()
-        }
       })
       i.on('error', (err) => {
         expect(err).to.not.exist
       })
-      i.add({path: 'pam/pum/200Bytes.txt', stream: r1})
-      i.add({path: 'pam/pum/1.2MiB.txt', stream: r2})
-      i.add({path: 'pam/1.2MiB.txt', stream: r3})
-      i.finish()
+      i.on('end', () => {
+        done()
+      })
+      i.write({path: 'pam/pum/200Bytes.txt', stream: r1})
+      i.write({path: 'pam/pum/1.2MiB.txt', stream: r2})
+      i.write({path: 'pam/1.2MiB.txt', stream: r3})
+      i.end()
     })
   })
 }

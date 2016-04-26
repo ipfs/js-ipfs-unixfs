@@ -7,17 +7,19 @@ const fsc = require('./chunker-fixed-size')
 const through2 = require('through2')
 const merkleDAG = require('ipfs-merkle-dag')
 const UnixFS = require('ipfs-unixfs')
-const EE2 = require('eventemitter2').EventEmitter2
 const util = require('util')
 const bs58 = require('bs58')
+const Duplex = require('readable-stream').Duplex
 
 exports = module.exports = Importer
 
 const CHUNK_SIZE = 262144
 
-util.inherits(Importer, EE2)
+util.inherits(Importer, Duplex)
 
 function Importer (dagService, options) {
+  Duplex.call(this, { objectMode: true })
+
   if (!(this instanceof Importer)) {
     return new Importer(dagService)
   }
@@ -29,7 +31,10 @@ function Importer (dagService, options) {
   const files = []
   var counter = 0
 
-  this.add = (fl) => {
+  this._read = (n) => {}
+
+  this._write = (fl, enc, next) => {
+    this.read()
     counter++
     if (!fl.stream) {
       // 1. create the empty dir dag node
@@ -50,15 +55,15 @@ function Importer (dagService, options) {
           size: n.size(),
           dataSize: d.fileSize()
         }
-
         files.push(el)
-        this.emit('file', el)
+        this.push(el)
+        counter--
+        next()
       })
       return
     }
 
     const leaves = []
-
     fl.stream
       .pipe(fsc(CHUNK_SIZE))
       .pipe(through2((chunk, enc, cb) => {
@@ -75,7 +80,7 @@ function Importer (dagService, options) {
 
         dagService.add(n, (err) => {
           if (err) {
-            this.emit('error', `Failed to store chunk of: ${fl.path}`)
+            this.push({error: 'Failed to store chunk of: ${fl.path}'})
             return cb(err)
           }
 
@@ -101,7 +106,7 @@ function Importer (dagService, options) {
           }
 
           files.push(el)
-          this.emit('file', el)
+          this.push(el)
           return done(cb)
         }
         // 1. create a parent node and add all the leafs
@@ -120,7 +125,8 @@ function Importer (dagService, options) {
         n.data = f.marshal()
         dagService.add(n, (err) => {
           if (err) {
-            this.emit('error', `Failed to store: ${fl.path}`)
+            // this.emit('error', `Failed to store: ${fl.path}`)
+            this.push({ error: 'Failed to store chunk of: ${fl.path}' })
             return cb()
           }
 
@@ -132,146 +138,140 @@ function Importer (dagService, options) {
           }
 
           files.push(el)
-          this.emit('file', el)
+          // this.emit('file', el)
+          this.push(el)
           return done(cb)
         })
       }))
 
     function done (cb) {
       counter--
+      next()
       cb()
     }
   }
 
-  this.finish = () => {
-    // if (files.length === 1) {
-    //  // The file was already emitted, nothing to do here
-    //  return
-    // }
+  this.end = () => {
+    finish.call(this)
 
-    if (counter > 0) {
-      return setTimeout(this.finish, 200)
-    }
-
-    // file struct
-    // {
-    //   path: // full path
-    //   multihash: // multihash of the dagNode
-    //   size: // cumulative size
-    //   dataSize: // dagNode size
-    // }
-
-    // 1) convert files to a tree
-    // for each path, split, add to a json tree and in the end the name of the
-    // file points to an object that is has a key multihash and respective value
-    // { foo: { bar: { baz.txt: <multihash> }}}
-    // the stop condition is if the value is not an object
-    const fileTree = {}
-
-    files.forEach((file) => {
-      let splitted = file.path.split('/')
-      if (splitted.length === 1) {
-        return // adding just one file
-        // fileTree[file.path] = bs58.encode(file.multihash).toString()
+    function finish () {
+      if (counter > 0) {
+        return setTimeout(() => {
+          finish.call(this)
+        }, 200)
       }
-      if (splitted[0] === '') {
-        splitted = splitted.slice(1)
-      }
-      var tmpTree = fileTree
+      // file struct
+      // {
+      //   path: // full path
+      //   multihash: // multihash of the dagNode
+      //   size: // cumulative size
+      //   dataSize: // dagNode size
+      // }
 
-      for (var i = 0; i < splitted.length; i++) {
-        if (!tmpTree[splitted[i]]) {
-          tmpTree[splitted[i]] = {}
+      // 1) convert files to a tree
+      // for each path, split, add to a json tree and in the end the name of the
+      // file points to an object that is has a key multihash and respective value
+      // { foo: { bar: { baz.txt: <multihash> }}}
+      // the stop condition is if the value is not an object
+      const fileTree = {}
+      files.forEach((file) => {
+        let splitted = file.path.split('/')
+        if (splitted.length === 1) {
+          return // adding just one file
+          // fileTree[file.path] = bs58.encode(file.multihash).toString()
         }
-        if (i === splitted.length - 1) {
-          tmpTree[splitted[i]] = file.multihash
-        } else {
-          tmpTree = tmpTree[splitted[i]]
+        if (splitted[0] === '') {
+          splitted = splitted.slice(1)
         }
-      }
-    })
+        var tmpTree = fileTree
 
-    if (Object.keys(fileTree).length === 0) {
-      return // no dirs to be created
-    }
-
-    // 2) create a index for multihash: { size, dataSize } so
-    // that we can fetch these when creating the merkle dag nodes
-
-    const mhIndex = {}
-
-    files.forEach((file) => {
-      mhIndex[bs58.encode(file.multihash)] = {
-        size: file.size,
-        dataSize: file.dataSize
-      }
-    })
-
-    // 3) expand leaves recursively
-    // create a dirNode
-    // Object.keys
-    // If the value is an Object
-    //   create a dir Node
-    //   Object.keys
-    //   Once finished, add the result as a link to the dir node
-    // If the value is not an object
-    //   add as a link to the dirNode
-
-    function traverse (tree, base) {
-      const keys = Object.keys(tree)
-      let tmpTree = tree
-      keys.map((key) => {
-        if (typeof tmpTree[key] === 'object' &&
-            !Buffer.isBuffer(tmpTree[key])) {
-          tmpTree[key] = traverse.call(this, tmpTree[key], base ? base + '/' + key : key)
+        for (var i = 0; i < splitted.length; i++) {
+          if (!tmpTree[splitted[i]]) {
+            tmpTree[splitted[i]] = {}
+          }
+          if (i === splitted.length - 1) {
+            tmpTree[splitted[i]] = file.multihash
+          } else {
+            tmpTree = tmpTree[splitted[i]]
+          }
         }
       })
 
-      // at this stage, all keys are multihashes
-      // create a dir node
-      // add all the multihashes as links
-      // return this new node multihash
+      if (Object.keys(fileTree).length === 0) {
+        this.push(null)
+        return // no dirs to be created
+      }
 
-      const d = new UnixFS('directory')
-      const n = new merkleDAG.DAGNode()
+      // 2) create a index for multihash: { size, dataSize } so
+      // that we can fetch these when creating the merkle dag nodes
 
-      keys.forEach((key) => {
-        const b58mh = bs58.encode(tmpTree[key])
-        const l = new merkleDAG.DAGLink(
-            key, mhIndex[b58mh].size, tmpTree[key])
-        n.addRawLink(l)
-      })
+      const mhIndex = {}
 
-      n.data = d.marshal()
-      dagService.add(n, (err) => {
-        if (err) {
-          this.emit('error', 'failed to store dirNode')
+      files.forEach((file) => {
+        mhIndex[bs58.encode(file.multihash)] = {
+          size: file.size,
+          dataSize: file.dataSize
         }
       })
 
-      if (!base) {
-        return
+      // 3) expand leaves recursively
+      // create a dirNode
+      // Object.keys
+      // If the value is an Object
+      //   create a dir Node
+      //   Object.keys
+      //   Once finished, add the result as a link to the dir node
+      // If the value is not an object
+      //   add as a link to the dirNode
+
+      function traverse (tree, base) {
+        const keys = Object.keys(tree)
+        let tmpTree = tree
+        keys.map((key) => {
+          if (typeof tmpTree[key] === 'object' &&
+              !Buffer.isBuffer(tmpTree[key])) {
+            tmpTree[key] = traverse.call(this, tmpTree[key], base ? base + '/' + key : key)
+          }
+        })
+
+        // at this stage, all keys are multihashes
+        // create a dir node
+        // add all the multihashes as links
+        // return this new node multihash
+
+        const d = new UnixFS('directory')
+        const n = new merkleDAG.DAGNode()
+
+        keys.forEach((key) => {
+          const b58mh = bs58.encode(tmpTree[key])
+          const l = new merkleDAG.DAGLink(
+              key, mhIndex[b58mh].size, tmpTree[key])
+          n.addRawLink(l)
+        })
+
+        n.data = d.marshal()
+        dagService.add(n, (err) => {
+          if (err) {
+            this.push({error: 'failed to store dirNode'})
+          }
+        })
+
+        if (!base) {
+          return
+        }
+
+        const el = {
+          path: base,
+          multihash: n.multihash(),
+          size: n.size()
+        }
+        this.push(el)
+
+        mhIndex[bs58.encode(n.multihash())] = { size: n.size() }
+        return n.multihash()
       }
-
-      const el = {
-        path: base,
-        multihash: n.multihash(),
-        size: n.size()
-        // dataSize: '' // f.fileSize()
-      }
-
-      this.emit('file', el)
-
-      mhIndex[bs58.encode(n.multihash())] = { size: n.size() }
-      return n.multihash()
+      /* const rootHash = */ traverse.call(this, fileTree)
+      this.push(null)
     }
-    /* const rootHash = */ traverse.call(this, fileTree)
-
-    // TODO
-    // Since we never shoot for adding multiple directions at the root level, the following might not be necessary, reserving it for later:
-    //
-    // if at the first level, there was only one key (most cases)
-    // do nothing, if there was many, emit a rootHash with '/'
-    // emit root hash as well (as '/')
   }
 }

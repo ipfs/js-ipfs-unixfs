@@ -10,14 +10,17 @@ const UnixFS = require('ipfs-unixfs')
 const EE2 = require('eventemitter2').EventEmitter2
 const util = require('util')
 const bs58 = require('bs58')
+const Duplex = require('readable-stream').Duplex
 
 exports = module.exports = Importer
 
 const CHUNK_SIZE = 262144
 
-util.inherits(Importer, EE2)
+util.inherits(Importer, Duplex)
 
 function Importer (dagService, options) {
+  Duplex.call(this, {objectMode: true})
+
   if (!(this instanceof Importer)) {
     return new Importer(dagService)
   }
@@ -29,7 +32,7 @@ function Importer (dagService, options) {
   const files = []
   var counter = 0
 
-  this.add = (fl) => {
+  this._write = (fl) => {
     counter++
     if (!fl.stream) {
       // 1. create the empty dir dag node
@@ -52,13 +55,12 @@ function Importer (dagService, options) {
         }
 
         files.push(el)
-        this.emit('file', el)
+        this.push(el)
       })
       return
     }
 
     const leaves = []
-
     fl.stream
       .pipe(fsc(CHUNK_SIZE))
       .pipe(through2((chunk, enc, cb) => {
@@ -75,7 +77,7 @@ function Importer (dagService, options) {
 
         dagService.add(n, (err) => {
           if (err) {
-            this.emit('error', `Failed to store chunk of: ${fl.path}`)
+            this.push({error: 'Failed to store chunk of: ${fl.path}'})
             return cb(err)
           }
 
@@ -89,6 +91,7 @@ function Importer (dagService, options) {
           cb()
         })
       }, (cb) => {
+        console.log('weee')
         if (leaves.length === 1) {
           // 1. add to the files array {path: <>, hash: <>}
           // 2. emit the path + hash
@@ -101,7 +104,7 @@ function Importer (dagService, options) {
           }
 
           files.push(el)
-          this.emit('file', el)
+          this.push(el)
           return done(cb)
         }
         // 1. create a parent node and add all the leafs
@@ -120,7 +123,8 @@ function Importer (dagService, options) {
         n.data = f.marshal()
         dagService.add(n, (err) => {
           if (err) {
-            this.emit('error', `Failed to store: ${fl.path}`)
+            //this.emit('error', `Failed to store: ${fl.path}`)
+            this.push({error: 'Failed to store chunk of: ${fl.path}'})
             return cb()
           }
 
@@ -132,7 +136,8 @@ function Importer (dagService, options) {
           }
 
           files.push(el)
-          this.emit('file', el)
+          //this.emit('file', el)
+          this.push(el)
           return done(cb)
         })
       }))
@@ -148,10 +153,11 @@ function Importer (dagService, options) {
     //  // The file was already emitted, nothing to do here
     //  return
     // }
-
+    console.log(counter)
     if (counter > 0) {
       return setTimeout(this.finish, 200)
     }
+
 
     // file struct
     // {
@@ -167,7 +173,6 @@ function Importer (dagService, options) {
     // { foo: { bar: { baz.txt: <multihash> }}}
     // the stop condition is if the value is not an object
     const fileTree = {}
-
     files.forEach((file) => {
       let splitted = file.path.split('/')
       if (splitted.length === 1) {
@@ -245,7 +250,7 @@ function Importer (dagService, options) {
       n.data = d.marshal()
       dagService.add(n, (err) => {
         if (err) {
-          this.emit('error', 'failed to store dirNode')
+          this.push({error: 'failed to store dirNode'})
         }
       })
 
@@ -259,12 +264,12 @@ function Importer (dagService, options) {
         size: n.size()
         // dataSize: '' // f.fileSize()
       }
-
-      this.emit('file', el)
+      this.push(el)
 
       mhIndex[bs58.encode(n.multihash())] = { size: n.size() }
       return n.multihash()
     }
+    this.push(null)
     /* const rootHash = */ traverse.call(this, fileTree)
 
     // TODO

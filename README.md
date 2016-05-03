@@ -25,15 +25,16 @@ And write the importing logic:
 // Dependencies to create a DAG Service (where the dir will be imported into)
 var memStore = require('abstract-blob-store')
 var ipfsRepo = require('ipfs-repo')
-var ipfsBlocks = require('ipfs-blocks')
+var ipfsBlock = require('ipfs-block')
+var ipfsBlockService = require('ipfs-block')
 var ipfsMerkleDag = require('ipfs-merkle-dag')
 
 var repo = new ipfsRepo('', { stores: memStore })
-var blocks = new ipfsBlocks.BlockService(repo)
+var blocks = new ipfsBlockService(repo)
 var dag = new ipfsMerkleDag.DAGService(blocks)
 
 
-var ipfsData = require('ipfs-data-importing')
+var ipfsData = require('ipfs-unixfs-engine')
 
 // Import /tmp/foo
 ipfsData.import('/tmp/foo', dag, {

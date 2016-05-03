@@ -6,7 +6,7 @@ log.err = debug('exporter:error')
 const UnixFS = require('ipfs-unixfs')
 const async = require('async')
 const events = require('events')
-const Readable = require('stream').Readable
+const Readable = require('readable-stream').Readable
 const pathj = require('path')
 
 exports = module.exports = exporter

@@ -37,20 +37,29 @@ function exporter (hash, dagService, options, callback) {
   return ee
 
   function fileExporter (node, name, dir, callback) {
+    let init
+
     if (typeof dir === 'function') { callback = dir; dir = {} }
     var rs = new Readable()
     if (node.links.length === 0) {
       const unmarshaledData = UnixFS.unmarshal(node.data)
+      init = false
+      rs._read = () => {
+        if (init) {
+          return
+        }
+        init = true
+        rs.push(unmarshaledData.data)
+        rs.push(null)
+      }
       ee.emit('file', { stream: rs, path: name, dir: dir })
-      rs.push(unmarshaledData.data)
-      rs.push(null)
       if (callback) {
         callback()
       }
       return
     } else {
       ee.emit('file', { stream: rs, path: name, dir: dir })
-      var init = false
+      init = false
       rs._read = () => {
         if (init) {
           return
@@ -83,10 +92,19 @@ function exporter (hash, dagService, options, callback) {
   }
 
   function dirExporter (node, name, callback) {
+    let init
+
     var rs = new Readable()
     if (node.links.length === 0) {
-      rs.push(node.data)
-      rs.push(null)
+      init = false
+      rs._read = () => {
+        if (init) {
+          return
+        }
+        init = true
+        rs.push(node.data)
+        rs.push(null)
+      }
       ee.emit('file', {stream: rs, path: name})
       if (callback) {
         callback()

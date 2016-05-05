@@ -7,6 +7,7 @@ const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
 const DAGService = require('ipfs-merkle-dag').DAGService
 const UnixFS = require('ipfs-unixfs')
+const bl = require('bl')
 
 let ds
 
@@ -27,10 +28,13 @@ module.exports = function (repo) {
       const testExport = exporter(hash, ds)
       testExport.on('file', (data) => {
         ds.get(hash, (err, fetchedNode) => {
-          expect(err).to.not.exist
           const unmarsh = UnixFS.unmarshal(fetchedNode.data)
-          expect(unmarsh.data).to.deep.equal(data.stream._readableState.buffer[0])
-          done()
+          expect(err).to.not.exist
+          data.stream.pipe(bl((err, bldata) => {
+            expect(err).to.not.exist
+            expect(bldata).to.deep.equal(unmarsh.data)
+            done()
+          }))
         })
       })
     })

@@ -58,7 +58,6 @@ function exporter (hash, dagService, options, callback) {
       }
       return
     } else {
-      ee.emit('file', { stream: rs, path: name, dir: dir })
       init = false
       rs._read = () => {
         if (init) {
@@ -88,6 +87,7 @@ function exporter (hash, dagService, options, callback) {
           return
         })
       }
+      ee.emit('file', { stream: rs, path: name, dir: dir })
     }
   }
 

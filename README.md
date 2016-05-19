@@ -66,6 +66,7 @@ add.on('end', () => {
 // Calling write on the importer to add the file/object tuples
 
 add.write(input)
+add.write(input2)
 add.end()
 ```
 
@@ -121,13 +122,13 @@ const repo = new ipfsRepo('', { stores: memStore })
 const blocks = new ipfsBlockService(repo)
 const dag = new ipfsMerkleDag.DAGService(blocks)
 
-// Create an export event with the hash you want to export and a dag service
+// Create an export readable object stream with the hash you want to export and a dag service
 
 const exportEvent = Exporter(hash, dag)
 
 // Pipe the return stream to console
 
-exportEvent.on('file', (result) => {
+exportEvent.on('data', (result) => {
 	result.stream.pipe(process.stdout)
 }
 ```
@@ -137,8 +138,7 @@ exportEvent.on('file', (result) => {
 const Importer = require('ipfs-unixfs-engine').exporter
 ```
 
-The exporter is an event emitter that returns a stream of the file found 
-by the multihash of the file from the dag service.
+The exporter is a readable stream in object mode that returns an object ```{ stream: stream, path: 'path' }``` by the multihash of the file from the dag service.
 
 
 ## install

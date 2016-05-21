@@ -4,42 +4,32 @@ const debug = require('debug')
 const log = debug('exporter')
 log.err = debug('exporter:error')
 const UnixFS = require('ipfs-unixfs')
+const series = require('run-series')
 const async = require('async')
-const events = require('events')
 const Readable = require('readable-stream').Readable
 const pathj = require('path')
+const util = require('util')
 
-exports = module.exports = exporter
+exports = module.exports = Exporter
 
-function exporter (hash, dagService, options, callback) {
-  if (typeof options === 'function') {
-    callback = options
-    options = {}
+util.inherits(Exporter, Readable)
+
+function Exporter (hash, dagService, options) {
+  if (!(this instanceof Exporter)) {
+    return new Exporter(hash, dagService, options)
   }
 
-  const ee = new events.EventEmitter()
-  dagService.get(hash, (err, fetchedNode) => {
-    if (err) {
-      if (callback) {
-        return callback(err)
-      }
-      return
-    }
-    const data = UnixFS.unmarshal(fetchedNode.data)
-    const type = data.type
-    if (type === 'directory') {
-      dirExporter(fetchedNode, hash, callback)
-    }
-    if (type === 'file') {
-      fileExporter(fetchedNode, hash, false, callback)
-    }
-  })
-  return ee
+  Readable.call(this, { objectMode: true })
 
-  function fileExporter (node, name, dir, callback) {
+  this.options = options || {}
+
+  this._read = (n) => {}
+
+  let fileExporter = (node, name, callback) => {
     let init
 
-    if (typeof dir === 'function') { callback = dir; dir = {} }
+    if (!callback) { callback = function noop () {} }
+
     var rs = new Readable()
     if (node.links.length === 0) {
       const unmarshaledData = UnixFS.unmarshal(node.data)
@@ -52,10 +42,8 @@ function exporter (hash, dagService, options, callback) {
         rs.push(unmarshaledData.data)
         rs.push(null)
       }
-      ee.emit('file', { stream: rs, path: name, dir: dir })
-      if (callback) {
-        callback()
-      }
+      this.push({ stream: rs, path: name })
+      callback()
       return
     } else {
       init = false
@@ -64,35 +52,39 @@ function exporter (hash, dagService, options, callback) {
           return
         }
         init = true
-        async.forEachSeries(node.links, (link, callback) => {
-          dagService.get(link.hash, (err, res) => {
-            if (err) {
-              callback(err)
-            }
-            var unmarshaledData = UnixFS.unmarshal(res.data)
-            rs.push(unmarshaledData.data)
-            callback()
-          })
-        }, (err) => {
+
+        const array = node.links.map((link) => {
+          return (cb) => {
+            dagService.get(link.hash, (err, res) => {
+              if (err) {
+                cb(err)
+              }
+              var unmarshaledData = UnixFS.unmarshal(res.data)
+              rs.push(unmarshaledData.data)
+              cb()
+            })
+          }
+        })
+        series(array, (err, res) => {
           if (err) {
-            if (callback) {
-              return callback(err)
-            }
+            callback()
             return
           }
           rs.push(null)
-          if (callback) {
-            callback()
-          }
+          callback()
           return
         })
       }
-      ee.emit('file', { stream: rs, path: name, dir: dir })
+      this.push({ stream: rs, path: name })
+      callback()
+      return
     }
   }
 
-  function dirExporter (node, name, callback) {
+  let dirExporter = (node, name, callback) => {
     let init
+
+    if (!callback) { callback = function noop () {} }
 
     var rs = new Readable()
     if (node.links.length === 0) {
@@ -105,10 +97,8 @@ function exporter (hash, dagService, options, callback) {
         rs.push(node.data)
         rs.push(null)
       }
-      ee.emit('file', {stream: rs, path: name})
-      if (callback) {
-        callback()
-      }
+      this.push({stream: null, path: name})
+      callback()
       return
     } else {
       async.forEachSeries(node.links, (link, callback) => {
@@ -127,16 +117,30 @@ function exporter (hash, dagService, options, callback) {
         })
       }, (err) => {
         if (err) {
-          if (callback) {
-            return callback(err)
-          }
+          callback()
           return
         }
-        if (callback) {
-          callback()
-        }
+        callback()
         return
       })
     }
   }
+
+  dagService.get(hash, (err, fetchedNode) => {
+    if (err) {
+      this.emit('error', err)
+      return
+    }
+    const data = UnixFS.unmarshal(fetchedNode.data)
+    const type = data.type
+
+    if (type === 'directory') {
+      dirExporter(fetchedNode, hash)
+    }
+    if (type === 'file') {
+      fileExporter(fetchedNode, hash)
+    }
+  })
+
+  return this
 }

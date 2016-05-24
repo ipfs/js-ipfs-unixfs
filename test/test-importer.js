@@ -38,7 +38,7 @@ module.exports = function (repo) {
         expect(bs58.encode(obj.multihash)).to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
         expect(obj.size).to.equal(211)
       })
-      i.write({path: '200Bytes.txt', stream: r})
+      i.write({path: '200Bytes.txt', content: r})
       i.end()
       i.on('end', () => {
         done()
@@ -69,7 +69,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'foo/bar/200Bytes.txt', stream: r})
+      i.write({path: 'foo/bar/200Bytes.txt', content: r})
       i.end()
     })
 
@@ -85,7 +85,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: '1.2MiB.txt', stream: r})
+      i.write({path: '1.2MiB.txt', content: r})
       i.end()
     })
 
@@ -106,7 +106,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'foo-big/1.2MiB.txt', stream: r})
+      i.write({path: 'foo-big/1.2MiB.txt', content: r})
       i.end()
     })
 
@@ -156,8 +156,8 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'pim/200Bytes.txt', stream: r1})
-      i.write({path: 'pim/1.2MiB.txt', stream: r2})
+      i.write({path: 'pim/200Bytes.txt', content: r1})
+      i.write({path: 'pim/1.2MiB.txt', content: r2})
       i.end()
     })
 
@@ -195,9 +195,9 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'pam/pum/200Bytes.txt', stream: r1})
-      i.write({path: 'pam/pum/1.2MiB.txt', stream: r2})
-      i.write({path: 'pam/1.2MiB.txt', stream: r3})
+      i.write({path: 'pam/pum/200Bytes.txt', content: r1})
+      i.write({path: 'pam/pum/1.2MiB.txt', content: r2})
+      i.write({path: 'pam/1.2MiB.txt', content: r3})
       i.end()
     })
   })

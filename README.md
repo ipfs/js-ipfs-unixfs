@@ -47,8 +47,8 @@ const res = []
 
 const rs = fs.createReadStream(file)
 const rs2 = fs.createReadStream(file2)
-const input = {path: /tmp/foo/bar, stream: rs}
-const input2 = {path: /tmp/foo/quxx, stream: rs2}
+const input = {path: /tmp/foo/bar, content: rs}
+const input2 = {path: /tmp/foo/quxx, content: rs2}
 
 // Listen for the data event from the importer stream
 
@@ -138,7 +138,7 @@ exportEvent.on('data', (result) => {
 const Importer = require('ipfs-unixfs-engine').exporter
 ```
 
-The exporter is a readable stream in object mode that returns an object ```{ stream: stream, path: 'path' }``` by the multihash of the file from the dag service.
+The exporter is a readable stream in object mode that returns an object ```{ content: stream, path: 'path' }``` by the multihash of the file from the dag service.
 
 
 ## install

@@ -36,7 +36,7 @@ function Importer (dagService, options) {
   this._write = (fl, enc, next) => {
     this.read()
     counter++
-    if (!fl.stream) {
+    if (!fl.content) {
       // 1. create the empty dir dag node
       // 2. write it to the dag store
       // 3. add to the files array {path: <>, hash: <>}
@@ -64,7 +64,7 @@ function Importer (dagService, options) {
     }
 
     const leaves = []
-    fl.stream
+    fl.content
       .pipe(fsc(CHUNK_SIZE))
       .pipe(through2((chunk, enc, cb) => {
         // 1. create the unixfs merkledag node

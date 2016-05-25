@@ -10,6 +10,8 @@ const UnixFS = require('ipfs-unixfs')
 const util = require('util')
 const bs58 = require('bs58')
 const Duplex = require('readable-stream').Duplex
+const isStream = require('isstream')
+const streamifier = require('streamifier')
 
 exports = module.exports = Importer
 
@@ -60,6 +62,18 @@ function Importer (dagService, options) {
         counter--
         next()
       })
+      return
+    }
+
+    // Convert a buffer to a readable stream
+    if (Buffer.isBuffer(fl.content)) {
+      const r = streamifier.createReadStream(fl.content)
+      fl.content = r
+    }
+
+    // Bail if 'content' is not readable
+    if (!isStream.isReadable(fl.content)) {
+      this.emit('error', new Error('"content" is not a Buffer nor Readable stream'))
       return
     }
 

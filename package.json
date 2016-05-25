@@ -56,8 +56,10 @@
     "debug": "^2.2.0",
     "ipfs-merkle-dag": "^0.5.0",
     "ipfs-unixfs": "^0.1.0",
+    "isstream": "^0.1.2",
     "readable-stream": "^1.1.13",
     "run-series": "^1.1.4",
+    "streamifier": "^0.1.1",
     "through2": "^2.0.0"
   },
   "contributors": [

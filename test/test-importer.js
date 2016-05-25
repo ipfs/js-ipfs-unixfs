@@ -29,6 +29,17 @@ module.exports = function (repo) {
       done()
     })
 
+    it('bad input', (done) => {
+      const r = 'banana'
+      const i = new Importer(ds)
+      i.on('error', (err) => {
+        expect(err).to.exist
+        done()
+      })
+      i.write({path: '200Bytes.txt', content: r})
+      i.end()
+    })
+
     it('small file (smaller than a chunk)', (done) => {
       const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
@@ -39,6 +50,21 @@ module.exports = function (repo) {
         expect(obj.size).to.equal(211)
       })
       i.write({path: '200Bytes.txt', content: r})
+      i.end()
+      i.on('end', () => {
+        done()
+      })
+    })
+
+    it('small file as buffer (smaller than a chunk)', (done) => {
+      const buffered = smallFile
+      const i = new Importer(ds)
+      i.on('data', (obj) => {
+        expect(obj.path).to.equal('200Bytes.txt')
+        expect(bs58.encode(obj.multihash)).to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
+        expect(obj.size).to.equal(211)
+      })
+      i.write({path: '200Bytes.txt', content: buffered})
       i.end()
       i.on('end', () => {
         done()

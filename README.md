@@ -141,12 +141,20 @@ exportEvent.on('data', (result) => {
 
 ## Exporter: API
 ```js
-const Importer = require('ipfs-unixfs-engine').exporter
+const Exporter = require('ipfs-unixfs-engine').exporter
 ```
 
-The exporter is a readable stream in object mode that returns an object ```{
-content: stream, path: 'path' }``` by the multihash of the file from the dag
-service.
+The exporter is a readable stream in object mode that outputs objects of the
+form
+
+```js
+{
+  path: 'a name',
+  content: (Buffer or Readable stream)
+}
+```
+
+by the multihash of the file from the DAG Service.
 
 
 ## Install

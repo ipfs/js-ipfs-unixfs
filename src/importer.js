@@ -240,13 +240,13 @@ function Importer (dagService, options) {
 
       let pendingWrites = 0
 
-      function traverse (tree, base, done) {
+      function traverse (tree, path, done) {
         const keys = Object.keys(tree)
         let tmpTree = tree
         keys.map((key) => {
           if (typeof tmpTree[key] === 'object' &&
               !Buffer.isBuffer(tmpTree[key])) {
-            tmpTree[key] = traverse.call(this, tmpTree[key], base ? base + '/' + key : key, done)
+            tmpTree[key] = traverse.call(this, tmpTree[key], path ? path + '/' + key : key, done)
           }
         })
 
@@ -272,9 +272,9 @@ function Importer (dagService, options) {
           pendingWrites--
           if (err) {
             this.push({error: 'failed to store dirNode'})
-          } else if (base) {
+          } else if (path) {
             const el = {
-              path: base,
+              path: path,
               multihash: n.multihash(),
               yes: 'no',
               size: n.size()
@@ -287,7 +287,7 @@ function Importer (dagService, options) {
           }
         })
 
-        if (!base) {
+        if (!path) {
           return
         }
 

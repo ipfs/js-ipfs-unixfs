@@ -29,6 +29,17 @@ module.exports = function (repo) {
       done()
     })
 
+    it('bad input', (done) => {
+      const r = 'banana'
+      const i = new Importer(ds)
+      i.on('error', (err) => {
+        expect(err).to.exist
+        done()
+      })
+      i.write({path: '200Bytes.txt', content: r})
+      i.end()
+    })
+
     it('small file (smaller than a chunk)', (done) => {
       const buffered = smallFile
       const r = streamifier.createReadStream(buffered)
@@ -38,7 +49,22 @@ module.exports = function (repo) {
         expect(bs58.encode(obj.multihash)).to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
         expect(obj.size).to.equal(211)
       })
-      i.write({path: '200Bytes.txt', stream: r})
+      i.write({path: '200Bytes.txt', content: r})
+      i.end()
+      i.on('end', () => {
+        done()
+      })
+    })
+
+    it('small file as buffer (smaller than a chunk)', (done) => {
+      const buffered = smallFile
+      const i = new Importer(ds)
+      i.on('data', (obj) => {
+        expect(obj.path).to.equal('200Bytes.txt')
+        expect(bs58.encode(obj.multihash)).to.equal('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
+        expect(obj.size).to.equal(211)
+      })
+      i.write({path: '200Bytes.txt', content: buffered})
       i.end()
       i.on('end', () => {
         done()
@@ -69,7 +95,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'foo/bar/200Bytes.txt', stream: r})
+      i.write({path: 'foo/bar/200Bytes.txt', content: r})
       i.end()
     })
 
@@ -85,7 +111,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: '1.2MiB.txt', stream: r})
+      i.write({path: '1.2MiB.txt', content: r})
       i.end()
     })
 
@@ -106,7 +132,7 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'foo-big/1.2MiB.txt', stream: r})
+      i.write({path: 'foo-big/1.2MiB.txt', content: r})
       i.end()
     })
 
@@ -156,8 +182,8 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'pim/200Bytes.txt', stream: r1})
-      i.write({path: 'pim/1.2MiB.txt', stream: r2})
+      i.write({path: 'pim/200Bytes.txt', content: r1})
+      i.write({path: 'pim/1.2MiB.txt', content: r2})
       i.end()
     })
 
@@ -195,9 +221,9 @@ module.exports = function (repo) {
       i.on('end', () => {
         done()
       })
-      i.write({path: 'pam/pum/200Bytes.txt', stream: r1})
-      i.write({path: 'pam/pum/1.2MiB.txt', stream: r2})
-      i.write({path: 'pam/1.2MiB.txt', stream: r3})
+      i.write({path: 'pam/pum/200Bytes.txt', content: r1})
+      i.write({path: 'pam/pum/1.2MiB.txt', content: r2})
+      i.write({path: 'pam/1.2MiB.txt', content: r3})
       i.end()
     })
   })

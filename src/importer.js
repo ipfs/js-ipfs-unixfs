@@ -10,6 +10,8 @@ const UnixFS = require('ipfs-unixfs')
 const util = require('util')
 const bs58 = require('bs58')
 const Duplex = require('readable-stream').Duplex
+const isStream = require('isstream')
+const streamifier = require('streamifier')
 
 exports = module.exports = Importer
 
@@ -36,7 +38,7 @@ function Importer (dagService, options) {
   this._write = (fl, enc, next) => {
     this.read()
     counter++
-    if (!fl.stream) {
+    if (!fl.content) {
       // 1. create the empty dir dag node
       // 2. write it to the dag store
       // 3. add to the files array {path: <>, hash: <>}
@@ -63,8 +65,20 @@ function Importer (dagService, options) {
       return
     }
 
+    // Convert a buffer to a readable stream
+    if (Buffer.isBuffer(fl.content)) {
+      const r = streamifier.createReadStream(fl.content)
+      fl.content = r
+    }
+
+    // Bail if 'content' is not readable
+    if (!isStream.isReadable(fl.content)) {
+      this.emit('error', new Error('"content" is not a Buffer nor Readable stream'))
+      return
+    }
+
     const leaves = []
-    fl.stream
+    fl.content
       .pipe(fsc(CHUNK_SIZE))
       .pipe(through2((chunk, enc, cb) => {
         // 1. create the unixfs merkledag node
@@ -224,13 +238,15 @@ function Importer (dagService, options) {
       // If the value is not an object
       //   add as a link to the dirNode
 
-      function traverse (tree, base) {
+      let pendingWrites = 0
+
+      function traverse (tree, path, done) {
         const keys = Object.keys(tree)
         let tmpTree = tree
         keys.map((key) => {
           if (typeof tmpTree[key] === 'object' &&
               !Buffer.isBuffer(tmpTree[key])) {
-            tmpTree[key] = traverse.call(this, tmpTree[key], base ? base + '/' + key : key)
+            tmpTree[key] = traverse.call(this, tmpTree[key], path ? path + '/' + key : key, done)
           }
         })
 
@@ -250,28 +266,39 @@ function Importer (dagService, options) {
         })
 
         n.data = d.marshal()
+
+        pendingWrites++
         dagService.add(n, (err) => {
+          pendingWrites--
           if (err) {
             this.push({error: 'failed to store dirNode'})
+          } else if (path) {
+            const el = {
+              path: path,
+              multihash: n.multihash(),
+              yes: 'no',
+              size: n.size()
+            }
+            this.push(el)
+          }
+
+          if (pendingWrites <= 0) {
+            done()
           }
         })
 
-        if (!base) {
+        if (!path) {
           return
         }
-
-        const el = {
-          path: base,
-          multihash: n.multihash(),
-          size: n.size()
-        }
-        this.push(el)
 
         mhIndex[bs58.encode(n.multihash())] = { size: n.size() }
         return n.multihash()
       }
-      /* const rootHash = */ traverse.call(this, fileTree)
-      this.push(null)
+
+      let self = this
+      /* const rootHash = */ traverse.call(this, fileTree, null, function () {
+        self.push(null)
+      })
     }
   }
 }

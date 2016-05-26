@@ -33,7 +33,7 @@ module.exports = function (repo) {
         expect(err).to.not.exist
         const testExport = exporter(hash, ds)
         testExport.on('data', (file) => {
-          file.stream.pipe(bl((err, bldata) => {
+          file.content.pipe(bl((err, bldata) => {
             expect(err).to.not.exist
             expect(bldata).to.deep.equal(unmarsh.data)
             done()
@@ -48,7 +48,7 @@ module.exports = function (repo) {
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
       testExport.on('data', (file) => {
-        file.stream.pipe(bl((err, bldata) => {
+        file.content.pipe(bl((err, bldata) => {
           expect(bldata).to.deep.equal(bigFile)
           expect(err).to.not.exist
           done()
@@ -63,7 +63,7 @@ module.exports = function (repo) {
       const testExport = exporter(hash, ds)
       testExport.on('data', (file) => {
         expect(file.path).to.equal('QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE')
-        file.stream.pipe(bl((err, bldata) => {
+        file.content.pipe(bl((err, bldata) => {
           expect(err).to.not.exist
           done()
         }))
@@ -94,7 +94,7 @@ module.exports = function (repo) {
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
       testExport.on('data', (dir) => {
-        expect(dir.stream).to.equal(null)
+        expect(dir.content).to.equal(null)
         done()
       })
     })

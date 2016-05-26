@@ -42,7 +42,7 @@ function Exporter (hash, dagService, options) {
         rs.push(unmarshaledData.data)
         rs.push(null)
       }
-      this.push({ stream: rs, path: name })
+      this.push({ content: rs, path: name })
       callback()
       return
     } else {
@@ -75,7 +75,7 @@ function Exporter (hash, dagService, options) {
           return
         })
       }
-      this.push({ stream: rs, path: name })
+      this.push({ content: rs, path: name })
       callback()
       return
     }
@@ -97,7 +97,7 @@ function Exporter (hash, dagService, options) {
         rs.push(node.data)
         rs.push(null)
       }
-      this.push({stream: null, path: name})
+      this.push({content: null, path: name})
       callback()
       return
     } else {

@@ -1,7 +1,7 @@
 IPFS unixFS Engine
 ===================
 
-> Import data into an IPFS DAG Service.
+> Import & Export data to/from an [IPFS DAG Service][]
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
@@ -74,24 +74,24 @@ When run, the stat of DAG Node is outputted for each file on data event until th
 
 ```
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  Size: 39243,
+  size: 39243,
   path: '/tmp/foo/bar' }
 
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  Size: 59843,
+  size: 59843,
   path: '/tmp/foo/quxx' }
 
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  Size: 93242,
+  size: 93242,
   path: '/tmp/foo' } 
 
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  Size: 94234,
+  size: 94234,
   path: '/tmp' }   
 
 ```
 
-## API
+## Importer API
 
 ```js
 const Importer = require('ipfs-unixfs-engine').importer
@@ -99,16 +99,22 @@ const Importer = require('ipfs-unixfs-engine').importer
 
 ### const add = new Importer(dag)
 
-The importer is a duplex stream in object mode that writes inputs of tuples 
-of path and readable streams of data. You can stream an array of files to the 
-importer, just call the 'end' function to signal that you are done inputting file/s.
-Listen to the 'data' for the returned informtion 'multihash, size and path' for
-each file added. Listen to the 'end' event from the stream to know when the 
-importer has finished importing files. Input file paths with directory structure
-will preserve the hierarchy in the dag node.
+The importer is a object Transform stream that accepts objects of the form
 
-Uses the [DAG Service](https://github.com/vijayee/js-ipfs-merkle-dag/) instance
-`dagService`. 
+```js
+{
+  path: 'a name',
+  content: (Buffer or Readable stream)
+}
+```
+
+The stream will output IPFS DAG Node stats for the nodes it as added to the DAG
+Service. When stats on a node are emitted they are guaranteed to have been
+written into the DAG Service's storage mechanism.
+
+The input's file paths and directory structure will be preserved in the DAG
+Nodes.
+
 
 ## Example Exporter
 
@@ -133,15 +139,17 @@ exportEvent.on('data', (result) => {
 }
 ```
 
-##API
+## Exporter: API
 ```js
 const Importer = require('ipfs-unixfs-engine').exporter
 ```
 
-The exporter is a readable stream in object mode that returns an object ```{ content: stream, path: 'path' }``` by the multihash of the file from the dag service.
+The exporter is a readable stream in object mode that returns an object ```{
+content: stream, path: 'path' }``` by the multihash of the file from the dag
+service.
 
 
-## install
+## Install
 
 With [npm](https://npmjs.org/) installed, run
 
@@ -149,6 +157,9 @@ With [npm](https://npmjs.org/) installed, run
 $ npm install ipfs-unixfs-engine
 ```
 
-## license
+## License
 
 ISC
+
+
+[IPFS DAG Service]: https://github.com/vijayee/js-ipfs-merkle-dag/

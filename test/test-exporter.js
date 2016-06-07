@@ -7,7 +7,7 @@ const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
 const DAGService = require('ipfs-merkle-dag').DAGService
 const UnixFS = require('ipfs-unixfs')
-const bl = require('bl')
+const concat = require('concat-stream')
 const fs = require('fs')
 const path = require('path')
 
@@ -32,13 +32,16 @@ module.exports = function (repo) {
         const unmarsh = UnixFS.unmarshal(fetchedNode.data)
         expect(err).to.not.exist
         const testExport = exporter(hash, ds)
-        testExport.on('data', (file) => {
-          file.content.pipe(bl((err, bldata) => {
-            expect(err).to.not.exist
+        testExport.on('error', (err) => {
+          expect(err).to.not.exist
+        })
+        testExport.pipe(concat((files) => {
+          expect(files).to.be.length(1)
+          files[0].content.pipe(concat((bldata) => {
             expect(bldata).to.deep.equal(unmarsh.data)
             done()
           }))
-        })
+        }))
       })
     })
 
@@ -47,10 +50,12 @@ module.exports = function (repo) {
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
+      testExport.on('error', (err) => {
+        expect(err).to.not.exist
+      })
       testExport.on('data', (file) => {
-        file.content.pipe(bl((err, bldata) => {
+        file.content.pipe(concat((bldata) => {
           expect(bldata).to.deep.equal(bigFile)
-          expect(err).to.not.exist
           done()
         }))
       })
@@ -61,10 +66,13 @@ module.exports = function (repo) {
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
+      testExport.on('error', (err) => {
+        expect(err).to.not.exist
+      })
       testExport.on('data', (file) => {
         expect(file.path).to.equal('QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE')
-        file.content.pipe(bl((err, bldata) => {
-          expect(err).to.not.exist
+        file.content.pipe(concat((bldata) => {
+          expect(bldata).to.exist
           done()
         }))
       })
@@ -75,17 +83,16 @@ module.exports = function (repo) {
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
-      var fsa = []
-      testExport.on('data', (files) => {
-        fsa.push(files)
+      testExport.on('error', (err) => {
+        expect(err).to.not.exist
       })
-      setTimeout(() => {
-        expect(fsa[0].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/200Bytes.txt')
-        expect(fsa[1].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/dir-another')
-        expect(fsa[2].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/200Bytes.txt')
-        expect(fsa[3].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/level-2')
+      testExport.pipe(concat((files) => {
+        expect(files[0].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/200Bytes.txt')
+        expect(files[1].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/dir-another')
+        expect(files[2].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/200Bytes.txt')
+        expect(files[3].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/level-2')
         done()
-      }, 1000)
+      }))
     })
 
     it('returns a null stream for dir', (done) => {
@@ -93,6 +100,9 @@ module.exports = function (repo) {
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
+      testExport.on('error', (err) => {
+        expect(err).to.not.exist
+      })
       testExport.on('data', (dir) => {
         expect(dir.content).to.equal(null)
         done()

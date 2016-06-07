@@ -35,10 +35,12 @@
   "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
   "devDependencies": {
     "aegir": "^3.0.1",
+    "async": "^1.5.2",
     "block-stream2": "^1.1.0",
     "bs58": "^3.0.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.5.0",
+    "concat-stream": "^1.5.1",
     "fs-blob-store": "^5.2.1",
     "idb-plus-blob-store": "^1.1.2",
     "ipfs-repo": "^0.7.5",
@@ -51,9 +53,9 @@
     "string-to-stream": "^1.0.1"
   },
   "dependencies": {
-    "async": "^1.5.2",
     "block-stream2": "^1.1.0",
     "debug": "^2.2.0",
+    "field-trip": "0.0.2",
     "ipfs-merkle-dag": "^0.5.0",
     "ipfs-unixfs": "^0.1.0",
     "isstream": "^0.1.2",

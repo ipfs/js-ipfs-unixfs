@@ -1,7 +1,7 @@
 IPFS unixFS Engine
 ===================
 
-> Import & Export data to/from an [IPFS DAG Service][]
+> Import & Export data to/from an IPFS [DAG Service][]
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
@@ -108,9 +108,9 @@ The importer is a object Transform stream that accepts objects of the form
 }
 ```
 
-The stream will output IPFS DAG Node stats for the nodes it as added to the DAG
-Service. When stats on a node are emitted they are guaranteed to have been
-written into the DAG Service's storage mechanism.
+The stream will output IPFS DAG Node stats for the nodes as they are added to
+the DAG Service. When stats on a node are emitted they are guaranteed to have
+been written into the [DAG Service][]'s storage mechanism.
 
 The input's file paths and directory structure will be preserved in the DAG
 Nodes.
@@ -144,7 +144,12 @@ exportEvent.on('data', (result) => {
 const Exporter = require('ipfs-unixfs-engine').exporter
 ```
 
-The exporter is a readable stream in object mode that outputs objects of the
+### new Exporter(hash, dagService)
+
+Uses the given [DAG Service][] to fetch an IPFS [UnixFS][] object(s) by their
+multiaddress.
+
+Creates a new readable stream in object mode that outputs objects of the
 form
 
 ```js
@@ -154,7 +159,8 @@ form
 }
 ```
 
-by the multihash of the file from the DAG Service.
+Errors are received as with a normal stream, by listening on the `'error'` event
+to be emitted.
 
 
 ## Install
@@ -170,4 +176,6 @@ $ npm install ipfs-unixfs-engine
 ISC
 
 
-[IPFS DAG Service]: https://github.com/vijayee/js-ipfs-merkle-dag/
+[DAG Service]: https://github.com/vijayee/js-ipfs-merkle-dag/
+[UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
+

@@ -91,32 +91,18 @@ function Exporter (hash, dagService, options) {
 
   // Logic to export a unixfs directory.
   let dirExporter = (node, name, add, done) => {
-    let init
-
     if (!add) throw new Error('add must be set')
     if (!done) throw new Error('done must be set')
 
-    var rs = new Readable()
+    this.push({content: null, path: name})
 
-    // Directory has no links
-    if (node.links.length === 0) {
-      init = false
-      rs._read = () => {
-        if (init) {
-          return
-        }
-        init = true
-        rs.push(node.data)
-        rs.push(null)
-      }
-      this.push({content: null, path: name})
-      done()
-    } else {
+    // Directory has links
+    if (node.links.length > 0) {
       node.links.forEach((link) => {
         add({ path: pathj.join(name, link.name), hash: link.hash })
       })
-      done()
     }
+    done()
   }
 
   // Traverse the DAG asynchronously

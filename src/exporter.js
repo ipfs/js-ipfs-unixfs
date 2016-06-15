@@ -3,6 +3,8 @@
 const debug = require('debug')
 const log = debug('exporter')
 log.err = debug('exporter:error')
+const isIPFS = require('is-ipfs')
+const bs58 = require('bs58')
 const UnixFS = require('ipfs-unixfs')
 const series = require('run-series')
 const Readable = require('readable-stream').Readable
@@ -17,6 +19,14 @@ util.inherits(Exporter, Readable)
 function Exporter (hash, dagService, options) {
   if (!(this instanceof Exporter)) {
     return new Exporter(hash, dagService, options)
+  }
+
+  // Sanitize hash.
+  if (!isIPFS.multihash(hash)) {
+    throw new Error('not valid multihash')
+  }
+  if (Buffer.isBuffer(hash)) {
+    hash = bs58.encode(hash)
   }
 
   Readable.call(this, { objectMode: true })

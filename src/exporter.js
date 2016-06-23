@@ -36,7 +36,7 @@ function Exporter (hash, dagService, options) {
   this._read = (n) => {}
 
   let fileExporter = (node, name, done) => {
-    let init
+    let init = false
 
     if (!done) throw new Error('done must be set')
 
@@ -44,7 +44,6 @@ function Exporter (hash, dagService, options) {
     var rs = new Readable()
     if (node.links.length === 0) {
       const unmarshaledData = UnixFS.unmarshal(node.data)
-      init = false
       rs._read = () => {
         if (init) {
           return
@@ -56,7 +55,6 @@ function Exporter (hash, dagService, options) {
       this.push({ content: rs, path: name })
       done()
     } else {
-      init = false
       rs._read = () => {
         if (init) {
           return

@@ -30,9 +30,9 @@
   "author": "David Dias <daviddias@ipfs.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/diasdavid/js-ipfs-data-importing/issues"
+    "url": "https://github.com/ipfs/js-ipfs-unixfs-engine/issues"
   },
-  "homepage": "https://github.com/diasdavid/js-ipfs-data-importing#readme",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engineg#readme",
   "devDependencies": {
     "aegir": "^3.0.1",
     "async": "^1.5.2",

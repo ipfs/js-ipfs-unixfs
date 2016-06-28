@@ -88,52 +88,52 @@ module.exports = function (repo) {
       })
       testExport.pipe(concat((files) => {
         expect(files[0].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN')
+        expect(files[0].content).to.not.exist
+
         expect(files[1].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/200Bytes.txt')
+        expect(files[1].content).to.exist
+
         expect(files[2].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/dir-another')
+        expect(files[2].content).to.not.exist
+
         expect(files[3].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1')
+        expect(files[3].content).to.not.exist
+
         expect(files[4].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/200Bytes.txt')
+        expect(files[4].content).to.exist
+
         expect(files[5].path).to.equal('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/level-2')
+        expect(files[5].content).to.not.exist
+
         done()
       }))
     })
 
     it('returns a null stream for dir', (done) => {
-      const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn' // This hash doesn't exist in the repo
+      const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
+
       testExport.on('error', (err) => {
         expect(err).to.not.exist
       })
-      testExport.on('data', (dir) => {
-        expect(dir.content).to.equal(null)
+
+      testExport.on('data', (file) => {
+        expect(file.content).to.not.exist
         done()
       })
     })
 
     it('fails on non existent hash', (done) => {
-      const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKj3' // This hash doesn't exist in the repo
+      // This hash doesn't exist in the repo
+      const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKj3'
       const bs = new BlockService(repo)
       const ds = new DAGService(bs)
       const testExport = exporter(hash, ds)
       testExport.on('error', (err) => {
-        const error = err.toString()
         expect(err).to.exist
-        const browser = error.includes('Error: key not found:')
-        const node = error.includes('no such file or directory')
-        // the browser and node js return different errors
-        if (browser) {
-          expect(error).to.contain('Error: key not found:')
-          done()
-        }
-        if (node) {
-          expect(error).to.contain('no such file or directory')
-          done()
-        }
-        if (!node && !browser) {
-          expect(node).to.equal(true)
-          done()
-        }
+        done()
       })
     })
   })

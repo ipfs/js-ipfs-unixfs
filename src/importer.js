@@ -1,8 +1,8 @@
 'use strict'
 
 const debug = require('debug')
-const log = debug('importer')
-log.err = debug('importer:error')
+const log = debug('unixfs')
+log.err = debug('unixfs:error')
 const fsc = require('./chunker-fixed-size')
 const through2 = require('through2')
 const merkleDAG = require('ipfs-merkle-dag')

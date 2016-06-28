@@ -1,10 +1,9 @@
 'use strict'
 
 const debug = require('debug')
-const log = debug('exporter')
-log.err = debug('exporter:error')
+const log = debug('unixfs')
+log.err = debug('unixfs:error')
 const isIPFS = require('is-ipfs')
-const bs58 = require('bs58')
 const UnixFS = require('ipfs-unixfs')
 const series = require('run-series')
 const Readable = require('readable-stream').Readable
@@ -21,12 +20,9 @@ function Exporter (hash, dagService, options) {
     return new Exporter(hash, dagService, options)
   }
 
-  // Sanitize hash.
+  // Sanitize hash
   if (!isIPFS.multihash(hash)) {
     throw new Error('not valid multihash')
-  }
-  if (Buffer.isBuffer(hash)) {
-    hash = bs58.encode(hash)
   }
 
   Readable.call(this, { objectMode: true })
@@ -36,61 +32,52 @@ function Exporter (hash, dagService, options) {
   this._read = (n) => {}
 
   let fileExporter = (node, name, done) => {
-    let init = false
+    if (!done) {
+      throw new Error('done must be set')
+    }
 
-    if (!done) throw new Error('done must be set')
+    const contentRS = new Readable()
+    contentRS._read = () => {}
 
     // Logic to export a single (possibly chunked) unixfs file.
-    var rs = new Readable()
     if (node.links.length === 0) {
       const unmarshaledData = UnixFS.unmarshal(node.data)
-      rs._read = () => {
-        if (init) {
-          return
-        }
-        init = true
-        rs.push(unmarshaledData.data)
-        rs.push(null)
-      }
-      this.push({ content: rs, path: name })
+      contentRS.push(unmarshaledData.data)
+      contentRS.push(null)
+      this.push({ content: contentRS, path: name })
       done()
     } else {
-      rs._read = () => {
-        if (init) {
-          return
+      const array = node.links.map((link) => {
+        return (cb) => {
+          dagService.get(link.hash, (err, res) => {
+            if (err) {
+              return cb(err)
+            }
+            var unmarshaledData = UnixFS.unmarshal(res.data)
+            contentRS.push(unmarshaledData.data)
+            cb()
+          })
         }
-        init = true
-
-        const array = node.links.map((link) => {
-          return (cb) => {
-            dagService.get(link.hash, (err, res) => {
-              if (err) {
-                return cb(err)
-              }
-              var unmarshaledData = UnixFS.unmarshal(res.data)
-              rs.push(unmarshaledData.data)
-              cb()
-            })
-          }
-        })
-        series(array, (err, res) => {
-          if (err) {
-            rs.emit('error', err)
-            return
-          }
-          rs.push(null)
-          return
-        })
-      }
-      this.push({ content: rs, path: name })
+      })
+      series(array, (err) => {
+        if (err) {
+          return contentRS.emit('error', err)
+        }
+        contentRS.push(null)
+      })
+      this.push({ content: contentRS, path: name })
       done()
     }
   }
 
   // Logic to export a unixfs directory.
   let dirExporter = (node, name, add, done) => {
-    if (!add) throw new Error('add must be set')
-    if (!done) throw new Error('done must be set')
+    if (!add) {
+      throw new Error('add must be set')
+    }
+    if (!done) {
+      throw new Error('done must be set')
+    }
 
     this.push({content: null, path: name})
 
@@ -104,32 +91,29 @@ function Exporter (hash, dagService, options) {
   }
 
   // Traverse the DAG asynchronously
-  var self = this
-  fieldtrip([{ path: hash, hash: hash }], visit, (err) => {
+  fieldtrip([{path: hash, hash: hash}], visit.bind(this), (err) => {
     if (err) {
-      self.emit('error', err)
-      return
+      return this.emit('error', err)
     }
-    self.push(null)
+    this.push(null)
   })
 
   // Visit function: called once per node in the exported graph
   function visit (item, add, done) {
-    dagService.get(item.hash, (err, fetchedNode) => {
+    dagService.get(item.hash, (err, node) => {
       if (err) {
-        self.emit('error', err)
-        return
+        return this.emit('error', err)
       }
 
-      const data = UnixFS.unmarshal(fetchedNode.data)
+      const data = UnixFS.unmarshal(node.data)
       const type = data.type
 
       if (type === 'directory') {
-        dirExporter(fetchedNode, item.path, add, done)
+        dirExporter(node, item.path, add, done)
       }
 
       if (type === 'file') {
-        fileExporter(fetchedNode, item.path, done)
+        fileExporter(node, item.path, done)
       }
     })
   }

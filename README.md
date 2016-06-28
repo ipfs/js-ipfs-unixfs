@@ -1,4 +1,5 @@
-# IPFS unixFS Engine
+IPFS unixFS Engine
+==================
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
@@ -48,19 +49,19 @@ And write the importing logic:
 ```js
 // Dependencies to create a DAG Service (where the dir will be imported into)
 const memStore = require('abstract-blob-store')
-const ipfsRepo = require('ipfs-repo')
-const ipfsBlock = require('ipfs-block')
-const ipfsBlockService = require('ipfs-block-service')
-const ipfsMerkleDag = require('ipfs-merkle-dag')
+const Repo = require('ipfs-repo')
+const Block = require('ipfs-block')
+const BlockService = require('ipfs-block-service')
+const MerkleDag = require('ipfs-merkle-dag')
 const fs = require('fs')
 
-const repo = new ipfsRepo('', { stores: memStore })
-const blocks = new ipfsBlockService(repo)
-const dag = new ipfsMerkleDag.DAGService(blocks)
+const repo = new Repo('', { stores: memStore })
+const blockService = new BlockService(repo)
+const dagService = new ipfsMerkleDag.DAGService(blocks)
 
 
-const Importer = require('ipfs-unixfs-engine').importer
-const add = new Importer(dag)
+const Importer = require('ipfs-unixfs-engine').Importer
+const filesAddStream = new Importer(dagService)
 
 // An array to hold the return of nested file/dir info from the importer
 // A root DAG Node is received upon completion
@@ -76,26 +77,24 @@ const input2 = {path: /tmp/foo/quxx, content: rs2}
 
 // Listen for the data event from the importer stream
 
-add.on('data', (info) => {
+filesAddStream.on('data', (info) => {
 	res.push(info)
 })
 
 // The end event of the stream signals that the importer is done
 
-add.on('end', () => {
-	console.log('Finished adding files!')
-	return
+filesAddStream.on('end', () => {
+	console.log('Finished filesAddStreaming files!')
 })
 
-// Calling write on the importer to add the file/object tuples
+// Calling write on the importer to filesAddStream the file/object tuples
 
-add.write(input)
-add.write(input2)
-add.end()
+filesAddStream.write(input)
+filesAddStream.write(input2)
+filesAddStream.end()
 ```
 
 When run, the stat of DAG Node is outputted for each file on data event until the root:
-
 ```
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
   size: 39243,
@@ -143,38 +142,37 @@ Nodes.
 ### Example Exporter
 
 ```
-const ipfsRepo = require('ipfs-repo')
-const ipfsBlock = require('ipfs-block')
-const ipfsBlockService = require('ipfs-block-service')
-const ipfsMerkleDag = require('ipfs-merkle-dag')
+const Repo = require('ipfs-repo')
+const Block = require('ipfs-block')
+const BlockService = require('ipfs-block-service')
+const MerkleDAG = require('ipfs-merkle-dag')
 
-const repo = new ipfsRepo('', { stores: memStore })
-const blocks = new ipfsBlockService(repo)
-const dag = new ipfsMerkleDag.DAGService(blocks)
+const repo = new Repo('', { stores: memStore })
+const blockService = new BlockService(repo)
+const dagService = new MerkleDag.DAGService(blockService)
 
 // Create an export readable object stream with the hash you want to export and a dag service
 
-const exportEvent = Exporter(hash, dag)
+const filesStream = Exporter(<multihash>, dag)
 
 // Pipe the return stream to console
 
-exportEvent.on('data', (result) => {
-	result.stream.pipe(process.stdout)
+filesStream.on('data', (file) => {
+	file.content.pipe(process.stdout)
 }
 ```
 
 ### Exporter: API
+
 ```js
-const Exporter = require('ipfs-unixfs-engine').exporter
+const Exporter = require('ipfs-unixfs-engine').Exporter
 ```
 
 ### new Exporter(hash, dagService)
 
-Uses the given [DAG Service][] to fetch an IPFS [UnixFS][] object(s) by their
-multiaddress.
+Uses the given [DAG Service][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
 
-Creates a new readable stream in object mode that outputs objects of the
-form
+Creates a new readable stream in object mode that outputs objects of the form
 
 ```js
 {
@@ -183,8 +181,7 @@ form
 }
 ```
 
-Errors are received as with a normal stream, by listening on the `'error'` event
-to be emitted.
+Errors are received as with a normal stream, by listening on the `'error'` event to be emitted.
 
 
 [DAG Service]: https://github.com/vijayee/js-ipfs-merkle-dag/

@@ -10,6 +10,7 @@ const Readable = require('readable-stream').Readable
 const pathj = require('path')
 const util = require('util')
 const fieldtrip = require('field-trip')
+const cleanMultihash = require('./clean-multihash')
 
 exports = module.exports = Exporter
 
@@ -24,6 +25,7 @@ function Exporter (hash, dagService, options) {
   if (!isIPFS.multihash(hash)) {
     throw new Error('not valid multihash')
   }
+  hash = cleanMultihash(hash)
 
   Readable.call(this, { objectMode: true })
 

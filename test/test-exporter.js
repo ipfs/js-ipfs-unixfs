@@ -10,6 +10,7 @@ const UnixFS = require('ipfs-unixfs')
 const concat = require('concat-stream')
 const fs = require('fs')
 const path = require('path')
+const bs58 = require('bs58')
 
 let ds
 
@@ -22,6 +23,29 @@ module.exports = function (repo) {
       ds = new DAGService(bs)
       expect(ds).to.exist
       done()
+    })
+
+    it('ensure hash inputs are sanitized', (done) => {
+      const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
+      const bs = new BlockService(repo)
+      const ds = new DAGService(bs)
+      const mhBuf = new Buffer(bs58.decode(hash))
+      ds.get(hash, (err, fetchedNode) => {
+        const unmarsh = UnixFS.unmarshal(fetchedNode.data)
+        expect(err).to.not.exist
+        const testExport = exporter(mhBuf, ds)
+        testExport.on('error', (err) => {
+          expect(err).to.not.exist
+        })
+        testExport.pipe(concat((files) => {
+          expect(files).to.be.length(1)
+          expect(files[0].path).to.equal(hash)
+          files[0].content.pipe(concat((bldata) => {
+            expect(bldata).to.deep.equal(unmarsh.data)
+            done()
+          }))
+        }))
+      })
     })
 
     it('export a file with no links', (done) => {

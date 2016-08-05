@@ -35,7 +35,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engineg#readme",
   "devDependencies": {
     "aegir": "^6.0.0",
-    "async": "^1.5.2",
+    "async": "^2.0.1",
     "block-stream2": "^1.1.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.5.0",

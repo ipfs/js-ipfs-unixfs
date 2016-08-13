@@ -37,14 +37,16 @@ module.exports = function (repo) {
         testExport.on('error', (err) => {
           expect(err).to.not.exist
         })
-        testExport.pipe(concat((files) => {
+        testExport.pipe(concat(onFiles))
+
+        function onFiles (files) {
           expect(files).to.be.length(1)
           expect(files[0].path).to.equal(hash)
           files[0].content.pipe(concat((bldata) => {
             expect(bldata).to.deep.equal(unmarsh.data)
             done()
           }))
-        }))
+        }
       })
     })
 
@@ -59,13 +61,15 @@ module.exports = function (repo) {
         testExport.on('error', (err) => {
           expect(err).to.not.exist
         })
-        testExport.pipe(concat((files) => {
+        testExport.pipe(concat(onFiles))
+
+        function onFiles (files) {
           expect(files).to.be.length(1)
           files[0].content.pipe(concat((bldata) => {
             expect(bldata).to.deep.equal(unmarsh.data)
             done()
           }))
-        }))
+        }
       })
     })
 

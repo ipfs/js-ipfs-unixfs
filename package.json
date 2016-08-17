@@ -2,14 +2,14 @@
   "name": "ipfs-unixfs-engine",
   "version": "0.10.2",
   "description": "JavaScript implementation of the unixfs Engine used by IPFS",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "jsnext:main": "src/index.js",
   "scripts": {
     "lint": "aegir-lint",
     "build": "aegir-build",
     "test": "aegir-test",
-    "test:node": "aegir-test node",
-    "test:browser": "aegir-test browser",
+    "test:node": "aegir-test --env node",
+    "test:browser": "aegir-test --env browser",
     "release": "aegir-release",
     "release-minor": "aegir-release --type minor",
     "release-major": "aegir-release --type major",
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ipfs/js-ipfs-data-importing.git"
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-engine.git"
   },
   "keywords": [
     "IPFS"
@@ -34,37 +34,31 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engineg#readme",
   "devDependencies": {
-    "aegir": "^6.0.1",
-    "async": "^2.0.1",
-    "block-stream2": "^1.1.0",
+    "aegir": "^8.0.0",
     "buffer-loader": "0.0.1",
     "chai": "^3.5.0",
-    "concat-stream": "^1.5.1",
-    "fs-blob-store": "^5.2.1",
-    "idb-plus-blob-store": "^1.1.2",
-    "ipfs-repo": "^0.7.5",
+    "fs-pull-blob-store": "^0.3.0",
+    "idb-pull-blob-store": "^0.4.0",
+    "ipfs-block-service": "^0.5.0",
+    "ipfs-repo": "^0.9.0",
     "ncp": "^2.0.0",
-    "pre-commit": "^1.1.2",
+    "pre-commit": "^1.1.3",
+    "pull-zip": "^2.0.0",
     "raw-loader": "^0.5.1",
-    "rimraf": "^2.5.1",
-    "streamifier": "^0.1.1",
-    "ipfs-block-service": "^0.3.0",
-    "string-to-stream": "^1.0.1"
+    "rimraf": "^2.5.4",
+    "run-series": "^1.1.4"
   },
   "dependencies": {
-    "block-stream2": "^1.1.0",
-    "bs58": "^3.0.0",
-    "debug": "^2.2.0",
-    "field-trip": "0.0.3",
-    "ipfs-merkle-dag": "^0.6.1",
-    "ipfs-unixfs": "^0.1.0",
+    "ipfs-merkle-dag": "^0.7.0",
+    "ipfs-unixfs": "^0.1.4",
     "is-ipfs": "^0.2.0",
-    "isstream": "^0.1.2",
     "multihashes": "^0.2.2",
-    "readable-stream": "^1.1.13",
-    "run-series": "^1.1.4",
-    "streamifier": "^0.1.1",
-    "through2": "^2.0.0"
+    "pull-block": "^1.0.2",
+    "pull-pushable": "^2.0.1",
+    "pull-stream": "^3.4.5",
+    "pull-traverse": "^1.0.3",
+    "pull-write": "^1.1.0",
+    "run-parallel": "^1.1.6"
   },
   "contributors": [
     "David Dias <daviddias.p@gmail.com>",

@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 'use strict'
 
-const fs = require('fs')
 const ncp = require('ncp').ncp
 const rimraf = require('rimraf')
-const expect = require('chai').expect
 const path = require('path')
 const IPFSRepo = require('ipfs-repo')
-const fsbs = require('fs-blob-store')
+const Store = require('fs-pull-blob-store')
+const mkdirp = require('mkdirp')
+const series = require('run-series')
 
 describe('core', () => {
   const repoExample = path.join(process.cwd(), '/test/repo-example')
@@ -16,34 +16,26 @@ describe('core', () => {
   before((done) => {
     ncp(repoExample, repoTests, (err) => {
       process.env.IPFS_PATH = repoTests
-      expect(err).to.equal(null)
-      done()
+      done(err)
     })
   })
 
   before((done) => {
-    fs.stat(path.join(__dirname, '/test-data/dir-nested/dir-another'), (err, exists) => {
-      if (err) {
-        fs.mkdirSync(path.join(__dirname, '/test-data/dir-nested/dir-another'))
-      }
-    })
+    const paths = [
+      'test-data/dir-nested/dir-another',
+      'test-data/dir-nested/level-1/level-2'
+    ]
 
-    fs.stat(path.join(__dirname, '/test-data/dir-nested/level-1/level-2'), (err, exists) => {
-      if (err) {
-        fs.mkdirSync(path.join(__dirname, '/test-data/dir-nested/level-1/level-2'))
-      }
-      done()
-    })
+    series(paths.map((p) => (cb) => {
+      mkdirp(path.join(__dirname, p), cb)
+    }), done)
   })
 
   after((done) => {
-    rimraf(repoTests, (err) => {
-      expect(err).to.equal(null)
-      done()
-    })
+    rimraf(repoTests, done)
   })
 
-  const repo = new IPFSRepo(repoTests, {stores: fsbs})
+  const repo = new IPFSRepo(repoTests, {stores: Store})
   require('./test-exporter')(repo)
   require('./test-importer')(repo)
   require('./test-fixed-size-chunker')

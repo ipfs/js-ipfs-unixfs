@@ -1,7 +1,7 @@
 'use strict'
 
-const chunker = require('block-stream2')
+const block = require('pull-block')
 
 exports = module.exports = function (size) {
-  return chunker({ size: size, zeroPadding: false })
+  return block(size, {zeroPadding: false})
 }

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const async = require('async')
+const eachSeries = require('async/eachSeries')
 const store = require('idb-plus-blob-store')
 const _ = require('lodash')
 const IPFSRepo = require('ipfs-repo')
@@ -29,7 +29,7 @@ describe('IPFS data importing tests on the Browser', function () {
     const mainBlob = store('ipfs')
     const blocksBlob = store('ipfs/blocks')
 
-    async.eachSeries(repoData, (file, cb) => {
+    eachSeries(repoData, (file, cb) => {
       if (_.startsWith(file.key, 'datastore/')) {
         return cb()
       }

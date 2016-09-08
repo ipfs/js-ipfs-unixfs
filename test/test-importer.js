@@ -94,21 +94,30 @@ module.exports = function (repo) {
         importer(ds),
         pull.collect((err, files) => {
           expect(err).to.not.exist
-
-          expect(stringifyMh(files)).to.be.eql([{
-            path: 'foo/bar/200Bytes.txt',
-            multihash: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
-            size: 211
-          }, {
-            path: 'foo/bar',
-            multihash: 'Qmf5BQbTUyUAvd6Ewct83GYGnE1F6btiC3acLhR8MDxgkD',
-            size: 270
-          }, {
-            path: 'foo',
-            multihash: 'QmQrb6KKWGo8w7zKfx2JksptY6wN7B2ysSBdKZr4xMU36d',
-            size: 320
-          }])
-
+          expect(files.length).to.equal(3)
+          stringifyMh(files).forEach((file) => {
+            if (file.path === 'foo/bar/200Bytes.txt') {
+              expect(file).to.be.eql({
+                path: 'foo/bar/200Bytes.txt',
+                multihash: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
+                size: 211
+              })
+            }
+            if (file.path === 'foo') {
+              expect(file).to.be.eql({
+                path: 'foo',
+                multihash: 'QmQrb6KKWGo8w7zKfx2JksptY6wN7B2ysSBdKZr4xMU36d',
+                size: 320
+              })
+            }
+            if (file.path === 'foo/bar') {
+              expect(file).to.be.eql({
+                path: 'foo/bar',
+                multihash: 'Qmf5BQbTUyUAvd6Ewct83GYGnE1F6btiC3acLhR8MDxgkD',
+                size: 270
+              })
+            }
+          })
           done()
         })
       )

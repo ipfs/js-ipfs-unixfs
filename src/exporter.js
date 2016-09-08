@@ -1,6 +1,5 @@
 'use strict'
 
-const isIPFS = require('is-ipfs')
 const traverse = require('pull-traverse')
 const pull = require('pull-stream')
 

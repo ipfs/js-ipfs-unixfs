@@ -241,28 +241,28 @@ module.exports = function (repo) {
 
           // need to sort as due to parallel storage the order
           // can vary
-          const sorted = stringifyMh(files).sort((a, b) => a.path < b.path)
-          expect(sorted).to.be.eql([{
-            path: 'pam/pum/200Bytes.txt',
-            multihash: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
-            size: 211
-          }, {
-            path: 'pam/pum/1.2MiB.txt',
-            multihash: 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q',
-            size: 1258318
-          }, {
-            path: 'pam/pum',
-            multihash: 'QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i',
-            size: 1258642
-          }, {
-            path: 'pam/1.2MiB.txt',
-            multihash: 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q',
-            size: 1258318
-          }, {
-            path: 'pam',
-            multihash: 'QmRgdtzNx1H1BPJqShdhvWZ2D4DA2HUgZJ3XLtoXei27Av',
-            size: 2517065
-          }])
+          stringifyMh(files).forEach((file) => {
+            if (file.path === 'pam/pum/200Bytes.txt') {
+              expect(file.multihash).to.be.eql('QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8')
+              expect(file.size).to.be.eql(211)
+            }
+            if (file.path === 'pam/pum/1.2MiB.txt') {
+              expect(file.multihash).to.be.eql('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
+              expect(file.size).to.be.eql(1258318)
+            }
+            if (file.path === 'pam/pum') {
+              expect(file.multihash).to.be.eql('QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i')
+              expect(file.size).to.be.eql(1258642)
+            }
+            if (file.path === 'pam/1.2MiB.txt') {
+              expect(file.multihash).to.be.eql('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
+              expect(file.size).to.be.eql(1258318)
+            }
+            if (file.path === 'pam') {
+              expect(file.multihash).to.be.eql('QmRgdtzNx1H1BPJqShdhvWZ2D4DA2HUgZJ3XLtoXei27Av')
+              expect(file.size).to.be.eql(2517065)
+            }
+          })
 
           done()
         })

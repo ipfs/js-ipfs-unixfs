@@ -1,58 +1,97 @@
 /* eslint-env mocha */
 'use strict'
 
-const FixedSizeChunker = require('./../src/chunker-fixed-size')
+const chunker = require('./../src/chunker-fixed-size')
 const fs = require('fs')
 const expect = require('chai').expect
-const stringToStream = require('string-to-stream')
-const through = require('through2')
 const path = require('path')
+const pull = require('pull-stream')
 
-const fileStream = () => stringToStream(
-  fs.readFileSync(
-    path.join(__dirname, '/test-data/1MiB.txt')
-  ).toString('hex')
+const rawFile = fs.readFileSync(
+  path.join(__dirname, '/test-data/1MiB.txt')
 )
 
-describe('chunker: fixed size', function () {
-  it('256 Bytes chunks', function (done) {
-    fileStream()
-      .pipe(FixedSizeChunker(256))
-      .pipe(through((chunk, enc, cb) => {
-        expect(chunk.length).to.equal(256)
-        cb()
-      }, () => {
+describe('chunker: fixed size', () => {
+  it('chunks non flat buffers', (done) => {
+    const b1 = new Buffer(2 * 256)
+    const b2 = new Buffer(1 * 256)
+    const b3 = new Buffer(5 * 256)
+
+    b1.fill('a')
+    b2.fill('b')
+    b3.fill('c')
+
+    pull(
+      pull.values([b1, b2, b3]),
+      chunker(256),
+      pull.collect((err, chunks) => {
+        expect(err).to.not.exists
+        expect(chunks).to.have.length(8)
+        chunks.forEach((chunk) => {
+          expect(chunk).to.have.length(256)
+        })
         done()
-      }))
+      })
+    )
   })
 
-  it('256 KiB chunks', function (done) {
-    const KiB256 = 262144
-    fileStream()
-      .pipe(FixedSizeChunker(KiB256))
-      .pipe(through((chunk, enc, cb) => {
-        expect(chunk.length).to.equal(KiB256)
-        cb()
-      }, () => {
+  it('256 Bytes chunks', (done) => {
+    pull(
+      pull.infinite(() => Buffer([1])),
+      pull.take(256 * 12),
+      chunker(256),
+      pull.collect((err, chunks) => {
+        expect(err).to.not.exists
+        expect(chunks).to.have.length(12)
+        chunks.forEach((chunk) => {
+          expect(chunk).to.have.length(256)
+        })
         done()
-      }))
+      })
+    )
   })
 
-  it('256 KiB chunks of non scalar filesize', function (done) {
-    let counter = 0
+  it('256 KiB chunks', (done) => {
     const KiB256 = 262144
-    fileStream()
-      .pipe(FixedSizeChunker(KiB256))
-      .pipe(through((chunk, enc, cb) => {
-        if (chunk.length < KiB256) {
-          expect(counter).to.be.below(2)
-          counter += 1
-          return cb()
-        }
-        expect(chunk.length).to.equal(KiB256)
-        cb()
-      }, () => {
+    pull(
+      pull.values(rawFile),
+      chunker(KiB256),
+      pull.collect((err, chunks) => {
+        expect(err).to.not.exists
+
+        expect(chunks).to.have.length(4)
+        chunks.forEach((chunk) => {
+          expect(chunk).to.have.length(KiB256)
+        })
         done()
-      }))
+      })
+    )
+  })
+
+  it('256 KiB chunks of non scalar filesize', (done) => {
+    const KiB256 = 262144
+    let file = Buffer.concat([rawFile, new Buffer('hello')])
+
+    pull(
+      pull.values(file),
+      chunker(KiB256),
+      pull.collect((err, chunks) => {
+        expect(err).to.not.exists
+
+        expect(chunks).to.have.length(5)
+        let counter = 0
+
+        chunks.forEach((chunk) => {
+          if (chunk.length < KiB256) {
+            counter++
+          } else {
+            expect(chunk).to.have.length(KiB256)
+          }
+        })
+
+        expect(counter).to.be.eql(1)
+        done()
+      })
+    )
   })
 })

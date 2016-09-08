@@ -1,11 +1,10 @@
 /* eslint-env mocha */
 'use strict'
 
-const eachSeries = require('async/eachSeries')
-const store = require('idb-plus-blob-store')
-const _ = require('lodash')
+const Store = require('idb-pull-blob-store')
 const IPFSRepo = require('ipfs-repo')
 const repoContext = require.context('buffer!./repo-example', true)
+const pull = require('pull-stream')
 
 const idb = window.indexedDB ||
         window.mozIndexedDB ||
@@ -26,26 +25,31 @@ describe('IPFS data importing tests on the Browser', function () {
       })
     })
 
-    const mainBlob = store('ipfs')
-    const blocksBlob = store('ipfs/blocks')
+    const mainBlob = new Store('ipfs')
+    const blocksBlob = new Store('ipfs/blocks')
 
-    eachSeries(repoData, (file, cb) => {
-      if (_.startsWith(file.key, 'datastore/')) {
-        return cb()
-      }
+    pull(
+      pull.values(repoData),
+      pull.asyncMap((file, cb) => {
+        if (file.key.indexOf('datastore/') === 0) {
+          return cb()
+        }
 
-      const blocks = _.startsWith(file.key, 'blocks/')
-      const blob = blocks ? blocksBlob : mainBlob
-      const key = blocks ? file.key.replace(/^blocks\//, '') : file.key
+        const blocks = file.key.indexOf('blocks/') === 0
+        const blob = blocks ? blocksBlob : mainBlob
+        const key = blocks ? file.key.replace(/^blocks\//, '') : file.key
 
-      blob.createWriteStream({
-        key: key
-      }).end(file.value, cb)
-    }, done)
+        pull(
+          pull.values([file.value]),
+          blob.write(key, cb)
+        )
+      }),
+      pull.onEnd(done)
+    )
   })
 
   // create the repo constant to be used in the import a small buffer test
-  const repo = new IPFSRepo('ipfs', {stores: store})
+  const repo = new IPFSRepo('ipfs', {stores: Store})
 
   require('./test-exporter')(repo)
   require('./test-importer')(repo)

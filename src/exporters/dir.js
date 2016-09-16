@@ -2,6 +2,7 @@
 
 const path = require('path')
 const pull = require('pull-stream')
+const paramap = require('pull-paramap')
 
 const fileExporter = require('./file')
 const switchType = require('../util').switchType
@@ -14,15 +15,17 @@ module.exports = (node, name, dagService) => {
       path: path.join(name, link.name),
       hash: link.hash
     })),
-    pull.map((item) => pull(
-      dagService.getStream(item.hash),
-      pull.map((n) => switchType(
+    paramap((item, cb) => dagService.get(item.hash, (err, n) => {
+      if (err) {
+        return cb(err)
+      }
+
+      cb(null, switchType(
         n,
         () => pull.values([item]),
         () => fileExporter(n, item.path, dagService)
-      )),
-      pull.flatten()
-    )),
+      ))
+    })),
     pull.flatten()
   )
 }

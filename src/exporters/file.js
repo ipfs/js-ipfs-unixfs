@@ -3,6 +3,7 @@
 const traverse = require('pull-traverse')
 const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream')
+const paramap = require('pull-paramap')
 
 // Logic to export a single (possibly chunked) unixfs file.
 module.exports = (node, name, ds) => {
@@ -18,8 +19,7 @@ module.exports = (node, name, ds) => {
   function visitor (node) {
     return pull(
       pull.values(node.links),
-      pull.map((link) => ds.getStream(link.hash)),
-      pull.flatten()
+      paramap((link, cb) => ds.get(link.hash, cb))
     )
   }
 

@@ -1,10 +1,7 @@
 'use strict'
 
-const fs = require('fs')
-const path = require('path')
 const protobuf = require('protocol-buffers')
-const schema = fs.readFileSync(path.resolve(__dirname, '../protos/unixfs.proto'))
-const pb = protobuf(schema)
+const pb = protobuf(require('./unixfs.proto'))
 // encode/decode
 const unixfsData = pb.Data
 // const unixfsMetadata = pb.MetaData // encode/decode

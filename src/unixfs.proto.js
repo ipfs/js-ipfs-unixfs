@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = new Buffer(`message Data {
+module.exports = `message Data {
   enum DataType {
     Raw = 0;
     Directory = 1;
@@ -18,4 +18,4 @@ module.exports = new Buffer(`message Data {
 message Metadata {
   required string MimeType = 1;
 }
-`)
+`

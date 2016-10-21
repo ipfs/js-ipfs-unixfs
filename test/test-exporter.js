@@ -3,38 +3,43 @@
 
 const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
-const DAGService = require('ipfs-merkle-dag').DAGService
+const IPLDResolver = require('ipld-resolver')
 const UnixFS = require('ipfs-unixfs')
 const fs = require('fs')
 const path = require('path')
 const bs58 = require('bs58')
 const pull = require('pull-stream')
 const zip = require('pull-zip')
+const CID = require('cids')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
 
 module.exports = (repo) => {
   describe('exporter', () => {
-    let ds
+    let ipldResolver
 
     const bigFile = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
+
     before(() => {
       const bs = new BlockService(repo)
-      ds = new DAGService(bs)
+      ipldResolver = new IPLDResolver(bs)
     })
 
     it('import and export', (done) => {
       pull(
         pull.values([{
           path: '1.2MiB.txt',
-          content: pull.values([bigFile, Buffer('hello world')])
+          content: pull.values([
+            bigFile,
+            Buffer('hello world')
+          ])
         }]),
-        unixFSEngine.importer(ds),
+        unixFSEngine.importer(ipldResolver),
         pull.map((file) => {
           expect(file.path).to.be.eql('1.2MiB.txt')
 
-          return exporter(file.multihash, ds)
+          return exporter(file.multihash, ipldResolver)
         }),
         pull.flatten(),
         pull.collect((err, files) => {
@@ -50,7 +55,7 @@ module.exports = (repo) => {
       const mhBuf = new Buffer(bs58.decode(hash))
 
       pull(
-        ds.getStream(hash),
+        ipldResolver.getStream(new CID(hash)),
         pull.map((node) => UnixFS.unmarshal(node.data)),
         pull.collect((err, nodes) => {
           expect(err).to.not.exist
@@ -58,7 +63,7 @@ module.exports = (repo) => {
           const unmarsh = nodes[0]
 
           pull(
-            exporter(mhBuf, ds),
+            exporter(mhBuf, ipldResolver),
             pull.collect(onFiles)
           )
 
@@ -79,10 +84,10 @@ module.exports = (repo) => {
       pull(
         zip(
           pull(
-            ds.getStream(hash),
+            ipldResolver.getStream(new CID(hash)),
             pull.map((node) => UnixFS.unmarshal(node.data))
           ),
-          exporter(hash, ds)
+          exporter(hash, ipldResolver)
         ),
         pull.collect((err, values) => {
           expect(err).to.not.exist
@@ -97,7 +102,7 @@ module.exports = (repo) => {
     it('export a small file with links', (done) => {
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
       pull(
-        exporter(hash, ds),
+        exporter(hash, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -109,7 +114,7 @@ module.exports = (repo) => {
     it('export a large file > 5mb', (done) => {
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       pull(
-        exporter(hash, ds),
+        exporter(hash, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -123,7 +128,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
       pull(
-        exporter(hash, ds),
+        exporter(hash, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -162,7 +167,7 @@ module.exports = (repo) => {
       const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
 
       pull(
-        exporter(hash, ds),
+        exporter(hash, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
           expect(files[0].content).to.not.exist
@@ -176,7 +181,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKj3'
 
       pull(
-        exporter(hash, ds),
+        exporter(hash, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.exist
           done()
@@ -190,7 +195,9 @@ function fileEql (f1, f2, done) {
   pull(
     f1.content,
     pull.collect((err, data) => {
-      if (err) return done(err)
+      if (err) {
+        return done(err)
+      }
 
       try {
         if (f2) {

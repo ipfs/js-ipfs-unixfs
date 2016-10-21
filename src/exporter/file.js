@@ -2,11 +2,12 @@
 
 const traverse = require('pull-traverse')
 const UnixFS = require('ipfs-unixfs')
+const CID = require('cids')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 
 // Logic to export a single (possibly chunked) unixfs file.
-module.exports = (node, name, ds) => {
+module.exports = (node, name, ipldResolver) => {
   function getData (node) {
     try {
       const file = UnixFS.unmarshal(node.data)
@@ -19,7 +20,7 @@ module.exports = (node, name, ds) => {
   function visitor (node) {
     return pull(
       pull.values(node.links),
-      paramap((link, cb) => ds.get(link.hash, cb))
+      paramap((link, cb) => ipldResolver.get(new CID(link.hash), cb))
     )
   }
 

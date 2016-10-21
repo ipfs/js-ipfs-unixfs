@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chunker = require('./../src/chunker-fixed-size')
+const chunker = require('./../src/chunker/fixed-size')
 const fs = require('fs')
 const expect = require('chai').expect
 const path = require('path')

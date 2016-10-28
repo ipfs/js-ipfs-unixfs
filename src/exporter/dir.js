@@ -3,12 +3,13 @@
 const path = require('path')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
+const CID = require('cids')
 
 const fileExporter = require('./file')
 const switchType = require('../util').switchType
 
 // Logic to export a unixfs directory.
-module.exports = (node, name, dagService) => {
+module.exports = (node, name, ipldResolver) => {
   // The algorithm below is as follows
   //
   // 1. Take all links from a given directory node
@@ -25,7 +26,7 @@ module.exports = (node, name, dagService) => {
       path: path.join(name, link.name),
       hash: link.hash
     })),
-    paramap((item, cb) => dagService.get(item.hash, (err, n) => {
+    paramap((item, cb) => ipldResolver.get(new CID(item.hash), (err, n) => {
       if (err) {
         return cb(err)
       }
@@ -33,7 +34,7 @@ module.exports = (node, name, dagService) => {
       cb(null, switchType(
         n,
         () => pull.values([item]),
-        () => fileExporter(n, item.path, dagService)
+        () => fileExporter(n, item.path, ipldResolver)
       ))
     })),
     pull.flatten()

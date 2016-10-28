@@ -25,6 +25,14 @@ IPFS unixFS Engine
 - [Contribute](#contribute)
 - [License](#license)
 
+## BEWARE BEWARE BEWARE there might be 🐉
+
+This module has passed through several iterations and still is far from a nice and easy understandable codebase. Currently missing features:
+
+- tar importer
+- trickle dag exporter
+- sharding
+
 ## Install
 
 With [npm](https://npmjs.org/) installed, run

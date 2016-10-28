@@ -4,11 +4,11 @@
 const importer = require('./../src').importer
 const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
-const DAGService = require('ipfs-merkle-dag').DAGService
 const fs = require('fs')
 const path = require('path')
 const pull = require('pull-stream')
 const mh = require('multihashes')
+const IPLDResolver = require('ipld-resolver')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -19,7 +19,7 @@ function stringifyMh (files) {
 
 module.exports = function (repo) {
   describe('importer', function () {
-    let ds
+    let ipldResolver
 
     const bigFile = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
     const smallFile = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
@@ -30,7 +30,7 @@ module.exports = function (repo) {
 
     before(() => {
       const bs = new BlockService(repo)
-      ds = new DAGService(bs)
+      ipldResolver = new IPLDResolver(bs)
     })
 
     it('bad input', (done) => {
@@ -39,7 +39,7 @@ module.exports = function (repo) {
           path: '200Bytes.txt',
           content: 'banana'
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.onEnd((err) => {
           expect(err).to.exist
           done()
@@ -53,7 +53,7 @@ module.exports = function (repo) {
           path: '200Bytes.txt',
           content: pull.values([smallFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
           expect(stringifyMh(files)).to.be.eql([{
@@ -72,7 +72,7 @@ module.exports = function (repo) {
           path: '200Bytes.txt',
           content: smallFile
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
           expect(stringifyMh(files)).to.be.eql([{
@@ -91,7 +91,7 @@ module.exports = function (repo) {
           path: 'foo/bar/200Bytes.txt',
           content: pull.values([smallFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
           expect(files.length).to.equal(3)
@@ -129,7 +129,7 @@ module.exports = function (repo) {
           path: '1.2MiB.txt',
           content: pull.values([bigFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
           expect(stringifyMh(files)).to.be.eql([{
@@ -148,7 +148,7 @@ module.exports = function (repo) {
           path: 'foo-big/1.2MiB.txt',
           content: pull.values([bigFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -176,7 +176,7 @@ module.exports = function (repo) {
         pull.values([{
           path: 'empty-dir'
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -200,7 +200,7 @@ module.exports = function (repo) {
           path: 'pim/1.2MiB.txt',
           content: pull.values([bigFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 
@@ -235,7 +235,7 @@ module.exports = function (repo) {
           path: 'pam/1.2MiB.txt',
           content: pull.values([bigFile])
         }]),
-        importer(ds),
+        importer(ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist
 

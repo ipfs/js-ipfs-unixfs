@@ -17,5 +17,4 @@ module.exports = `message Data {
 
 message Metadata {
   required string MimeType = 1;
-}
-`
+}`

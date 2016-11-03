@@ -45,5 +45,12 @@
   "pre-commit": [
     "lint",
     "test"
+  ],
+  "contributors": [
+    "David Dias <daviddias.p@gmail.com>",
+    "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
+    "JGAntunes <j.goncalo.antunes@gmail.com>",
+    "Mithgol <getgit@mithgol.ru>",
+    "Richard Littauer <richard.littauer@gmail.com>"
   ]
 }

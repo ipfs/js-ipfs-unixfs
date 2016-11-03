@@ -7,7 +7,7 @@ const path = require('path')
 const IPFSRepo = require('ipfs-repo')
 const Store = require('fs-pull-blob-store')
 const mkdirp = require('mkdirp')
-const series = require('run-series')
+const series = require('async/series')
 
 describe('core', () => {
   const repoExample = path.join(process.cwd(), '/test/repo-example')

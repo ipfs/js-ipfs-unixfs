@@ -4,11 +4,10 @@
 const importer = require('./../src').importer
 const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
-const fs = require('fs')
-const path = require('path')
 const pull = require('pull-stream')
 const mh = require('multihashes')
 const IPLDResolver = require('ipld-resolver')
+const loadFixture = require('aegir/fixtures')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -17,16 +16,12 @@ function stringifyMh (files) {
   })
 }
 
+const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
+const smallFile = loadFixture(__dirname, 'fixtures/200Bytes.txt')
+
 module.exports = function (repo) {
   describe('importer', function () {
     let ipldResolver
-
-    const bigFile = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
-    const smallFile = fs.readFileSync(path.join(__dirname, '/test-data/200Bytes.txt'))
-
-    // const dirSmall = path.join(__dirname, '/test-data/dir-small')
-    // const dirBig = path.join(__dirname, '/test-data/dir-big')
-    // const dirNested = path.join(__dirname, '/test-data/dir-nested')
 
     before(() => {
       const bs = new BlockService(repo)

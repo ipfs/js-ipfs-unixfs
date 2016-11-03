@@ -30,4 +30,3 @@ build/Release
 node_modules
 
 dist
-lib

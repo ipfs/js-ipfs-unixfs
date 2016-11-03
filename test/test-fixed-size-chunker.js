@@ -2,14 +2,11 @@
 'use strict'
 
 const chunker = require('./../src/chunker/fixed-size')
-const fs = require('fs')
 const expect = require('chai').expect
-const path = require('path')
 const pull = require('pull-stream')
+const loadFixture = require('aegir/fixtures')
 
-const rawFile = fs.readFileSync(
-  path.join(__dirname, '/test-data/1MiB.txt')
-)
+const rawFile = loadFixture(__dirname, 'fixtures/1MiB.txt')
 
 describe('chunker: fixed size', () => {
   it('chunks non flat buffers', (done) => {

@@ -9,6 +9,10 @@ IPFS unixFS Engine
 [![Coverage Status](https://coveralls.io/repos/github/ipfs/js-ipfs-unixfs-engine/badge.svg?branch=master)](https://coveralls.io/github/ipfs/js-ipfs-unixfs-engine?branch=master)
 [![Dependency Status](https://david-dm.org/ipfs/js-ipfs-unixfs-engine.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-unixfs-engine)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
+![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
+![](https://img.shields.io/badge/Node.js-%3E%3D4.0.0-orange.svg?style=flat-square)
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/ipfs-unixfs-engine.svg)](https://saucelabs.com/u/ipfs-unixfs-engine)
 
 > JavaScript implementation of the layout and chunking mechanisms used by IPFS
 
@@ -114,11 +118,11 @@ When run, the stat of DAG Node is outputted for each file on data event until th
 
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
   size: 93242,
-  path: '/tmp/foo' } 
+  path: '/tmp/foo' }
 
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
   size: 94234,
-  path: '/tmp' }   
+  path: '/tmp' }
 
 ```
 

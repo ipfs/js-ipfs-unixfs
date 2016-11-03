@@ -5,7 +5,7 @@ const assert = require('assert')
 const pull = require('pull-stream')
 const pullPushable = require('pull-pushable')
 const pullWrite = require('pull-write')
-const parallel = require('run-parallel')
+const parallel = require('async/parallel')
 const dagPB = require('ipld-dag-pb')
 const CID = require('cids')
 

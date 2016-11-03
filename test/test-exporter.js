@@ -5,21 +5,20 @@ const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const UnixFS = require('ipfs-unixfs')
-const fs = require('fs')
-const path = require('path')
 const bs58 = require('bs58')
 const pull = require('pull-stream')
 const zip = require('pull-zip')
 const CID = require('cids')
+const loadFixture = require('aegir/fixtures')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
 
+const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
+
 module.exports = (repo) => {
   describe('exporter', () => {
     let ipldResolver
-
-    const bigFile = fs.readFileSync(path.join(__dirname, '/test-data/1.2MiB.txt'))
 
     before(() => {
       const bs = new BlockService(repo)

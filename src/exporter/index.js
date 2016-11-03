@@ -3,6 +3,7 @@
 const traverse = require('pull-traverse')
 const pull = require('pull-stream')
 const CID = require('cids')
+const isIPFS = require('is-ipfs')
 
 const util = require('./../util')
 const switchType = util.switchType
@@ -12,6 +13,10 @@ const dirExporter = require('./dir')
 const fileExporter = require('./file')
 
 module.exports = (hash, ipldResolver, options) => {
+  if (!isIPFS.multihash(hash)) {
+    return pull.error(new Error('not valid multihash'))
+  }
+
   hash = cleanMultihash(hash)
   options = options || {}
 

@@ -2,10 +2,14 @@
 'use strict'
 
 const expect = require('chai').expect
-const fs = require('fs')
-const path = require('path')
+const loadFixture = require('aegir/fixtures')
 
 const UnixFS = require('../src')
+
+const raw = loadFixture(__dirname, 'fixtures/raw.unixfs')
+const directory = loadFixture(__dirname, 'fixtures/directory.unixfs')
+const file = loadFixture(__dirname, 'fixtures/file.txt.unixfs')
+const symlink = loadFixture(__dirname, 'fixtures/symlink.txt.unixfs')
 
 describe('unixfs-format', () => {
   it('raw', (done) => {
@@ -93,7 +97,6 @@ describe('unixfs-format', () => {
 
   describe('interop', () => {
     it('raw', (done) => {
-      const raw = fs.readFileSync(path.join(__dirname, '/test-data/raw.unixfs'))
       const unmarsheled = UnixFS.unmarshal(raw)
       expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
       expect(unmarsheled.type).to.equal('file')
@@ -102,20 +105,18 @@ describe('unixfs-format', () => {
     })
 
     it('directory', (done) => {
-      const raw = fs.readFileSync(path.join(__dirname, '/test-data/directory.unixfs'))
-      const unmarsheled = UnixFS.unmarshal(raw)
+      const unmarsheled = UnixFS.unmarshal(directory)
       expect(unmarsheled.data).to.deep.equal(undefined)
       expect(unmarsheled.type).to.equal('directory')
-      expect(unmarsheled.marshal()).to.deep.equal(raw)
+      expect(unmarsheled.marshal()).to.deep.equal(directory)
       done()
     })
 
     it('file', (done) => {
-      const raw = fs.readFileSync(path.join(__dirname, '/test-data/file.txt.unixfs'))
-      const unmarsheled = UnixFS.unmarshal(raw)
+      const unmarsheled = UnixFS.unmarshal(file)
       expect(unmarsheled.data).to.deep.equal(new Buffer('Hello UnixFS\n'))
       expect(unmarsheled.type).to.equal('file')
-      expect(unmarsheled.marshal()).to.deep.equal(raw)
+      expect(unmarsheled.marshal()).to.deep.equal(file)
       done()
     })
 
@@ -123,12 +124,11 @@ describe('unixfs-format', () => {
     })
 
     it('symlink', (done) => {
-      const raw = fs.readFileSync(path.join(__dirname, '/test-data/symlink.txt.unixfs'))
-      const unmarsheled = UnixFS.unmarshal(raw)
+      const unmarsheled = UnixFS.unmarshal(symlink)
       expect(unmarsheled.data).to.deep.equal(new Buffer('file.txt'))
       expect(unmarsheled.type).to.equal('symlink')
       // TODO: waiting on https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182440079
-      // expect(unmarsheled.marshal()).to.deep.equal(raw)
+      // expect(unmarsheled.marshal()).to.deep.equal(symlink)
       done()
     })
   })

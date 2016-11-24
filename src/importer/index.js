@@ -8,6 +8,7 @@ const pullWrite = require('pull-write')
 const parallel = require('async/parallel')
 const dagPB = require('ipld-dag-pb')
 const CID = require('cids')
+const waterfall = require('async/waterfall')
 
 const fsc = require('./../chunker/fixed-size')
 const createAndStoreTree = require('./flush-tree')
@@ -71,49 +72,38 @@ function makeWriter (source, files, ipldResolver) {
   }
 }
 
-function createAndStoreDir (item, ipldResolver, cb) {
+function createAndStoreDir (item, ipldResolver, callback) {
   // 1. create the empty dir dag node
   // 2. write it to the dag store
 
   const d = new UnixFS('directory')
-  const n = new DAGNode()
-  n.data = d.marshal()
-
-  n.multihash((err, multihash) => {
-    if (err) {
-      return cb(err)
+  waterfall([
+    (cb) => DAGNode.create(d.marshal(), cb),
+    (node, cb) => {
+      ipldResolver.put({
+        node: node,
+        cid: new CID(node.multihash)
+      }, (err) => cb(err, node))
     }
-
-    ipldResolver.put({
-      node: n,
-      cid: new CID(multihash)
-    }, (err) => {
-      if (err) {
-        return cb(err)
-      }
-
-      n.size((err, size) => {
-        if (err) {
-          return cb(err)
-        }
-
-        cb(null, {
-          path: item.path,
-          multihash: multihash,
-          size: size
-        })
-      })
+  ], (err, node) => {
+    if (err) {
+      return callback(err)
+    }
+    callback(null, {
+      path: item.path,
+      multihash: node.multihash,
+      size: node.size
     })
   })
 }
 
-function createAndStoreFile (file, ipldResolver, cb) {
+function createAndStoreFile (file, ipldResolver, callback) {
   if (Buffer.isBuffer(file.content)) {
     file.content = pull.values([file.content])
   }
 
   if (typeof file.content !== 'function') {
-    return cb(new Error('invalid content'))
+    return callback(new Error('invalid content'))
   }
 
   // 1. create the unixfs merkledag node
@@ -128,44 +118,37 @@ function createAndStoreFile (file, ipldResolver, cb) {
     file.content,
     fsc(CHUNK_SIZE),
     pull.asyncMap((chunk, cb) => {
-      const l = new UnixFS('file', Buffer(chunk))
-      const n = new DAGNode(l.marshal())
+      const l = new UnixFS('file', new Buffer(chunk))
 
-      n.multihash((err, multihash) => {
+      DAGNode.create(l.marshal(), (err, node) => {
         if (err) {
           return cb(err)
         }
 
         ipldResolver.put({
-          node: n,
-          cid: new CID(multihash)
+          node: node,
+          cid: new CID(node.multihash)
         }, (err) => {
           if (err) {
-            return cb(new Error('Failed to store chunk'))
+            return cb(err)
           }
 
-          n.size((err, size) => {
-            if (err) {
-              return cb(err)
-            }
-
-            cb(null, {
-              Hash: multihash,
-              Size: size,
-              leafSize: l.fileSize(),
-              Name: ''
-            })
+          cb(null, {
+            Hash: node.multihash,
+            Size: node.size,
+            leafSize: l.fileSize(),
+            Name: ''
           })
         })
       })
     }),
     pull.collect((err, leaves) => {
       if (err) {
-        return cb(err)
+        return callback(err)
       }
 
       if (leaves.length === 1) {
-        return cb(null, {
+        return callback(null, {
           path: file.path,
           multihash: leaves[0].Hash,
           size: leaves[0].Size
@@ -173,43 +156,31 @@ function createAndStoreFile (file, ipldResolver, cb) {
       }
 
       // create a parent node and add all the leafs
-
       const f = new UnixFS('file')
-      const n = new DAGNode()
 
-      for (let leaf of leaves) {
+      const links = leaves.map((leaf) => {
         f.addBlockSize(leaf.leafSize)
-        n.addRawLink(
-          new DAGLink(leaf.Name, leaf.Size, leaf.Hash)
-        )
-      }
 
-      n.data = f.marshal()
+        return new DAGLink(leaf.Name, leaf.Size, leaf.Hash)
+      })
 
-      n.multihash((err, multihash) => {
+      waterfall([
+        (cb) => DAGNode.create(f.marshal(), links, cb),
+        (node, cb) => {
+          ipldResolver.put({
+            node: node,
+            cid: new CID(node.multihash)
+          }, (err) => cb(err, node))
+        }
+      ], (err, node) => {
         if (err) {
-          return cb(err)
+          return callback(err)
         }
 
-        ipldResolver.put({
-          node: n,
-          cid: new CID(multihash)
-        }, (err) => {
-          if (err) {
-            return cb(err)
-          }
-
-          n.size((err, size) => {
-            if (err) {
-              return cb(err)
-            }
-
-            cb(null, {
-              path: file.path,
-              multihash: multihash,
-              size: size
-            })
-          })
+        callback(null, {
+          path: file.path,
+          multihash: node.multihash,
+          size: node.size
         })
       })
     })

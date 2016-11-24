@@ -19,8 +19,8 @@ function stringifyMh (files) {
 const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
 const smallFile = loadFixture(__dirname, 'fixtures/200Bytes.txt')
 
-module.exports = function (repo) {
-  describe('importer', function () {
+module.exports = (repo) => {
+  describe('importer', () => {
     let ipldResolver
 
     before(() => {

@@ -20,7 +20,7 @@ module.exports = (node, name, ipldResolver) => {
   function visitor (node) {
     return pull(
       pull.values(node.links),
-      paramap((link, cb) => ipldResolver.get(new CID(link.hash), cb))
+      paramap((link, cb) => ipldResolver.get(new CID(link.multihash), cb))
     )
   }
 

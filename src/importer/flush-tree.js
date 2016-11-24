@@ -5,8 +5,7 @@ const UnixFS = require('ipfs-unixfs')
 const CID = require('cids')
 const dagPB = require('ipld-dag-pb')
 const mapValues = require('async/mapValues')
-const parallel = require('async/parallel')
-
+const waterfall = require('async/waterfall')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
@@ -120,44 +119,37 @@ function traverse (tree, sizeIndex, path, ipldResolver, source, done) {
     // return this new node multihash
 
     const keys = Object.keys(tree)
-
-    const ufsDir = new UnixFS('directory')
-    const node = new DAGNode(ufsDir.marshal())
-
-    keys.forEach((key) => {
+    const dir = new UnixFS('directory')
+    const links = keys.map((key) => {
       const b58mh = mh.toB58String(tree[key])
-      const link = new DAGLink(key, sizeIndex[b58mh], tree[key])
-      node.addRawLink(link)
+      return new DAGLink(key, sizeIndex[b58mh], tree[key])
     })
 
-    parallel([
-      (cb) => node.multihash(cb),
-      (cb) => node.size(cb)
-    ], (err, res) => {
+    waterfall([
+      (cb) => DAGNode.create(dir.marshal(), links, cb),
+      (node, cb) => {
+        sizeIndex[mh.toB58String(node.multihash)] = node.size
+
+        ipldResolver.put({
+          node: node,
+          cid: new CID(node.multihash)
+        }, (err) => cb(err, node))
+      }
+    ], (err, node) => {
       if (err) {
+        source.push(new Error('failed to store dirNode'))
         return done(err)
       }
 
-      const multihash = res[0]
-      const size = res[1]
+      if (path) {
+        source.push({
+          path: path,
+          multihash: node.multihash,
+          size: node.size
+        })
+      }
 
-      sizeIndex[mh.toB58String(multihash)] = size
-      ipldResolver.put({
-        node: node,
-        cid: new CID(multihash)
-      }, (err) => {
-        if (err) {
-          source.push(new Error('failed to store dirNode'))
-        } else if (path) {
-          source.push({
-            path: path,
-            multihash: multihash,
-            size: size
-          })
-        }
-
-        done(null, multihash)
-      })
+      done(null, node.multihash)
     })
   })
 }

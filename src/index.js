@@ -66,7 +66,7 @@ function Data (type, data) {
     }
 
     return unixfsData.encode({
-      Type: type,
+      Type: type.value,
       Data: this.data,
       filesize: fileSize,
       blocksizes: this.blockSizes.length > 0 ? this.blockSizes : undefined

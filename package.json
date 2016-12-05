@@ -55,7 +55,7 @@
     "async": "^2.1.4",
     "cids": "^0.2.0",
     "ipfs-unixfs": "^0.1.5",
-    "ipld-dag-pb": "^0.9.1",
+    "ipld-dag-pb": "^0.9.2",
     "ipld-resolver": "^0.3.0",
     "is-ipfs": "^0.2.1",
     "multihashes": "^0.2.2",

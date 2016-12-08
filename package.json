@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "async": "^2.1.4",
-    "cids": "^0.3.3",
+    "cids": "^0.3.4",
     "ipfs-unixfs": "^0.1.5",
     "ipld-dag-pb": "^0.9.3",
     "ipld-resolver": "^0.3.0",

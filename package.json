@@ -44,7 +44,7 @@
     "chai": "^3.5.0",
     "fs-pull-blob-store": "^0.4.1",
     "idb-pull-blob-store": "^0.5.1",
-    "ipfs-block-service": "^0.7.0",
+    "ipfs-block-service": "^0.7.1",
     "ipfs-repo": "^0.11.1",
     "ncp": "^2.0.0",
     "pre-commit": "^1.1.3",

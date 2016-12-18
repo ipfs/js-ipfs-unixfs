@@ -58,7 +58,7 @@
     "ipld-dag-pb": "^0.9.3",
     "ipld-resolver": "^0.4.1",
     "is-ipfs": "^0.2.1",
-    "multihashes": "^0.3.0",
+    "multihashes": "^0.3.1",
     "pull-block": "^1.0.2",
     "pull-paramap": "^1.2.1",
     "pull-pushable": "^2.0.1",

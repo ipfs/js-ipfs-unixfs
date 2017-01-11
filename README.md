@@ -33,9 +33,9 @@ IPFS unixFS Engine
 
 This module has passed through several iterations and still is far from a nice and easy understandable codebase. Currently missing features:
 
-- tar importer
-- trickle dag exporter
-- sharding
+- [ ] tar importer
+- [x] trickle dag exporter
+- [ ] sharding (HAMT)
 
 ## Install
 

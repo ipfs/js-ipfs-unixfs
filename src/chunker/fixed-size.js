@@ -2,6 +2,7 @@
 
 const pullBlock = require('pull-block')
 
-module.exports = (size) => {
-  return pullBlock(size, { zeroPadding: false })
+module.exports = (options) => {
+  let maxSize = (typeof options === 'number') ? options : options.maxChunkSize
+  return pullBlock(maxSize, { zeroPadding: false })
 }

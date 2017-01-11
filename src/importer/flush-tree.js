@@ -13,6 +13,11 @@ module.exports = (files, ipldResolver, source, callback) => {
   // 1) convert files to a tree
   const fileTree = createTree(files)
 
+  if (Object.keys(fileTree).length > 1) {
+    callback(new Error('detected more than one root'))
+    return
+  }
+
   if (Object.keys(fileTree).length === 0) {
     return callback()// no dirs to be created
   }

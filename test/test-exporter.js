@@ -25,30 +25,6 @@ module.exports = (repo) => {
       ipldResolver = new IPLDResolver(bs)
     })
 
-    it('import and export', (done) => {
-      pull(
-        pull.values([{
-          path: '1.2MiB.txt',
-          content: pull.values([
-            bigFile,
-            Buffer('hello world')
-          ])
-        }]),
-        unixFSEngine.importer(ipldResolver),
-        pull.map((file) => {
-          expect(file.path).to.be.eql('1.2MiB.txt')
-
-          return exporter(file.multihash, ipldResolver)
-        }),
-        pull.flatten(),
-        pull.collect((err, files) => {
-          expect(err).to.not.exist
-          expect(files[0].size).to.be.eql(bigFile.length + 11)
-          fileEql(files[0], Buffer.concat([bigFile, Buffer('hello world')]), done)
-        })
-      )
-    })
-
     it('ensure hash inputs are sanitized', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
       const mhBuf = new Buffer(bs58.decode(hash))

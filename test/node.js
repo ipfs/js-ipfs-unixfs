@@ -9,7 +9,7 @@ const Store = require('fs-pull-blob-store')
 const mkdirp = require('mkdirp')
 const series = require('async/series')
 
-describe('core', () => {
+describe('IPFS UnixFS Engine', () => {
   const repoExample = path.join(process.cwd(), '/test/repo-example')
   const repoTests = path.join(process.cwd(), '/test/repo-tests' + Date.now())
 
@@ -36,7 +36,12 @@ describe('core', () => {
   })
 
   const repo = new IPFSRepo(repoTests, {stores: Store})
+  require('./test-flat-builder')
+  require('./test-balanced-builder')
+  require('./test-trickle-builder')
+  require('./test-fixed-size-chunker')
   require('./test-exporter')(repo)
   require('./test-importer')(repo)
-  require('./test-fixed-size-chunker')
+  require('./test-import-export')(repo)
+  require('./test-hash-parity-with-go-ipfs')(repo)
 })

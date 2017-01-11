@@ -51,7 +51,12 @@ describe('IPFS data importing tests on the Browser', function () {
   // create the repo constant to be used in the import a small buffer test
   const repo = new IPFSRepo('ipfs', {stores: Store})
 
+  require('./test-flat-builder')
+  require('./test-balanced-builder')
+  require('./test-trickle-builder')
+  require('./test-fixed-size-chunker')
   require('./test-exporter')(repo)
   require('./test-importer')(repo)
-  require('./test-fixed-size-chunker')
+  require('./test-import-export')(repo)
+  require('./test-hash-parity-with-go-ipfs')(repo)
 })

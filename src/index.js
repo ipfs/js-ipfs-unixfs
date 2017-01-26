@@ -11,7 +11,8 @@ const types = [
   'directory',
   'file',
   'metadata',
-  'symlink'
+  'symlink',
+  'hamt-shard'
 ]
 
 function Data (type, data) {
@@ -56,6 +57,7 @@ function Data (type, data) {
       case 'file': type = unixfsData.DataType.File; break
       case 'metadata': type = unixfsData.DataType.Metadata; break
       case 'symlink': type = unixfsData.DataType.Symlink; break
+      case 'hamt-shard': type = unixfsData.DataType.HAMTShard; break
       default:
         throw new Error(`Unkown type: "${this.type}"`)
     }

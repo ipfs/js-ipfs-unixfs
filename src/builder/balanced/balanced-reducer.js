@@ -1,6 +1,5 @@
 'use strict'
 
-const assert = require('assert')
 const pull = require('pull-stream')
 const pushable = require('pull-pushable')
 const pullPair = require('pull-pair')
@@ -17,9 +16,12 @@ module.exports = function balancedReduceToRoot (reduce, options) {
       result.end(err)
       return // early
     }
-    assert.equal(roots.length, 1, 'need one root')
-    result.push(roots[0])
-    result.end()
+    if (roots.length === 1) {
+      result.push(roots[0])
+      result.end()
+    } else if (roots.length > 1) {
+      result.end(new Error('expected a maximum of 0 roots and got ' + roots.length))
+    }
   })
 
   function reduceToParents (_chunks, callback) {

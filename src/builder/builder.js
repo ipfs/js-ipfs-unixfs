@@ -1,7 +1,6 @@
 'use strict'
 
 const extend = require('deep-extend')
-const assert = require('assert')
 const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream')
 const through = require('pull-through')
@@ -32,8 +31,10 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
             if (err) {
               return cb(err)
             }
-            source.push(node)
-            files.push(node)
+            if (node) {
+              source.push(node)
+              files.push(node)
+            }
             cb()
           })
         }
@@ -43,8 +44,10 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
           if (err) {
             return cb(err)
           }
-          source.push(node)
-          files.push(node)
+          if (node) {
+            source.push(node)
+            files.push(node)
+          }
           cb()
         })
       }), cb)
@@ -141,7 +144,6 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
         if (err) {
           callback(err)
         } else {
-          assert.equal(roots.length, 1, 'should result in exactly one root')
           callback(null, roots[0])
         }
       })

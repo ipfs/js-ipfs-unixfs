@@ -63,7 +63,7 @@
     "lodash": "^4.17.4",
     "multihashes": "^0.3.2",
     "pull-batch": "^1.0.0",
-    "pull-block": "^1.0.2",
+    "pull-block": "^1.1.0",
     "pull-pair": "^1.1.0",
     "pull-paramap": "^1.2.1",
     "pull-pause": "0.0.0",

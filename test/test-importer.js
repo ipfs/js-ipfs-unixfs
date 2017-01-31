@@ -195,6 +195,22 @@ module.exports = (repo) => {
           }))
       })
 
+      it('doesn\'t yield anything on empty file', (done) => {
+        pull(
+          pull.values([{
+            path: 'emptyfile',
+            content: pull.empty()
+          }]),
+          importer(ipldResolver, options),
+          pull.collect((err, nodes) => {
+            expect(err).to.not.exist
+            expect(nodes.length).to.be.eql(1)
+            // always yield empty node
+            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmfJMCvenrj4SKKRc48DYPxwVdS44qCUCqqtbqhJuSTWXP')
+            done()
+          }))
+      })
+
       it('fails on more than one root', (done) => {
         pull(
           pull.values([

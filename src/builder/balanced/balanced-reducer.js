@@ -20,7 +20,9 @@ module.exports = function balancedReduceToRoot (reduce, options) {
       result.push(roots[0])
       result.end()
     } else if (roots.length > 1) {
-      result.end(new Error('expected a maximum of 0 roots and got ' + roots.length))
+      result.end(new Error('expected a maximum of 1 roots and got ' + roots.length))
+    } else {
+      result.end()
     }
   })
 

@@ -34,8 +34,8 @@ describe('unixfs-format', () => {
     done()
   })
 
-  it('hamt-shard', (done) => {
-    const data = new UnixFS('hamt-shard')
+  it('hamt-sharded-directory', (done) => {
+    const data = new UnixFS('hamt-sharded-directory')
     const marsheled = data.marshal()
     const unmarsheled = UnixFS.unmarshal(marsheled)
     expect(data.type).to.equal(unmarsheled.type)

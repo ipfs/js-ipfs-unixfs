@@ -12,7 +12,7 @@ const types = [
   'file',
   'metadata',
   'symlink',
-  'hamt-shard'
+  'hamt-sharded-directory'
 ]
 
 function Data (type, data) {
@@ -57,7 +57,7 @@ function Data (type, data) {
       case 'file': type = unixfsData.DataType.File; break
       case 'metadata': type = unixfsData.DataType.Metadata; break
       case 'symlink': type = unixfsData.DataType.Symlink; break
-      case 'hamt-shard': type = unixfsData.DataType.HAMTShard; break
+      case 'hamt-sharded-directory': type = unixfsData.DataType.HAMTShard; break
       default:
         throw new Error(`Unkown type: "${this.type}"`)
     }
@@ -71,7 +71,9 @@ function Data (type, data) {
       Type: type,
       Data: this.data,
       filesize: fileSize,
-      blocksizes: this.blockSizes.length > 0 ? this.blockSizes : undefined
+      blocksizes: this.blockSizes.length > 0 ? this.blockSizes : undefined,
+      hashType: this.hashType,
+      fanout: this.fanout
     })
   }
 }

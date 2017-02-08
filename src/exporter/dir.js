@@ -30,7 +30,7 @@ function dirExporter (node, name, ipldResolver) {
       path: path.join(name, link.name),
       hash: link.multihash
     })),
-    paramap((item, cb) => ipldResolver.get(new CID(item.hash), (err, n) => {
+    paramap((item, cb) => ipldResolver.get(new CID(item.hash), (err, result) => {
       if (err) {
         return cb(err)
       }
@@ -40,10 +40,12 @@ function dirExporter (node, name, ipldResolver) {
         size: item.size
       }
 
+      const node = result.value
+
       cb(null, switchType(
-        n,
-        () => cat([pull.values([dir]), dirExporter(n, item.path, ipldResolver)]),
-        () => fileExporter(n, item.path, ipldResolver)
+        node,
+        () => cat([pull.values([dir]), dirExporter(node, item.path, ipldResolver)]),
+        () => fileExporter(node, item.path, ipldResolver)
       ))
     })),
     pull.flatten()

@@ -135,8 +135,7 @@ function traverse (tree, sizeIndex, path, ipldResolver, source, done) {
       (node, cb) => {
         sizeIndex[mh.toB58String(node.multihash)] = node.size
 
-        ipldResolver.put({
-          node: node,
+        ipldResolver.put(node, {
           cid: new CID(node.multihash)
         }, (err) => cb(err, node))
       }

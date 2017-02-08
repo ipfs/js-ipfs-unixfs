@@ -62,8 +62,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
     waterfall([
       (cb) => DAGNode.create(d.marshal(), cb),
       (node, cb) => {
-        ipldResolver.put({
-          node: node,
+        ipldResolver.put(node, {
           cid: new CID(node.multihash)
         }, (err) => cb(err, node))
       }
@@ -104,12 +103,9 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
         })
       }),
       pull.asyncMap((leaf, callback) => {
-        ipldResolver.put(
-          {
-            node: leaf.DAGNode,
-            cid: new CID(leaf.DAGNode.multihash)
-          },
-          err => callback(err, leaf)
+        ipldResolver.put(leaf.DAGNode, {
+          cid: new CID(leaf.DAGNode.multihash)
+        }, (err) => callback(err, leaf)
         )
       }),
       pull.map((leaf) => {

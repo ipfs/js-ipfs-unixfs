@@ -34,8 +34,7 @@ module.exports = function (file, ipldResolver, options) {
     waterfall([
       (cb) => DAGNode.create(f.marshal(), links, cb),
       (node, cb) => {
-        ipldResolver.put({
-          node: node,
+        ipldResolver.put(node, {
           cid: new CID(node.multihash)
         }, (err) => cb(err, node))
       }

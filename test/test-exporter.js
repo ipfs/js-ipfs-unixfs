@@ -28,29 +28,26 @@ module.exports = (repo) => {
     it('ensure hash inputs are sanitized', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
       const mhBuf = new Buffer(bs58.decode(hash))
+      const cid = new CID(hash)
 
-      pull(
-        ipldResolver.getStream(new CID(hash)),
-        pull.map((node) => UnixFS.unmarshal(node.data)),
-        pull.collect((err, nodes) => {
+      ipldResolver.get(cid, (err, result) => {
+        expect(err).to.not.exist
+        const node = result.value
+        const unmarsh = UnixFS.unmarshal(node.data)
+
+        pull(
+          exporter(mhBuf, ipldResolver),
+          pull.collect(onFiles)
+        )
+
+        function onFiles (err, files) {
           expect(err).to.not.exist
+          expect(files).to.have.length(1)
+          expect(files[0]).to.have.property('path', hash)
 
-          const unmarsh = nodes[0]
-
-          pull(
-            exporter(mhBuf, ipldResolver),
-            pull.collect(onFiles)
-          )
-
-          function onFiles (err, files) {
-            expect(err).to.not.exist
-            expect(files).to.have.length(1)
-            expect(files[0]).to.have.property('path', hash)
-
-            fileEql(files[0], unmarsh.data, done)
-          }
-        })
-      )
+          fileEql(files[0], unmarsh.data, done)
+        }
+      })
     })
 
     it('export a file with no links', (done) => {
@@ -59,7 +56,7 @@ module.exports = (repo) => {
       pull(
         zip(
           pull(
-            ipldResolver.getStream(new CID(hash)),
+            ipldResolver._getStream(new CID(hash)),
             pull.map((node) => UnixFS.unmarshal(node.data))
           ),
           exporter(hash, ipldResolver)
@@ -176,7 +173,7 @@ function fileEql (f1, f2, done) {
 
       try {
         if (f2) {
-          expect(Buffer.concat(data)).to.be.eql(f2)
+          expect(Buffer.concat(data)).to.eql(f2)
         } else {
           expect(data).to.exist
         }

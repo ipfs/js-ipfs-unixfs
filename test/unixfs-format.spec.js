@@ -34,6 +34,17 @@ describe('unixfs-format', () => {
     done()
   })
 
+  it('hamt-sharded-directory', (done) => {
+    const data = new UnixFS('hamt-sharded-directory')
+    const marsheled = data.marshal()
+    const unmarsheled = UnixFS.unmarshal(marsheled)
+    expect(data.type).to.equal(unmarsheled.type)
+    expect(data.data).to.deep.equal(unmarsheled.data)
+    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
+    done()
+  })
+
   it('file', (done) => {
     const data = new UnixFS('file', new Buffer('batata'))
     const marsheled = data.marshal()

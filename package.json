@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
   "main": "src/index.js",
   "browser": {

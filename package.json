@@ -67,7 +67,7 @@
     "pull-block": "^1.1.0",
     "pull-pair": "^1.1.0",
     "pull-paramap": "^1.2.1",
-    "pull-pause": "0.0.0",
+    "pull-pause": "0.0.1",
     "pull-pushable": "^2.0.1",
     "pull-stream": "^3.5.0",
     "pull-traverse": "^1.0.3",

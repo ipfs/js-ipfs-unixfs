@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const pull = require('pull-stream')
@@ -64,7 +66,7 @@ module.exports = (repo) => {
           }),
           pull.flatten(),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(files[0].size).to.be.eql(bigFile.reduce(reduceLength, 0))
             fileEql(files[0], Buffer.concat(bigFile), done)
           })
@@ -86,7 +88,7 @@ function fileEql (f1, f2, done) {
         if (f2) {
           expect(Buffer.concat(data)).to.be.eql(f2)
         } else {
-          expect(data).to.exist
+          expect(data).to.exist()
         }
       } catch (err) {
         return done(err)

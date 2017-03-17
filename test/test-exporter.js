@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const UnixFS = require('ipfs-unixfs')
@@ -31,7 +33,7 @@ module.exports = (repo) => {
       const cid = new CID(hash)
 
       ipldResolver.get(cid, (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         const node = result.value
         const unmarsh = UnixFS.unmarshal(node.data)
 
@@ -41,7 +43,7 @@ module.exports = (repo) => {
         )
 
         function onFiles (err, files) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(files).to.have.length(1)
           expect(files[0]).to.have.property('path', hash)
 
@@ -56,13 +58,13 @@ module.exports = (repo) => {
       pull(
         zip(
           pull(
-            ipldResolver._getStream(new CID(hash)),
-            pull.map((node) => UnixFS.unmarshal(node.data))
+            ipldResolver.getStream(new CID(hash)),
+            pull.map((res) => UnixFS.unmarshal(res.value.data))
           ),
           exporter(hash, ipldResolver)
         ),
         pull.collect((err, values) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           const unmarsh = values[0][0]
           const file = values[0][1]
 
@@ -76,7 +78,7 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
 
           fileEql(files[0], bigFile, done)
         })
@@ -88,7 +90,7 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
 
           expect(files[0]).to.have.property('path', 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE')
           fileEql(files[0], null, done)
@@ -102,7 +104,7 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
 
           expect(
             files.map((file) => file.path)
@@ -119,7 +121,7 @@ module.exports = (repo) => {
             pull.values(files),
             pull.map((file) => Boolean(file.content)),
             pull.collect((err, contents) => {
-              expect(err).to.not.exist
+              expect(err).to.not.exist()
               expect(contents).to.be.eql([
                 false,
                 true,
@@ -141,8 +143,8 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
-          expect(files[0].content).to.not.exist
+          expect(err).to.not.exist()
+          expect(files[0].content).to.not.exist()
           done()
         })
       )
@@ -155,7 +157,7 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.exist
+          expect(err).to.exist()
           done()
         })
       )
@@ -175,7 +177,7 @@ function fileEql (f1, f2, done) {
         if (f2) {
           expect(Buffer.concat(data)).to.eql(f2)
         } else {
-          expect(data).to.exist
+          expect(data).to.exist()
         }
       } catch (err) {
         return done(err)

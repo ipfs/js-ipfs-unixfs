@@ -40,7 +40,7 @@ function shardedDirExporter (node, name, ipldResolver, resolve, parent) {
           return cb(err)
         }
 
-        cb(null, resolve(n, item.path, ipldResolver, (dir && dir[0]) || parent))
+        cb(null, resolve(n.value, item.path, ipldResolver, (dir && dir[0]) || parent))
       })),
       pull.flatten()
     )

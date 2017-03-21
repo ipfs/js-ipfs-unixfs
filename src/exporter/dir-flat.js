@@ -28,7 +28,7 @@ function dirExporter (node, name, ipldResolver, resolve, parent) {
           return cb(err)
         }
 
-        cb(null, resolve(n, item.path, ipldResolver, name, parent))
+        cb(null, resolve(n.value, item.path, ipldResolver, name, parent))
       })),
       pull.flatten()
     )

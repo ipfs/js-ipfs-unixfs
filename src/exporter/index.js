@@ -16,9 +16,8 @@ module.exports = (hash, ipldResolver) => {
 
   return pull(
     ipldResolver.getStream(new CID(hash)),
-    pull.map((node) => {
-      return resolve(node, hash, ipldResolver)
-    }),
+    pull.map((result) => result.value),
+    pull.map((node) => resolve(node, hash, ipldResolver)),
     pull.flatten()
   )
 }

@@ -61,8 +61,8 @@ class DirFlat {
         (callback) => DAGNode.create(dir.marshal(), links, callback),
         (node, callback) => {
           ipldResolver.put(
+            node,
             {
-              node: node,
               cid: new CID(node.multihash)
             },
             (err) => callback(err, node))

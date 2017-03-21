@@ -154,6 +154,8 @@ Nodes.
 
 In the second argument of the importer constructor you can specify the following options:
 
+* `wrap` (boolean, defaults to false): if true, a wrapping node will be created
+* `shardSplitThreshold` (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)
 * `chunker` (string, defaults to `"fixed"`): the chunking strategy. Now only supports `"fixed"`
 * `chunkerOptions` (object, optional): the options for the chunker. Defaults to an object with the following properties:
   * `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size for the `fixed` chunker.
@@ -164,6 +166,9 @@ In the second argument of the importer constructor you can specify the following
 * `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
 * `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
 * `reduceSingleLeafToSelf` (boolean, defaults to `false`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
+* `dirBuilder` (object): the options for the directory builder
+  * `hamt` (object): the options for the HAMT sharded directory builder
+    * bits (positive integer, defaults to `5`): the number of bits at each bucket of the HAMT
 
 ### Example Exporter
 

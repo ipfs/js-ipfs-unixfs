@@ -1,8 +1,12 @@
 'use strict'
 
+const pause = require('pull-pause')
+const pull = require('pull-stream')
+const writable = require('pull-write')
+const pushable = require('pull-pushable')
 const assert = require('assert')
-const createAndStoreTree = require('./flush-tree')
-const Builder = require('../builder')
+const DAGBuilder = require('../builder')
+const createTreeBuilder = require('./tree-builder')
 
 const chunkers = {
   fixed: require('../chunker/fixed-size')
@@ -16,5 +20,78 @@ module.exports = function (ipldResolver, _options) {
   const options = Object.assign({}, defaultOptions, _options)
   const Chunker = chunkers[options.chunker]
   assert(Chunker, 'Unknkown chunker named ' + options.chunker)
-  return Builder(Chunker, ipldResolver, createAndStoreTree, options)
+
+  let pending = 0
+  const waitingPending = []
+
+  const entry = {
+    sink: writable(
+      (nodes, callback) => {
+        pending += nodes.length
+        nodes.forEach((node) => entry.source.push(node))
+        callback()
+      },
+      null,
+      1,
+      (err) => entry.source.end(err)
+    ),
+    source: pushable()
+  }
+
+  const dagStream = DAGBuilder(Chunker, ipldResolver, options)
+
+  const treeBuilder = createTreeBuilder(ipldResolver, options)
+  const treeBuilderStream = treeBuilder.stream()
+  const pausable = pause(() => {})
+
+  // TODO: transform this entry -> pausable -> <custom async transform> -> exit
+  // into a generic NPM package named something like pull-pause-and-drain
+
+  pull(
+    entry,
+    pausable,
+    dagStream,
+    pull.map((node) => {
+      pending--
+      if (!pending) {
+        process.nextTick(() => {
+          while (waitingPending.length) {
+            waitingPending.shift()()
+          }
+        })
+      }
+      return node
+    }),
+    treeBuilderStream
+    )
+
+  return {
+    sink: entry.sink,
+    source: treeBuilderStream.source,
+    flush: flush
+  }
+
+  function flush (callback) {
+    pausable.pause()
+
+    // wait until all the files entered were
+    // transformed into DAG nodes
+    if (!pending) {
+      proceed()
+    } else {
+      waitingPending.push(proceed)
+    }
+
+    function proceed () {
+      treeBuilder.flush((err, hash) => {
+        if (err) {
+          treeBuilderStream.source.end(err)
+          callback(err)
+          return
+        }
+        pausable.resume()
+        callback(null, hash)
+      })
+    }
+  }
 }

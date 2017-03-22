@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const pull = require('pull-stream')
@@ -30,7 +32,7 @@ module.exports = (repo) => {
         ]),
         unixFSEngine.importer(ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(files.map(normalizeNode).sort(byPath)).to.be.eql([
             { path: 'a/b/h',
               multihash: 'QmWHMpCtdNjemT2F3SjyrmnBXQXwEohaZd4apcbFBhbFRC' },
@@ -58,7 +60,7 @@ module.exports = (repo) => {
       pull(
         unixFSEngine.exporter(rootHash, ipldResolver),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           map(
             files,
             (file, callback) => {
@@ -72,7 +74,7 @@ module.exports = (repo) => {
               }
             },
             (err, files) => {
-              expect(err).to.not.exist
+              expect(err).to.not.exist()
               expect(files.filter(fileHasContent).sort(byPath)).to.eql([
                 { path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/h',
                   content: 'cream' },

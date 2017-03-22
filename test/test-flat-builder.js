@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const pull = require('pull-stream')
 
 const builder = require('../src/builder/flat')
@@ -20,7 +22,7 @@ describe('flat builder', () => {
       pull.values([1]),
       builder(reduce),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([1])
         callback()
       })
@@ -32,7 +34,7 @@ describe('flat builder', () => {
       pull.values([1, 2]),
       builder(reduce),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([{
           children: [1, 2]
         }])

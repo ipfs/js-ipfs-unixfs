@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const pull = require('pull-stream')
 
 const builder = require('../src/builder/balanced')
@@ -24,7 +26,7 @@ describe('balanced builder', () => {
       pull.values([1]),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([1])
         callback()
       })
@@ -36,7 +38,7 @@ describe('balanced builder', () => {
       pull.values([1, 2, 3]),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([{
           children: [1, 2, 3]
         }])
@@ -50,7 +52,7 @@ describe('balanced builder', () => {
       pull.values([1, 2, 3, 4]),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [
@@ -71,7 +73,7 @@ describe('balanced builder', () => {
       pull.values([1, 2, 3, 4, 5, 6, 7]),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [

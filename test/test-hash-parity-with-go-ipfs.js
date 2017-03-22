@@ -3,7 +3,9 @@
 
 const importer = require('./../src').importer
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
@@ -46,7 +48,7 @@ module.exports = (repo) => {
           ]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(files.length).to.be.equal(1)
 
             const file = files[0]

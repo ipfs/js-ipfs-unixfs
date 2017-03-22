@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const pull = require('pull-stream')
 
 const builder = require('../src/builder/trickle')
@@ -25,7 +27,7 @@ describe('trickle builder', () => {
       pull.values([1]),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([1])
         callback()
       })
@@ -37,7 +39,7 @@ describe('trickle builder', () => {
       pull.count(2),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [
@@ -57,7 +59,7 @@ describe('trickle builder', () => {
       pull.count(5),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [
@@ -84,7 +86,7 @@ describe('trickle builder', () => {
       pull.count(8),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [
@@ -118,7 +120,7 @@ describe('trickle builder', () => {
       pull.count(11),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         setTimeout(() => {
           expect(result).to.be.eql([
             {
@@ -161,7 +163,7 @@ describe('trickle builder', () => {
       pull.count(20),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [
@@ -223,7 +225,7 @@ describe('trickle builder', () => {
       pull.count(99),
       builder(reduce, options),
       pull.collect((err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
             children: [

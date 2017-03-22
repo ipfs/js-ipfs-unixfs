@@ -2,7 +2,9 @@
 'use strict'
 
 const chunker = require('./../src/chunker/fixed-size')
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
 
@@ -22,7 +24,7 @@ describe('chunker: fixed size', () => {
       pull.values([b1, b2, b3]),
       chunker(256),
       pull.collect((err, chunks) => {
-        expect(err).to.not.exists
+        expect(err).to.not.exist()
         expect(chunks).to.have.length(8)
         chunks.forEach((chunk) => {
           expect(chunk).to.have.length(256)
@@ -38,7 +40,7 @@ describe('chunker: fixed size', () => {
       pull.take(256 * 12),
       chunker(256),
       pull.collect((err, chunks) => {
-        expect(err).to.not.exists
+        expect(err).to.not.exist()
         expect(chunks).to.have.length(12)
         chunks.forEach((chunk) => {
           expect(chunk).to.have.length(256)
@@ -54,7 +56,7 @@ describe('chunker: fixed size', () => {
       pull.values(rawFile),
       chunker(KiB256),
       pull.collect((err, chunks) => {
-        expect(err).to.not.exists
+        expect(err).to.not.exist()
 
         expect(chunks).to.have.length(4)
         chunks.forEach((chunk) => {
@@ -73,7 +75,7 @@ describe('chunker: fixed size', () => {
       pull.values(file),
       chunker(KiB256),
       pull.collect((err, chunks) => {
-        expect(err).to.not.exists
+        expect(err).to.not.exist()
 
         expect(chunks).to.have.length(5)
         let counter = 0

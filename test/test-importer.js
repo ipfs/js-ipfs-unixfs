@@ -4,7 +4,9 @@
 const importer = require('./../src').importer
 
 const extend = require('deep-extend')
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
@@ -178,7 +180,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.onEnd((err) => {
-            expect(err).to.exist
+            expect(err).to.exist()
             done()
           })
         )
@@ -189,7 +191,7 @@ module.exports = (repo) => {
           pull.empty(),
           importer(ipldResolver, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(0)
             done()
           }))
@@ -203,7 +205,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
             // always yield empty node
             expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmfJMCvenrj4SKKRc48DYPxwVdS44qCUCqqtbqhJuSTWXP')
@@ -225,7 +227,7 @@ module.exports = (repo) => {
           ]),
           importer(ipldResolver, options),
           pull.onEnd((err) => {
-            expect(err).to.exist
+            expect(err).to.exist()
             expect(err.message).to.be.eql('detected more than one root')
             done()
           })
@@ -240,7 +242,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
           })
@@ -255,7 +257,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
           })
@@ -273,7 +275,7 @@ module.exports = (repo) => {
         )
 
         function collected (err, files) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(files.length).to.equal(3)
           stringifyMh(files).forEach((file) => {
             if (file.path === 'foo/bar/200Bytes.txt') {
@@ -298,7 +300,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
             done()
           })
@@ -313,7 +315,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([
               expected['foo-big/1.2MiB.txt'],
@@ -332,7 +334,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([expected['empty-dir']])
 
@@ -352,7 +354,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
 
             expect(stringifyMh(files)).be.eql([
               expected['pim/200Bytes.txt'],
@@ -379,7 +381,7 @@ module.exports = (repo) => {
           }]),
           importer(ipldResolver, options),
           pull.collect((err, files) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
 
             // need to sort as due to parallel storage the order
             // can vary

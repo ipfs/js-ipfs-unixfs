@@ -5,6 +5,7 @@ const pull = require('pull-stream')
 const writable = require('pull-write')
 const pushable = require('pull-pushable')
 const assert = require('assert')
+const setImmediate = require('async/setImmediate')
 const DAGBuilder = require('../builder')
 const createTreeBuilder = require('./tree-builder')
 
@@ -29,7 +30,7 @@ module.exports = function (ipldResolver, _options) {
       (nodes, callback) => {
         pending += nodes.length
         nodes.forEach((node) => entry.source.push(node))
-        callback()
+        setImmediate(callback)
       },
       null,
       1,

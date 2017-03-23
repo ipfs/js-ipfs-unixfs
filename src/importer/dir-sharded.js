@@ -13,7 +13,7 @@ const multihashing = require('multihashing-async')
 const Bucket = require('../hamt')
 
 const hashFn = function (value, callback) {
-  multihashing(value, 'murmur3', (err, hash) => {
+  multihashing(value, 'murmur3-128', (err, hash) => {
     if (err) {
       callback(err)
     } else {

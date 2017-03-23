@@ -4,14 +4,16 @@
 const importer = require('./../src').importer
 const exporter = require('./../src').exporter
 
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const mh = require('multihashes')
-const expect = require('chai').expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const pull = require('pull-stream')
 const pushable = require('pull-pushable')
 const whilst = require('async/whilst')
-const timers = require('timers')
+const setImmediate = require('async/setImmediate')
 const leftPad = require('left-pad')
 
 module.exports = (repo) => {
@@ -40,12 +42,12 @@ module.exports = (repo) => {
           ]),
           importer(ipldResolver, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
             expect(nodes[0].path).to.be.eql('a/b')
             expect(nodes[1].path).to.be.eql('a')
             nonShardedHash = nodes[1].multihash
-            expect(nonShardedHash).to.exist
+            expect(nonShardedHash).to.exist()
             done()
           })
         )
@@ -65,7 +67,7 @@ module.exports = (repo) => {
           ]),
           importer(ipldResolver, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
             expect(nodes[0].path).to.be.eql('a/b')
             expect(nodes[1].path).to.be.eql('a')
@@ -81,7 +83,7 @@ module.exports = (repo) => {
         pull(
           exporter(nonShardedHash, ipldResolver),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
             const expectedHash = mh.toB58String(nonShardedHash)
             expect(nodes[0].path).to.be.eql(expectedHash)
@@ -96,7 +98,7 @@ module.exports = (repo) => {
         )
 
         function collected (err, content) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(content.length).to.be.eql(1)
           expect(content[0].toString()).to.be.eql('i have the best bytes')
           done()
@@ -107,7 +109,7 @@ module.exports = (repo) => {
         pull(
           exporter(shardedHash, ipldResolver),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
             const expectedHash = mh.toB58String(shardedHash)
             expect(nodes[0].path).to.be.eql(expectedHash)
@@ -122,7 +124,7 @@ module.exports = (repo) => {
         )
 
         function collected (err, content) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(content.length).to.be.eql(1)
           expect(content[0].toString()).to.be.eql('i have the best bytes')
           done()
@@ -140,7 +142,7 @@ module.exports = (repo) => {
           push,
           importer(ipldResolver),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(maxDirs + 1)
             const last = nodes[nodes.length - 1]
             expect(last.path).to.be.eql('big')
@@ -162,10 +164,10 @@ module.exports = (repo) => {
               content: pull.values([new Buffer(i.toString())])
             }
             push.push(pushable)
-            timers.setTimeout(callback, 1)
+            setImmediate(callback)
           },
           (err) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             push.end()
           }
         )
@@ -188,13 +190,13 @@ module.exports = (repo) => {
             }
 
             function collected (err, content) {
-              expect(err).to.not.exist
+              expect(err).to.not.exist()
               entries[node.path] = { content: content.toString() }
               callback(null, node)
             }
           }),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             const paths = Object.keys(entries).sort()
             expect(paths.length).to.be.eql(2001)
             paths.forEach(eachPath)
@@ -207,8 +209,8 @@ module.exports = (repo) => {
             // first dir
             expect(path).to.be.eql(mh.toB58String(rootHash))
             const entry = entries[path]
-            expect(entry).to.exist
-            expect(entry.content).to.not.exist
+            expect(entry).to.exist()
+            expect(entry.content).to.not.exist()
             return
           }
           // dir entries
@@ -232,7 +234,7 @@ module.exports = (repo) => {
           push,
           importer(ipldResolver),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             const last = nodes[nodes.length - 1]
             expect(last.path).to.be.eql('big')
             rootHash = last.multihash
@@ -265,10 +267,10 @@ module.exports = (repo) => {
               i = 0
               depth++
             }
-            timers.setTimeout(callback, 1)
+            setImmediate(callback)
           },
           (err) => {
-            expect(err).to.not.exist
+            expect(err).to.not.exist()
             push.end()
           }
         )
@@ -290,7 +292,7 @@ module.exports = (repo) => {
             }
 
             function collected (err, content) {
-              expect(err).to.not.exist
+              expect(err).to.not.exist()
               entries[node.path] = { content: content.toString() }
               callback(null, node)
             }
@@ -299,7 +301,7 @@ module.exports = (repo) => {
         )
 
         function collected (err, nodes) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           const paths = Object.keys(entries).sort()
           expect(paths.length).to.be.eql(maxDepth * maxDirs + maxDepth)
           let index = 0
@@ -314,8 +316,8 @@ module.exports = (repo) => {
                 expect(path).to.be.eql(mh.toB58String(rootHash))
               }
               const entry = entries[path]
-              expect(entry).to.exist
-              expect(entry.content).to.not.exist
+              expect(entry).to.exist()
+              expect(entry.content).to.not.exist()
             } else {
               // dir entries
               const pathElements = path.split('/')

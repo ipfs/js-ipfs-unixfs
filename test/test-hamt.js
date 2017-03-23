@@ -1,8 +1,10 @@
 /* eslint-env mocha */
 'use strict'
 
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const crypto = require('crypto')
-const expect = require('chai').expect
 const each = require('async/each')
 const eachSeries = require('async/eachSeries')
 
@@ -28,8 +30,8 @@ describe('HAMT', () => {
 
     it('get unknown key returns undefined', (callback) => {
       bucket.get('unknown', (err, result) => {
-        expect(err).to.not.exist
-        expect(result).to.be.undefined
+        expect(err).to.not.exist()
+        expect(result).to.be.undefined()
         callback()
       })
     })
@@ -40,7 +42,7 @@ describe('HAMT', () => {
 
     it('can get that value', (callback) => {
       bucket.get('key', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql('value')
         callback()
       })
@@ -52,7 +54,7 @@ describe('HAMT', () => {
 
     it('can get that value', (callback) => {
       bucket.get('key', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result).to.be.eql('a different value')
         callback()
       })
@@ -68,8 +70,8 @@ describe('HAMT', () => {
 
     it('get deleted key returns undefined', (callback) => {
       bucket.get('key', (err, result) => {
-        expect(err).to.not.exist
-        expect(result).to.be.undefined
+        expect(err).to.not.exist()
+        expect(result).to.be.undefined()
         callback()
       })
     })
@@ -104,19 +106,19 @@ describe('HAMT', () => {
         }
 
         bucket.get(head, (err, value) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(value).to.be.eql(head)
           bucket.del(head, afterDel)
         })
 
         function afterDel (err) {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           bucket.get(head, afterGet)
         }
 
         function afterGet (err, value) {
-          expect(err).to.not.exist
-          expect(value).to.be.undefined
+          expect(err).to.not.exist()
+          expect(value).to.be.undefined()
 
           each(
             keys,
@@ -128,14 +130,14 @@ describe('HAMT', () => {
 
       function onEachKey (key, callback) {
         bucket.get(key, (err, value) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(value).to.be.eql(key)
           callback()
         })
       }
 
       function reiterate (err) {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         // break from stack on next iteration
         process.nextTick(iterate)
       }
@@ -147,7 +149,7 @@ describe('HAMT', () => {
 
     it('can still find sole head', (callback) => {
       bucket.get(masterHead, (err, value) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(value).to.be.eql(masterHead)
         callback()
       })
@@ -172,7 +174,7 @@ describe('HAMT', () => {
       }
 
       eachSeries(keys, (key, callback) => bucket.put(key, key, callback), (err) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         callback()
       })
     })

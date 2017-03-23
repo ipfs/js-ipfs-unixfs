@@ -3,7 +3,9 @@
 
 const createImporter = require('./../src').importer
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const pull = require('pull-stream')
@@ -29,7 +31,7 @@ module.exports = (repo) => {
           return node
         }),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(files.length).to.be.eql(1)
           done()
         })
@@ -41,8 +43,8 @@ module.exports = (repo) => {
       })
 
       importer.flush((err, hash) => {
-        expect(err).to.not.exist
-        expect(Buffer.isBuffer(hash)).to.be.true
+        expect(err).to.not.exist()
+        expect(Buffer.isBuffer(hash)).to.be.true()
         source.end()
       })
     })
@@ -64,7 +66,7 @@ module.exports = (repo) => {
           return node
         }),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(count).to.be.eql(2)
           done()
         })
@@ -76,8 +78,8 @@ module.exports = (repo) => {
       })
 
       importer.flush((err, hash) => {
-        expect(err).to.not.exist
-        expect(Buffer.isBuffer(hash)).to.be.true
+        expect(err).to.not.exist()
+        expect(Buffer.isBuffer(hash)).to.be.true()
         source.end()
       })
     })
@@ -102,7 +104,7 @@ module.exports = (repo) => {
           return node
         }),
         pull.collect((err, files) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           expect(count).to.be.eql(2)
           done()
         })
@@ -134,8 +136,8 @@ module.exports = (repo) => {
           currentDir = newDir
         }
         importer.flush((err, hash) => {
-          expect(err).to.not.exist
-          expect(Buffer.isBuffer(hash)).to.be.true
+          expect(err).to.not.exist()
+          expect(Buffer.isBuffer(hash)).to.be.true()
           testAllYielded(tree)
           if (currentDir.depth < maxDepth) {
             pushAndFlush()
@@ -149,7 +151,7 @@ module.exports = (repo) => {
       function markDirAsYielded (node) {
         const dir = findDir(tree, node.path)
         if (node.path === dir.path) {
-          expect(dir.yielded).to.be.false
+          expect(dir.yielded).to.be.false()
           dir.yielded = true
         }
       }
@@ -169,7 +171,7 @@ module.exports = (repo) => {
 
       function testAllYielded (tree) {
         if (tree.depth) {
-          expect(tree.yielded).to.be.true
+          expect(tree.yielded).to.be.true()
         }
         const childrenNames = Object.keys(tree.children)
         childrenNames.forEach((childName) => {

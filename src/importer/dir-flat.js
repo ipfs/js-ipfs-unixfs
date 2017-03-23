@@ -9,7 +9,6 @@ const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
 class DirFlat {
-
   constructor (props) {
     this._children = {}
     Object.assign(this, props)
@@ -81,7 +80,6 @@ class DirFlat {
       ],
       callback)
   }
-
 }
 
 module.exports = createDirFlat

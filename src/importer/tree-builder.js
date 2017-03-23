@@ -215,4 +215,3 @@ function createTreeBuilder (ipldResolver, _options) {
 function notEmpty (str) {
   return Boolean(str)
 }
-

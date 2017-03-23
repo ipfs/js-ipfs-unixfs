@@ -1,7 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const crypto = require('crypto')
 const whilst = require('async/whilst')
 
@@ -18,7 +20,7 @@ describe('consumable hash', () => {
 
   it('can take a 0 length value', (callback) => {
     hash('some value').take(0, (err, result) => {
-      expect(err).to.not.exist
+      expect(err).to.not.exist()
       expect(result).to.be.eql(0)
       callback()
     })
@@ -26,7 +28,7 @@ describe('consumable hash', () => {
 
   it('can take a 10 bit value', (callback) => {
     hash('some value').take(10, (err, result) => {
-      expect(err).to.not.exist
+      expect(err).to.not.exist()
       expect(result).to.be.eql(110)
       callback()
     })
@@ -39,7 +41,7 @@ describe('consumable hash', () => {
       () => iter > 0,
       (callback) => {
         h.take(10, (err, result) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           values.push(result)
           expect(result).to.be.below(1024)
           expect(result).to.be.above(0)
@@ -61,7 +63,7 @@ describe('consumable hash', () => {
       () => iter > 0,
       (callback) => {
         h.take(10, (err, result) => {
-          expect(err).to.not.exist
+          expect(err).to.not.exist()
           values.push(result)
           expect(result).to.be.eql(values.shift())
           iter--

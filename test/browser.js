@@ -42,8 +42,13 @@ describe('IPFS data importing tests on the Browser', function () {
   // relies on data in the repo
   // require('./test-exporter')(repo)
 
+  require('./test-consumable-buffer')
+  require('./test-consumable-hash')
+  require('./test-hamt')
   require('./test-importer')(repo)
+  require('./test-importer-flush')(repo)
   require('./test-import-export')(repo)
   require('./test-hash-parity-with-go-ipfs')(repo)
   require('./test-nested-dir-import-export')(repo)
+  require('./test-dirbuilder-sharding')(repo)
 })

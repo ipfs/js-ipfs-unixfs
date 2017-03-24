@@ -16,10 +16,9 @@ const defaultOptions = {
   reduceSingleLeafToSelf: false
 }
 
-module.exports = function (Chunker, ipldResolver, flushTree, _options) {
+module.exports = function (Chunker, ipldResolver, _options) {
   assert(Chunker, 'Missing chunker creator function')
   assert(ipldResolver, 'Missing IPLD Resolver')
-  assert(flushTree, 'Missing flushTree argument')
 
   const options = Object.assign({}, defaultOptions, _options)
 
@@ -29,5 +28,5 @@ module.exports = function (Chunker, ipldResolver, flushTree, _options) {
 
   const createStrategy = Builder(Chunker, ipldResolver, reducer, options)
 
-  return createBuildStream(createStrategy, ipldResolver, flushTree, options)
+  return createBuildStream(createStrategy, ipldResolver, options)
 }

@@ -156,6 +156,7 @@ module.exports = (repo) => {
     }, strategyOverrides[strategy])
 
     const expected = extend({}, defaultResults, strategies[strategy])
+
     describe(strategy + ' importer', () => {
       let ipldResolver
 

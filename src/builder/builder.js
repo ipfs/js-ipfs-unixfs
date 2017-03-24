@@ -22,7 +22,7 @@ const defaultOptions = {
 module.exports = function (createChunker, ipldResolver, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
 
-  return function (source, files) {
+  return function (source) {
     return function (items, cb) {
       parallel(items.map((item) => (cb) => {
         if (!item.content) {
@@ -33,7 +33,6 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
             }
             if (node) {
               source.push(node)
-              files.push(node)
             }
             cb()
           })
@@ -46,7 +45,6 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
           }
           if (node) {
             source.push(node)
-            files.push(node)
           }
           cb()
         })

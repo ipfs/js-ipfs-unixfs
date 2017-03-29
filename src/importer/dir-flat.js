@@ -7,9 +7,11 @@ const dagPB = require('ipld-dag-pb')
 const UnixFS = require('ipfs-unixfs')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
+const Dir = require('./dir')
 
-class DirFlat {
+class DirFlat extends Dir {
   constructor (props) {
+    super()
     this._children = {}
     Object.assign(this, props)
   }

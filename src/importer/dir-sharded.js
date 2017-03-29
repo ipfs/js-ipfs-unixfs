@@ -9,6 +9,7 @@ const UnixFS = require('ipfs-unixfs')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 const multihashing = require('multihashing-async')
+const Dir = require('./dir')
 
 const Bucket = require('../hamt')
 
@@ -38,8 +39,9 @@ const defaultOptions = {
   hashFn: hashFn
 }
 
-class DirSharded {
+class DirSharded extends Dir {
   constructor (props, _options) {
+    super()
     const options = Object.assign({}, defaultOptions, _options)
     this._options = options
     this._bucket = Bucket(options)

@@ -8,6 +8,7 @@ const writable = require('pull-write')
 const pushable = require('pull-pushable')
 const DirFlat = require('./dir-flat')
 const flatToShard = require('./flat-to-shard')
+const Dir = require('./dir')
 
 module.exports = createTreeBuilder
 
@@ -122,7 +123,7 @@ function createTreeBuilder (ipldResolver, _options) {
             return // early
           }
           let dir = treeNode
-          if (!dir) {
+          if (!dir || !(dir instanceof Dir)) {
             dir = DirFlat({
               dir: true,
               parent: parent,

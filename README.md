@@ -12,8 +12,6 @@ IPFS unixFS Engine
 ![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/Node.js-%3E%3D4.0.0-orange.svg?style=flat-square)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/ipfs-unixfs-engine.svg)](https://saucelabs.com/u/ipfs-unixfs-engine)
-
 > JavaScript implementation of the layout and chunking mechanisms used by IPFS
 
 ## Table of Contents
@@ -29,20 +27,10 @@ IPFS unixFS Engine
 - [Contribute](#contribute)
 - [License](#license)
 
-## BEWARE BEWARE BEWARE there might be 🐉
-
-This module has passed through several iterations and still is far from a nice and easy understandable codebase. Currently missing features:
-
-- [ ] tar importer
-- [x] trickle dag exporter
-- [ ] sharding (HAMT)
-
 ## Install
 
-With [npm](https://npmjs.org/) installed, run
-
 ```
-$ npm install ipfs-unixfs-engine
+> npm install ipfs-unixfs-engine
 ```
 
 ## Usage
@@ -51,29 +39,16 @@ $ npm install ipfs-unixfs-engine
 
 Let's create a little directory to import:
 ```sh
-$ cd /tmp
-$ mkdir foo
-$ echo 'hello' > foo/bar
-$ echo 'world' > foo/quux
+> cd /tmp
+> mkdir foo
+> echo 'hello' > foo/bar
+> echo 'world' > foo/quux
 ```
 
 And write the importing logic:
 ```js
-// Dependencies to create a DAG Service (where the dir will be imported into)
-const memStore = require('abstract-blob-store')
-const Repo = require('ipfs-repo')
-const Block = require('ipfs-block')
-const BlockService = require('ipfs-block-service')
-const MerkleDag = require('ipfs-merkle-dag')
-const fs = require('fs')
-
-const repo = new Repo('', { stores: memStore })
-const blockService = new BlockService(repo)
-const dagService = new ipfsMerkleDag.DAGService(blocks)
-
-
 const Importer = require('ipfs-unixfs-engine').Importer
-const filesAddStream = new Importer(dagService)
+const filesAddStream = new Importer(<dag or ipld-resolver instance)
 
 // An array to hold the return of nested file/dir info from the importer
 // A root DAG Node is received upon completion
@@ -81,26 +56,18 @@ const filesAddStream = new Importer(dagService)
 const res = []
 
 // Import path /tmp/foo/bar
-
 const rs = fs.createReadStream(file)
 const rs2 = fs.createReadStream(file2)
-const input = {path: /tmp/foo/bar, content: rs}
-const input2 = {path: /tmp/foo/quxx, content: rs2}
+const input = { path: /tmp/foo/bar, content: rs }
+const input2 = { path: /tmp/foo/quxx, content: rs2 }
 
 // Listen for the data event from the importer stream
-
-filesAddStream.on('data', (info) => {
-	res.push(info)
-})
+filesAddStream.on('data', (info) => res.push(info))
 
 // The end event of the stream signals that the importer is done
-
-filesAddStream.on('end', () => {
-	console.log('Finished filesAddStreaming files!')
-})
+filesAddStream.on('end', () => console.log('Finished filesAddStreaming files!'))
 
 // Calling write on the importer to filesAddStream the file/object tuples
-
 filesAddStream.write(input)
 filesAddStream.write(input2)
 filesAddStream.end()
@@ -129,7 +96,7 @@ When run, the stat of DAG Node is outputted for each file on data event until th
 ### Importer API
 
 ```js
-const Importer = require('ipfs-unixfs-engine').importer
+const Importer = require('ipfs-unixfs-engine').Importer
 ```
 
 #### const add = new Importer(dag)
@@ -173,24 +140,11 @@ In the second argument of the importer constructor you can specify the following
 ### Example Exporter
 
 ```
-const Repo = require('ipfs-repo')
-const Block = require('ipfs-block')
-const BlockService = require('ipfs-block-service')
-const MerkleDAG = require('ipfs-merkle-dag')
-
-const repo = new Repo('', { stores: memStore })
-const blockService = new BlockService(repo)
-const dagService = new MerkleDag.DAGService(blockService)
-
 // Create an export readable object stream with the hash you want to export and a dag service
-
-const filesStream = Exporter(<multihash>, dag)
+const filesStream = Exporter(<multihash>, <dag or ipld-resolver instance>)
 
 // Pipe the return stream to console
-
-filesStream.on('data', (file) => {
-	file.content.pipe(process.stdout)
-}
+filesStream.on('data', (file) => file.content.pipe(process.stdout))
 ```
 
 ### Exporter: API
@@ -199,9 +153,9 @@ filesStream.on('data', (file) => {
 const Exporter = require('ipfs-unixfs-engine').Exporter
 ```
 
-### new Exporter(hash, dagService)
+### new Exporter(<hash>, <dag or ipld-resolver>)
 
-Uses the given [DAG Service][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
+Uses the given [dag API or an ipld-resolver instance][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
 
 Creates a new readable stream in object mode that outputs objects of the form
 
@@ -215,7 +169,7 @@ Creates a new readable stream in object mode that outputs objects of the form
 Errors are received as with a normal stream, by listening on the `'error'` event to be emitted.
 
 
-[DAG Service]: https://github.com/vijayee/js-ipfs-merkle-dag/
+[IPLD Resolver]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
 
 ## Contribute

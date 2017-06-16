@@ -6,7 +6,8 @@ const pull = require('pull-stream')
 const resolvers = {
   directory: require('./dir-flat'),
   'hamt-sharded-directory': require('./dir-hamt-sharded'),
-  file: require('./file')
+  file: require('./file'),
+  object: require('./object')
 }
 
 module.exports = Object.assign({
@@ -14,17 +15,19 @@ module.exports = Object.assign({
   typeOf: typeOf
 }, resolvers)
 
-function resolve (node, name, ipldResolver, parentNode) {
+function resolve (node, hash, pathRest, ipldResolver, parentNode) {
   const type = typeOf(node)
   const resolver = resolvers[type]
   if (!resolver) {
     return pull.error(new Error('Unkown node type ' + type))
   }
-  let stream = resolver(node, name, ipldResolver, resolve, parentNode)
-  return stream
+  return resolver(node, hash, pathRest, ipldResolver, resolve, parentNode)
 }
 
 function typeOf (node) {
-  const data = UnixFS.unmarshal(node.data)
-  return data.type
+  if (Buffer.isBuffer(node.data)) {
+    return UnixFS.unmarshal(node.data).type
+  } else {
+    return 'object'
+  }
 }

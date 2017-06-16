@@ -44,6 +44,7 @@ describe('IPFS UnixFS Engine', () => {
   require('./test-consumable-hash')
   require('./test-hamt')
   require('./test-exporter')(repo)
+  require('./test-export-subtree')(repo)
   require('./test-importer')(repo)
   require('./test-importer-flush')(repo)
   require('./test-import-export')(repo)

@@ -2,22 +2,62 @@
 
 const pull = require('pull-stream')
 const CID = require('cids')
-const isIPFS = require('is-ipfs')
+const pullDefer = require('pull-defer')
 
 const resolve = require('./resolve').resolve
-const cleanMultihash = require('./clean-multihash')
 
-module.exports = (hash, ipldResolver) => {
-  if (!isIPFS.multihash(hash)) {
-    return pull.error(new Error('not valid multihash'))
+function pathBaseAndRest (path) {
+  // Buffer -> raw multihash or CID in buffer
+  let pathBase = path
+  let pathRest = '/'
+
+  if (Buffer.isBuffer(path)) {
+    pathBase = (new CID(path)).toBaseEncodedString()
   }
 
-  hash = cleanMultihash(hash)
+  if (typeof path === 'string') {
+    if (path.indexOf('/ipfs/') === 0) {
+      path = pathBase = path.substring(6)
+    }
+    const subtreeStart = path.indexOf('/')
+    if (subtreeStart > 0) {
+      pathBase = path.substring(0, subtreeStart)
+      pathRest = path.substring(subtreeStart)
+    }
+  } else if (CID.isCID(pathBase)) {
+    pathBase = pathBase.toBaseEncodedString()
+  }
+
+  pathBase = (new CID(pathBase)).toBaseEncodedString()
+
+  return {
+    base: pathBase,
+    rest: pathRest.split('/').filter(Boolean)
+  }
+}
+
+module.exports = (path, dag) => {
+  try {
+    path = pathBaseAndRest(path)
+  } catch (err) {
+    return pull.error(err)
+  }
+
+  const d = pullDefer.source()
+
+  const cid = new CID(path.base)
+
+  dag.get(cid, (err, node) => {
+    if (err) {
+      return pull.error(err)
+    }
+    d.resolve(pull.values([node]))
+  })
 
   return pull(
-    ipldResolver.getStream(new CID(hash)),
+    d,
     pull.map((result) => result.value),
-    pull.map((node) => resolve(node, hash, ipldResolver)),
+    pull.map((node) => resolve(node, path.base, path.rest, dag)),
     pull.flatten()
   )
 }

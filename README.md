@@ -12,7 +12,7 @@ IPFS unixFS Engine
 ![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/Node.js-%3E%3D4.0.0-orange.svg?style=flat-square)
 
-> JavaScript implementation of the layout and chunking mechanisms used by IPFS
+> JavaScript implementation of the layout and chunking mechanisms used by IPFS to handle Files
 
 ## Table of Contents
 
@@ -35,9 +35,12 @@ IPFS unixFS Engine
 
 ## Usage
 
-### Example Importer
+### Importer
+
+#### Importer example
 
 Let's create a little directory to import:
+
 ```sh
 > cd /tmp
 > mkdir foo
@@ -46,6 +49,7 @@ Let's create a little directory to import:
 ```
 
 And write the importing logic:
+
 ```js
 const Importer = require('ipfs-unixfs-engine').Importer
 const filesAddStream = new Importer(<dag or ipld-resolver instance)
@@ -74,7 +78,8 @@ filesAddStream.end()
 ```
 
 When run, the stat of DAG Node is outputted for each file on data event until the root:
-```
+
+```js
 { multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
   size: 39243,
   path: '/tmp/foo/bar' }
@@ -93,15 +98,15 @@ When run, the stat of DAG Node is outputted for each file on data event until th
 
 ```
 
-### Importer API
+#### Importer API
 
 ```js
 const Importer = require('ipfs-unixfs-engine').Importer
 ```
 
-#### const add = new Importer(dag)
+#### const import = new Importer(dag [, options])
 
-The importer is a object Transform stream that accepts objects of the form
+The `import` object is a duplex pull stream that takes objects of the form:
 
 ```js
 {
@@ -110,50 +115,50 @@ The importer is a object Transform stream that accepts objects of the form
 }
 ```
 
-The stream will output IPFS DAG Node stats for the nodes as they are added to
-the DAG Service. When stats on a node are emitted they are guaranteed to have
-been written into the [DAG Service][]'s storage mechanism.
+`import` will outoyt file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-The input's file paths and directory structure will be preserved in the DAG
-Nodes.
+`dag` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/tree/master/API/dag)
 
-### Importer options
+The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
 
-In the second argument of the importer constructor you can specify the following options:
+`options` is an JavaScript option that might include the following keys:
 
-* `wrap` (boolean, defaults to false): if true, a wrapping node will be created
-* `shardSplitThreshold` (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)
-* `chunker` (string, defaults to `"fixed"`): the chunking strategy. Now only supports `"fixed"`
-* `chunkerOptions` (object, optional): the options for the chunker. Defaults to an object with the following properties:
-  * `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size for the `fixed` chunker.
-* `strategy` (string, defaults to `"balanced"`): the DAG builder strategy name. Supports:
-  * `flat`: flat list of chunks
-  * `balanced`: builds a balanced tree
-  * `trickle`: builds [a trickle tree](https://github.com/ipfs/specs/pull/57#issuecomment-265205384)
-* `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
-* `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
-* `reduceSingleLeafToSelf` (boolean, defaults to `false`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
-* `dirBuilder` (object): the options for the directory builder
-  * `hamt` (object): the options for the HAMT sharded directory builder
-    * bits (positive integer, defaults to `5`): the number of bits at each bucket of the HAMT
+- `wrap` (boolean, defaults to false): if true, a wrapping node will be created
+- `shardSplitThreshold` (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)
+- `chunker` (string, defaults to `"fixed"`): the chunking strategy. Now only supports `"fixed"`
+- `chunkerOptions` (object, optional): the options for the chunker. Defaults to an object with the following properties:
+  - `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size for the `fixed` chunker.
+- `strategy` (string, defaults to `"balanced"`): the DAG builder strategy name. Supports:
+  - `flat`: flat list of chunks
+  - `balanced`: builds a balanced tree
+  - `trickle`: builds [a trickle tree](https://github.com/ipfs/specs/pull/57#issuecomment-265205384)
+- `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
+- `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
+- `reduceSingleLeafToSelf` (boolean, defaults to `false`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
+- `dirBuilder` (object): the options for the directory builder
+  - `hamt` (object): the options for the HAMT sharded directory builder
+    - bits (positive integer, defaults to `5`): the number of bits at each bucket of the HAMT
 
-### Example Exporter
+### Exporter
 
-```
-// Create an export readable object stream with the hash you want to export and a dag service
-const filesStream = Exporter(<multihash>, <dag or ipld-resolver instance>)
+#### Exporter example
+
+```js
+// Create an export source pull-stream cid or ipfs path you want to export and a
+// <dag or ipld-resolver instance> to fetch the file from
+const filesStream = Exporter(<cid or ipfsPath>, <dag or ipld-resolver instance>)
 
 // Pipe the return stream to console
 filesStream.on('data', (file) => file.content.pipe(process.stdout))
 ```
 
-### Exporter: API
+#### Exporter API
 
 ```js
 const Exporter = require('ipfs-unixfs-engine').Exporter
 ```
 
-### new Exporter(<hash>, <dag or ipld-resolver>)
+### new Exporter(<cid or ipfsPath>, <dag or ipld-resolver>)
 
 Uses the given [dag API or an ipld-resolver instance][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
 

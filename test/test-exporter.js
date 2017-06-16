@@ -12,6 +12,7 @@ const pull = require('pull-stream')
 const zip = require('pull-zip')
 const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
+const Buffer = require('safe-buffer').Buffer
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
@@ -29,7 +30,7 @@ module.exports = (repo) => {
 
     it('ensure hash inputs are sanitized', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
-      const mhBuf = new Buffer(bs58.decode(hash))
+      const mhBuf = Buffer.from(bs58.decode(hash))
       const cid = new CID(hash)
 
       ipldResolver.get(cid, (err, result) => {
@@ -77,6 +78,19 @@ module.exports = (repo) => {
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
       pull(
         exporter(hash, ipldResolver),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+
+          fileEql(files[0], bigFile, done)
+        })
+      )
+    })
+
+    it('export a small file with links using CID instead of multihash', (done) => {
+      const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
+
+      pull(
+        exporter(cid, ipldResolver),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
@@ -150,7 +164,10 @@ module.exports = (repo) => {
       )
     })
 
-    it('fails on non existent hash', (done) => {
+    // TODO: This needs for the stores to have timeouts,
+    // otherwise it is impossible to predict if a file doesn't
+    // really exist
+    it.skip('fails on non existent hash', (done) => {
       // This hash doesn't exist in the repo
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKj3'
 

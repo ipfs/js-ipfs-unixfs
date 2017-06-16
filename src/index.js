@@ -15,6 +15,11 @@ const types = [
   'hamt-sharded-directory'
 ]
 
+const dirTypes = [
+  'directory',
+  'hamt-sharded-directory'
+]
+
 function Data (type, data) {
   if (!(this instanceof Data)) {
     return new Data(type, data)
@@ -37,6 +42,11 @@ function Data (type, data) {
 
   // data.length + blockSizes
   this.fileSize = () => {
+    if (dirTypes.indexOf(this.type) >= 0) {
+      // dirs don't have file size
+      return undefined
+    }
+
     let sum = 0
     this.blockSizes.forEach((size) => {
       sum += size
@@ -63,7 +73,7 @@ function Data (type, data) {
     }
     let fileSize = this.fileSize()
 
-    if (fileSize === 0) {
+    if (!fileSize) {
       fileSize = undefined
     }
 

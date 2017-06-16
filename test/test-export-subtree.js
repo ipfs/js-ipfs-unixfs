@@ -46,7 +46,6 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          console.log(files)
           expect(err).to.not.exist()
           expect(files.length).to.equal(3)
           expect(files[0].path).to.equal('level-1')

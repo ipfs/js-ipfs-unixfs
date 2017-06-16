@@ -137,7 +137,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `reduceSingleLeafToSelf` (boolean, defaults to `false`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
 - `dirBuilder` (object): the options for the directory builder
   - `hamt` (object): the options for the HAMT sharded directory builder
-    - bits (positive integer, defaults to `5`): the number of bits at each bucket of the HAMT
+    - bits (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
 
 ### Exporter
 

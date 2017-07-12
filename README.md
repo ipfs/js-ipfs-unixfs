@@ -11,8 +11,6 @@
 ![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/Node.js-%3E%3D4.0.0-orange.svg?style=flat-square)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/js-ipfs-unixfs.svg)](https://saucelabs.com/u/js-ipfs-unixfs)
-
 > JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)
 
 [The unixfs spec can be found inside the ipfs/specs repository](http://github.com/ipfs/specs)

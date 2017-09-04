@@ -58,7 +58,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
 
     const d = new UnixFS('directory')
     waterfall([
-      (cb) => DAGNode.create(d.marshal(), cb),
+      (cb) => DAGNode.create(d.marshal(), [], options.hashAlg, cb),
       (node, cb) => {
         ipldResolver.put(node, {
           cid: new CID(node.multihash)
@@ -96,7 +96,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
       pull.map(chunk => new Buffer(chunk)),
       pull.map(buffer => new UnixFS('file', buffer)),
       pull.asyncMap((fileNode, callback) => {
-        DAGNode.create(fileNode.marshal(), (err, node) => {
+        DAGNode.create(fileNode.marshal(), [], options.hashAlg, (err, node) => {
           callback(err, { DAGNode: node, fileNode: fileNode })
         })
       }),

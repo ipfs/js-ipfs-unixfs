@@ -36,6 +36,7 @@ describe('IPFS UnixFS Engine', () => {
     ], done)
   })
 
+  require('./test-builder')(repo)
   require('./test-flat-builder')
   require('./test-balanced-builder')
   require('./test-trickle-builder')

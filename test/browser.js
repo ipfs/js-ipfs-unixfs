@@ -34,6 +34,7 @@ describe('IPFS data importing tests on the Browser', function () {
     ], done)
   })
 
+  require('./test-builder')(repo)
   require('./test-flat-builder')
   require('./test-balanced-builder')
   require('./test-trickle-builder')

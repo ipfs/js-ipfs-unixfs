@@ -41,11 +41,10 @@
     "chai": "^4.0.2",
     "dirty-chai": "^2.0.0",
     "pre-commit": "^1.2.2",
-    "protobufjs": "~6.8.0",
     "safe-buffer": "^5.1.0"
   },
   "dependencies": {
-    "protocol-buffers": "^3.2.1"
+    "protobufjs": "^6.8.0"
   },
   "pre-commit": [
     "lint",

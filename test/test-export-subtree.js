@@ -8,9 +8,7 @@ const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
-
 const pull = require('pull-stream')
-const Buffer = require('safe-buffer').Buffer
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter

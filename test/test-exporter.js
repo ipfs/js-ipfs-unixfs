@@ -12,7 +12,6 @@ const pull = require('pull-stream')
 const zip = require('pull-zip')
 const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
-const Buffer = require('safe-buffer').Buffer
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter

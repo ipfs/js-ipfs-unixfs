@@ -51,7 +51,7 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([inputFile]),
+          pull.values([Object.assign({}, inputFile)]),
           createBuilder(FixedSizeChunker, ipldResolver, options),
           pull.collect(onCollected)
         )

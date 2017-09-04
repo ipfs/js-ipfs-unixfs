@@ -1,7 +1,6 @@
 'use strict'
 
-const protobuf = require('protocol-buffers')
-const pb = protobuf(require('./unixfs.proto'))
+const pb = require('./unixfs.proto.js')
 // encode/decode
 const unixfsData = pb.Data
 // const unixfsMetadata = pb.MetaData // encode/decode
@@ -77,7 +76,7 @@ function Data (type, data) {
       fileSize = undefined
     }
 
-    return unixfsData.encode({
+    const msg = unixfsData.create({
       Type: type,
       Data: this.data,
       filesize: fileSize,
@@ -85,17 +84,22 @@ function Data (type, data) {
       hashType: this.hashType,
       fanout: this.fanout
     })
+
+    return unixfsData.encode(msg).finish()
   }
 }
 
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
 Data.unmarshal = (marsheled) => {
   const decoded = unixfsData.decode(marsheled)
-  if (!decoded.Data) {
+  if (!decoded.Data || decoded.Data.length === 0) {
     decoded.Data = undefined
   }
+
   const obj = new Data(types[decoded.Type], decoded.Data)
-  obj.blockSizes = decoded.blocksizes
+  obj.blockSizes = (decoded.blocksizes || []).map((s) => {
+    return typeof s.toNumber === 'function' ? s.toNumber() : s
+  })
   return obj
 }
 

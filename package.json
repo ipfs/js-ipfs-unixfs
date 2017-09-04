@@ -10,11 +10,12 @@
     "test": "aegir-test",
     "test:node": "aegir-test node",
     "test:browser": "aegir-test browser",
-    "build": "aegir-build",
+    "build-proto": "pbjs --wrap commonjs --target static-module src/unixfs.proto > src/unixfs.proto.js",
+    "build": "npm run build-proto && aegir-build",
     "lint": "aegir-lint",
-    "release": "aegir-release",
-    "release-minor": "aegir-release --minor",
-    "release-major": "aegir-release --major",
+    "release": "npm run build-proto && aegir-release",
+    "release-minor": "npm run build-proto && aegir-release --minor",
+    "release-major": "npm run build-proto && aegir-release --major",
     "coverage": "aegir-coverage",
     "coverage-publish": "aegir-coverage publish"
   },
@@ -40,6 +41,7 @@
     "chai": "^4.0.2",
     "dirty-chai": "^2.0.0",
     "pre-commit": "^1.2.2",
+    "protobufjs": "~6.8.0",
     "safe-buffer": "^5.1.0"
   },
   "dependencies": {

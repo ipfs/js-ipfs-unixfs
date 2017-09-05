@@ -138,6 +138,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `dirBuilder` (object): the options for the directory builder
   - `hamt` (object): the options for the HAMT sharded directory builder
     - bits (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
+- `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 
 ### Exporter
 

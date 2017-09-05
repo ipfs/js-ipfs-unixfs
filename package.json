@@ -51,6 +51,7 @@
     "pull-generate": "^2.2.0",
     "pull-zip": "^2.0.1",
     "rimraf": "^2.6.1",
+    "sinon": "^3.2.1",
     "split": "^1.0.1"
   },
   "dependencies": {

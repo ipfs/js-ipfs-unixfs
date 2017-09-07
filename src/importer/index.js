@@ -64,7 +64,7 @@ module.exports = function (ipldResolver, _options) {
       return node
     }),
     treeBuilderStream
-    )
+  )
 
   return {
     sink: entry.sink,

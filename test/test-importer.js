@@ -11,6 +11,7 @@ const sinon = require('sinon')
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
+const CID = require('cids')
 const IPLDResolver = require('ipld-resolver')
 const loadFixture = require('aegir/fixtures')
 
@@ -417,6 +418,36 @@ module.exports = (repo) => {
             expect(file.size).to.be.eql(dir.size)
           }
         }
+      })
+
+      it('will not write to disk if passed "onlyHash" option', (done) => {
+        const content = String(Math.random() + Date.now())
+        const inputFile = {
+          path: content + '.txt',
+          content: Buffer.from(content)
+        }
+
+        const options = {
+          onlyHash: true
+        }
+
+        const onCollected = (err, files) => {
+          if (err) return done(err)
+
+          const file = files[0]
+          expect(file).to.exist()
+
+          ipldResolver.get(new CID(file.multihash), (err, res) => {
+            expect(err).to.exist()
+            done()
+          })
+        }
+
+        pull(
+          pull.values([inputFile]),
+          importer(ipldResolver, options),
+          pull.collect(onCollected)
+        )
       })
 
       it('will call an optional progress function', (done) => {

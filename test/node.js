@@ -53,4 +53,5 @@ describe('IPFS UnixFS Engine', () => {
   require('./test-nested-dir-import-export')(repo)
   require('./test-dirbuilder-sharding')(repo)
   require('./test-dag-api')
+  require('./test-builder-only-hash')(repo)
 })

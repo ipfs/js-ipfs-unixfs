@@ -14,14 +14,14 @@ module.exports = createTreeBuilder
 
 const defaultOptions = {
   wrap: false,
-  shardSplitThreshold: 1000
+  shardSplitThreshold: 1000,
+  onlyHash: false
 }
 
 function createTreeBuilder (ipldResolver, _options) {
   const options = Object.assign({}, defaultOptions, _options)
 
   const queue = createQueue(consumeQueue, 1)
-
   // returned stream
   let stream = createStream()
 
@@ -32,7 +32,7 @@ function createTreeBuilder (ipldResolver, _options) {
     dir: true,
     dirty: false,
     flat: true
-  })
+  }, options)
 
   return {
     flush: flushRoot,
@@ -101,7 +101,6 @@ function createTreeBuilder (ipldResolver, _options) {
         currentPath += '/'
       }
       currentPath += pathElem
-
       const last = (index === lastIndex)
       parent.dirty = true
       parent.multihash = null
@@ -110,7 +109,7 @@ function createTreeBuilder (ipldResolver, _options) {
       if (last) {
         waterfall([
           (callback) => parent.put(pathElem, elem, callback),
-          (callback) => flatToShard(null, parent, options.shardSplitThreshold, callback),
+          (callback) => flatToShard(null, parent, options.shardSplitThreshold, options, callback),
           (newRoot, callback) => {
             tree = newRoot
             callback()
@@ -131,7 +130,7 @@ function createTreeBuilder (ipldResolver, _options) {
               path: currentPath,
               dirty: true,
               flat: true
-            })
+            }, options)
           }
           const parentDir = parent
           parent = dir

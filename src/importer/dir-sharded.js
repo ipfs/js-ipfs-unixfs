@@ -41,11 +41,9 @@ const defaultOptions = {
 
 class DirSharded extends Dir {
   constructor (props, _options) {
-    super()
     const options = Object.assign({}, defaultOptions, _options)
-    this._options = options
+    super(props, options)
     this._bucket = Bucket(options)
-    Object.assign(this, props)
   }
 
   put (name, value, callback) {
@@ -87,8 +85,8 @@ class DirSharded extends Dir {
 
 module.exports = createDirSharded
 
-function createDirSharded (props) {
-  return new DirSharded(props)
+function createDirSharded (props, _options) {
+  return new DirSharded(props, _options)
 }
 
 function flush (options, bucket, path, ipldResolver, source, callback) {
@@ -148,6 +146,8 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
       [
         (callback) => DAGNode.create(dir.marshal(), links, callback),
         (node, callback) => {
+          if (options.onlyHash) return callback(null, node)
+
           ipldResolver.put(
             node,
             {

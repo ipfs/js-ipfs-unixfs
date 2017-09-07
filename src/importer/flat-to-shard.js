@@ -5,8 +5,8 @@ const DirSharded = require('./dir-sharded')
 
 module.exports = flatToShard
 
-function flatToShard (child, dir, threshold, callback) {
-  maybeFlatToShardOne(dir, threshold, (err, newDir) => {
+function flatToShard (child, dir, threshold, options, callback) {
+  maybeFlatToShardOne(dir, threshold, options, (err, newDir) => {
     if (err) {
       callback(err)
       return // early
@@ -27,7 +27,7 @@ function flatToShard (child, dir, threshold, callback) {
         },
         (callback) => {
           if (parent) {
-            flatToShard(newDir, parent, threshold, callback)
+            flatToShard(newDir, parent, threshold, options, callback)
           } else {
             callback(null, newDir)
           }
@@ -40,15 +40,15 @@ function flatToShard (child, dir, threshold, callback) {
   })
 }
 
-function maybeFlatToShardOne (dir, threshold, callback) {
+function maybeFlatToShardOne (dir, threshold, options, callback) {
   if (dir.flat && dir.directChildrenCount() >= threshold) {
-    definitelyShardOne(dir, callback)
+    definitelyShardOne(dir, options, callback)
   } else {
     callback(null, dir)
   }
 }
 
-function definitelyShardOne (oldDir, callback) {
+function definitelyShardOne (oldDir, options, callback) {
   const newDir = DirSharded({
     root: oldDir.root,
     dir: true,
@@ -57,7 +57,7 @@ function definitelyShardOne (oldDir, callback) {
     path: oldDir.path,
     dirty: oldDir.dirty,
     flat: false
-  })
+  }, options)
 
   oldDir.eachChildSeries(
     (key, value, callback) => {

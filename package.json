@@ -15,7 +15,7 @@
     "release": "aegir release",
     "release-minor": "aegir release --type minor",
     "release-major": "aegir release --type major",
-    "coverage": "aegir coverage --ignore src/unixfs.proto.js"
+    "coverage": "aegir coverage"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
   },
   "engines": {
-    "node": ">=4.0.0",
+    "node": ">=6.0.0",
     "npm": ">=3.0.0"
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
@@ -42,7 +42,7 @@
     "safe-buffer": "^5.1.1"
   },
   "dependencies": {
-    "protocol-buffers": "^3.2.1"
+    "protons": "^1.0.0"
   },
   "pre-commit": [
     "lint",

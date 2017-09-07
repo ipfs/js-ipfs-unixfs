@@ -1,7 +1,7 @@
 'use strict'
 
-const protobuf = require('protocol-buffers')
-const pb = protobuf(require('./unixfs.proto'))
+const protons = require('protons')
+const pb = protons(require('./unixfs.proto'))
 // encode/decode
 const unixfsData = pb.Data
 // const unixfsMetadata = pb.MetaData // encode/decode

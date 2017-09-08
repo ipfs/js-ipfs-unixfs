@@ -141,6 +141,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
+- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
 
 ### Exporter
 

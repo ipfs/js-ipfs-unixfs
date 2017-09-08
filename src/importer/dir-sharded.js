@@ -148,12 +148,13 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
         (node, callback) => {
           if (options.onlyHash) return callback(null, node)
 
-          ipldResolver.put(
-            node,
-            {
-              cid: new CID(node.multihash)
-            },
-            (err) => callback(err, node))
+          let cid = new CID(node.multihash)
+
+          if (options.cidVersion === 1) {
+            cid = cid.toV1()
+          }
+
+          ipldResolver.put(node, { cid }, (err) => callback(err, node))
         },
         (node, callback) => {
           const pushable = {

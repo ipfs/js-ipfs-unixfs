@@ -63,9 +63,13 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
       (node, cb) => {
         if (options.onlyHash) return cb(null, node)
 
-        ipldResolver.put(node, {
-          cid: new CID(node.multihash)
-        }, (err) => cb(err, node))
+        let cid = new CID(node.multihash)
+
+        if (options.cidVersion === 1) {
+          cid = cid.toV1()
+        }
+
+        ipldResolver.put(node, { cid }, (err) => cb(err, node))
       }
     ], (err, node) => {
       if (err) {
@@ -111,10 +115,13 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
       pull.asyncMap((leaf, callback) => {
         if (options.onlyHash) return callback(null, leaf)
 
-        ipldResolver.put(leaf.DAGNode, {
-          cid: new CID(leaf.DAGNode.multihash)
-        }, (err) => callback(err, leaf)
-        )
+        let cid = new CID(leaf.DAGNode.multihash)
+
+        if (options.cidVersion === 1) {
+          cid = cid.toV1()
+        }
+
+        ipldResolver.put(leaf.DAGNode, { cid }, (err) => callback(err, leaf))
       }),
       pull.map((leaf) => {
         return {

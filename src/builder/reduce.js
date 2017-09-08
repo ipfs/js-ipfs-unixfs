@@ -36,9 +36,13 @@ module.exports = function (file, ipldResolver, options) {
       (node, cb) => {
         if (options.onlyHash) return cb(null, node)
 
-        ipldResolver.put(node, {
-          cid: new CID(node.multihash)
-        }, (err) => cb(err, node))
+        let cid = new CID(node.multihash)
+
+        if (options.cidVersion === 1) {
+          cid = cid.toV1()
+        }
+
+        ipldResolver.put(node, { cid }, (err) => cb(err, node))
       }
     ], (err, node) => {
       if (err) {

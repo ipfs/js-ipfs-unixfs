@@ -14,6 +14,7 @@ const mh = require('multihashes')
 const CID = require('cids')
 const IPLDResolver = require('ipld-resolver')
 const loadFixture = require('aegir/fixtures')
+const each = require('async/each')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -464,6 +465,52 @@ module.exports = (repo) => {
             expect(options.progress.args[0][0]).to.equal(1024)
             done()
           })
+        )
+      })
+
+      it('will import files with CID version 1', (done) => {
+        const createInputFile = (path, size) => {
+          const name = String(Math.random() + Date.now())
+          path = path[path.length - 1] === '/' ? path : path + '/'
+          return {
+            path: path + name + '.txt',
+            content: Buffer.alloc(262144 + 5).fill(1)
+          }
+        }
+
+        const options = {
+          cidVersion: 1,
+          // Ensures we use DirSharded for the data below
+          shardSplitThreshold: 3
+        }
+
+        const onCollected = (err, files) => {
+          if (err) return done(err)
+
+          const file = files[0]
+          expect(file).to.exist()
+
+          each(files, (file, cb) => {
+            const cid = new CID(file.multihash).toV1()
+            ipldResolver.get(cid, cb)
+          }, done)
+        }
+
+        pull(
+          pull.values([
+            createInputFile('/foo', 10),
+            createInputFile('/foo', 60),
+            createInputFile('/foo/bar', 78),
+            createInputFile('/foo/baz', 200),
+            // Bigger than maxChunkSize
+            createInputFile('/foo', 262144 + 45),
+            createInputFile('/foo/bar', 262144 + 134),
+            createInputFile('/foo/bar', 262144 + 79),
+            createInputFile('/foo/bar', 262144 + 876),
+            createInputFile('/foo/bar', 262144 + 21)
+          ]),
+          importer(ipldResolver, options),
+          pull.collect(onCollected)
         )
       })
     })

@@ -32,7 +32,7 @@ module.exports = function (file, ipldResolver, options) {
     })
 
     waterfall([
-      (cb) => DAGNode.create(f.marshal(), links, cb),
+      (cb) => DAGNode.create(f.marshal(), links, options.hashAlg, cb),
       (node, cb) => {
         if (options.onlyHash) return cb(null, node)
 

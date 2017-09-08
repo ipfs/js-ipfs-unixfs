@@ -57,5 +57,38 @@ module.exports = (repo) => {
         )
       }, done)
     })
+
+    it('allows multihash hash algorithm to be specified for big file', (done) => {
+      eachSeries(Object.keys(mh.names), (hashAlg, cb) => {
+        const options = { hashAlg, strategy: 'flat' }
+        const content = String(Math.random() + Date.now())
+        const inputFile = {
+          path: content + '.txt',
+          // Bigger than maxChunkSize
+          content: Buffer.alloc(262144 + 5).fill(1)
+        }
+
+        const onCollected = (err, nodes) => {
+          if (err) return cb(err)
+
+          const node = nodes[0]
+
+          try {
+            expect(node).to.exist()
+            expect(mh.decode(node.multihash).name).to.equal(hashAlg)
+          } catch (err) {
+            return cb(err)
+          }
+
+          cb()
+        }
+
+        pull(
+          pull.values([Object.assign({}, inputFile)]),
+          createBuilder(FixedSizeChunker, ipldResolver, options),
+          pull.collect(onCollected)
+        )
+      }, done)
+    })
   })
 }

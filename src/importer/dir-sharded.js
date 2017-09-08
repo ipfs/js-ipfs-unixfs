@@ -144,7 +144,7 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
     dir.hashType = options.hashFn.code
     waterfall(
       [
-        (callback) => DAGNode.create(dir.marshal(), links, callback),
+        (callback) => DAGNode.create(dir.marshal(), links, options.hashAlg, callback),
         (node, callback) => {
           if (options.onlyHash) return callback(null, node)
 

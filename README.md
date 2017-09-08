@@ -115,7 +115,7 @@ The `import` object is a duplex pull stream that takes objects of the form:
 }
 ```
 
-`import` will outoyt file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
+`import` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
 `dag` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/tree/master/API/dag)
 
@@ -140,6 +140,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
     - bits (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
 - `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
+- `hashAlg` (string): multihash hashing algorithm to use
 
 ### Exporter
 

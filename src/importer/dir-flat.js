@@ -56,12 +56,13 @@ class DirFlat extends Dir {
       })
 
     const dir = new UnixFS('directory')
+    const options = this._options
 
     waterfall(
       [
-        (callback) => DAGNode.create(dir.marshal(), links, callback),
+        (callback) => DAGNode.create(dir.marshal(), links, options.hashAlg, callback),
         (node, callback) => {
-          if (this._options.onlyHash) return callback(null, node)
+          if (options.onlyHash) return callback(null, node)
 
           ipldResolver.put(
             node,

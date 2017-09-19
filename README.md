@@ -52,7 +52,10 @@ And write the importing logic:
 
 ```js
 const Importer = require('ipfs-unixfs-engine').Importer
-const filesAddStream = new Importer(<dag or ipld-resolver instance)
+
+// You need to create and pass an ipld-resolve instance
+// https://github.com/ipld/js-ipld-resolver
+const filesAddStream = new Importer(<ipld-resolver instance>)
 
 // An array to hold the return of nested file/dir info from the importer
 // A root DAG Node is received upon completion
@@ -62,8 +65,8 @@ const res = []
 // Import path /tmp/foo/bar
 const rs = fs.createReadStream(file)
 const rs2 = fs.createReadStream(file2)
-const input = { path: /tmp/foo/bar, content: rs }
-const input2 = { path: /tmp/foo/quxx, content: rs2 }
+const input = { path: '/tmp/foo/bar', content: rs }
+const input2 = { path: '/tmp/foo/quxx', content: rs2 }
 
 // Listen for the data event from the importer stream
 filesAddStream.on('data', (info) => res.push(info))

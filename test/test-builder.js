@@ -18,13 +18,15 @@ module.exports = (repo) => {
   describe('builder', () => {
     let ipldResolver
 
+    const testMultihashes = Object.keys(mh.names).slice(0, 40)
+
     before(() => {
       const bs = new BlockService(repo)
       ipldResolver = new IPLDResolver(bs)
     })
 
     it('allows multihash hash algorithm to be specified', (done) => {
-      eachSeries(Object.keys(mh.names), (hashAlg, cb) => {
+      eachSeries(testMultihashes, (hashAlg, cb) => {
         const options = { hashAlg, strategy: 'flat' }
         const content = String(Math.random() + Date.now())
         const inputFile = {
@@ -59,7 +61,7 @@ module.exports = (repo) => {
     })
 
     it('allows multihash hash algorithm to be specified for big file', (done) => {
-      eachSeries(Object.keys(mh.names), (hashAlg, cb) => {
+      eachSeries(testMultihashes, (hashAlg, cb) => {
         const options = { hashAlg, strategy: 'flat' }
         const content = String(Math.random() + Date.now())
         const inputFile = {

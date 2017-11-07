@@ -12,9 +12,9 @@ const rawFile = loadFixture(__dirname, 'fixtures/1MiB.txt')
 
 describe('chunker: fixed size', () => {
   it('chunks non flat buffers', (done) => {
-    const b1 = new Buffer(2 * 256)
-    const b2 = new Buffer(1 * 256)
-    const b3 = new Buffer(5 * 256)
+    const b1 = Buffer.alloc(2 * 256)
+    const b2 = Buffer.alloc(1 * 256)
+    const b3 = Buffer.alloc(5 * 256)
 
     b1.fill('a')
     b2.fill('b')
@@ -36,7 +36,7 @@ describe('chunker: fixed size', () => {
 
   it('256 Bytes chunks', (done) => {
     pull(
-      pull.infinite(() => Buffer([1])),
+      pull.infinite(() => Buffer.from('a')),
       pull.take(256 * 12),
       chunker(256),
       pull.collect((err, chunks) => {
@@ -69,7 +69,7 @@ describe('chunker: fixed size', () => {
 
   it('256 KiB chunks of non scalar filesize', (done) => {
     const KiB256 = 262144
-    let file = Buffer.concat([rawFile, new Buffer('hello')])
+    let file = Buffer.concat([rawFile, Buffer.from('hello')])
 
     pull(
       pull.values(file),

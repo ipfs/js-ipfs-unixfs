@@ -52,7 +52,7 @@ module.exports = class ConsumableBuffer {
       this._currentBitPos -= taking
       if (this._currentBitPos < 0) {
         this._currentBitPos = 7
-        this._currentBytePos --
+        this._currentBytePos--
       }
     }
 

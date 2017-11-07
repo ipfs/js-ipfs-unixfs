@@ -25,10 +25,10 @@ module.exports = (repo) => {
     it('imports', (done) => {
       pull(
         pull.values([
-          { path: 'a/b/c/d/e', content: pull.values([new Buffer('banana')]) },
-          { path: 'a/b/c/d/f', content: pull.values([new Buffer('strawberry')]) },
-          { path: 'a/b/g', content: pull.values([new Buffer('ice')]) },
-          { path: 'a/b/h', content: pull.values([new Buffer('cream')]) }
+          { path: 'a/b/c/d/e', content: pull.values([Buffer.from('banana')]) },
+          { path: 'a/b/c/d/f', content: pull.values([Buffer.from('strawberry')]) },
+          { path: 'a/b/g', content: pull.values([Buffer.from('ice')]) },
+          { path: 'a/b/h', content: pull.values([Buffer.from('cream')]) }
         ]),
         unixFSEngine.importer(ipldResolver),
         pull.collect((err, files) => {

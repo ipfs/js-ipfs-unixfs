@@ -1,3 +1,5 @@
+docs
+yarn.lock
 **/node_modules/
 **/*.log
 test/repo-tests*

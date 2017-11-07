@@ -39,7 +39,7 @@ module.exports = (repo) => {
 
       source.push({
         path: 'a',
-        content: pull.values([new Buffer('hey')])
+        content: pull.values([Buffer.from('hey')])
       })
 
       importer.flush((err, hash) => {
@@ -74,7 +74,7 @@ module.exports = (repo) => {
 
       source.push({
         path: 'b/c',
-        content: pull.values([new Buffer('hey')])
+        content: pull.values([Buffer.from('hey')])
       })
 
       importer.flush((err, hash) => {
@@ -129,7 +129,7 @@ module.exports = (repo) => {
         const filePath = dirPath + '/filename'
         const file = {
           path: filePath,
-          content: pull.values([new Buffer('file with path ' + filePath)])
+          content: pull.values([Buffer.from('file with path ' + filePath)])
         }
         source.push(file)
         if (currentDir.depth === 0 || childCount + 1 === maxEntriesPerDir) {

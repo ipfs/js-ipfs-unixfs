@@ -108,7 +108,7 @@ const strategyOverrides = {
 }
 
 module.exports = (repo) => {
-  strategies.forEach(strategy => {
+  strategies.forEach((strategy) => {
     const baseFiles = strategyBaseFiles[strategy]
     const defaultResults = extend({}, baseFiles, {
       'foo/bar/200Bytes.txt': extend({}, baseFiles['200Bytes.txt'], {
@@ -160,7 +160,9 @@ module.exports = (repo) => {
 
     const expected = extend({}, defaultResults, strategies[strategy])
 
-    describe(strategy + ' importer', () => {
+    describe(strategy + ' importer', function () {
+      this.timeout(20 * 1000)
+
       let ipldResolver
 
       const options = {

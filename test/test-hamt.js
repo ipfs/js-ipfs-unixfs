@@ -43,7 +43,7 @@ describe('HAMT', () => {
     it('can get that value', (callback) => {
       bucket.get('key', (err, result) => {
         expect(err).to.not.exist()
-        expect(result).to.be.eql('value')
+        expect(result).to.eql('value')
         callback()
       })
     })
@@ -55,7 +55,7 @@ describe('HAMT', () => {
     it('can get that value', (callback) => {
       bucket.get('key', (err, result) => {
         expect(err).to.not.exist()
-        expect(result).to.be.eql('a different value')
+        expect(result).to.eql('a different value')
         callback()
       })
     })
@@ -78,36 +78,40 @@ describe('HAMT', () => {
   })
 
   describe('many keys', () => {
-    let bucket, keys, masterHead
+    let bucket
+    let keys
+    let masterHead
 
     it('can create an empty one', () => {
       bucket = HAMT(options)
     })
 
-    it('accepts putting many keys', (callback) => {
+    it('accepts putting many keys', (done) => {
       const max = 400
       keys = new Array(max)
       for (let i = 1; i <= max; i++) {
         keys[i - 1] = i.toString()
       }
 
-      each(keys, (key, callback) => bucket.put(key, key, callback), callback)
+      each(keys, (key, callback) => bucket.put(key, key, callback), done)
     })
 
-    it('can remove all the keys and still find remaining', (callback) => {
+    it('can remove all the keys and still find remaining', function (done) {
+      this.timeout(10 * 1000)
+
       masterHead = keys.pop()
       iterate()
 
       function iterate () {
         const head = keys.shift()
         if (!head) {
-          callback()
+          done()
           return // early
         }
 
         bucket.get(head, (err, value) => {
           expect(err).to.not.exist()
-          expect(value).to.be.eql(head)
+          expect(value).to.eql(head)
           bucket.del(head, afterDel)
         })
 
@@ -120,18 +124,14 @@ describe('HAMT', () => {
           expect(err).to.not.exist()
           expect(value).to.be.undefined()
 
-          each(
-            keys,
-            onEachKey,
-            reiterate
-          )
+          each(keys, onEachKey, reiterate)
         }
       }
 
       function onEachKey (key, callback) {
         bucket.get(key, (err, value) => {
           expect(err).to.not.exist()
-          expect(value).to.be.eql(key)
+          expect(value).to.eql(key)
           callback()
         })
       }

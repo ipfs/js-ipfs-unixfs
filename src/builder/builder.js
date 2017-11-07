@@ -104,7 +104,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
         if (options.progress && typeof options.progress === 'function') {
           options.progress(chunk.byteLength)
         }
-        return new Buffer(chunk)
+        return Buffer.from(chunk)
       }),
       pull.map(buffer => new UnixFS('file', buffer)),
       pull.asyncMap((fileNode, callback) => {

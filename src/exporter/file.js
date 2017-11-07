@@ -11,7 +11,7 @@ module.exports = (node, name, pathRest, ipldResolver) => {
   function getData (node) {
     try {
       const file = UnixFS.unmarshal(node.data)
-      return file.data || new Buffer(0)
+      return file.data || Buffer.alloc(0)
     } catch (err) {
       throw new Error('Failed to unmarshal node')
     }

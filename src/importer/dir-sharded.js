@@ -24,7 +24,7 @@ const hashFn = function (value, callback) {
       // for parity..
       const justHash = hash.slice(2, 10)
       const length = justHash.length
-      const result = new Buffer(length)
+      const result = Buffer.alloc(length)
       // TODO: invert buffer because that's how Go impl does it
       for (let i = 0; i < length; i++) {
         result[length - i - 1] = justHash[i]
@@ -138,7 +138,7 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
   function haveLinks (links) {
     // go-ipfs uses little endian, that's why we have to
     // reverse the bit field before storing it
-    const data = new Buffer(children.bitField().reverse())
+    const data = Buffer.from(children.bitField().reverse())
     const dir = new UnixFS('hamt-sharded-directory', data)
     dir.fanout = bucket.tableSize()
     dir.hashType = options.hashFn.code

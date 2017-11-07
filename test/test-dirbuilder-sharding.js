@@ -17,7 +17,9 @@ const setImmediate = require('async/setImmediate')
 const leftPad = require('left-pad')
 
 module.exports = (repo) => {
-  describe('dirbuilder sharding', () => {
+  describe('dirbuilder sharding', function () {
+    this.timeout(20 * 1000)
+
     let ipldResolver
 
     before(() => {
@@ -37,7 +39,7 @@ module.exports = (repo) => {
           pull.values([
             {
               path: 'a/b',
-              content: pull.values([new Buffer('i have the best bytes')])
+              content: pull.values([Buffer.from('i have the best bytes')])
             }
           ]),
           importer(ipldResolver, options),
@@ -62,7 +64,7 @@ module.exports = (repo) => {
           pull.values([
             {
               path: 'a/b',
-              content: pull.values([new Buffer('i have the best bytes')])
+              content: pull.values([Buffer.from('i have the best bytes')])
             }
           ]),
           importer(ipldResolver, options),
@@ -161,7 +163,7 @@ module.exports = (repo) => {
             i++
             const pushable = {
               path: 'big/' + leftPad(i.toString(), 4, '0'),
-              content: pull.values([new Buffer(i.toString())])
+              content: pull.values([Buffer.from(i.toString())])
             }
             push.push(pushable)
             setImmediate(callback)
@@ -257,7 +259,7 @@ module.exports = (repo) => {
             }
             const pushed = {
               path: dir.concat(leftPad(i.toString(), 4, '0')).join('/'),
-              content: pull.values([new Buffer(i.toString())])
+              content: pull.values([Buffer.from(i.toString())])
             }
             push.push(pushed)
             pending--

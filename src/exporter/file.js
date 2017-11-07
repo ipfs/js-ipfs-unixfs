@@ -40,6 +40,7 @@ module.exports = (node, name, pathRest, ipldResolver) => {
   return pull.values([{
     content: content,
     path: name,
+    hash: node.multihash,
     size: file.fileSize()
   }])
 }

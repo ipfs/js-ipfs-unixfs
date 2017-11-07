@@ -45,8 +45,8 @@ module.exports = (repo) => {
         function onFiles (err, files) {
           expect(err).to.not.exist()
           expect(files).to.have.length(1)
+          expect(files[0]).to.have.property('hash')
           expect(files[0]).to.have.property('path', hash)
-
           fileEql(files[0], unmarsh.data, done)
         }
       })
@@ -117,6 +117,7 @@ module.exports = (repo) => {
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
+          files.forEach(file => expect(file).to.have.property('hash'))
           expect(err).to.not.exist()
 
           expect(

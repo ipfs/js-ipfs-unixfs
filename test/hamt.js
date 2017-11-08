@@ -97,7 +97,7 @@ describe('HAMT', () => {
     })
 
     it('can remove all the keys and still find remaining', function (done) {
-      this.timeout(10 * 1000)
+      this.timeout(30 * 1000)
 
       masterHead = keys.pop()
       iterate()

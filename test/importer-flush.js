@@ -12,7 +12,7 @@ const pull = require('pull-stream')
 const pushable = require('pull-pushable')
 
 module.exports = (repo) => {
-  describe('importer flush', () => {
+  describe('importer: flush', () => {
     let ipldResolver
 
     before(() => {

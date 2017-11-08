@@ -9,7 +9,7 @@ const whilst = require('async/whilst')
 
 const ConsumableHash = require('../src/hamt/consumable-hash')
 
-describe('consumable hash', () => {
+describe('HAMT: consumable hash', () => {
   let hash, h
   const maxIter = 100
   const values = []

@@ -5,7 +5,7 @@ const expect = require('chai').expect
 
 const ConsumableBuffer = require('../src/hamt/consumable-buffer')
 
-describe('consumable buffer', () => {
+describe('HAMT: consumable buffer', () => {
   let buf
 
   it('can create an empty one', () => {

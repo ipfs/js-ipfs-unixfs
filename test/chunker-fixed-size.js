@@ -52,6 +52,7 @@ describe('chunker: fixed size', () => {
 
   it('256 KiB chunks', (done) => {
     const KiB256 = 262144
+
     pull(
       pull.values(rawFile),
       chunker(KiB256),
@@ -88,7 +89,7 @@ describe('chunker: fixed size', () => {
           }
         })
 
-        expect(counter).to.be.eql(1)
+        expect(counter).to.equal(1)
         done()
       })
     )

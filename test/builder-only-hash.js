@@ -12,7 +12,7 @@ const createBuilder = require('../src/builder')
 const FixedSizeChunker = require('../src/chunker/fixed-size')
 
 module.exports = (repo) => {
-  describe('builder', () => {
+  describe('builder: onlyHash', () => {
     let ipldResolver
 
     before(() => {

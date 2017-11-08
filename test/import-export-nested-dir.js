@@ -13,7 +13,7 @@ const map = require('async/map')
 const unixFSEngine = require('./../')
 
 module.exports = (repo) => {
-  describe('import adn export big nested dir', () => {
+  describe('import and export: directory', () => {
     const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
     let ipldResolver
 

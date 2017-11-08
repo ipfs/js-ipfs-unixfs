@@ -158,7 +158,7 @@ describe('with dag-api', () => {
 
     const expected = extend({}, defaultResults, strategies[strategy])
 
-    describe(strategy + ' importer', function () {
+    describe('importer: ' + strategy, function () {
       this.timeout(20 * 1000)
 
       let node

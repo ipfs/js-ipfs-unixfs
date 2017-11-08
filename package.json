@@ -45,13 +45,13 @@
     "dirty-chai": "^2.0.1",
     "ipfs": "~0.26.0",
     "ipfs-block-service": "~0.13.0",
-    "ipfs-repo": "~0.18.2",
+    "ipfs-repo": "~0.18.3",
     "ncp": "^2.0.0",
     "pre-commit": "^1.2.2",
     "pull-generate": "^2.2.0",
     "pull-zip": "^2.0.1",
     "rimraf": "^2.6.2",
-    "sinon": "^4.1.1",
+    "sinon": "^4.1.2",
     "split": "^1.0.1"
   },
   "dependencies": {

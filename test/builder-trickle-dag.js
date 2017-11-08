@@ -21,7 +21,7 @@ const options = {
   layerRepeat: 2
 }
 
-describe('trickle builder', () => {
+describe('builder: trickle', () => {
   it('reduces one value into itself', callback => {
     pull(
       pull.values([1]),

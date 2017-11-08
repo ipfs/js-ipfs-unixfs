@@ -16,7 +16,7 @@ function reduce (leaves, callback) {
   }
 }
 
-describe('flat builder', () => {
+describe('builder: flat', () => {
   it('reduces one value into itself', (callback) => {
     pull(
       pull.values([1]),
@@ -35,9 +35,7 @@ describe('flat builder', () => {
       builder(reduce),
       pull.collect((err, result) => {
         expect(err).to.not.exist()
-        expect(result).to.be.eql([{
-          children: [1, 2]
-        }])
+        expect(result).to.eql([{ children: [1, 2] }])
         callback()
       })
     )

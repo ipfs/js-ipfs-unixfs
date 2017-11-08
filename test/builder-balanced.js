@@ -20,7 +20,7 @@ const options = {
   maxChildrenPerNode: 3
 }
 
-describe('balanced builder', () => {
+describe('builder: balanced', () => {
   it('reduces one value into itself', (callback) => {
     pull(
       pull.values([1]),

@@ -30,7 +30,7 @@ module.exports = (repo) => {
       strategy: strategy
     }
 
-    describe(strategy + ' importer', () => {
+    describe('go-ipfs interop using importer:' + strategy, () => {
       let ipldResolver
 
       before(() => {

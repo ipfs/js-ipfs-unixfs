@@ -1,3 +1,13 @@
+<a name="0.23.1"></a>
+## [0.23.1](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.23.0...v0.23.1) (2017-11-10)
+
+
+### Features
+
+* windows interop ([#195](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/195)) ([aa21ff3](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/aa21ff3))
+
+
+
 <a name="0.23.0"></a>
 # [0.23.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.22.5...v0.23.0) (2017-11-07)
 

@@ -18,7 +18,7 @@ const leftPad = require('left-pad')
 
 module.exports = (repo) => {
   describe('builder: directory sharding', function () {
-    this.timeout(20 * 1000)
+    this.timeout(30 * 1000)
 
     let ipldResolver
 

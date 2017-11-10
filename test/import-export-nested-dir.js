@@ -22,7 +22,9 @@ module.exports = (repo) => {
       ipldResolver = new IPLDResolver(bs)
     })
 
-    it('imports', (done) => {
+    it('imports', function (done) {
+      this.timeout(20 * 1000)
+
       pull(
         pull.values([
           { path: 'a/b/c/d/e', content: pull.values([Buffer.from('banana')]) },
@@ -56,7 +58,9 @@ module.exports = (repo) => {
       )
     })
 
-    it('exports', done => {
+    it('exports', function (done) {
+      this.timeout(20 * 1000)
+
       pull(
         unixFSEngine.exporter(rootHash, ipldResolver),
         pull.collect((err, files) => {

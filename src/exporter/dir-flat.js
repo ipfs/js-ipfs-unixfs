@@ -1,6 +1,5 @@
 'use strict'
 
-const path = require('path')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 const CID = require('cids')
@@ -22,7 +21,7 @@ function dirExporter (node, name, pathRest, ipldResolver, resolve, parent) {
       pull.values(node.links),
       pull.map((link) => ({
         linkName: link.name,
-        path: path.join(name, link.name),
+        path: name + '/' + link.name,
         hash: link.multihash
       })),
       pull.filter((item) => accepts === undefined || item.linkName === accepts),

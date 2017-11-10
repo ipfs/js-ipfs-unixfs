@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
 const chai = require('chai')
@@ -32,7 +33,9 @@ function fileEql (f1, fileData, callback) {
 }
 
 module.exports = (repo) => {
-  describe('import and export', () => {
+  describe('import and export', function () {
+    this.timeout(30 * 1000)
+
     strategies.forEach((strategy) => {
       const importerOptions = { strategy: strategy }
 

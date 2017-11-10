@@ -13,6 +13,8 @@ const pull = require('pull-stream')
 const mh = require('multihashes')
 const loadFixture = require('aegir/fixtures')
 const IPFS = require('ipfs')
+const os = require('os')
+const path = require('path')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -105,7 +107,12 @@ const strategyOverrides = {
 
 }
 
-describe('with dag-api', () => {
+describe('with dag-api', function () {
+  // TODO: waiting for IPFS support on windows, https://github.com/ipfs/js-ipfs-unixfs-engine/issues/196
+  if (os.platform() === 'win32') {
+    return
+  }
+
   strategies.forEach(strategy => {
     const baseFiles = strategyBaseFiles[strategy]
     const defaultResults = extend({}, baseFiles, {
@@ -159,7 +166,7 @@ describe('with dag-api', () => {
     const expected = extend({}, defaultResults, strategies[strategy])
 
     describe('importer: ' + strategy, function () {
-      this.timeout(20 * 1000)
+      this.timeout(50 * 1000)
 
       let node
 
@@ -171,9 +178,11 @@ describe('with dag-api', () => {
         }
       }
 
-      before((done) => {
+      before(function (done) {
+        this.timeout(30 * 1000)
+
         node = new IPFS({
-          repo: '/tmp/unixfs-test-' + Math.random(),
+          repo: path.join(os.tmpdir(), 'unixfs-test-' + Math.random()),
           start: false
         })
 

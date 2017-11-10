@@ -1,6 +1,5 @@
 'use strict'
 
-const path = require('path')
 const CID = require('cids')
 const pull = require('pull-stream')
 const pullDefer = require('pull-defer')
@@ -10,7 +9,7 @@ module.exports = (node, name, pathRest, ipldResolver, resolve) => {
   if (pathRest.length) {
     const pathElem = pathRest.shift()
     newNode = node[pathElem]
-    const newName = path.join(name, pathElem)
+    const newName = name + '/' + pathElem
     if (CID.isCID(newNode)) {
       const d = pullDefer.source()
       ipldResolver.get(sanitizeCID(newNode), (err, newNode) => {

@@ -16,7 +16,9 @@ const exporter = unixFSEngine.exporter
 const smallFile = loadFixture(__dirname, 'fixtures/200Bytes.txt')
 
 module.exports = (repo) => {
-  describe('exporter', () => {
+  describe('exporter', function () {
+    this.timeout(10 * 1000)
+
     let ipldResolver
 
     before(() => {

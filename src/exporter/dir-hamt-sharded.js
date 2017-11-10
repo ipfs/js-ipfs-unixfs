@@ -1,6 +1,5 @@
 'use strict'
 
-const path = require('path')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 const CID = require('cids')
@@ -25,7 +24,7 @@ function shardedDirExporter (node, name, pathRest, ipldResolver, resolve, parent
       pull.map((link) => {
         // remove the link prefix (2 chars for the bucket index)
         const p = link.name.substring(2)
-        const pp = p ? path.join(name, p) : name
+        const pp = p ? name + '/' + p : name
         let accept = true
         let fromPathRest = false
 

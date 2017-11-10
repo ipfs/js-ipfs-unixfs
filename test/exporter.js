@@ -83,7 +83,7 @@ module.exports = (repo) => {
           fileEql(files[0], bigFile, done)
         })
       )
-    })
+    }).timeout(30 * 1000)
 
     it('export a small file with links using CID instead of multihash', (done) => {
       const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
@@ -96,7 +96,7 @@ module.exports = (repo) => {
           fileEql(files[0], bigFile, done)
         })
       )
-    })
+    }).timeout(30 * 1000)
 
     it('export a large file > 5mb', (done) => {
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
@@ -109,7 +109,7 @@ module.exports = (repo) => {
           fileEql(files[0], null, done)
         })
       )
-    })
+    }).timeout(30 * 1000)
 
     it('export a directory', (done) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
@@ -149,7 +149,7 @@ module.exports = (repo) => {
           )
         })
       )
-    })
+    }).timeout(30 * 1000)
 
     it('returns an empty stream for dir', (done) => {
       const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'

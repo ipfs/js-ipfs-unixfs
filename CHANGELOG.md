@@ -1,3 +1,13 @@
+<a name="0.24.0"></a>
+# [0.24.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.23.1...v0.24.0) (2017-11-12)
+
+
+### Features
+
+* exporter maxDepth ([#197](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/197)) ([211e4e3](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/211e4e3))
+
+
+
 <a name="0.23.1"></a>
 ## [0.23.1](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.23.0...v0.23.1) (2017-11-10)
 

@@ -1,21 +1,23 @@
 'use strict'
 
 const pull = require('pull-stream')
-const paramap = require('pull-paramap')
-const CID = require('cids')
 const cat = require('pull-cat')
 const cleanHash = require('./clean-multihash')
 
 // Logic to export a unixfs directory.
 module.exports = shardedDirExporter
 
-function shardedDirExporter (node, name, pathRest, ipldResolver, resolve, parent) {
+function shardedDirExporter (node, name, path, pathRest, resolve, size, dag, parent, depth) {
   let dir
-  if (!parent || parent.path !== name) {
-    dir = [{
-      path: name,
-      hash: cleanHash(node.multihash)
-    }]
+  if (!parent || (parent.path !== path)) {
+    dir = {
+      name: name,
+      depth: depth,
+      path: path,
+      hash: cleanHash(node.multihash),
+      size: node.size,
+      type: 'dir'
+    }
   }
 
   const streams = [
@@ -24,47 +26,32 @@ function shardedDirExporter (node, name, pathRest, ipldResolver, resolve, parent
       pull.map((link) => {
         // remove the link prefix (2 chars for the bucket index)
         const p = link.name.substring(2)
-        const pp = p ? name + '/' + p : name
+        const pp = p ? path + '/' + p : path
         let accept = true
-        let fromPathRest = false
 
         if (p && pathRest.length) {
-          fromPathRest = true
           accept = (p === pathRest[0])
         }
         if (accept) {
           return {
-            fromPathRest: fromPathRest,
+            depth: depth + 1,
             name: p,
             path: pp,
-            hash: link.multihash,
-            pathRest: p ? pathRest.slice(1) : pathRest
+            multihash: link.multihash,
+            pathRest: p ? pathRest.slice(1) : pathRest,
+            parent: dir || parent
           }
         } else {
           return ''
         }
       }),
       pull.filter(Boolean),
-      paramap((item, cb) => ipldResolver.get(new CID(item.hash), (err, n) => {
-        if (err) {
-          return cb(err)
-        }
-
-        cb(
-          null,
-          resolve(
-            n.value,
-            item.fromPathRest ? item.name : item.path,
-            item.pathRest,
-            ipldResolver,
-            (dir && dir[0]) || parent))
-      })),
-      pull.flatten()
+      resolve
     )
   ]
 
   if (!pathRest.length) {
-    streams.unshift(pull.values(dir))
+    streams.unshift(pull.values([dir]))
   }
 
   return cat(streams)

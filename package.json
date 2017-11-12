@@ -70,7 +70,6 @@
     "pull-batch": "^1.0.0",
     "pull-block": "1.2.0",
     "pull-cat": "^1.1.11",
-    "pull-defer": "~0.2.2",
     "pull-pair": "^1.1.0",
     "pull-paramap": "^1.2.2",
     "pull-pause": "0.0.1",

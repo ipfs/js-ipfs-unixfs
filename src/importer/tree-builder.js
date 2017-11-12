@@ -91,7 +91,7 @@ function createTreeBuilder (ipldResolver, _options) {
   // ---- Add to tree
 
   function addToTree (elem, callback) {
-    const pathElems = elem.path.split('/').filter(notEmpty)
+    const pathElems = (elem.path || '').split('/').filter(notEmpty)
     let parent = tree
     const lastIndex = pathElems.length - 1
 

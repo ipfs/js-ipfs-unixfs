@@ -2,9 +2,8 @@
 
 const pull = require('pull-stream')
 const CID = require('cids')
-const pullDefer = require('pull-defer')
 
-const resolve = require('./resolve').resolve
+const createResolver = require('./resolve').createResolver
 
 function pathBaseAndRest (path) {
   // Buffer -> raw multihash or CID in buffer
@@ -36,28 +35,67 @@ function pathBaseAndRest (path) {
   }
 }
 
-module.exports = (path, dag) => {
+const defaultOptions = {
+  maxDepth: Infinity
+}
+
+module.exports = (path, dag, _options) => {
+  const options = Object.assign({}, defaultOptions, _options)
+
+  let dPath
   try {
-    path = pathBaseAndRest(path)
+    dPath = pathBaseAndRest(path)
   } catch (err) {
     return pull.error(err)
   }
 
-  const d = pullDefer.source()
-
-  const cid = new CID(path.base)
-
-  dag.get(cid, (err, node) => {
-    if (err) {
-      return pull.error(err)
-    }
-    d.resolve(pull.values([node]))
-  })
+  const pathLengthToCut = join(
+    [dPath.base].concat(dPath.rest.slice(0, dPath.rest.length - 1))).length
 
   return pull(
-    d,
-    pull.map((result) => result.value),
-    pull.map((node) => resolve(node, path.base, path.rest, dag)),
-    pull.flatten()
+    pull.values([{
+      multihash: new CID(dPath.base),
+      name: dPath.base,
+      path: dPath.base,
+      pathRest: dPath.rest,
+      depth: 0
+    }]),
+    createResolver(dag, options),
+    pull.filter(Boolean),
+    pull.map((node) => {
+      return {
+        depth: node.depth,
+        name: node.name,
+        path: finalPathFor(node),
+        size: node.size,
+        hash: node.hash || node.multihash,
+        content: node.content,
+        type: node.type
+      }
+    })
   )
+
+  function finalPathFor (node) {
+    if (!dPath.rest.length) {
+      return node.path
+    }
+
+    let retPath = node.path.substring(pathLengthToCut)
+    if (retPath.charAt(0) === '/') {
+      retPath = retPath.substring(1)
+    }
+    if (!retPath) {
+      retPath = dPath.rest[dPath.rest.length - 1] || dPath.base
+    }
+    return retPath
+  }
+}
+
+function join (paths) {
+  return paths.reduce((acc, path) => {
+    if (acc.length) {
+      acc += '/'
+    }
+    return acc + path
+  }, '')
 }

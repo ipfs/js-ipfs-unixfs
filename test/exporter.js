@@ -73,7 +73,8 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a small file with links', (done) => {
+    it('export a small file with links', function (done) {
+      this.timeout(30 * 1000)
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
       pull(
         exporter(hash, ipldResolver),
@@ -83,9 +84,10 @@ module.exports = (repo) => {
           fileEql(files[0], bigFile, done)
         })
       )
-    }).timeout(30 * 1000)
+    })
 
-    it('export a small file with links using CID instead of multihash', (done) => {
+    it('export a small file with links using CID instead of multihash', function (done) {
+      this.timeout(30 * 1000)
       const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
 
       pull(
@@ -96,9 +98,10 @@ module.exports = (repo) => {
           fileEql(files[0], bigFile, done)
         })
       )
-    }).timeout(30 * 1000)
+    })
 
-    it('export a large file > 5mb', (done) => {
+    it('export a large file > 5mb', function (done) {
+      this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       pull(
         exporter(hash, ipldResolver),
@@ -109,16 +112,17 @@ module.exports = (repo) => {
           fileEql(files[0], null, done)
         })
       )
-    }).timeout(30 * 1000)
+    })
 
-    it('export a directory', (done) => {
+    it('export a directory', function (done) {
+      this.timeout(30 * 1000)
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
       pull(
         exporter(hash, ipldResolver),
         pull.collect((err, files) => {
-          files.forEach(file => expect(file).to.have.property('hash'))
           expect(err).to.not.exist()
+          files.forEach(file => expect(file).to.have.property('hash'))
 
           expect(
             files.map((file) => file.path)
@@ -149,7 +153,44 @@ module.exports = (repo) => {
           )
         })
       )
-    }).timeout(30 * 1000)
+    })
+
+    it('export a directory one deep', function (done) {
+      this.timeout(30 * 1000)
+      const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
+
+      pull(
+        exporter(hash, ipldResolver, { maxDepth: 1 }),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+          files.forEach(file => expect(file).to.have.property('hash'))
+
+          expect(
+            files.map((file) => file.path)
+          ).to.be.eql([
+            'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN',
+            'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/200Bytes.txt',
+            'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/dir-another',
+            'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1'
+          ])
+
+          pull(
+            pull.values(files),
+            pull.map((file) => Boolean(file.content)),
+            pull.collect((err, contents) => {
+              expect(err).to.not.exist()
+              expect(contents).to.be.eql([
+                false,
+                true,
+                false,
+                false
+              ])
+              done()
+            })
+          )
+        })
+      )
+    })
 
     it('returns an empty stream for dir', (done) => {
       const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'

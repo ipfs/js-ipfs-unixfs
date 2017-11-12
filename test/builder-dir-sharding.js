@@ -91,7 +91,7 @@ module.exports = (repo) => {
             expect(nodes[0].path).to.be.eql(expectedHash)
             expect(mh.toB58String(nodes[0].hash)).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(21)
+            expect(nodes[1].size).to.be.eql(29)
             pull(
               nodes[1].content,
               pull.collect(collected)

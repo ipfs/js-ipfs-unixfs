@@ -120,7 +120,7 @@ The `import` object is a duplex pull stream that takes objects of the form:
 
 `import` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-`dag` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/tree/master/API/dag)
+`dag` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md)
 
 The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
 

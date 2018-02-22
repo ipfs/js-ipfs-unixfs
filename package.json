@@ -66,6 +66,7 @@
     "lodash": "^4.17.5",
     "multihashes": "~0.4.13",
     "multihashing-async": "~0.4.8",
+    "pull-async-values": "^1.0.3",
     "pull-batch": "^1.0.0",
     "pull-block": "^1.4.0",
     "pull-cat": "^1.1.11",

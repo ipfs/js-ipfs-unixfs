@@ -70,8 +70,8 @@ class DirSharded extends Dir {
     this._bucket.eachLeafSeries(iterator, callback)
   }
 
-  flush (path, ipldResolver, source, callback) {
-    flush(this._options, this._bucket, path, ipldResolver, source, (err, node) => {
+  flush (path, ipld, source, callback) {
+    flush(this._options, this._bucket, path, ipld, source, (err, node) => {
       if (err) {
         callback(err)
       } else {
@@ -89,7 +89,7 @@ function createDirSharded (props, _options) {
   return new DirSharded(props, _options)
 }
 
-function flush (options, bucket, path, ipldResolver, source, callback) {
+function flush (options, bucket, path, ipld, source, callback) {
   const children = bucket._children // TODO: intromission
   let index = 0
   const links = []
@@ -119,7 +119,7 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
   function collectChild (child, index, callback) {
     const labelPrefix = leftPad(index.toString(16).toUpperCase(), 2, '0')
     if (Bucket.isBucket(child)) {
-      flush(options, child, path, ipldResolver, null, (err, node) => {
+      flush(options, child, path, ipld, null, (err, node) => {
         if (err) {
           callback(err)
           return // early
@@ -154,7 +154,7 @@ function flush (options, bucket, path, ipldResolver, source, callback) {
             cid = cid.toV1()
           }
 
-          ipldResolver.put(node, { cid }, (err) => callback(err, node))
+          ipld.put(node, { cid }, (err) => callback(err, node))
         },
         (node, callback) => {
           const pushable = {

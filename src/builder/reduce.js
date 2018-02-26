@@ -8,7 +8,7 @@ const CID = require('cids')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
-module.exports = function (file, ipldResolver, options) {
+module.exports = function (file, ipld, options) {
   return function (leaves, callback) {
     if (leaves.length === 1 && (leaves[0].single || options.reduceSingleLeafToSelf)) {
       const leave = leaves[0]
@@ -42,7 +42,7 @@ module.exports = function (file, ipldResolver, options) {
           cid = cid.toV1()
         }
 
-        ipldResolver.put(node, { cid }, (err) => cb(err, node))
+        ipld.put(node, { cid }, (err) => cb(err, node))
       }
     ], (err, node) => {
       if (err) {

@@ -12,7 +12,7 @@ const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
 const CID = require('cids')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const loadFixture = require('aegir/fixtures')
 const each = require('async/each')
 
@@ -163,7 +163,7 @@ module.exports = (repo) => {
     describe('importer: ' + strategy, function () {
       this.timeout(30 * 1000)
 
-      let ipldResolver
+      let ipld
 
       const options = {
         strategy: strategy,
@@ -175,7 +175,7 @@ module.exports = (repo) => {
 
       before(() => {
         const bs = new BlockService(repo)
-        ipldResolver = new IPLDResolver(bs)
+        ipld = new Ipld(bs)
       })
 
       it('fails on bad input', (done) => {
@@ -184,7 +184,7 @@ module.exports = (repo) => {
             path: '200Bytes.txt',
             content: 'banana'
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.onEnd((err) => {
             expect(err).to.exist()
             done()
@@ -195,7 +195,7 @@ module.exports = (repo) => {
       it('doesn\'t yield anything on empty source', (done) => {
         pull(
           pull.empty(),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(0)
@@ -209,7 +209,7 @@ module.exports = (repo) => {
             path: 'emptyfile',
             content: pull.empty()
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
@@ -231,7 +231,7 @@ module.exports = (repo) => {
               content: pull.values([smallFile])
             }
           ]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.onEnd((err) => {
             expect(err).to.exist()
             expect(err.message).to.be.eql('detected more than one root')
@@ -246,7 +246,7 @@ module.exports = (repo) => {
             path: '200Bytes.txt',
             content: pull.values([smallFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
@@ -261,7 +261,7 @@ module.exports = (repo) => {
             path: '200Bytes.txt',
             content: smallFile
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
@@ -276,7 +276,7 @@ module.exports = (repo) => {
             path: 'foo/bar/200Bytes.txt',
             content: pull.values([smallFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect(collected)
         )
 
@@ -305,7 +305,7 @@ module.exports = (repo) => {
             path: '1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
@@ -321,7 +321,7 @@ module.exports = (repo) => {
             path: 'foo-big/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -340,7 +340,7 @@ module.exports = (repo) => {
           pull.values([{
             path: 'empty-dir'
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -360,7 +360,7 @@ module.exports = (repo) => {
             path: 'pim/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -387,7 +387,7 @@ module.exports = (repo) => {
             path: 'pam/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -442,7 +442,7 @@ module.exports = (repo) => {
           const file = files[0]
           expect(file).to.exist()
 
-          ipldResolver.get(new CID(file.multihash), (err, res) => {
+          ipld.get(new CID(file.multihash), (err, res) => {
             expect(err).to.exist()
             done()
           })
@@ -450,7 +450,7 @@ module.exports = (repo) => {
 
         pull(
           pull.values([inputFile]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect(onCollected)
         )
       })
@@ -463,7 +463,7 @@ module.exports = (repo) => {
             path: '1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect(() => {
             expect(options.progress.called).to.equal(true)
             expect(options.progress.args[0][0]).to.equal(1024)
@@ -496,7 +496,7 @@ module.exports = (repo) => {
 
           each(files, (file, cb) => {
             const cid = new CID(file.multihash).toV1()
-            ipldResolver.get(cid, cb)
+            ipld.get(cid, cb)
           }, done)
         }
 
@@ -513,7 +513,7 @@ module.exports = (repo) => {
             createInputFile('/foo/bar', 262144 + 876),
             createInputFile('/foo/bar', 262144 + 21)
           ]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect(onCollected)
         )
       })

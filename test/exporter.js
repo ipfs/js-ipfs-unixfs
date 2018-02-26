@@ -5,7 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const UnixFS = require('ipfs-unixfs')
 const bs58 = require('bs58')
 const pull = require('pull-stream')
@@ -20,11 +20,11 @@ const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
 module.exports = (repo) => {
   describe('exporter', () => {
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('ensure hash inputs are sanitized', (done) => {
@@ -32,13 +32,13 @@ module.exports = (repo) => {
       const mhBuf = Buffer.from(bs58.decode(hash))
       const cid = new CID(hash)
 
-      ipldResolver.get(cid, (err, result) => {
+      ipld.get(cid, (err, result) => {
         expect(err).to.not.exist()
         const node = result.value
         const unmarsh = UnixFS.unmarshal(node.data)
 
         pull(
-          exporter(mhBuf, ipldResolver),
+          exporter(mhBuf, ipld),
           pull.collect(onFiles)
         )
 
@@ -58,10 +58,10 @@ module.exports = (repo) => {
       pull(
         zip(
           pull(
-            ipldResolver.getStream(new CID(hash)),
+            ipld.getStream(new CID(hash)),
             pull.map((res) => UnixFS.unmarshal(res.value.data))
           ),
-          exporter(hash, ipldResolver)
+          exporter(hash, ipld)
         ),
         pull.collect((err, values) => {
           expect(err).to.not.exist()
@@ -77,7 +77,7 @@ module.exports = (repo) => {
       this.timeout(30 * 1000)
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
@@ -91,7 +91,7 @@ module.exports = (repo) => {
       const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
 
       pull(
-        exporter(cid, ipldResolver),
+        exporter(cid, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
@@ -104,7 +104,7 @@ module.exports = (repo) => {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
@@ -119,7 +119,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           files.forEach(file => expect(file).to.have.property('hash'))
@@ -160,7 +160,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
       pull(
-        exporter(hash, ipldResolver, { maxDepth: 1 }),
+        exporter(hash, ipld, { maxDepth: 1 }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           files.forEach(file => expect(file).to.have.property('hash'))
@@ -196,7 +196,7 @@ module.exports = (repo) => {
       const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files[0].content).to.not.exist()
@@ -213,7 +213,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKj3'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.exist()
           done()

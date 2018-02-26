@@ -6,7 +6,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
@@ -40,11 +40,11 @@ module.exports = (repo) => {
       const importerOptions = { strategy: strategy }
 
       describe('using builder: ' + strategy, () => {
-        let ipldResolver
+        let ipld
 
         before(() => {
           const bs = new BlockService(repo)
-          ipldResolver = new IPLDResolver(bs)
+          ipld = new Ipld(bs)
         })
 
         it('import and export', (done) => {
@@ -52,11 +52,11 @@ module.exports = (repo) => {
 
           pull(
             pull.values([{ path: path, content: pull.values(bigFile) }]),
-            unixFSEngine.importer(ipldResolver, importerOptions),
+            unixFSEngine.importer(ipld, importerOptions),
             pull.map((file) => {
               expect(file.path).to.eql(path)
 
-              return exporter(file.multihash, ipldResolver)
+              return exporter(file.multihash, ipld)
             }),
             pull.flatten(),
             pull.collect((err, files) => {

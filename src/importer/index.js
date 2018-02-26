@@ -17,7 +17,7 @@ const defaultOptions = {
   chunker: 'fixed'
 }
 
-module.exports = function (ipldResolver, _options) {
+module.exports = function (ipld, _options) {
   const options = Object.assign({}, defaultOptions, _options)
   const Chunker = chunkers[options.chunker]
   assert(Chunker, 'Unknkown chunker named ' + options.chunker)
@@ -39,9 +39,9 @@ module.exports = function (ipldResolver, _options) {
     source: pushable()
   }
 
-  const dagStream = DAGBuilder(Chunker, ipldResolver, options)
+  const dagStream = DAGBuilder(Chunker, ipld, options)
 
-  const treeBuilder = createTreeBuilder(ipldResolver, options)
+  const treeBuilder = createTreeBuilder(ipld, options)
   const treeBuilderStream = treeBuilder.stream()
   const pausable = pause(() => {})
 

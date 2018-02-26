@@ -9,7 +9,7 @@ const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 
 const strategies = [
@@ -31,11 +31,11 @@ module.exports = (repo) => {
     }
 
     describe('go-ipfs interop using importer:' + strategy, () => {
-      let ipldResolver
+      let ipld
 
       before(() => {
         const bs = new BlockService(repo)
-        ipldResolver = new IPLDResolver(bs)
+        ipld = new Ipld(bs)
       })
 
       it('yields the same tree as go-ipfs', function (done) {
@@ -47,7 +47,7 @@ module.exports = (repo) => {
               content: randomByteStream(45900000, 7382)
             }
           ]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(files.length).to.be.equal(1)

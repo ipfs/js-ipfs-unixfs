@@ -9,7 +9,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const mh = require('multihashes')
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const pull = require('pull-stream')
 const pushable = require('pull-pushable')
 const whilst = require('async/whilst')
@@ -20,11 +20,11 @@ module.exports = (repo) => {
   describe('builder: directory sharding', function () {
     this.timeout(30 * 1000)
 
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     describe('basic dirbuilder', () => {
@@ -42,7 +42,7 @@ module.exports = (repo) => {
               content: pull.values([Buffer.from('i have the best bytes')])
             }
           ]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
@@ -67,7 +67,7 @@ module.exports = (repo) => {
               content: pull.values([Buffer.from('i have the best bytes')])
             }
           ]),
-          importer(ipldResolver, options),
+          importer(ipld, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
@@ -83,7 +83,7 @@ module.exports = (repo) => {
 
       it('exporting unsharded hash results in the correct files', (done) => {
         pull(
-          exporter(nonShardedHash, ipldResolver),
+          exporter(nonShardedHash, ipld),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
@@ -109,7 +109,7 @@ module.exports = (repo) => {
 
       it('exporting sharded hash results in the correct files', (done) => {
         pull(
-          exporter(shardedHash, ipldResolver),
+          exporter(shardedHash, ipld),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
@@ -142,7 +142,7 @@ module.exports = (repo) => {
         const push = pushable()
         pull(
           push,
-          importer(ipldResolver),
+          importer(ipld),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(maxDirs + 1)
@@ -179,7 +179,7 @@ module.exports = (repo) => {
         const contentEntries = []
         const entries = {}
         pull(
-          exporter(rootHash, ipldResolver),
+          exporter(rootHash, ipld),
           pull.asyncMap((node, callback) => {
             if (node.content) {
               pull(
@@ -234,7 +234,7 @@ module.exports = (repo) => {
         const push = pushable()
         pull(
           push,
-          importer(ipldResolver),
+          importer(ipld),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             const last = nodes[nodes.length - 1]
@@ -281,7 +281,7 @@ module.exports = (repo) => {
       it('exports a big dir', (done) => {
         const entries = {}
         pull(
-          exporter(rootHash, ipldResolver),
+          exporter(rootHash, ipld),
           pull.asyncMap((node, callback) => {
             if (node.content) {
               pull(
@@ -340,7 +340,7 @@ module.exports = (repo) => {
       it('exports a big dir with subpath', (done) => {
         const exportHash = mh.toB58String(rootHash) + '/big/big/2000'
         pull(
-          exporter(exportHash, ipldResolver),
+          exporter(exportHash, ipld),
           pull.collect(collected)
         )
 

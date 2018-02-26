@@ -5,7 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const pull = require('pull-stream')
 const mh = require('multihashes')
 const map = require('async/map')
@@ -15,11 +15,11 @@ const unixFSEngine = require('./../')
 module.exports = (repo) => {
   describe('import and export: directory', () => {
     const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('imports', function (done) {
@@ -32,7 +32,7 @@ module.exports = (repo) => {
           { path: 'a/b/g', content: pull.values([Buffer.from('ice')]) },
           { path: 'a/b/h', content: pull.values([Buffer.from('cream')]) }
         ]),
-        unixFSEngine.importer(ipldResolver),
+        unixFSEngine.importer(ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.map(normalizeNode).sort(byPath)).to.be.eql([
@@ -62,7 +62,7 @@ module.exports = (repo) => {
       this.timeout(20 * 1000)
 
       pull(
-        unixFSEngine.exporter(rootHash, ipldResolver),
+        unixFSEngine.exporter(rootHash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           map(

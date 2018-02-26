@@ -48,7 +48,7 @@ class DirFlat extends Dir {
     )
   }
 
-  flush (path, ipldResolver, source, callback) {
+  flush (path, ipld, source, callback) {
     const links = Object.keys(this._children)
       .map((key) => {
         const child = this._children[key]
@@ -70,7 +70,7 @@ class DirFlat extends Dir {
             cid = cid.toV1()
           }
 
-          ipldResolver.put(node, { cid }, (err) => callback(err, node))
+          ipld.put(node, { cid }, (err) => callback(err, node))
         },
         (node, callback) => {
           this.multihash = node.multihash

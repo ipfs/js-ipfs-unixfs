@@ -7,22 +7,22 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const pull = require('pull-stream')
 const pushable = require('pull-pushable')
 
 module.exports = (repo) => {
   describe('importer: flush', () => {
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('can push a single root file and flush yields no dirs', (done) => {
       const source = pushable()
-      const importer = createImporter(ipldResolver)
+      const importer = createImporter(ipld)
       pull(
         source,
         importer,
@@ -51,7 +51,7 @@ module.exports = (repo) => {
 
     it('can push a nested file and flush yields parent dir', (done) => {
       const source = pushable()
-      const importer = createImporter(ipldResolver)
+      const importer = createImporter(ipld)
       let count = 0
       pull(
         source,
@@ -93,7 +93,7 @@ module.exports = (repo) => {
       let currentDir = tree
 
       const source = pushable()
-      const importer = createImporter(ipldResolver)
+      const importer = createImporter(ipld)
 
       pull(
         source,

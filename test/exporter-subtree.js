@@ -5,7 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
 const pull = require('pull-stream')
@@ -19,18 +19,18 @@ module.exports = (repo) => {
   describe('exporter subtree', () => {
     // this.timeout(10 * 1000)
 
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('export a file 2 levels down', (done) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1/200Bytes.txt'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.length).to.equal(1)
@@ -44,7 +44,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/level-1'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.length).to.equal(3)
@@ -60,7 +60,7 @@ module.exports = (repo) => {
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN/doesnotexist'
 
       pull(
-        exporter(hash, ipldResolver),
+        exporter(hash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.length).to.equal(0)
@@ -71,12 +71,12 @@ module.exports = (repo) => {
 
     it('exports starting from non-protobuf node', (done) => {
       const doc = { a: { file: new CID('QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN') } }
-      ipldResolver.put(doc, { format: 'dag-cbor' }, (err, cid) => {
+      ipld.put(doc, { format: 'dag-cbor' }, (err, cid) => {
         expect(err).to.not.exist()
         const nodeCID = cid.toBaseEncodedString()
 
         pull(
-          exporter(nodeCID + '/a/file/level-1/200Bytes.txt', ipldResolver),
+          exporter(nodeCID + '/a/file/level-1/200Bytes.txt', ipld),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(files.length).to.equal(1)

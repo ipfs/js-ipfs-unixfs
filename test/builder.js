@@ -7,7 +7,7 @@ const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const eachSeries = require('async').eachSeries
 const CID = require('cids')
 const UnixFS = require('ipfs-unixfs')
@@ -16,13 +16,13 @@ const FixedSizeChunker = require('../src/chunker/fixed-size')
 
 module.exports = (repo) => {
   describe('builder', () => {
-    let ipldResolver
+    let ipld
 
     const testMultihashes = Object.keys(mh.names).slice(0, 40)
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('allows multihash hash algorithm to be specified', (done) => {
@@ -44,7 +44,7 @@ module.exports = (repo) => {
           expect(mh.decode(node.multihash).name).to.equal(hashAlg)
 
           // Fetch using hashAlg encoded multihash
-          ipldResolver.get(new CID(node.multihash), (err, res) => {
+          ipld.get(new CID(node.multihash), (err, res) => {
             if (err) return cb(err)
             const content = UnixFS.unmarshal(res.value.data).data
             expect(content.equals(inputFile.content)).to.be.true()
@@ -54,7 +54,7 @@ module.exports = (repo) => {
 
         pull(
           pull.values([Object.assign({}, inputFile)]),
-          createBuilder(FixedSizeChunker, ipldResolver, options),
+          createBuilder(FixedSizeChunker, ipld, options),
           pull.collect(onCollected)
         )
       }, done)
@@ -87,7 +87,7 @@ module.exports = (repo) => {
 
         pull(
           pull.values([Object.assign({}, inputFile)]),
-          createBuilder(FixedSizeChunker, ipldResolver, options),
+          createBuilder(FixedSizeChunker, ipld, options),
           pull.collect(onCollected)
         )
       }, done)

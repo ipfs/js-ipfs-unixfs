@@ -16,9 +16,9 @@ const defaultOptions = {
   reduceSingleLeafToSelf: false
 }
 
-module.exports = function (Chunker, ipldResolver, _options) {
+module.exports = function (Chunker, ipld, _options) {
   assert(Chunker, 'Missing chunker creator function')
-  assert(ipldResolver, 'Missing IPLD Resolver')
+  assert(ipld, 'Missing IPLD')
 
   const options = Object.assign({}, defaultOptions, _options)
 
@@ -26,7 +26,7 @@ module.exports = function (Chunker, ipldResolver, _options) {
   const reducer = reducers[strategyName]
   assert(reducer, 'Unknown importer build strategy name: ' + strategyName)
 
-  const createStrategy = Builder(Chunker, ipldResolver, reducer, options)
+  const createStrategy = Builder(Chunker, ipld, reducer, options)
 
-  return createBuildStream(createStrategy, ipldResolver, options)
+  return createBuildStream(createStrategy, ipld, options)
 }

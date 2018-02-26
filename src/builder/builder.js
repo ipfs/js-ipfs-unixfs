@@ -19,7 +19,7 @@ const defaultOptions = {
   }
 }
 
-module.exports = function (createChunker, ipldResolver, createReducer, _options) {
+module.exports = function (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
 
   return function (source) {
@@ -69,7 +69,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
           cid = cid.toV1()
         }
 
-        ipldResolver.put(node, { cid }, (err) => cb(err, node))
+        ipld.put(node, { cid }, (err) => cb(err, node))
       }
     ], (err, node) => {
       if (err) {
@@ -92,7 +92,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
       return callback(new Error('invalid content'))
     }
 
-    const reducer = createReducer(reduce(file, ipldResolver, options), options)
+    const reducer = createReducer(reduce(file, ipld, options), options)
 
     let previous
     let count = 0
@@ -121,7 +121,7 @@ module.exports = function (createChunker, ipldResolver, createReducer, _options)
           cid = cid.toV1()
         }
 
-        ipldResolver.put(leaf.DAGNode, { cid }, (err) => callback(err, leaf))
+        ipld.put(leaf.DAGNode, { cid }, (err) => callback(err, leaf))
       }),
       pull.map((leaf) => {
         return {

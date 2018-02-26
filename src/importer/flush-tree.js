@@ -9,7 +9,7 @@ const waterfall = require('async/waterfall')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
-module.exports = (files, ipldResolver, source, callback) => {
+module.exports = (files, ipld, source, callback) => {
   // 1) convert files to a tree
   const fileTree = createTree(files)
 
@@ -26,7 +26,7 @@ module.exports = (files, ipldResolver, source, callback) => {
   const sizeIndex = createSizeIndex(files)
 
   // 3) bottom up flushing
-  traverse(fileTree, sizeIndex, null, ipldResolver, source, callback)
+  traverse(fileTree, sizeIndex, null, ipld, source, callback)
 }
 
 /*
@@ -106,13 +106,13 @@ function createSizeIndex (files) {
  *  If the value is not an object
  *    add as a link to the dirNode
  */
-function traverse (tree, sizeIndex, path, ipldResolver, source, done) {
+function traverse (tree, sizeIndex, path, ipld, source, done) {
   mapValues(tree, (node, key, cb) => {
     if (isLeaf(node)) {
       return cb(null, node)
     }
 
-    traverse(node, sizeIndex, path ? `${path}/${key}` : key, ipldResolver, source, cb)
+    traverse(node, sizeIndex, path ? `${path}/${key}` : key, ipld, source, cb)
   }, (err, tree) => {
     if (err) {
       return done(err)
@@ -135,7 +135,7 @@ function traverse (tree, sizeIndex, path, ipldResolver, source, done) {
       (node, cb) => {
         sizeIndex[mh.toB58String(node.multihash)] = node.size
 
-        ipldResolver.put(node, {
+        ipld.put(node, {
           cid: new CID(node.multihash)
         }, (err) => cb(err, node))
       }

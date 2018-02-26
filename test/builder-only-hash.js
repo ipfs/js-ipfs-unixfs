@@ -6,18 +6,18 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
-const IPLDResolver = require('ipld-resolver')
+const Ipld = require('ipld')
 const CID = require('cids')
 const createBuilder = require('../src/builder')
 const FixedSizeChunker = require('../src/chunker/fixed-size')
 
 module.exports = (repo) => {
   describe('builder: onlyHash', () => {
-    let ipldResolver
+    let ipld
 
     before(() => {
       const bs = new BlockService(repo)
-      ipldResolver = new IPLDResolver(bs)
+      ipld = new Ipld(bs)
     })
 
     it('will only chunk and hash if passed an "onlyHash" option', (done) => {
@@ -27,7 +27,7 @@ module.exports = (repo) => {
         const node = nodes[0]
         expect(node).to.exist()
 
-        ipldResolver.get(new CID(node.multihash), (err, res) => {
+        ipld.get(new CID(node.multihash), (err, res) => {
           expect(err).to.exist()
           done()
         })
@@ -45,7 +45,7 @@ module.exports = (repo) => {
 
       pull(
         pull.values([inputFile]),
-        createBuilder(FixedSizeChunker, ipldResolver, options),
+        createBuilder(FixedSizeChunker, ipld, options),
         pull.collect(onCollected)
       )
     })

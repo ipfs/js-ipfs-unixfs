@@ -18,7 +18,7 @@ const defaultOptions = {
   onlyHash: false
 }
 
-function createTreeBuilder (ipldResolver, _options) {
+function createTreeBuilder (ipld, _options) {
   const options = Object.assign({}, defaultOptions, _options)
 
   const queue = createQueue(consumeQueue, 1)
@@ -202,7 +202,7 @@ function createTreeBuilder (ipldResolver, _options) {
     // don't flush directory unless it's been modified
 
     tree.dirty = false
-    tree.flush(path, ipldResolver, stream.source, (err, node) => {
+    tree.flush(path, ipld, stream.source, (err, node) => {
       if (err) {
         callback(err)
       } else {

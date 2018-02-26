@@ -3,7 +3,7 @@
 const pullPushable = require('pull-pushable')
 const pullWrite = require('pull-write')
 
-module.exports = function createBuildStream (createStrategy, ipldResolver, options) {
+module.exports = function createBuildStream (createStrategy, _ipld, options) {
   const source = pullPushable()
 
   const sink = pullWrite(

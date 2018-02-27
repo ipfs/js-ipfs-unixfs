@@ -38,7 +38,8 @@ module.exports = (repo) => {
         ipldResolver = new IPLDResolver(bs)
       })
 
-      it('yields the same tree as go-ipfs', (done) => {
+      it('yields the same tree as go-ipfs', function (done) {
+        this.timeout(10 * 1000)
         pull(
           pull.values([
             {

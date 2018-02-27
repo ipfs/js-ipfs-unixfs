@@ -1,3 +1,13 @@
+<a name="0.24.4"></a>
+## [0.24.4](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.24.3...v0.24.4) (2018-02-27)
+
+
+### Bug Fixes
+
+* use "ipld" instead of "ipld-resolver" ([f4de206](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/f4de206))
+
+
+
 <a name="0.24.3"></a>
 ## [0.24.3](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.24.2...v0.24.3) (2018-02-27)
 

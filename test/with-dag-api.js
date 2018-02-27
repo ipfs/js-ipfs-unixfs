@@ -23,8 +23,8 @@ function stringifyMh (files) {
   })
 }
 
-const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
-const smallFile = loadFixture(__dirname, 'fixtures/200Bytes.txt')
+const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
+const smallFile = loadFixture('test/fixtures/200Bytes.txt')
 
 const baseFiles = {
   '200Bytes.txt': {

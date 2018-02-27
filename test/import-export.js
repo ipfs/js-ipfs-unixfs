@@ -9,7 +9,7 @@ const BlockService = require('ipfs-block-service')
 const IPLDResolver = require('ipld-resolver')
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
-const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
+const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
 const unixFSEngine = require('./../')
 const exporter = unixFSEngine.exporter

@@ -16,7 +16,7 @@ const loadFixture = require('aegir/fixtures')
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
 
-const bigFile = loadFixture(__dirname, 'fixtures/1.2MiB.txt')
+const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
 module.exports = (repo) => {
   describe('exporter', () => {

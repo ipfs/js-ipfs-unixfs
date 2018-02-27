@@ -8,7 +8,7 @@ const expect = chai.expect
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
 
-const rawFile = loadFixture(__dirname, 'fixtures/1MiB.txt')
+const rawFile = loadFixture('test/fixtures/1MiB.txt')
 
 describe('chunker: fixed size', () => {
   it('chunks non flat buffers', (done) => {

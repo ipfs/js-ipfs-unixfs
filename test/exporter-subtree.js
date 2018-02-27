@@ -13,7 +13,7 @@ const pull = require('pull-stream')
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
 
-const smallFile = loadFixture(__dirname, 'fixtures/200Bytes.txt')
+const smallFile = loadFixture('test/fixtures/200Bytes.txt')
 
 module.exports = (repo) => {
   describe('exporter subtree', () => {

@@ -65,7 +65,7 @@
     "left-pad": "^1.2.0",
     "lodash": "^4.17.4",
     "multihashes": "~0.4.12",
-    "multihashing-async": "~0.4.7",
+    "multihashing-async": "~0.4.8",
     "pull-batch": "^1.0.0",
     "pull-block": "^1.4.0",
     "pull-cat": "^1.1.11",

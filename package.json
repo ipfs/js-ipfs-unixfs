@@ -40,10 +40,10 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engine#readme",
   "devDependencies": {
-    "aegir": "^13.0.5",
+    "aegir": "^13.0.6",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
-    "ipfs": "~0.27.7",
+    "ipfs": "~0.28.2",
     "ipfs-block-service": "~0.13.0",
     "ipfs-repo": "~0.18.7",
     "ncp": "^2.0.0",
@@ -51,13 +51,13 @@
     "pull-generate": "^2.2.0",
     "pull-zip": "^2.0.1",
     "rimraf": "^2.6.2",
-    "sinon": "^4.4.2",
+    "sinon": "^4.4.6",
     "split": "^1.0.1"
   },
   "dependencies": {
     "async": "^2.6.0",
     "bs58": "^4.0.1",
-    "cids": "~0.5.2",
+    "cids": "~0.5.3",
     "deep-extend": "~0.5.0",
     "ipfs-unixfs": "~0.1.14",
     "ipld": "^0.15.0",

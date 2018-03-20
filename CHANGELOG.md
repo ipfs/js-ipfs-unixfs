@@ -1,3 +1,13 @@
+<a name="0.25.0"></a>
+# [0.25.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.24.4...v0.25.0) (2018-03-20)
+
+
+### Features
+
+* Add reader to read files or part of files as streams ([833accf](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/833accf))
+
+
+
 <a name="0.24.4"></a>
 ## [0.24.4](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.24.3...v0.24.4) (2018-02-27)
 

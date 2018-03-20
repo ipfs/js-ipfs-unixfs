@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-engine",
-  "version": "0.24.4",
+  "version": "0.25.0",
   "description": "JavaScript implementation of the unixfs Engine used by IPFS",
   "main": "src/index.js",
   "browser": {

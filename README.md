@@ -140,8 +140,8 @@ data.fileSize() // => size in bytes
 #### marshal and unmarshal
 
 ```
-var marsheled = data.marshal()
-var unmarsheled = Unixfs.unmarshal(marsheled)
+var marshaled = data.marshal()
+var unmarshaled = Unixfs.unmarshal(marshaled)
 ```
 
 ## Contribute

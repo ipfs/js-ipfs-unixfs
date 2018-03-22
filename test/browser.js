@@ -60,9 +60,6 @@ describe('IPFS data importing tests on the Browser', function () {
   // require('./exporter')(repo)
   // require('./exporter-subtree')(repo)
 
-  // Reader
-  require('./reader')(repo)
-
   // Other
   require('./import-export')(repo)
   require('./import-export-nested-dir')(repo)

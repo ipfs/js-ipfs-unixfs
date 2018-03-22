@@ -1,13 +1,14 @@
 'use strict'
 
 const traverse = require('pull-traverse')
+const traverseSlice = require('./traverse-slice')
 const UnixFS = require('ipfs-unixfs')
 const CID = require('cids')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 
 // Logic to export a single (possibly chunked) unixfs file.
-module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth) => {
+module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth, begin, end) => {
   function getData (node) {
     try {
       const file = UnixFS.unmarshal(node.data)
@@ -31,19 +32,27 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth)
     return pull.empty()
   }
 
-  let content = pull(
-    traverse.depthFirst(node, visitor),
-    pull.map(getData)
-  )
-
   const file = UnixFS.unmarshal(node.data)
+  const fileSize = size || file.fileSize()
+
+  let content
+
+  if (!isNaN(begin)) {
+    content = traverseSlice(node, dag, begin, end)
+  } else {
+    content = pull(
+      traverse.depthFirst(node, visitor),
+      pull.map(getData)
+    )
+  }
+
   return pull.values([{
     depth: depth,
     content: content,
     name: name,
     path: path,
     hash: node.multihash,
-    size: size || file.fileSize(),
+    size: fileSize,
     type: 'file'
   }])
 }

@@ -36,11 +36,13 @@ function pathBaseAndRest (path) {
 }
 
 const defaultOptions = {
-  maxDepth: Infinity
+  maxDepth: Infinity,
+  begin: undefined,
+  end: undefined
 }
 
-module.exports = (path, dag, _options) => {
-  const options = Object.assign({}, defaultOptions, _options)
+module.exports = (path, dag, options) => {
+  options = Object.assign({}, defaultOptions, options)
 
   let dPath
   try {

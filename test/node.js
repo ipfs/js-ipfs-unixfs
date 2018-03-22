@@ -61,9 +61,6 @@ describe('IPFS UnixFS Engine', () => {
   require('./exporter')(repo)
   require('./exporter-subtree')(repo)
 
-  // Reader
-  require('./reader')(repo)
-
   // Other
   require('./import-export')(repo)
   require('./import-export-nested-dir')(repo)

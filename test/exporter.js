@@ -15,12 +15,66 @@ const loadFixture = require('aegir/fixtures')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
+const importer = unixFSEngine.importer
 
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
 module.exports = (repo) => {
   describe('exporter', () => {
     let ipld
+
+    function addAndReadTestFile ({file, begin, end, strategy = 'balanced', path = '/foo'}, cb) {
+      pull(
+        pull.values([{
+          path,
+          content: file
+        }]),
+        importer(ipld, {
+          strategy
+        }),
+        pull.collect((error, nodes) => {
+          expect(error).to.not.exist()
+          expect(nodes.length).to.be.eql(1)
+
+          pull(
+            exporter(nodes[0].multihash, ipld, {
+              begin, end
+            }),
+            pull.collect((error, files) => {
+              if (error) {
+                return cb(error)
+              }
+
+              readFile(files[0], cb)
+            })
+          )
+        })
+      )
+    }
+
+    function checkBytesThatSpanBlocks (strategy, cb) {
+      const bytesInABlock = 262144
+      const bytes = Buffer.alloc(bytesInABlock + 100, 0)
+
+      bytes[bytesInABlock - 1] = 1
+      bytes[bytesInABlock] = 2
+      bytes[bytesInABlock + 1] = 3
+
+      addAndReadTestFile({
+        file: bytes,
+        begin: bytesInABlock - 1,
+        end: bytesInABlock + 2,
+        strategy
+      }, (error, data) => {
+        if (error) {
+          return cb(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
+
+        cb()
+      })
+    }
 
     before(() => {
       const bs = new BlockService(repo)
@@ -73,6 +127,33 @@ module.exports = (repo) => {
       )
     })
 
+    it('export a chunk of a file with no links', (done) => {
+      const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
+      const begin = 0
+      const end = 5
+
+      pull(
+        zip(
+          pull(
+            ipld.getStream(new CID(hash)),
+            pull.map((res) => UnixFS.unmarshal(res.value.data))
+          ),
+          exporter(hash, ipld, {
+            begin,
+            end
+          })
+        ),
+        pull.collect((err, values) => {
+          expect(err).to.not.exist()
+
+          const unmarsh = values[0][0]
+          const file = values[0][1]
+
+          fileEql(file, unmarsh.data.slice(begin, end), done)
+        })
+      )
+    })
+
     it('export a small file with links', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
@@ -82,6 +163,25 @@ module.exports = (repo) => {
           expect(err).to.not.exist()
 
           fileEql(files[0], bigFile, done)
+        })
+      )
+    })
+
+    it('exports a chunk of a small file with links', function (done) {
+      this.timeout(30 * 1000)
+      const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
+      const begin = 0
+      const end = 5
+
+      pull(
+        exporter(hash, ipld, {
+          begin,
+          end
+        }),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+
+          fileEql(files[0], bigFile.slice(begin, end), done)
         })
       )
     })
@@ -100,11 +200,71 @@ module.exports = (repo) => {
       )
     })
 
+    it('exports a chunk of a small file with links using CID instead of multihash', function (done) {
+      this.timeout(30 * 1000)
+      const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
+      const begin = 0
+      const end = 5
+
+      pull(
+        exporter(cid, ipld, {
+          begin,
+          end
+        }),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+
+          fileEql(files[0], bigFile.slice(begin, end), done)
+        })
+      )
+    })
+
     it('export a large file > 5mb', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       pull(
         exporter(hash, ipld),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+
+          expect(files[0]).to.have.property('path', 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE')
+          fileEql(files[0], null, done)
+        })
+      )
+    })
+
+    it('exports a chunk of a large file > 5mb', function (done) {
+      this.timeout(30 * 1000)
+      const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
+      const begin = 0
+      const end = 5
+
+      pull(
+        exporter(hash, ipld, {
+          begin,
+          end
+        }),
+        pull.collect((err, files) => {
+          expect(err).to.not.exist()
+
+          expect(files[0]).to.have.property('path', 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE')
+          fileEql(files[0], null, done)
+        })
+      )
+    })
+
+    it('exports a chunk of a large file > 5mb made from multiple blocks', function (done) {
+      this.timeout(30 * 1000)
+      const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
+      const bytesInABlock = 262144
+      const begin = bytesInABlock - 1
+      const end = bytesInABlock + 1
+
+      pull(
+        exporter(hash, ipld, {
+          begin,
+          end
+        }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
@@ -205,6 +365,144 @@ module.exports = (repo) => {
       )
     })
 
+    it('reads bytes with a begin', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3]),
+        begin: 1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with a negative begin', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3]),
+        begin: -1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with an end', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3]),
+        begin: 0,
+        end: 1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([0]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with a negative end', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3, 4]),
+        begin: 2,
+        end: -1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([2, 3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with an begin and an end', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3, 4]),
+        begin: 1,
+        end: 4
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with a negative begin and a negative end that point to the same byte', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3, 4]),
+        begin: -1,
+        end: -1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with a negative begin and a negative end', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3, 4]),
+        begin: -2,
+        end: -1
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes to the end of the file when end is larger than the file', (done) => {
+      addAndReadTestFile({
+        file: Buffer.from([0, 1, 2, 3]),
+        begin: 0,
+        end: 100
+      }, (error, data) => {
+        if (error) {
+          return done(error)
+        }
+
+        expect(data).to.deep.equal(Buffer.from([0, 1, 2, 3]))
+
+        done()
+      })
+    })
+
+    it('reads bytes with an offset and a length that span blocks using balanced layout', (done) => {
+      checkBytesThatSpanBlocks('balanced', done)
+    })
+
+    it('reads bytes with an offset and a length that span blocks using flat layout', (done) => {
+      checkBytesThatSpanBlocks('flat', done)
+    })
+
+    it('reads bytes with an offset and a length that span blocks using trickle layout', (done) => {
+      checkBytesThatSpanBlocks('trickle', done)
+    })
+
     // TODO: This needs for the stores to have timeouts,
     // otherwise it is impossible to predict if a file doesn't
     // really exist
@@ -223,24 +521,34 @@ module.exports = (repo) => {
   })
 }
 
-function fileEql (f1, f2, done) {
+function fileEql (actual, expected, done) {
+  readFile(actual, (error, data) => {
+    if (error) {
+      return done(error)
+    }
+
+    try {
+      if (expected) {
+        expect(data).to.eql(expected)
+      } else {
+        expect(data).to.exist()
+      }
+    } catch (err) {
+      return done(err)
+    }
+    done()
+  })
+}
+
+function readFile (file, done) {
   pull(
-    f1.content,
-    pull.collect((err, data) => {
-      if (err) {
-        return done(err)
+    file.content,
+    pull.collect((error, data) => {
+      if (error) {
+        return done(error)
       }
 
-      try {
-        if (f2) {
-          expect(Buffer.concat(data)).to.eql(f2)
-        } else {
-          expect(data).to.exist()
-        }
-      } catch (err) {
-        return done(err)
-      }
-      done()
+      done(null, Buffer.concat(data))
     })
   )
 }

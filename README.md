@@ -165,9 +165,9 @@ filesStream.on('data', (file) => file.content.pipe(process.stdout))
 const Exporter = require('ipfs-unixfs-engine').Exporter
 ```
 
-### new Exporter(<cid or ipfsPath>, <dag or ipld-resolver>)
+### new Exporter(<cid or ipfsPath>, <dag or ipld-resolver>, <options>)
 
-Uses the given [dag API] or an [ipld-resolver instance][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
+Uses the given [dag API][] or an [ipld-resolver instance][] to fetch an IPFS [UnixFS][] object(s) by their multiaddress.
 
 Creates a new readable stream in object mode that outputs objects of the form
 
@@ -176,57 +176,6 @@ Creates a new readable stream in object mode that outputs objects of the form
   path: 'a name',
   content: (Buffer or Readable stream)
 }
-```
-
-Errors are received as with a normal stream, by listening on the `'error'` event to be emitted.
-
-
-[dag API]: https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md
-[ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
-[UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
-
-## Reader
-
-The `reader` allows you to receive part or all of a file as a [pull-stream].
-
-#### Reader example
-
-```js
-const readable = require('ipfs-unixfs-engine').readable
-const pull = require('pull-stream')
-const drain = require('pull-stream/sinks/collect')
-
-pull(
-  readable(cid, ipldResolver)
-  collect((error, chunks) => {
-    // do something with the file chunks and/or handle errors
-  })
-)
-```
-
-#### Reader API
-
-```js
-const reader = require('ipfs-unixfs-engine').reader
-```
-
-### reader(<cid or ipfsPath>, <dag or ipld-resolver>, <begin>, <end>)
-
-Uses the given [dag API][] or an [ipld-resolver instance][] to fetch an IPFS [UnixFS][] object by their multiaddress.
-
-Creates a new [pull-stream][] that sends the requested chunks of data as a series of [Buffer][] objects.
-
-```js
-const readable = require('ipfs-unixfs-engine').readable
-const pull = require('pull-stream')
-const drain = require('pull-stream/sinks/drain')
-
-pull(
-  readable(cid, ipldResolver),
-  drain((chunk) => {
-    // do something with the file chunk
-  })
-)
 ```
 
 #### `begin` and `end`
@@ -240,14 +189,17 @@ A negative `begin` starts the slice from the end of the stream and a negative `e
 See [the tests](test/reader.js) for examples of using these arguments.
 
 ```js
-const readable = require('ipfs-unixfs-engine').readable
+const exporter = require('ipfs-unixfs-engine').exporter
 const pull = require('pull-stream')
 const drain = require('pull-stream/sinks/drain')
 
 pull(
-  readable(cid, ipldResolver, 0, 10)
-  drain((chunk) => {
-    // chunk is a Buffer containing only the first 10 bytes of the stream
+  exporter(cid, ipldResolver, {
+    begin: 0,
+    end: 10
+  })
+  drain((file) => {
+    // file.content() is a pull stream containing only the first 10 bytes of the file
   })
 )
 ```
@@ -257,23 +209,22 @@ pull(
 Errors are received by [pull-stream][] sinks.
 
 ```js
-const readable = require('ipfs-unixfs-engine').readable
+const exporter = require('ipfs-unixfs-engine').exporter
 const pull = require('pull-stream')
 const drain = require('pull-stream/sinks/collect')
 
 pull(
-  readable(cid, ipldResolver, 0, 10)
+  exporter(cid, ipldResolver)
   collect((error, chunks) => {
     // handle the error
   })
 )
 ```
 
-[pull-stream]: https://www.npmjs.com/package/pull-stream
-[Buffer]: https://www.npmjs.com/package/buffer
 [dag API]: https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md
 [ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
+[pull-stream]: https://www.npmjs.com/package/pull-stream
 [`Array.slice(begin, end)`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
 
 ## Contribute

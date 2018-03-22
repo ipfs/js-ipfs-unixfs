@@ -32,14 +32,14 @@ function createResolver (dag, options, depth, parent) {
         return pull.error(new Error('no depth'))
       }
       if (item.object) {
-        return cb(null, resolveItem(item.object, item))
+        return cb(null, resolveItem(item.object, item, options.begin, options.end))
       }
       dag.get(new CID(item.multihash), (err, node) => {
         if (err) {
           return cb(err)
         }
         // const name = item.fromPathRest ? item.name : item.path
-        cb(null, resolveItem(node.value, item))
+        cb(null, resolveItem(node.value, item, options.begin, options.end))
       })
     }),
     pull.flatten(),
@@ -47,18 +47,18 @@ function createResolver (dag, options, depth, parent) {
     pull.filter((node) => node.depth <= options.maxDepth)
   )
 
-  function resolveItem (node, item) {
-    return resolve(node, item.name, item.path, item.pathRest, item.size, dag, item.parent || parent, item.depth)
+  function resolveItem (node, item, begin, end) {
+    return resolve(node, item.name, item.path, item.pathRest, item.size, dag, item.parent || parent, item.depth, begin, end)
   }
 
-  function resolve (node, name, path, pathRest, size, dag, parentNode, depth) {
+  function resolve (node, name, path, pathRest, size, dag, parentNode, depth, begin, end) {
     const type = typeOf(node)
     const nodeResolver = resolvers[type]
     if (!nodeResolver) {
       return pull.error(new Error('Unkown node type ' + type))
     }
     const resolveDeep = createResolver(dag, options, depth, node)
-    return nodeResolver(node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth)
+    return nodeResolver(node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, begin, end)
   }
 }
 

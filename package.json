@@ -51,7 +51,7 @@
     "pull-generate": "^2.2.0",
     "pull-zip": "^2.0.1",
     "rimraf": "^2.6.2",
-    "sinon": "^4.4.6",
+    "sinon": "^4.4.9",
     "split": "^1.0.1"
   },
   "dependencies": {
@@ -73,7 +73,7 @@
     "pull-paramap": "^1.2.2",
     "pull-pause": "0.0.2",
     "pull-pushable": "^2.2.0",
-    "pull-stream": "^3.6.2",
+    "pull-stream": "^3.6.3",
     "pull-through": "^1.0.18",
     "pull-traverse": "^1.0.3",
     "pull-write": "^1.1.4",

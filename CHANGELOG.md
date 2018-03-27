@@ -1,3 +1,13 @@
+<a name="0.27.0"></a>
+# [0.27.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.26.0...v0.27.0) (2018-03-27)
+
+
+### Features
+
+* exporter - support slicing streams stored in deeply nested DAGs ([#208](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/208)) ([8568cd5](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/8568cd5))
+
+
+
 <a name="0.26.0"></a>
 # [0.26.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.25.0...v0.26.0) (2018-03-22)
 

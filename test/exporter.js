@@ -12,6 +12,8 @@ const pull = require('pull-stream')
 const zip = require('pull-zip')
 const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
+const doUntil = require('async/doUntil')
+const waterfall = require('async/waterfall')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
@@ -23,33 +25,43 @@ module.exports = (repo) => {
   describe('exporter', () => {
     let ipld
 
-    function addAndReadTestFile ({file, begin, end, strategy = 'balanced', path = '/foo'}, cb) {
+    function addTestFile ({file, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
       pull(
         pull.values([{
           path,
           content: file
         }]),
         importer(ipld, {
-          strategy
+          strategy,
+          chunkerOptions: {
+            maxChunkSize
+          }
         }),
         pull.collect((error, nodes) => {
-          expect(error).to.not.exist()
-          expect(nodes.length).to.be.eql(1)
-
-          pull(
-            exporter(nodes[0].multihash, ipld, {
-              begin, end
-            }),
-            pull.collect((error, files) => {
-              if (error) {
-                return cb(error)
-              }
-
-              readFile(files[0], cb)
-            })
-          )
+          cb(error, nodes && nodes[0] && nodes[0].multihash)
         })
       )
+    }
+
+    function addAndReadTestFile ({file, begin, end, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
+      addTestFile({file, strategy, path, maxChunkSize}, (error, multihash) => {
+        if (error) {
+          return cb(error)
+        }
+
+        pull(
+          exporter(multihash, ipld, {
+            begin, end
+          }),
+          pull.collect((error, files) => {
+            if (error) {
+              return cb(error)
+            }
+
+            readFile(files[0], cb)
+          })
+        )
+      })
     }
 
     function checkBytesThatSpanBlocks (strategy, cb) {
@@ -106,7 +118,7 @@ module.exports = (repo) => {
       })
     })
 
-    it('export a file with no links', (done) => {
+    it('exports a file with no links', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
 
       pull(
@@ -127,7 +139,7 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a chunk of a file with no links', (done) => {
+    it('exports a chunk of a file with no links', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
       const begin = 0
       const end = 5
@@ -154,9 +166,10 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a small file with links', function (done) {
+    it('exports a small file with links', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
+
       pull(
         exporter(hash, ipld),
         pull.collect((err, files) => {
@@ -186,7 +199,7 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a small file with links using CID instead of multihash', function (done) {
+    it('exports a small file with links using CID instead of multihash', function (done) {
       this.timeout(30 * 1000)
       const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
 
@@ -219,7 +232,7 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a large file > 5mb', function (done) {
+    it('exports a large file > 5mb', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       pull(
@@ -274,7 +287,7 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a directory', function (done) {
+    it('exports a directory', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
@@ -315,7 +328,7 @@ module.exports = (repo) => {
       )
     })
 
-    it('export a directory one deep', function (done) {
+    it('exports a directory one deep', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmWChcSFMNcFkfeJtNd8Yru1rE6PhtCRfewi1tMwjkwKjN'
 
@@ -370,10 +383,7 @@ module.exports = (repo) => {
         file: Buffer.from([0, 1, 2, 3]),
         begin: 1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
 
         done()
@@ -385,10 +395,7 @@ module.exports = (repo) => {
         file: Buffer.from([0, 1, 2, 3]),
         begin: -1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([3]))
 
         done()
@@ -401,10 +408,7 @@ module.exports = (repo) => {
         begin: 0,
         end: 1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([0]))
 
         done()
@@ -417,10 +421,7 @@ module.exports = (repo) => {
         begin: 2,
         end: -1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([2, 3]))
 
         done()
@@ -433,10 +434,7 @@ module.exports = (repo) => {
         begin: 1,
         end: 4
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
 
         done()
@@ -449,10 +447,7 @@ module.exports = (repo) => {
         begin: -1,
         end: -1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([]))
 
         done()
@@ -465,10 +460,7 @@ module.exports = (repo) => {
         begin: -2,
         end: -1
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([3]))
 
         done()
@@ -481,13 +473,74 @@ module.exports = (repo) => {
         begin: 0,
         end: 100
       }, (error, data) => {
-        if (error) {
-          return done(error)
-        }
-
+        expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([0, 1, 2, 3]))
 
         done()
+      })
+    })
+
+    it('reads files that are split across lots of nodes', function (done) {
+      this.timeout(30 * 1000)
+
+      addAndReadTestFile({
+        file: bigFile,
+        begin: 0,
+        end: bigFile.length,
+        maxChunkSize: 1024
+      }, (error, data) => {
+        expect(error).to.not.exist()
+        expect(data).to.deep.equal(bigFile)
+
+        done()
+      })
+    })
+
+    it('reads files in multiple steps that are split across lots of nodes in really small chunks', function (done) {
+      this.timeout(600 * 1000)
+
+      let results = []
+      let chunkSize = 1024
+      let begin = 0
+
+      addTestFile({
+        file: bigFile,
+        maxChunkSize: 1024
+      }, (error, multihash) => {
+        expect(error).to.not.exist()
+
+        doUntil(
+          (cb) => {
+            waterfall([
+              (next) => {
+                pull(
+                  exporter(multihash, ipld, {
+                    begin,
+                    end: begin + chunkSize
+                  }),
+                  pull.collect(next)
+                )
+              },
+              (files, next) => readFile(files[0], next)
+            ], cb)
+          },
+          (result) => {
+            results.push(result)
+
+            begin += result.length
+
+            return begin >= bigFile.length
+          },
+          (error) => {
+            expect(error).to.not.exist()
+
+            const buffer = Buffer.concat(results)
+
+            expect(buffer).to.deep.equal(bigFile)
+
+            done()
+          }
+        )
       })
     })
 
@@ -536,6 +589,7 @@ function fileEql (actual, expected, done) {
     } catch (err) {
       return done(err)
     }
+
     done()
   })
 }

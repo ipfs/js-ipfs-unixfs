@@ -7,7 +7,7 @@ const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 
 // Logic to export a single (possibly chunked) unixfs file.
-module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth, begin, end) => {
+module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth, offset, length) => {
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
@@ -16,7 +16,32 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
 
   const file = UnixFS.unmarshal(node.data)
   const fileSize = size || file.fileSize()
-  const content = streamBytes(dag, node, fileSize, findByteRange(fileSize, begin, end))
+
+  if (offset < 0) {
+    return pull.error(new Error('Offset must be greater than 0'))
+  }
+
+  if (offset > fileSize) {
+    return pull.error(new Error('Offset must be less than the file size'))
+  }
+
+  if (length < 0) {
+    return pull.error(new Error('Length must be greater than or equal to 0'))
+  }
+
+  if (length === 0) {
+    return pull.empty()
+  }
+
+  if (!offset) {
+    offset = 0
+  }
+
+  if (!length || (offset + length > fileSize)) {
+    length = fileSize - offset
+  }
+
+  const content = streamBytes(dag, node, fileSize, offset, length)
 
   return pull.values([{
     depth: depth,
@@ -29,33 +54,12 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
   }])
 }
 
-function findByteRange (fileSize, begin, end) {
-  if (!begin) {
-    begin = 0
-  }
-
-  if (!end || end > fileSize) {
-    end = fileSize
-  }
-
-  if (begin < 0) {
-    begin = fileSize + begin
-  }
-
-  if (end < 0) {
-    end = fileSize + end
-  }
-
-  return {
-    begin, end
-  }
-}
-
-function streamBytes (dag, node, fileSize, { begin, end }) {
-  if (begin === end) {
+function streamBytes (dag, node, fileSize, offset, length) {
+  if (offset === fileSize || length === 0) {
     return pull.empty()
   }
 
+  const end = offset + length
   let streamPosition = 0
 
   function getData ({ node, start }) {
@@ -70,11 +74,13 @@ function streamBytes (dag, node, fileSize, { begin, end }) {
         return
       }
 
-      const block = extractDataFromBlock(file.data, start, begin, end)
+      const block = extractDataFromBlock(file.data, start, offset, end)
+
+      streamPosition += block.length
 
       return block
-    } catch (err) {
-      throw new Error('Failed to unmarshal node')
+    } catch (error) {
+      throw new Error(`Failed to unmarshal node - ${error.message}`)
     }
   }
 
@@ -95,9 +101,9 @@ function streamBytes (dag, node, fileSize, { begin, end }) {
         return child
       })
       .filter((child, index) => {
-        return (begin >= child.start && begin < child.end) || // child has begin byte
+        return (offset >= child.start && offset < child.end) || // child has offset byte
           (end > child.start && end <= child.end) || // child has end byte
-          (begin < child.start && end > child.end) // child is between begin and end bytes
+          (offset < child.start && end > child.end) // child is between offset and end bytes
       })
 
     if (filteredLinks.length) {
@@ -111,7 +117,8 @@ function streamBytes (dag, node, fileSize, { begin, end }) {
         dag.get(new CID(child.link.multihash), (error, result) => cb(error, {
           start: child.start,
           end: child.end,
-          node: result && result.value
+          node: result && result.value,
+          size: child.size
         }))
       })
     )

@@ -178,13 +178,9 @@ Creates a new readable stream in object mode that outputs objects of the form
 }
 ```
 
-#### `begin` and `end`
+#### `offset` and `length`
 
-`begin` and `end` arguments can optionally be passed to the reader function.  These follow the same semantics as the JavaScript [`Array.slice(begin, end)`][] method.
-
-That is: `begin` is the index in the stream to start sending data, `end` is the index *before* which to stop sending data.
-
-A negative `begin` starts the slice from the end of the stream and a negative `end` ends the slice by subtracting `end` from the total stream length.
+`offset` and `length` arguments can optionally be passed to the reader function.  These will cause the returned stream to only emit bytes starting at `offset` and with length of `length`.
 
 See [the tests](test/reader.js) for examples of using these arguments.
 
@@ -195,8 +191,8 @@ const drain = require('pull-stream/sinks/drain')
 
 pull(
   exporter(cid, ipldResolver, {
-    begin: 0,
-    end: 10
+    offset: 0,
+    length: 10
   })
   drain((file) => {
     // file.content() is a pull stream containing only the first 10 bytes of the file
@@ -225,7 +221,6 @@ pull(
 [ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
 [pull-stream]: https://www.npmjs.com/package/pull-stream
-[`Array.slice(begin, end)`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
 
 ## Contribute
 

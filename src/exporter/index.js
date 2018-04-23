@@ -37,8 +37,8 @@ function pathBaseAndRest (path) {
 
 const defaultOptions = {
   maxDepth: Infinity,
-  begin: undefined,
-  end: undefined
+  offset: undefined,
+  length: undefined
 }
 
 module.exports = (path, dag, options) => {

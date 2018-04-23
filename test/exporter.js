@@ -43,7 +43,7 @@ module.exports = (repo) => {
       )
     }
 
-    function addAndReadTestFile ({file, begin, end, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
+    function addAndReadTestFile ({file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
       addTestFile({file, strategy, path, maxChunkSize}, (error, multihash) => {
         if (error) {
           return cb(error)
@@ -51,7 +51,7 @@ module.exports = (repo) => {
 
         pull(
           exporter(multihash, ipld, {
-            begin, end
+            offset, length
           }),
           pull.collect((error, files) => {
             if (error) {
@@ -74,8 +74,8 @@ module.exports = (repo) => {
 
       addAndReadTestFile({
         file: bytes,
-        begin: bytesInABlock - 1,
-        end: bytesInABlock + 2,
+        offset: bytesInABlock - 1,
+        length: 3,
         strategy
       }, (error, data) => {
         if (error) {
@@ -141,8 +141,8 @@ module.exports = (repo) => {
 
     it('exports a chunk of a file with no links', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
-      const begin = 0
-      const end = 5
+      const offset = 0
+      const length = 5
 
       pull(
         zip(
@@ -151,8 +151,8 @@ module.exports = (repo) => {
             pull.map((res) => UnixFS.unmarshal(res.value.data))
           ),
           exporter(hash, ipld, {
-            begin,
-            end
+            offset,
+            length
           })
         ),
         pull.collect((err, values) => {
@@ -161,7 +161,7 @@ module.exports = (repo) => {
           const unmarsh = values[0][0]
           const file = values[0][1]
 
-          fileEql(file, unmarsh.data.slice(begin, end), done)
+          fileEql(file, unmarsh.data.slice(offset, offset + length), done)
         })
       )
     })
@@ -183,18 +183,18 @@ module.exports = (repo) => {
     it('exports a chunk of a small file with links', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q'
-      const begin = 0
-      const end = 5
+      const offset = 0
+      const length = 5
 
       pull(
         exporter(hash, ipld, {
-          begin,
-          end
+          offset,
+          length
         }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
-          fileEql(files[0], bigFile.slice(begin, end), done)
+          fileEql(files[0], bigFile.slice(offset, offset + length), done)
         })
       )
     })
@@ -216,18 +216,18 @@ module.exports = (repo) => {
     it('exports a chunk of a small file with links using CID instead of multihash', function (done) {
       this.timeout(30 * 1000)
       const cid = new CID('QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q')
-      const begin = 0
-      const end = 5
+      const offset = 0
+      const length = 5
 
       pull(
         exporter(cid, ipld, {
-          begin,
-          end
+          offset,
+          length
         }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
 
-          fileEql(files[0], bigFile.slice(begin, end), done)
+          fileEql(files[0], bigFile.slice(offset, offset + length), done)
         })
       )
     })
@@ -249,13 +249,13 @@ module.exports = (repo) => {
     it('exports a chunk of a large file > 5mb', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
-      const begin = 0
-      const end = 5
+      const offset = 0
+      const length = 5
 
       pull(
         exporter(hash, ipld, {
-          begin,
-          end
+          offset,
+          length
         }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
@@ -270,13 +270,13 @@ module.exports = (repo) => {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
       const bytesInABlock = 262144
-      const begin = bytesInABlock - 1
-      const end = bytesInABlock + 1
+      const offset = bytesInABlock - 1
+      const length = bytesInABlock + 1
 
       pull(
         exporter(hash, ipld, {
-          begin,
-          end
+          offset,
+          length
         }),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
@@ -378,10 +378,10 @@ module.exports = (repo) => {
       )
     })
 
-    it('reads bytes with a begin', (done) => {
+    it('reads bytes with an offset', (done) => {
       addAndReadTestFile({
         file: Buffer.from([0, 1, 2, 3]),
-        begin: 1
+        offset: 1
       }, (error, data) => {
         expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
@@ -390,23 +390,23 @@ module.exports = (repo) => {
       })
     })
 
-    it('reads bytes with a negative begin', (done) => {
+    it('reads bytes with a negative offset', (done) => {
       addAndReadTestFile({
         file: Buffer.from([0, 1, 2, 3]),
-        begin: -1
+        offset: -1
       }, (error, data) => {
-        expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([3]))
+        expect(error).to.be.ok()
+        expect(error.message).to.contain('Offset must be greater than 0')
 
         done()
       })
     })
 
-    it('reads bytes with an end', (done) => {
+    it('reads bytes with an offset and a length', (done) => {
       addAndReadTestFile({
         file: Buffer.from([0, 1, 2, 3]),
-        begin: 0,
-        end: 1
+        offset: 0,
+        length: 1
       }, (error, data) => {
         expect(error).to.not.exist()
         expect(data).to.deep.equal(Buffer.from([0]))
@@ -415,66 +415,27 @@ module.exports = (repo) => {
       })
     })
 
-    it('reads bytes with a negative end', (done) => {
+    it('reads bytes with a negative length', (done) => {
       addAndReadTestFile({
         file: Buffer.from([0, 1, 2, 3, 4]),
-        begin: 2,
-        end: -1
+        offset: 2,
+        length: -1
       }, (error, data) => {
-        expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([2, 3]))
+        expect(error).to.be.ok()
+        expect(error.message).to.contain('Length must be greater than or equal to 0')
 
         done()
       })
     })
 
-    it('reads bytes with an begin and an end', (done) => {
+    it('reads bytes with an offset and a length', (done) => {
       addAndReadTestFile({
         file: Buffer.from([0, 1, 2, 3, 4]),
-        begin: 1,
-        end: 4
+        offset: 1,
+        length: 4
       }, (error, data) => {
         expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
-
-        done()
-      })
-    })
-
-    it('reads bytes with a negative begin and a negative end that point to the same byte', (done) => {
-      addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3, 4]),
-        begin: -1,
-        end: -1
-      }, (error, data) => {
-        expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([]))
-
-        done()
-      })
-    })
-
-    it('reads bytes with a negative begin and a negative end', (done) => {
-      addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3, 4]),
-        begin: -2,
-        end: -1
-      }, (error, data) => {
-        expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([3]))
-
-        done()
-      })
-    })
-
-    it('reads bytes to the end of the file when end is larger than the file', (done) => {
-      addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3]),
-        begin: 0,
-        end: 100
-      }, (error, data) => {
-        expect(error).to.not.exist()
-        expect(data).to.deep.equal(Buffer.from([0, 1, 2, 3]))
+        expect(data).to.deep.equal(Buffer.from([1, 2, 3, 4]))
 
         done()
       })
@@ -485,8 +446,8 @@ module.exports = (repo) => {
 
       addAndReadTestFile({
         file: bigFile,
-        begin: 0,
-        end: bigFile.length,
+        offset: 0,
+        length: bigFile.length,
         maxChunkSize: 1024
       }, (error, data) => {
         expect(error).to.not.exist()
@@ -501,7 +462,7 @@ module.exports = (repo) => {
 
       let results = []
       let chunkSize = 1024
-      let begin = 0
+      let offset = 0
 
       addTestFile({
         file: bigFile,
@@ -515,8 +476,8 @@ module.exports = (repo) => {
               (next) => {
                 pull(
                   exporter(multihash, ipld, {
-                    begin,
-                    end: begin + chunkSize
+                    offset,
+                    length: chunkSize
                   }),
                   pull.collect(next)
                 )
@@ -527,9 +488,9 @@ module.exports = (repo) => {
           (result) => {
             results.push(result)
 
-            begin += result.length
+            offset += result.length
 
-            return begin >= bigFile.length
+            return offset >= bigFile.length
           },
           (error) => {
             expect(error).to.not.exist()

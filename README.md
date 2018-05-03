@@ -195,7 +195,7 @@ pull(
     length: 10
   })
   drain((file) => {
-    // file.content() is a pull stream containing only the first 10 bytes of the file
+    // file.content is a pull stream containing only the first 10 bytes of the file
   })
 )
 ```

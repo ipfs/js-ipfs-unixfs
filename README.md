@@ -15,6 +15,10 @@
 
 [The unixfs spec can be found inside the ipfs/specs repository](http://github.com/ipfs/specs)
 
+## Lead Maintainer
+
+[Alex Potsides](https://github.com/achingbrain)
+
 ## Table of Contents
 
 - [Install](#install)

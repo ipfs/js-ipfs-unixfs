@@ -8,95 +8,88 @@ const loadFixture = require('aegir/fixtures')
 
 const UnixFS = require('../src')
 
-const raw = loadFixture(__dirname, 'fixtures/raw.unixfs')
-const directory = loadFixture(__dirname, 'fixtures/directory.unixfs')
-const file = loadFixture(__dirname, 'fixtures/file.txt.unixfs')
-const symlink = loadFixture(__dirname, 'fixtures/symlink.txt.unixfs')
+const raw = loadFixture('test/fixtures/raw.unixfs')
+const directory = loadFixture('test/fixtures/directory.unixfs')
+const file = loadFixture('test/fixtures/file.txt.unixfs')
+const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
 const Buffer = require('safe-buffer').Buffer
 
 describe('unixfs-format', () => {
-  it('raw', (done) => {
+  it('raw', () => {
     const data = new UnixFS('raw', Buffer.from('bananas'))
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
 
-  it('directory', (done) => {
+  it('directory', () => {
     const data = new UnixFS('directory')
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
 
-  it('hamt-sharded-directory', (done) => {
+  it('hamt-sharded-directory', () => {
     const data = new UnixFS('hamt-sharded-directory')
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
 
-  it('file', (done) => {
+  it('file', () => {
     const data = new UnixFS('file', new Buffer('batata'))
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
 
-  it('file add blocksize', (done) => {
+  it('file add blocksize', () => {
     const data = new UnixFS('file')
     data.addBlockSize(256)
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
 
-  it('file add and remove blocksize', (done) => {
+  it('file add and remove blocksize', () => {
     const data = new UnixFS('file')
     data.addBlockSize(256)
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    unmarsheled.removeBlockSize(0)
-    expect(data.blockSizes).to.not.deep.equal(unmarsheled.blockSizes)
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    unmarshalled.removeBlockSize(0)
+    expect(data.blockSizes).to.not.deep.equal(unmarshalled.blockSizes)
   })
 
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
-  it.skip('metadata', (done) => {})
+  it.skip('metadata', () => {})
 
-  it('symlink', (done) => {
+  it('symlink', () => {
     const data = new UnixFS('symlink')
-    const marsheled = data.marshal()
-    const unmarsheled = UnixFS.unmarshal(marsheled)
-    expect(data.type).to.equal(unmarsheled.type)
-    expect(data.data).to.deep.equal(unmarsheled.data)
-    expect(data.blockSizes).to.deep.equal(unmarsheled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarsheled.fileSize())
-    done()
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(data.type).to.equal(unmarshalled.type)
+    expect(data.data).to.deep.equal(unmarshalled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
   })
   it('wrong type', (done) => {
     let data
@@ -110,40 +103,36 @@ describe('unixfs-format', () => {
   })
 
   describe('interop', () => {
-    it('raw', (done) => {
-      const unmarsheled = UnixFS.unmarshal(raw)
-      expect(unmarsheled.data).to.eql(Buffer.from('Hello UnixFS\n'))
-      expect(unmarsheled.type).to.equal('file')
-      expect(unmarsheled.marshal()).to.deep.equal(raw)
-      done()
+    it('raw', () => {
+      const unmarshalled = UnixFS.unmarshal(raw)
+      expect(unmarshalled.data).to.eql(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshalled.type).to.equal('file')
+      expect(unmarshalled.marshal()).to.deep.equal(raw)
     })
 
-    it('directory', (done) => {
-      const unmarsheled = UnixFS.unmarshal(directory)
-      expect(unmarsheled.data).to.deep.equal(undefined)
-      expect(unmarsheled.type).to.equal('directory')
-      expect(unmarsheled.marshal()).to.deep.equal(directory)
-      done()
+    it('directory', () => {
+      const unmarshalled = UnixFS.unmarshal(directory)
+      expect(unmarshalled.data).to.deep.equal(undefined)
+      expect(unmarshalled.type).to.equal('directory')
+      expect(unmarshalled.marshal()).to.deep.equal(directory)
     })
 
-    it('file', (done) => {
-      const unmarsheled = UnixFS.unmarshal(file)
-      expect(unmarsheled.data).to.deep.equal(Buffer.from('Hello UnixFS\n'))
-      expect(unmarsheled.type).to.equal('file')
-      expect(unmarsheled.marshal()).to.deep.equal(file)
-      done()
+    it('file', () => {
+      const unmarshalled = UnixFS.unmarshal(file)
+      expect(unmarshalled.data).to.deep.equal(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshalled.type).to.equal('file')
+      expect(unmarshalled.marshal()).to.deep.equal(file)
     })
 
-    it.skip('metadata', (done) => {
+    it.skip('metadata', () => {
     })
 
-    it('symlink', (done) => {
-      const unmarsheled = UnixFS.unmarshal(symlink)
-      expect(unmarsheled.data).to.deep.equal(Buffer.from('file.txt'))
-      expect(unmarsheled.type).to.equal('symlink')
+    it('symlink', () => {
+      const unmarshalled = UnixFS.unmarshal(symlink)
+      expect(unmarshalled.data).to.deep.equal(Buffer.from('file.txt'))
+      expect(unmarshalled.type).to.equal('symlink')
       // TODO: waiting on https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182440079
-      // expect(unmarsheled.marshal()).to.deep.equal(symlink)
-      done()
+      // expect(unmarshalled.marshal()).to.deep.equal(symlink)
     })
   })
 })

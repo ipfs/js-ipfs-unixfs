@@ -15,6 +15,9 @@ const CID = require('cids')
 const Ipld = require('ipld')
 const loadFixture = require('aegir/fixtures')
 const each = require('async/each')
+const waterfall = require('async/waterfall')
+const parallel = require('async/parallel')
+const UnixFs = require('ipfs-unixfs')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -104,7 +107,67 @@ const strategyOverrides = {
       size: 2669627
     }
   }
+}
 
+const checkLeafNodeTypes = (ipld, options, expected, done) => {
+  waterfall([
+    (cb) => pull(
+      pull.once({
+        path: '/foo',
+        content: Buffer.alloc(262144 + 5).fill(1)
+      }),
+      importer(ipld, options),
+      pull.collect(cb)
+    ),
+    (files, cb) => ipld.get(new CID(files[0].multihash), cb),
+    (result, cb) => {
+      const node = result.value
+      const meta = UnixFs.unmarshal(node.data)
+
+      expect(meta.type).to.equal('file')
+      expect(node.links.length).to.equal(2)
+
+      parallel(
+        node.links.map(link => {
+          return (done) => {
+            waterfall([
+              (next) => ipld.get(new CID(link.multihash), next),
+              (result, next) => {
+                const node = result.value
+                const meta = UnixFs.unmarshal(node.data)
+
+                expect(meta.type).to.equal(expected)
+
+                next()
+              }
+            ], done)
+          }
+        }), cb)
+    }
+  ], done)
+}
+
+const checkNodeLinks = (ipld, options, expected, done) => {
+  waterfall([
+    (cb) => pull(
+      pull.once({
+        path: '/foo',
+        content: Buffer.alloc(100).fill(1)
+      }),
+      importer(ipld, options),
+      pull.collect(cb)
+    ),
+    (files, cb) => ipld.get(new CID(files[0].multihash), cb),
+    (result, cb) => {
+      const node = result.value
+      const meta = UnixFs.unmarshal(node.data)
+
+      expect(meta.type).to.equal('file')
+      expect(node.links.length).to.equal(expected)
+
+      cb()
+    }
+  ], done)
 }
 
 module.exports = (repo) => {
@@ -516,6 +579,30 @@ module.exports = (repo) => {
           importer(ipld, options),
           pull.collect(onCollected)
         )
+      })
+
+      it('imports file with raw leaf nodes when specified', (done) => {
+        checkLeafNodeTypes(ipld, {
+          rawLeafNodes: true
+        }, 'raw', done)
+      })
+
+      it('imports file with file leaf nodes when specified', (done) => {
+        checkLeafNodeTypes(ipld, {
+          rawLeafNodes: false
+        }, 'file', done)
+      })
+
+      it('reduces file to single node when specified', (done) => {
+        checkNodeLinks(ipld, {
+          reduceSingleLeafToSelf: true
+        }, 0, done)
+      })
+
+      it('does not reduce file to single node when overidden by options', (done) => {
+        checkNodeLinks(ipld, {
+          reduceSingleLeafToSelf: false
+        }, 1, done)
       })
     })
   })

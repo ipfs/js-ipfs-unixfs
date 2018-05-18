@@ -16,7 +16,8 @@ const DAGNode = dagPB.DAGNode
 const defaultOptions = {
   chunkerOptions: {
     maxChunkSize: 262144
-  }
+  },
+  rawLeafNodes: false
 }
 
 module.exports = function (createChunker, ipld, createReducer, _options) {
@@ -96,6 +97,7 @@ module.exports = function (createChunker, ipld, createReducer, _options) {
 
     let previous
     let count = 0
+    const leafType = options.rawLeafNodes ? 'raw' : 'file'
 
     pull(
       file.content,
@@ -106,7 +108,7 @@ module.exports = function (createChunker, ipld, createReducer, _options) {
         }
         return Buffer.from(chunk)
       }),
-      pull.map(buffer => new UnixFS('file', buffer)),
+      pull.map(buffer => new UnixFS(leafType, buffer)),
       pull.asyncMap((fileNode, callback) => {
         DAGNode.create(fileNode.marshal(), [], options.hashAlg, (err, node) => {
           callback(err, { DAGNode: node, fileNode: fileNode })

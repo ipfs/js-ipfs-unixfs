@@ -135,4 +135,11 @@ describe('unixfs-format', () => {
       // expect(unmarshalled.marshal()).to.deep.equal(symlink)
     })
   })
+
+  it('empty', () => {
+    const data = new UnixFS('file')
+    const marshalled = data.marshal()
+
+    expect(marshalled).to.deep.equal(Buffer.from([0x08, 0x02, 0x18, 0x00]))
+  })
 })

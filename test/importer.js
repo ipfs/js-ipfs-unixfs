@@ -214,7 +214,7 @@ module.exports = (repo) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
             // always yield empty node
-            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmfJMCvenrj4SKKRc48DYPxwVdS44qCUCqqtbqhJuSTWXP')
+            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
             done()
           }))
       })

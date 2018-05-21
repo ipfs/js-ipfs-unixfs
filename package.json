@@ -2,6 +2,7 @@
   "name": "ipfs-unixfs-engine",
   "version": "0.29.0",
   "description": "JavaScript implementation of the unixfs Engine used by IPFS",
+  "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
     "fs": false
@@ -29,7 +30,6 @@
   "keywords": [
     "IPFS"
   ],
-  "author": "David Dias <daviddias@ipfs.io>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ipfs/js-ipfs-unixfs-engine/issues"

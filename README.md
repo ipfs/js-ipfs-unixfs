@@ -14,6 +14,10 @@ IPFS unixFS Engine
 
 > JavaScript implementation of the layout and chunking mechanisms used by IPFS to handle Files
 
+## Lead Maintainer
+
+[Alex Potsides](https://github.com/achingbrain)
+
 ## Table of Contents
 
 - [Install](#install)

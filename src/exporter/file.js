@@ -63,15 +63,11 @@ function streamBytes (dag, node, fileSize, offset, length) {
   let streamPosition = 0
 
   function getData ({ node, start }) {
-    if (!node || !node.data) {
-      return
-    }
-
     try {
       const file = UnixFS.unmarshal(node.data)
 
       if (!file.data) {
-        return
+        return Buffer.alloc(0)
       }
 
       const block = extractDataFromBlock(file.data, start, offset, end)

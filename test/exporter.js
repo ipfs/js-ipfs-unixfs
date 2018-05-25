@@ -14,6 +14,12 @@ const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
 const doUntil = require('async/doUntil')
 const waterfall = require('async/waterfall')
+const series = require('async/series')
+const fs = require('fs')
+const path = require('path')
+const push = require('pull-pushable')
+const toPull = require('stream-to-pull-stream')
+const toStream = require('pull-stream-to-stream')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
@@ -61,6 +67,54 @@ module.exports = (repo) => {
             readFile(files[0], cb)
           })
         )
+      })
+    }
+
+    function addTestDirectory ({directory, strategy = 'balanced', maxChunkSize}, callback) {
+      const input = push()
+      const dirName = path.basename(directory)
+
+      pull(
+        input,
+        pull.map((file) => {
+          const ipfsPath = `${path.join(dirName, file.substring(directory.length))}`
+
+          return {
+            path: ipfsPath,
+            content: toPull.source(fs.createReadStream(file))
+          }
+        }),
+        importer(ipld, {
+          strategy,
+          maxChunkSize
+        }),
+        pull.collect(callback)
+      )
+
+      const listFiles = (directory, depth, stream, cb) => {
+        waterfall([
+          (done) => fs.stat(directory, done),
+          (stats, done) => {
+            if (stats.isDirectory()) {
+              return waterfall([
+                (done) => fs.readdir(directory, done),
+                (children, done) => {
+                  series(
+                    children.map(child => (next) => listFiles(path.join(directory, child), depth + 1, stream, next)),
+                    done
+                  )
+                }
+              ], done)
+            }
+
+            stream.push(directory)
+            done()
+          }
+        ], cb)
+      }
+
+      listFiles(directory, 0, input, () => {
+        input.end()
       })
     }
 
@@ -515,6 +569,55 @@ module.exports = (repo) => {
 
     it('reads bytes with an offset and a length that span blocks using trickle layout', (done) => {
       checkBytesThatSpanBlocks('trickle', done)
+    })
+
+    it('exports a directory containing an empty file whose content gets turned into a ReadableStream', function (done) {
+      // replicates the behaviour of ipfs.files.get
+      waterfall([
+        (cb) => addTestDirectory({
+          directory: path.join(__dirname, 'fixtures', 'dir-with-empty-files')
+        }, cb),
+        (result, cb) => {
+          const dir = result.pop()
+
+          pull(
+            exporter(dir.multihash, ipld),
+            pull.map((file) => {
+              if (file.content) {
+                file.content = toStream.source(file.content)
+                file.content.pause()
+              }
+
+              return file
+            }),
+            pull.collect((error, files) => {
+              if (error) {
+                return cb(error)
+              }
+
+              series(
+                files
+                  .filter(file => Boolean(file.content))
+                  .map(file => {
+                    return (done) => {
+                      if (file.content) {
+                        file.content
+                          .pipe(toStream.sink(pull.collect((error, bufs) => {
+                            expect(error).to.not.exist()
+                            expect(bufs.length).to.equal(1)
+                            expect(bufs[0].length).to.equal(0)
+
+                            done()
+                          })))
+                      }
+                    }
+                  }),
+                cb
+              )
+            })
+          )
+        }
+      ], done)
     })
 
     // TODO: This needs for the stores to have timeouts,

@@ -713,6 +713,27 @@ module.exports = (repo) => {
         }
       ], done)
     })
+
+    it('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', function (done) {
+      waterfall([
+        (cb) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [], cb),
+        (leaf, cb) => createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+          leaf
+        ], cb),
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld, {
+              offset: 4
+            }),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(Buffer.from([0x04, 0x05, 0x06, 0x07]))
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
+    })
   })
 }
 

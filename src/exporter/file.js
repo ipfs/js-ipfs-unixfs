@@ -60,7 +60,6 @@ function streamBytes (dag, node, fileSize, offset, length) {
   }
 
   const end = offset + length
-  let streamPosition = 0
 
   function getData ({ node, start }) {
     try {
@@ -70,18 +69,24 @@ function streamBytes (dag, node, fileSize, offset, length) {
         return Buffer.alloc(0)
       }
 
-      const block = extractDataFromBlock(file.data, start, offset, end)
-
-      streamPosition += block.length
-
-      return block
+      return extractDataFromBlock(file.data, start, offset, end)
     } catch (error) {
       throw new Error(`Failed to unmarshal node - ${error.message}`)
     }
   }
 
+  // as we step through the children, keep track of where we are in the stream
+  // so we can filter out nodes we're not interested in
+  let streamPosition = 0
+
   function visitor ({ node }) {
     const file = UnixFS.unmarshal(node.data)
+    const nodeHasData = Boolean(file.data && file.data.length)
+
+    // handle case where data is present on leaf nodes and internal nodes
+    if (nodeHasData && node.links.length) {
+      streamPosition += file.data.length
+    }
 
     // work out which child nodes contain the requested data
     const filteredLinks = node.links
@@ -96,7 +101,7 @@ function streamBytes (dag, node, fileSize, offset, length) {
 
         return child
       })
-      .filter((child, index) => {
+      .filter((child) => {
         return (offset >= child.start && offset < child.end) || // child has offset byte
           (end > child.start && end <= child.end) || // child has end byte
           (offset < child.start && end > child.end) // child is between offset and end bytes

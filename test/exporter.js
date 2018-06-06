@@ -14,12 +14,17 @@ const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
 const doUntil = require('async/doUntil')
 const waterfall = require('async/waterfall')
+const parallel = require('async/parallel')
 const series = require('async/series')
 const fs = require('fs')
 const path = require('path')
 const push = require('pull-pushable')
 const toPull = require('stream-to-pull-stream')
 const toStream = require('pull-stream-to-stream')
+const {
+  DAGNode,
+  DAGLink
+} = require('ipld-dag-pb')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
@@ -635,6 +640,79 @@ module.exports = (repo) => {
         })
       )
     })
+
+    it('exports file with data on internal and leaf nodes', function (done) {
+      waterfall([
+        (cb) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [], cb),
+        (leaf, cb) => createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+          leaf
+        ], cb),
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
+    })
+
+    it('exports file with data on some internal and leaf nodes', function (done) {
+      // create a file node with three children:
+      // where:
+      //   i = internal node without data
+      //   d = internal node with data
+      //   l = leaf node with data
+      //             i
+      //          /  |  \
+      //         l   d   i
+      //             |     \
+      //             l      l
+      waterfall([
+        (cb) => {
+          // create leaves
+          parallel([
+            (next) => createAndPersistNode(ipld, 'raw', [0x00, 0x01, 0x02, 0x03], [], next),
+            (next) => createAndPersistNode(ipld, 'raw', [0x08, 0x09, 0x10, 0x11], [], next),
+            (next) => createAndPersistNode(ipld, 'raw', [0x12, 0x13, 0x14, 0x15], [], next)
+          ], cb)
+        },
+        (leaves, cb) => {
+          parallel([
+            (next) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]], next),
+            (next) => createAndPersistNode(ipld, 'raw', null, [leaves[2]], next)
+          ], (error, internalNodes) => {
+            if (error) {
+              return cb(error)
+            }
+
+            createAndPersistNode(ipld, 'file', null, [
+              leaves[0],
+              internalNodes[0],
+              internalNodes[1]
+            ], cb)
+          })
+        },
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(
+                Buffer.from([
+                  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                  0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
+                ])
+              )
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
+    })
   })
 }
 
@@ -669,4 +747,27 @@ function readFile (file, done) {
       done(null, Buffer.concat(data))
     })
   )
+}
+
+function createAndPersistNode (ipld, type, data, children, callback) {
+  const file = new UnixFS(type, data ? Buffer.from(data) : undefined)
+  const links = []
+
+  children.forEach(child => {
+    const leaf = UnixFS.unmarshal(child.data)
+
+    file.addBlockSize(leaf.fileSize())
+
+    links.push(new DAGLink('', child.size, child.multihash))
+  })
+
+  DAGNode.create(file.marshal(), links, (error, node) => {
+    if (error) {
+      return callback(error)
+    }
+
+    ipld.put(node, {
+      cid: new CID(node.multihash)
+    }, (error) => callback(error, node))
+  })
 }

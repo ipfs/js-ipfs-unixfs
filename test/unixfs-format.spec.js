@@ -8,10 +8,10 @@ const loadFixture = require('aegir/fixtures')
 
 const UnixFS = require('../src')
 
-const raw = loadFixture(__dirname, 'fixtures/raw.unixfs')
-const directory = loadFixture(__dirname, 'fixtures/directory.unixfs')
-const file = loadFixture(__dirname, 'fixtures/file.txt.unixfs')
-const symlink = loadFixture(__dirname, 'fixtures/symlink.txt.unixfs')
+const raw = loadFixture('test/fixtures/raw.unixfs')
+const directory = loadFixture('test/fixtures/directory.unixfs')
+const file = loadFixture('test/fixtures/file.txt.unixfs')
+const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
 const Buffer = require('safe-buffer').Buffer
 
 describe('unixfs-format', () => {

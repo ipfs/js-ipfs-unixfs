@@ -21,23 +21,26 @@
 
 ## Table of Contents
 
-- [Install](#install)
-  - [npm](#npm)
-  - [Use in Node.js](#use-in-nodejs)
-  - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify-webpack-or-any-other-bundler)
-  - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
-- [Usage](#usage)
-  - [Examples](#examples)
-    - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
-    - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
-- [API](#api)
-    - [unixfs Data Structure](#unixfs-data-structure)
-    - [create an unixfs Data element](#create-an-unixfs-data-element)
-    - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
-    - [get total fileSize](#get-total-filesize)
-    - [marshal and unmarshal](#marshal-and-unmarshal)
-- [Contribute](#contribute)
-- [License](#license)
+- [ipfs-unixfs JavaScript Implementation](#ipfs-unixfs-javascript-implementation)
+  - [Lead Maintainer](#lead-maintainer)
+  - [Table of Contents](#table-of-contents)
+  - [Install](#install)
+    - [npm](#npm)
+    - [Use in Node.js](#use-in-nodejs)
+    - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify--webpack-or-any-other-bundler)
+    - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
+  - [Usage](#usage)
+    - [Examples](#examples)
+      - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
+      - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
+  - [API](#api)
+      - [unixfs Data Structure](#unixfs-data-structure)
+      - [create an unixfs Data element](#create-an-unixfs-data-element)
+      - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
+      - [get total fileSize](#get-total-filesize)
+      - [marshal and unmarshal](#marshal-and-unmarshal)
+  - [Contribute](#contribute)
+  - [License](#license)
 
 ## Install
 
@@ -113,7 +116,7 @@ message Data {
 }
 
 message Metadata {
-  required string MimeType = 1;
+  optional string MimeType = 1;
 }
 ```
 

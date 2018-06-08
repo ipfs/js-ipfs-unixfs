@@ -1,3 +1,13 @@
+<a name="0.1.15"></a>
+## [0.1.15](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.1.14...v0.1.15) (2018-06-08)
+
+
+### Bug Fixes
+
+* a typo ([932b804](https://github.com/ipfs/js-ipfs-unixfs/commit/932b804))
+
+
+
 <a name="0.1.14"></a>
 ## [0.1.14](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.1.13...v0.1.14) (2017-11-07)
 

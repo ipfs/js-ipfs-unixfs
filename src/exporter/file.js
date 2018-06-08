@@ -30,7 +30,7 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
   }
 
   if (length === 0) {
-    return pull.empty()
+    return pull.once(Buffer.alloc(0))
   }
 
   if (!offset) {
@@ -56,7 +56,7 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
 
 function streamBytes (dag, node, fileSize, offset, length) {
   if (offset === fileSize || length === 0) {
-    return pull.empty()
+    return pull.once(Buffer.alloc(0))
   }
 
   const end = offset + length

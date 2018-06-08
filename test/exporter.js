@@ -82,10 +82,8 @@ module.exports = (repo) => {
       pull(
         input,
         pull.map((file) => {
-          const ipfsPath = `${path.join(dirName, file.substring(directory.length))}`
-
           return {
-            path: ipfsPath,
+            path: path.join(dirName, path.basename(file)),
             content: toPull.source(fs.createReadStream(file))
           }
         }),

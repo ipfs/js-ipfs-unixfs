@@ -7,7 +7,7 @@ const extend = require('deep-extend')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const sinon = require('sinon')
+const spy = require('sinon/lib/sinon/spy')
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
@@ -456,7 +456,7 @@ module.exports = (repo) => {
       })
 
       it('will call an optional progress function', (done) => {
-        options.progress = sinon.spy()
+        options.progress = spy()
 
         pull(
           pull.values([{

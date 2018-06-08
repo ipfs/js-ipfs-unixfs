@@ -73,15 +73,23 @@ function Data (type, data) {
     }
     let fileSize = this.fileSize()
 
-    if (!fileSize) {
-      fileSize = undefined
+    let data = this.data
+
+    if (!this.data || !this.data.length) {
+      data = undefined
+    }
+
+    let blockSizes = this.blockSizes
+
+    if (!this.blockSizes || !this.blockSizes.length) {
+      blockSizes = undefined
     }
 
     return unixfsData.encode({
       Type: type,
-      Data: this.data,
+      Data: data,
       filesize: fileSize,
-      blocksizes: this.blockSizes.length > 0 ? this.blockSizes : undefined,
+      blocksizes: blockSizes,
       hashType: this.hashType,
       fanout: this.fanout
     })

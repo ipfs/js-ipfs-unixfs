@@ -8,9 +8,10 @@
     "fs": false
   },
   "scripts": {
-    "test": "aegir test",
+    "test": "aegir test -f test/index.js",
     "test:node": "aegir test -t node",
-    "test:browser": "aegir test -t browser -t webworker",
+    "test:browser": "aegir test -t browser -f test/index.js",
+    "test:webworker": "aegir test -t webworker -f test/index.js",
     "build": "aegir build",
     "lint": "aegir lint",
     "release": "aegir release",

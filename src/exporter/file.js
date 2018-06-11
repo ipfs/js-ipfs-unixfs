@@ -30,7 +30,7 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
   }
 
   if (length === 0) {
-    return pull.empty()
+    return pull.once(Buffer.alloc(0))
   }
 
   if (!offset) {
@@ -56,36 +56,37 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
 
 function streamBytes (dag, node, fileSize, offset, length) {
   if (offset === fileSize || length === 0) {
-    return pull.empty()
+    return pull.once(Buffer.alloc(0))
   }
 
   const end = offset + length
-  let streamPosition = 0
 
   function getData ({ node, start }) {
-    if (!node || !node.data) {
-      return
-    }
-
     try {
       const file = UnixFS.unmarshal(node.data)
 
       if (!file.data) {
-        return
+        return Buffer.alloc(0)
       }
 
-      const block = extractDataFromBlock(file.data, start, offset, end)
-
-      streamPosition += block.length
-
-      return block
+      return extractDataFromBlock(file.data, start, offset, end)
     } catch (error) {
       throw new Error(`Failed to unmarshal node - ${error.message}`)
     }
   }
 
+  // as we step through the children, keep track of where we are in the stream
+  // so we can filter out nodes we're not interested in
+  let streamPosition = 0
+
   function visitor ({ node }) {
     const file = UnixFS.unmarshal(node.data)
+    const nodeHasData = Boolean(file.data && file.data.length)
+
+    // handle case where data is present on leaf nodes and internal nodes
+    if (nodeHasData && node.links.length) {
+      streamPosition += file.data.length
+    }
 
     // work out which child nodes contain the requested data
     const filteredLinks = node.links
@@ -100,7 +101,7 @@ function streamBytes (dag, node, fileSize, offset, length) {
 
         return child
       })
-      .filter((child, index) => {
+      .filter((child) => {
         return (offset >= child.start && offset < child.end) || // child has offset byte
           (end > child.start && end <= child.end) || // child has end byte
           (offset < child.start && end > child.end) // child is between offset and end bytes
@@ -137,6 +138,12 @@ function streamBytes (dag, node, fileSize, offset, length) {
 
 function extractDataFromBlock (block, streamPosition, begin, end) {
   const blockLength = block.length
+
+  if (begin >= streamPosition + blockLength) {
+    // If begin is after the start of the block, return an empty block
+    // This can happen when internal nodes contain data
+    return Buffer.alloc(0)
+  }
 
   if (end - streamPosition < blockLength) {
     // If the end byte is in the current block, truncate the block to the end byte

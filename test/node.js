@@ -10,8 +10,8 @@ const mkdirp = require('mkdirp')
 const series = require('async/series')
 
 describe('IPFS UnixFS Engine', () => {
-  const repoExample = path.join(process.cwd(), '/test/test-repo')
-  const repoTests = path.join(os.tmpdir(), '/unixfs-tests-' + Date.now())
+  const repoExample = path.join(process.cwd(), 'test', 'test-repo')
+  const repoTests = path.join(os.tmpdir(), 'unixfs-tests-' + Date.now())
 
   const repo = new IPFSRepo(repoTests)
 

@@ -7,7 +7,7 @@ const extend = require('deep-extend')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const sinon = require('sinon')
+const spy = require('sinon/lib/sinon/spy')
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
@@ -214,7 +214,7 @@ module.exports = (repo) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
             // always yield empty node
-            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmfJMCvenrj4SKKRc48DYPxwVdS44qCUCqqtbqhJuSTWXP')
+            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
             done()
           }))
       })
@@ -456,7 +456,7 @@ module.exports = (repo) => {
       })
 
       it('will call an optional progress function', (done) => {
-        options.progress = sinon.spy()
+        options.progress = spy()
 
         pull(
           pull.values([{

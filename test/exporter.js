@@ -14,6 +14,17 @@ const CID = require('cids')
 const loadFixture = require('aegir/fixtures')
 const doUntil = require('async/doUntil')
 const waterfall = require('async/waterfall')
+const parallel = require('async/parallel')
+const series = require('async/series')
+const fs = require('fs')
+const path = require('path')
+const push = require('pull-pushable')
+const toPull = require('stream-to-pull-stream')
+const toStream = require('pull-stream-to-stream')
+const {
+  DAGNode,
+  DAGLink
+} = require('ipld-dag-pb')
 
 const unixFSEngine = require('./../src')
 const exporter = unixFSEngine.exporter
@@ -61,6 +72,52 @@ module.exports = (repo) => {
             readFile(files[0], cb)
           })
         )
+      })
+    }
+
+    function addTestDirectory ({directory, strategy = 'balanced', maxChunkSize}, callback) {
+      const input = push()
+      const dirName = path.basename(directory)
+
+      pull(
+        input,
+        pull.map((file) => {
+          return {
+            path: path.join(dirName, path.basename(file)),
+            content: toPull.source(fs.createReadStream(file))
+          }
+        }),
+        importer(ipld, {
+          strategy,
+          maxChunkSize
+        }),
+        pull.collect(callback)
+      )
+
+      const listFiles = (directory, depth, stream, cb) => {
+        waterfall([
+          (done) => fs.stat(directory, done),
+          (stats, done) => {
+            if (stats.isDirectory()) {
+              return waterfall([
+                (done) => fs.readdir(directory, done),
+                (children, done) => {
+                  series(
+                    children.map(child => (next) => listFiles(path.join(directory, child), depth + 1, stream, next)),
+                    done
+                  )
+                }
+              ], done)
+            }
+
+            stream.push(directory)
+            done()
+          }
+        ], cb)
+      }
+
+      listFiles(directory, 0, input, () => {
+        input.end()
       })
     }
 
@@ -517,6 +574,55 @@ module.exports = (repo) => {
       checkBytesThatSpanBlocks('trickle', done)
     })
 
+    it('exports a directory containing an empty file whose content gets turned into a ReadableStream', function (done) {
+      // replicates the behaviour of ipfs.files.get
+      waterfall([
+        (cb) => addTestDirectory({
+          directory: path.join(__dirname, 'fixtures', 'dir-with-empty-files')
+        }, cb),
+        (result, cb) => {
+          const dir = result.pop()
+
+          pull(
+            exporter(dir.multihash, ipld),
+            pull.map((file) => {
+              if (file.content) {
+                file.content = toStream.source(file.content)
+                file.content.pause()
+              }
+
+              return file
+            }),
+            pull.collect((error, files) => {
+              if (error) {
+                return cb(error)
+              }
+
+              series(
+                files
+                  .filter(file => Boolean(file.content))
+                  .map(file => {
+                    return (done) => {
+                      if (file.content) {
+                        file.content
+                          .pipe(toStream.sink(pull.collect((error, bufs) => {
+                            expect(error).to.not.exist()
+                            expect(bufs.length).to.equal(1)
+                            expect(bufs[0].length).to.equal(0)
+
+                            done()
+                          })))
+                      }
+                    }
+                  }),
+                cb
+              )
+            })
+          )
+        }
+      ], done)
+    })
+
     // TODO: This needs for the stores to have timeouts,
     // otherwise it is impossible to predict if a file doesn't
     // really exist
@@ -531,6 +637,100 @@ module.exports = (repo) => {
           done()
         })
       )
+    })
+
+    it('exports file with data on internal and leaf nodes', function (done) {
+      waterfall([
+        (cb) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [], cb),
+        (leaf, cb) => createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+          leaf
+        ], cb),
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
+    })
+
+    it('exports file with data on some internal and leaf nodes', function (done) {
+      // create a file node with three children:
+      // where:
+      //   i = internal node without data
+      //   d = internal node with data
+      //   l = leaf node with data
+      //             i
+      //          /  |  \
+      //         l   d   i
+      //             |     \
+      //             l      l
+      waterfall([
+        (cb) => {
+          // create leaves
+          parallel([
+            (next) => createAndPersistNode(ipld, 'raw', [0x00, 0x01, 0x02, 0x03], [], next),
+            (next) => createAndPersistNode(ipld, 'raw', [0x08, 0x09, 0x10, 0x11], [], next),
+            (next) => createAndPersistNode(ipld, 'raw', [0x12, 0x13, 0x14, 0x15], [], next)
+          ], cb)
+        },
+        (leaves, cb) => {
+          parallel([
+            (next) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]], next),
+            (next) => createAndPersistNode(ipld, 'raw', null, [leaves[2]], next)
+          ], (error, internalNodes) => {
+            if (error) {
+              return cb(error)
+            }
+
+            createAndPersistNode(ipld, 'file', null, [
+              leaves[0],
+              internalNodes[0],
+              internalNodes[1]
+            ], cb)
+          })
+        },
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(
+                Buffer.from([
+                  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                  0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
+                ])
+              )
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
+    })
+
+    it('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', function (done) {
+      waterfall([
+        (cb) => createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [], cb),
+        (leaf, cb) => createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+          leaf
+        ], cb),
+        (file, cb) => {
+          pull(
+            exporter(file.multihash, ipld, {
+              offset: 4
+            }),
+            pull.asyncMap((file, cb) => readFile(file, cb)),
+            pull.through(buffer => {
+              expect(buffer).to.deep.equal(Buffer.from([0x04, 0x05, 0x06, 0x07]))
+            }),
+            pull.collect(cb)
+          )
+        }
+      ], done)
     })
   })
 }
@@ -566,4 +766,27 @@ function readFile (file, done) {
       done(null, Buffer.concat(data))
     })
   )
+}
+
+function createAndPersistNode (ipld, type, data, children, callback) {
+  const file = new UnixFS(type, data ? Buffer.from(data) : undefined)
+  const links = []
+
+  children.forEach(child => {
+    const leaf = UnixFS.unmarshal(child.data)
+
+    file.addBlockSize(leaf.fileSize())
+
+    links.push(new DAGLink('', child.size, child.multihash))
+  })
+
+  DAGNode.create(file.marshal(), links, (error, node) => {
+    if (error) {
+      return callback(error)
+    }
+
+    ipld.put(node, {
+      cid: new CID(node.multihash)
+    }, (error) => callback(error, node))
+  })
 }

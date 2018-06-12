@@ -10,7 +10,9 @@ const loadFixture = require('aegir/fixtures')
 
 const rawFile = loadFixture('test/fixtures/1MiB.txt')
 
-describe('chunker: fixed size', () => {
+describe('chunker: fixed size', function () {
+  this.timeout(30000)
+
   it('chunks non flat buffers', (done) => {
     const b1 = Buffer.alloc(2 * 256)
     const b2 = Buffer.alloc(1 * 256)

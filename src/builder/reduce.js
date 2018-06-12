@@ -10,19 +10,52 @@ const DAGNode = dagPB.DAGNode
 
 module.exports = function (file, ipld, options) {
   return function (leaves, callback) {
-    if (leaves.length === 1 && (leaves[0].single || options.reduceSingleLeafToSelf)) {
-      const leave = leaves[0]
-      callback(null, {
-        path: file.path,
-        multihash: leave.multihash,
-        size: leave.size,
-        leafSize: leave.leafSize,
-        name: leave.name
-      })
-      return // early
+    if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
+      const leaf = leaves[0]
+
+      if (!options.rawLeafNodes) {
+        return callback(null, {
+          path: file.path,
+          multihash: leaf.multihash,
+          size: leaf.size,
+          leafSize: leaf.leafSize,
+          name: leaf.name
+        })
+      }
+
+      // we are using raw leaf nodes, this file only has one node but it'll be marked raw
+      // so convert it back to a file node
+      return waterfall([
+        (cb) => ipld.get(new CID(leaf.multihash), cb),
+        (result, cb) => {
+          const meta = UnixFS.unmarshal(result.value.data)
+          const fileNode = new UnixFS('file', meta.data)
+
+          DAGNode.create(fileNode.marshal(), [], options.hashAlg, (err, node) => {
+            cb(err, { DAGNode: node, fileNode: fileNode })
+          })
+        },
+        (result, cb) => {
+          let cid = new CID(result.DAGNode.multihash)
+
+          if (options.cidVersion === 1) {
+            cid = cid.toV1()
+          }
+
+          ipld.put(result.DAGNode, { cid }, (err) => cb(err, result))
+        },
+        (result, cb) => {
+          cb(null, {
+            multihash: result.DAGNode.multihash,
+            size: result.DAGNode.size,
+            leafSize: result.fileNode.fileSize(),
+            name: ''
+          })
+        }
+      ], callback)
     }
 
-    // create a parent node and add all the leafs
+    // create a parent node and add all the leaves
     const f = new UnixFS('file')
 
     const links = leaves.map((leaf) => {

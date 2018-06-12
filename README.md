@@ -5,7 +5,7 @@ IPFS unixFS Engine
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
 [![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-[![Build Status](https://travis-ci.org/ipfs/js-ipfs-unixfs-engine.svg?style=flat-square)](https://travis-ci.org/ipfs/js-ipfs-unixfs-engine)
+[![Build Status](https://travis-ci.org/ipfs/js-ipfs-unixfs-engine.svg?branch=master&style=flat-square)](https://travis-ci.org/ipfs/js-ipfs-unixfs-engine)
 [![Coverage Status](https://coveralls.io/repos/github/ipfs/js-ipfs-unixfs-engine/badge.svg?branch=master)](https://coveralls.io/github/ipfs/js-ipfs-unixfs-engine?branch=master)
 [![Dependency Status](https://david-dm.org/ipfs/js-ipfs-unixfs-engine.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-unixfs-engine)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
@@ -141,7 +141,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
   - `trickle`: builds [a trickle tree](https://github.com/ipfs/specs/pull/57#issuecomment-265205384)
 - `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
 - `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
-- `reduceSingleLeafToSelf` (boolean, defaults to `false`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
+- `reduceSingleLeafToSelf` (boolean, defaults to `true`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
 - `dirBuilder` (object): the options for the directory builder
   - `hamt` (object): the options for the HAMT sharded directory builder
     - bits (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
@@ -149,6 +149,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
 - `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
+- `rawLeafNodes` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will be marked as `raw` `unixfs` nodes
 
 ### Exporter
 

@@ -14,7 +14,8 @@ const chunkers = {
 }
 
 const defaultOptions = {
-  chunker: 'fixed'
+  chunker: 'fixed',
+  rawLeafNodes: false
 }
 
 module.exports = function (ipld, _options) {

@@ -19,10 +19,6 @@
     "coverage": "aegir coverage",
     "coverage-publish": "aegir coverage --provider coveralls"
   },
-  "pre-commit": [
-    "lint",
-    "test"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ipfs/js-ipfs-unixfs-engine.git"
@@ -35,7 +31,7 @@
     "url": "https://github.com/ipfs/js-ipfs-unixfs-engine/issues"
   },
   "engines": {
-    "node": ">=6.0.0",
+    "node": ">=8.0.0",
     "npm": ">=3.0.0"
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engine#readme",
@@ -47,11 +43,10 @@
     "ipfs-block-service": "~0.14.0",
     "ipfs-repo": "~0.22.1",
     "ncp": "^2.0.0",
-    "pre-commit": "^1.2.2",
     "pull-generate": "^2.2.0",
     "pull-zip": "^2.0.1",
     "rimraf": "^2.6.2",
-    "sinon": "^5.0.10",
+    "sinon": "^6.1.0",
     "split": "^1.0.1"
   },
   "dependencies": {

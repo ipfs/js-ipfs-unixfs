@@ -8,6 +8,7 @@ const parallel = require('async/parallel')
 const waterfall = require('async/waterfall')
 const dagPB = require('ipld-dag-pb')
 const CID = require('cids')
+const multihash = require('multihashing-async')
 
 const reduce = require('./reduce')
 
@@ -17,10 +18,13 @@ const defaultOptions = {
   chunkerOptions: {
     maxChunkSize: 262144
   },
-  rawLeafNodes: false
+  rawLeaves: false,
+  hashAlg: 'sha2-256',
+  leafType: 'file',
+  cidVersion: 0
 }
 
-module.exports = function (createChunker, ipld, createReducer, _options) {
+module.exports = function builder (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
 
   return function (source) {
@@ -62,15 +66,13 @@ module.exports = function (createChunker, ipld, createReducer, _options) {
     waterfall([
       (cb) => DAGNode.create(d.marshal(), [], options.hashAlg, cb),
       (node, cb) => {
-        if (options.onlyHash) return cb(null, node)
-
-        let cid = new CID(node.multihash)
-
-        if (options.cidVersion === 1) {
-          cid = cid.toV1()
+        if (options.onlyHash) {
+          return cb(null, node)
         }
 
-        ipld.put(node, { cid }, (err) => cb(err, node))
+        ipld.put(node, {
+          cid: new CID(options.cidVersion, 'dag-pb', node.multihash)
+        }, (err) => cb(err, node))
       }
     ], (err, node) => {
       if (err) {
@@ -97,7 +99,6 @@ module.exports = function (createChunker, ipld, createReducer, _options) {
 
     let previous
     let count = 0
-    const leafType = options.rawLeafNodes ? 'raw' : 'file'
 
     pull(
       file.content,
@@ -108,30 +109,56 @@ module.exports = function (createChunker, ipld, createReducer, _options) {
         }
         return Buffer.from(chunk)
       }),
-      pull.map(buffer => new UnixFS(leafType, buffer)),
-      pull.asyncMap((fileNode, callback) => {
-        DAGNode.create(fileNode.marshal(), [], options.hashAlg, (err, node) => {
-          callback(err, { DAGNode: node, fileNode: fileNode })
+      pull.asyncMap((buffer, callback) => {
+        if (options.rawLeaves) {
+          return multihash(buffer, options.hashAlg, (error, hash) => {
+            if (error) {
+              return callback(error)
+            }
+
+            return callback(null, {
+              multihash: hash,
+              size: buffer.length,
+              leafSize: buffer.length,
+              cid: new CID(1, 'raw', hash),
+              data: buffer
+            })
+          })
+        }
+
+        const file = new UnixFS(options.leafType, buffer)
+
+        DAGNode.create(file.marshal(), [], options.hashAlg, (err, node) => {
+          if (err) {
+            return callback(err)
+          }
+
+          callback(null, {
+            multihash: node.multihash,
+            size: node.size,
+            leafSize: file.fileSize(),
+            cid: new CID(options.cidVersion, 'dag-pb', node.multihash),
+            data: node
+          })
         })
       }),
       pull.asyncMap((leaf, callback) => {
-        if (options.onlyHash) return callback(null, leaf)
-
-        let cid = new CID(leaf.DAGNode.multihash)
-
-        if (options.cidVersion === 1) {
-          cid = cid.toV1()
+        if (options.onlyHash) {
+          return callback(null, leaf)
         }
 
-        ipld.put(leaf.DAGNode, { cid }, (err) => callback(err, leaf))
+        ipld.put(leaf.data, {
+          cid: leaf.cid
+        }, (error) => callback(error, leaf))
       }),
       pull.map((leaf) => {
         return {
           path: file.path,
-          multihash: leaf.DAGNode.multihash,
-          size: leaf.DAGNode.size,
-          leafSize: leaf.fileNode.fileSize(),
-          name: ''
+          multihash: leaf.multihash,
+          size: leaf.size,
+          leafSize: leaf.leafSize,
+          name: '',
+          cid: leaf.cid
         }
       }),
       through( // mark as single node if only one single node

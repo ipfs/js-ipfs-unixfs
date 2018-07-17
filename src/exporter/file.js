@@ -63,6 +63,11 @@ function streamBytes (dag, node, fileSize, offset, length) {
 
   function getData ({ node, start }) {
     try {
+      if (Buffer.isBuffer(node)) {
+        // this is a raw node
+        return extractDataFromBlock(node, start, offset, end)
+      }
+
       const file = UnixFS.unmarshal(node.data)
 
       if (!file.data) {
@@ -80,6 +85,11 @@ function streamBytes (dag, node, fileSize, offset, length) {
   let streamPosition = 0
 
   function visitor ({ node }) {
+    if (Buffer.isBuffer(node)) {
+      // this is a raw node
+      return pull.empty()
+    }
+
     const file = UnixFS.unmarshal(node.data)
     const nodeHasData = Boolean(file.data && file.data.length)
 

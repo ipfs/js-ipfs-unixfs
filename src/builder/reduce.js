@@ -8,12 +8,12 @@ const CID = require('cids')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
-module.exports = function (file, ipld, options) {
+module.exports = function reduce (file, ipld, options) {
   return function (leaves, callback) {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (!options.rawLeafNodes) {
+      if (options.leafType === 'file' && !options.rawLeaves) {
         return callback(null, {
           path: file.path,
           multihash: leaf.multihash,
@@ -23,33 +23,37 @@ module.exports = function (file, ipld, options) {
         })
       }
 
-      // we are using raw leaf nodes, this file only has one node but it'll be marked raw
-      // so convert it back to a file node
+      // we're using raw leaf nodes so we convert the node into a UnixFS `file` node.
       return waterfall([
-        (cb) => ipld.get(new CID(leaf.multihash), cb),
+        (cb) => ipld.get(leaf.cid, cb),
         (result, cb) => {
-          const meta = UnixFS.unmarshal(result.value.data)
-          const fileNode = new UnixFS('file', meta.data)
+          const data = result.value.data
+          const fileNode = new UnixFS('file', data)
 
-          DAGNode.create(fileNode.marshal(), [], options.hashAlg, (err, node) => {
-            cb(err, { DAGNode: node, fileNode: fileNode })
+          DAGNode.create(fileNode.marshal(), [], options.hashAlg, (error, node) => {
+            cb(error, { DAGNode: node, fileNode: fileNode })
           })
         },
         (result, cb) => {
+          if (options.onlyHash) {
+            return cb(null, result)
+          }
+
           let cid = new CID(result.DAGNode.multihash)
 
           if (options.cidVersion === 1) {
             cid = cid.toV1()
           }
 
-          ipld.put(result.DAGNode, { cid }, (err) => cb(err, result))
+          ipld.put(result.DAGNode, { cid }, (error) => cb(error, result))
         },
         (result, cb) => {
           cb(null, {
+            path: file.path,
             multihash: result.DAGNode.multihash,
             size: result.DAGNode.size,
             leafSize: result.fileNode.fileSize(),
-            name: ''
+            name: leaf.name
           })
         }
       ], callback)
@@ -61,37 +65,45 @@ module.exports = function (file, ipld, options) {
     const links = leaves.map((leaf) => {
       f.addBlockSize(leaf.leafSize)
 
-      return new DAGLink(leaf.name, leaf.size, leaf.multihash)
+      let cid = leaf.cid
+
+      if (!cid) {
+        // we are an intermediate node
+        cid = new CID(options.cidVersion, 'dag-pb', leaf.multihash)
+      }
+
+      return new DAGLink(leaf.name, leaf.size, cid.buffer)
     })
 
     waterfall([
       (cb) => DAGNode.create(f.marshal(), links, options.hashAlg, cb),
       (node, cb) => {
-        if (options.onlyHash) return cb(null, node)
+        const cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
 
-        let cid = new CID(node.multihash)
-
-        if (options.cidVersion === 1) {
-          cid = cid.toV1()
+        if (options.onlyHash) {
+          return cb(null, {
+            node, cid
+          })
         }
 
-        ipld.put(node, { cid }, (err) => cb(err, node))
+        ipld.put(node, {
+          cid
+        }, (error) => cb(error, {
+          node, cid
+        }))
       }
-    ], (err, node) => {
-      if (err) {
-        callback(err)
-        return // early
+    ], (error, result) => {
+      if (error) {
+        return callback(error)
       }
 
-      const root = {
+      callback(null, {
         name: '',
         path: file.path,
-        multihash: node.multihash,
-        size: node.size,
+        multihash: result.cid.buffer,
+        size: result.node.size,
         leafSize: f.fileSize()
-      }
-
-      callback(null, root)
+      })
     })
   }
 }

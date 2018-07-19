@@ -18,6 +18,7 @@ const each = require('async/each')
 const waterfall = require('async/waterfall')
 const parallel = require('async/parallel')
 const UnixFs = require('ipfs-unixfs')
+const collectLeafCids = require('./helpers/collect-leaf-cids')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -276,6 +277,7 @@ module.exports = (repo) => {
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
+
             // always yield empty node
             expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
             done()
@@ -291,7 +293,7 @@ module.exports = (repo) => {
             },
             {
               path: '/boop/200Bytes.txt',
-              content: pull.values([smallFile])
+              content: pull.values([bigFile])
             }
           ]),
           importer(ipld, options),
@@ -505,7 +507,7 @@ module.exports = (repo) => {
           const file = files[0]
           expect(file).to.exist()
 
-          ipld.get(new CID(file.multihash), (err, res) => {
+          ipld.get(new CID(file.multihash), (err) => {
             expect(err).to.exist()
             done()
           })
@@ -583,13 +585,13 @@ module.exports = (repo) => {
 
       it('imports file with raw leaf nodes when specified', (done) => {
         checkLeafNodeTypes(ipld, {
-          rawLeafNodes: true
+          leafType: 'raw'
         }, 'raw', done)
       })
 
       it('imports file with file leaf nodes when specified', (done) => {
         checkLeafNodeTypes(ipld, {
-          rawLeafNodes: false
+          leafType: 'file'
         }, 'file', done)
       })
 
@@ -603,6 +605,41 @@ module.exports = (repo) => {
         checkNodeLinks(ipld, {
           reduceSingleLeafToSelf: false
         }, 1, done)
+      })
+
+      it('uses raw leaf nodes when requested', (done) => {
+        this.timeout(60 * 1000)
+
+        options.rawLeaves = true
+
+        pull(
+          pull.values([{
+            path: '1.2MiB.txt',
+            content: pull.values([bigFile])
+          }]),
+          importer(ipld, options),
+          pull.collect((error, files) => {
+            expect(error).to.not.exist()
+
+            const node = files[0]
+
+            collectLeafCids(ipld, node.multihash, (error, cids) => {
+              expect(error).to.be.not.ok()
+
+              const rawNodes = cids
+                .filter(cid => cid.codec === 'raw')
+
+              expect(rawNodes).to.not.be.empty()
+
+              rawNodes
+                .forEach(cid => {
+                  expect(cid.version).to.equal(1)
+                })
+
+              done()
+            })
+          })
+        )
       })
     })
   })

@@ -422,6 +422,37 @@ module.exports = (repo) => {
       )
     })
 
+    it('exports a large file > 5mb imported with raw leaves', function (done) {
+      this.timeout(30 * 1000)
+
+      pull(
+        pull.values([{
+          path: '200Bytes.txt',
+          content: pull.values([bigFile])
+        }]),
+        importer(ipld, {
+          rawLeaves: true
+        }),
+        pull.collect(collected)
+      )
+
+      function collected (err, files) {
+        expect(err).to.not.exist()
+        expect(files.length).to.equal(1)
+
+        pull(
+          exporter(files[0].multihash, ipld),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+
+            expect(bs58.encode(files[0].hash)).to.equal('QmQLTvhjmSa7657mKdSfTjxFBdwxmK8n9tZC9Xdp9DtxWY')
+
+            fileEql(files[0], bigFile, done)
+          })
+        )
+      }
+    })
+
     it('returns an empty stream for dir', (done) => {
       const hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
 

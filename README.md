@@ -149,7 +149,8 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
 - `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
-- `rawLeafNodes` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will be marked as `raw` `unixfs` nodes
+- `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
+- `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
 
 ### Exporter
 

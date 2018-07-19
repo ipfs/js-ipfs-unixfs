@@ -15,11 +15,29 @@ const chunkers = {
 
 const defaultOptions = {
   chunker: 'fixed',
-  rawLeafNodes: false
+  rawLeaves: false,
+  hashOnly: false,
+  cidVersion: 0,
+  hash: null,
+  leafType: 'file',
+  hashAlg: 'sha2-256'
 }
 
 module.exports = function (ipld, _options) {
   const options = Object.assign({}, defaultOptions, _options)
+
+  if (options.cidVersion > 0 && _options.rawLeaves === undefined) {
+    // if the cid version is 1 or above, use raw leaves as this is
+    // what go does.
+    options.rawLeaves = true
+  }
+
+  if (_options && _options.hash !== undefined && _options.rawLeaves === undefined) {
+    // if a non-default hash alg has been specified, use raw leaves as this is
+    // what go does.
+    options.rawLeaves = true
+  }
+
   const Chunker = chunkers[options.chunker]
   assert(Chunker, 'Unknkown chunker named ' + options.chunker)
 

@@ -1,3 +1,13 @@
+<a name="0.30.1"></a>
+## [0.30.1](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.30.0...v0.30.1) (2018-07-19)
+
+
+### Features
+
+* support --raw-leaves ([7a29d83](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/7a29d83)), closes [ipfs/js-ipfs#1432](https://github.com/ipfs/js-ipfs/issues/1432)
+
+
+
 <a name="0.30.0"></a>
 # [0.30.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.29.0...v0.30.0) (2018-06-12)
 

@@ -26,6 +26,7 @@ const defaultOptions = {
 
 module.exports = function builder (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
+  options.cidVersion = options.cidVersion || 0
 
   return function (source) {
     return function (items, cb) {

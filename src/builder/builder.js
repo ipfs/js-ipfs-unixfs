@@ -26,7 +26,12 @@ const defaultOptions = {
 
 module.exports = function builder (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
-  options.cidVersion = options.cidVersion || 0
+  options.cidVersion = options.cidVersion || options.cidVersion
+  options.hashAlg = options.hashAlg || defaultOptions.hashAlg
+
+  if (options.hashAlg !== 'sha2-256') {
+    options.cidVersion = 1
+  }
 
   return function (source) {
     return function (items, cb) {
@@ -71,8 +76,10 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
           return cb(null, node)
         }
 
+        node.cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
+
         ipld.put(node, {
-          cid: new CID(options.cidVersion, 'dag-pb', node.multihash)
+          cid: node.cid
         }, (err) => cb(err, node))
       }
     ], (err, node) => {
@@ -81,7 +88,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
       }
       callback(null, {
         path: item.path,
-        multihash: node.multihash,
+        multihash: node.cid.buffer,
         size: node.size
       })
     })
@@ -155,7 +162,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
       pull.map((leaf) => {
         return {
           path: file.path,
-          multihash: leaf.multihash,
+          multihash: leaf.cid.buffer,
           size: leaf.size,
           leafSize: leaf.leafSize,
           name: '',

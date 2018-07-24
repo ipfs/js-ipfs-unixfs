@@ -40,11 +40,13 @@ module.exports = (repo) => {
           const node = nodes[0]
           expect(node).to.exist()
 
+          const cid = new CID(node.multihash)
+
           // Verify multihash has been encoded using hashAlg
-          expect(mh.decode(node.multihash).name).to.equal(hashAlg)
+          expect(mh.decode(cid.multihash).name).to.equal(hashAlg)
 
           // Fetch using hashAlg encoded multihash
-          ipld.get(new CID(node.multihash), (err, res) => {
+          ipld.get(cid, (err, res) => {
             if (err) return cb(err)
             const content = UnixFS.unmarshal(res.value.data).data
             expect(content.equals(inputFile.content)).to.be.true()
@@ -77,12 +79,49 @@ module.exports = (repo) => {
 
           try {
             expect(node).to.exist()
-            expect(mh.decode(node.multihash).name).to.equal(hashAlg)
+            const cid = new CID(node.multihash)
+            expect(mh.decode(cid.multihash).name).to.equal(hashAlg)
           } catch (err) {
             return cb(err)
           }
 
           cb()
+        }
+
+        pull(
+          pull.values([Object.assign({}, inputFile)]),
+          createBuilder(FixedSizeChunker, ipld, options),
+          pull.collect(onCollected)
+        )
+      }, done)
+    })
+
+    it('allows multihash hash algorithm to be specified for a directory', (done) => {
+      eachSeries(testMultihashes, (hashAlg, cb) => {
+        const options = { hashAlg, strategy: 'flat' }
+        const inputFile = {
+          path: `${String(Math.random() + Date.now())}-dir`,
+          content: null
+        }
+
+        const onCollected = (err, nodes) => {
+          if (err) return cb(err)
+
+          const node = nodes[0]
+
+          expect(node).to.exist()
+
+          const cid = new CID(node.multihash)
+
+          expect(mh.decode(cid.multihash).name).to.equal(hashAlg)
+
+          // Fetch using hashAlg encoded multihash
+          ipld.get(cid, (err, res) => {
+            if (err) return cb(err)
+            const meta = UnixFS.unmarshal(res.value.data)
+            expect(meta.type).to.equal('directory')
+            cb()
+          })
         }
 
         pull(

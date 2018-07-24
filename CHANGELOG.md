@@ -1,3 +1,13 @@
+<a name="0.31.3"></a>
+## [0.31.3](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.31.2...v0.31.3) (2018-07-24)
+
+
+### Bug Fixes
+
+* return cids from builder ([0d3d3d8](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/0d3d3d8))
+
+
+
 <a name="0.31.2"></a>
 ## [0.31.2](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.31.1...v0.31.2) (2018-07-20)
 

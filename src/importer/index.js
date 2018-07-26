@@ -8,10 +8,7 @@ const assert = require('assert')
 const setImmediate = require('async/setImmediate')
 const DAGBuilder = require('../builder')
 const createTreeBuilder = require('./tree-builder')
-
-const chunkers = {
-  fixed: require('../chunker/fixed-size')
-}
+const chunkers = require('../chunker')
 
 const defaultOptions = {
   chunker: 'fixed',

@@ -44,6 +44,7 @@ describe('IPFS UnixFS Engine', () => {
 
   // Chunkers
   require('./chunker-fixed-size')
+  require('./chunker-rabin')
 
   // Graph Builders
   require('./builder')(repo)

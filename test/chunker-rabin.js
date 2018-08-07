@@ -36,6 +36,23 @@ describe('chunker: rabin', function () {
     )
   })
 
+  it('uses default min and max chunk size when only avgChunkSize is specified', (done) => {
+    const b1 = Buffer.alloc(10 * 256)
+    b1.fill('a')
+    pull(
+      pull.values([b1]),
+      chunker({avgChunkSize: 256}),
+      pull.collect((err, chunks) => {
+        expect(err).to.not.exist()
+        chunks.forEach((chunk) => {
+          expect(chunk).to.have.length.gte(256 / 3)
+          expect(chunk).to.have.length.lte(256 * (256 / 2))
+        })
+        done()
+      })
+    )
+  })
+
   it('256 KiB avg chunks of non scalar filesize', (done) => {
     const KiB256 = 262144
     let file = Buffer.concat([rawFile, Buffer.from('hello')])

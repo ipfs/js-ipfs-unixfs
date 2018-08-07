@@ -10,15 +10,15 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const pull = require('pull-stream')
-const mh = require('multihashes')
 const loadFixture = require('aegir/fixtures')
 const IPFS = require('ipfs')
 const os = require('os')
 const path = require('path')
+const CID = require('cids')
 
 function stringifyMh (files) {
   return files.map((file) => {
-    file.multihash = mh.toB58String(file.multihash)
+    file.multihash = new CID(file.multihash).toBaseEncodedString()
     return file
   })
 }
@@ -225,7 +225,7 @@ describe('with dag-api', function () {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
             // always yield empty node
-            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
+            expect(new CID(nodes[0].multihash).toBaseEncodedString()).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
             done()
           }))
       })

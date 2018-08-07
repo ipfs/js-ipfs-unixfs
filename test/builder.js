@@ -62,7 +62,9 @@ module.exports = (repo) => {
       }, done)
     })
 
-    it('allows multihash hash algorithm to be specified for big file', (done) => {
+    it('allows multihash hash algorithm to be specified for big file', function (done) {
+      this.timeout(30000)
+
       eachSeries(testMultihashes, (hashAlg, cb) => {
         const options = { hashAlg, strategy: 'flat' }
         const content = String(Math.random() + Date.now())

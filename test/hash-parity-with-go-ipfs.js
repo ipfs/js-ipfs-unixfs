@@ -8,7 +8,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
-const mh = require('multihashes')
+const CID = require('cids')
 const Ipld = require('ipld')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 
@@ -53,7 +53,7 @@ module.exports = (repo) => {
             expect(files.length).to.be.equal(1)
 
             const file = files[0]
-            expect(mh.toB58String(file.multihash)).to.be.equal(expectedHashes[strategy])
+            expect(new CID(file.multihash).toBaseEncodedString()).to.be.equal(expectedHashes[strategy])
             done()
           })
         )

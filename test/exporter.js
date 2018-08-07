@@ -7,7 +7,6 @@ const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
 const UnixFS = require('ipfs-unixfs')
-const bs58 = require('bs58')
 const pull = require('pull-stream')
 const zip = require('pull-zip')
 const CID = require('cids')
@@ -152,7 +151,6 @@ module.exports = (repo) => {
 
     it('ensure hash inputs are sanitized', (done) => {
       const hash = 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8'
-      const mhBuf = Buffer.from(bs58.decode(hash))
       const cid = new CID(hash)
 
       ipld.get(cid, (err, result) => {
@@ -161,7 +159,7 @@ module.exports = (repo) => {
         const unmarsh = UnixFS.unmarshal(node.data)
 
         pull(
-          exporter(mhBuf, ipld),
+          exporter(cid, ipld),
           pull.collect(onFiles)
         )
 
@@ -444,8 +442,7 @@ module.exports = (repo) => {
           exporter(files[0].multihash, ipld),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
-
-            expect(bs58.encode(files[0].hash)).to.equal('QmQLTvhjmSa7657mKdSfTjxFBdwxmK8n9tZC9Xdp9DtxWY')
+            expect(new CID(files[0].hash).toBaseEncodedString()).to.equal('QmQLTvhjmSa7657mKdSfTjxFBdwxmK8n9tZC9Xdp9DtxWY')
 
             fileEql(files[0], bigFile, done)
           })

@@ -7,8 +7,8 @@ const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
 const pull = require('pull-stream')
-const mh = require('multihashes')
 const map = require('async/map')
+const CID = require('cids')
 
 const unixFSEngine = require('./../')
 
@@ -109,7 +109,7 @@ module.exports = (repo) => {
 function normalizeNode (node) {
   return {
     path: node.path,
-    multihash: mh.toB58String(node.multihash)
+    multihash: new CID(node.multihash).toBaseEncodedString()
   }
 }
 

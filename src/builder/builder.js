@@ -16,7 +16,8 @@ const DAGNode = dagPB.DAGNode
 
 const defaultOptions = {
   chunkerOptions: {
-    maxChunkSize: 262144
+    maxChunkSize: 262144,
+    avgChunkSize: 262144
   },
   rawLeaves: false,
   hashAlg: 'sha2-256',

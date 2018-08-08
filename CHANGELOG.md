@@ -1,3 +1,13 @@
+<a name="0.32.0"></a>
+# [0.32.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.31.3...v0.32.0) (2018-08-08)
+
+
+### Features
+
+* **importer:** add rabin fingerprinting chunk algorithm ([83a5feb](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/83a5feb)), closes [ipfs/js-ipfs#1283](https://github.com/ipfs/js-ipfs/issues/1283)
+
+
+
 <a name="0.31.3"></a>
 ## [0.31.3](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.31.2...v0.31.3) (2018-07-24)
 

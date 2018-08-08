@@ -71,6 +71,10 @@ function streamBytes (dag, node, fileSize, offset, length) {
       const file = UnixFS.unmarshal(node.data)
 
       if (!file.data) {
+        if (file.blockSizes.length) {
+          return
+        }
+
         return Buffer.alloc(0)
       }
 

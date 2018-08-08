@@ -760,6 +760,47 @@ module.exports = (repo) => {
         }
       ], done)
     })
+
+    it('exports file with data on leaf nodes without emitting empty buffers', function (done) {
+      this.timeout(30 * 1000)
+
+      pull(
+        pull.values([{
+          path: '200Bytes.txt',
+          content: pull.values([bigFile])
+        }]),
+        importer(ipld, {
+          rawLeaves: true
+        }),
+        pull.collect(collected)
+      )
+
+      function collected (err, files) {
+        expect(err).to.not.exist()
+        expect(files.length).to.equal(1)
+
+        pull(
+          exporter(files[0].multihash, ipld),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(files.length).to.equal(1)
+
+            pull(
+              files[0].content,
+              pull.collect((error, buffers) => {
+                expect(error).to.not.exist()
+
+                buffers.forEach(buffer => {
+                  expect(buffer.length).to.not.equal(0)
+                })
+
+                done()
+              })
+            )
+          })
+        )
+      }
+    })
   })
 }
 

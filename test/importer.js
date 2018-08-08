@@ -10,7 +10,6 @@ const expect = chai.expect
 const spy = require('sinon/lib/sinon/spy')
 const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
-const mh = require('multihashes')
 const CID = require('cids')
 const Ipld = require('ipld')
 const loadFixture = require('aegir/fixtures')
@@ -22,7 +21,7 @@ const collectLeafCids = require('./helpers/collect-leaf-cids')
 
 function stringifyMh (files) {
   return files.map((file) => {
-    file.multihash = mh.toB58String(file.multihash)
+    file.multihash = new CID(file.multihash).toBaseEncodedString()
     return file
   })
 }
@@ -279,7 +278,7 @@ module.exports = (repo) => {
             expect(nodes.length).to.be.eql(1)
 
             // always yield empty node
-            expect(mh.toB58String(nodes[0].multihash)).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
+            expect(new CID(nodes[0].multihash).toBaseEncodedString()).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
             done()
           }))
       })

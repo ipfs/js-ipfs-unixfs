@@ -1,6 +1,5 @@
 'use strict'
 
-const mh = require('multihashes')
 const UnixFS = require('ipfs-unixfs')
 const CID = require('cids')
 const dagPB = require('ipld-dag-pb')
@@ -86,7 +85,7 @@ function createSizeIndex (files) {
   const sizeIndex = {}
 
   files.forEach((file) => {
-    sizeIndex[mh.toB58String(file.multihash)] = file.size
+    sizeIndex[new CID(file.multihash).toBaseEncodedString()] = file.size
   })
 
   return sizeIndex
@@ -126,17 +125,18 @@ function traverse (tree, sizeIndex, path, ipld, source, done) {
     const keys = Object.keys(tree)
     const dir = new UnixFS('directory')
     const links = keys.map((key) => {
-      const b58mh = mh.toB58String(tree[key])
+      const b58mh = new CID(tree[key]).toBaseEncodedString()
       return new DAGLink(key, sizeIndex[b58mh], tree[key])
     })
 
     waterfall([
       (cb) => DAGNode.create(dir.marshal(), links, cb),
       (node, cb) => {
-        sizeIndex[mh.toB58String(node.multihash)] = node.size
+        const cid = new CID(node.multihash)
+        sizeIndex[cid.toBaseEncodedString()] = node.size
 
         ipld.put(node, {
-          cid: new CID(node.multihash)
+          cid
         }, (err) => cb(err, node))
       }
     ], (err, node) => {

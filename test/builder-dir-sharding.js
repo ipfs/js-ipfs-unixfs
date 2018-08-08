@@ -7,7 +7,6 @@ const exporter = require('./../src').exporter
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const mh = require('multihashes')
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
 const pull = require('pull-stream')
@@ -15,6 +14,7 @@ const pushable = require('pull-pushable')
 const whilst = require('async/whilst')
 const setImmediate = require('async/setImmediate')
 const leftPad = require('left-pad')
+const CID = require('cids')
 
 module.exports = (repo) => {
   describe('builder: directory sharding', function () {
@@ -87,9 +87,9 @@ module.exports = (repo) => {
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
-            const expectedHash = mh.toB58String(nonShardedHash)
+            const expectedHash = new CID(nonShardedHash).toBaseEncodedString()
             expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(mh.toB58String(nodes[0].hash)).to.be.eql(expectedHash)
+            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
             expect(nodes[1].size).to.be.eql(29)
             pull(
@@ -113,7 +113,7 @@ module.exports = (repo) => {
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(2)
-            const expectedHash = mh.toB58String(shardedHash)
+            const expectedHash = new CID(shardedHash).toBaseEncodedString()
             expect(nodes[0].path).to.be.eql(expectedHash)
             expect(nodes[0].hash).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
@@ -209,7 +209,7 @@ module.exports = (repo) => {
         function eachPath (path, index) {
           if (!index) {
             // first dir
-            expect(path).to.be.eql(mh.toB58String(rootHash))
+            expect(path).to.be.eql(new CID(rootHash).toBaseEncodedString())
             const entry = entries[path]
             expect(entry).to.exist()
             expect(entry.content).to.not.exist()
@@ -315,7 +315,7 @@ module.exports = (repo) => {
             if (!index) {
               // first dir
               if (depth === 1) {
-                expect(path).to.be.eql(mh.toB58String(rootHash))
+                expect(path).to.be.eql(new CID(rootHash).toBaseEncodedString())
               }
               const entry = entries[path]
               expect(entry).to.exist()
@@ -338,7 +338,7 @@ module.exports = (repo) => {
       })
 
       it('exports a big dir with subpath', (done) => {
-        const exportHash = mh.toB58String(rootHash) + '/big/big/2000'
+        const exportHash = new CID(rootHash).toBaseEncodedString() + '/big/big/2000'
         pull(
           exporter(exportHash, ipld),
           pull.collect(collected)

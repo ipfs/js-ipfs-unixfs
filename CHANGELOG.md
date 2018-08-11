@@ -1,3 +1,14 @@
+<a name="0.32.2"></a>
+## [0.32.2](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.1...v0.32.2) (2018-08-11)
+
+
+### Bug Fixes
+
+* make rabin an optional dependency ([bef3152](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/bef3152))
+* skip first hash algorithm as it is no longer valid ([0b84b76](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/0b84b76)), closes [js-multihash#57](https://github.com/js-multihash/issues/57)
+
+
+
 <a name="0.32.1"></a>
 ## [0.32.1](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.0...v0.32.1) (2018-08-08)
 

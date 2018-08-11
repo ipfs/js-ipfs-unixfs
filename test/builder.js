@@ -18,7 +18,7 @@ module.exports = (repo) => {
   describe('builder', () => {
     let ipld
 
-    const testMultihashes = Object.keys(mh.names).slice(0, 40)
+    const testMultihashes = Object.keys(mh.names).slice(1, 40)
 
     before(() => {
       const bs = new BlockService(repo)

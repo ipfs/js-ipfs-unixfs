@@ -1,9 +1,20 @@
 'use strict'
 
-const createRabin = require('rabin')
 const toPull = require('stream-to-pull-stream')
 
+let createRabin
+
 module.exports = (options) => {
+  if (!createRabin) {
+    try {
+      createRabin = require('rabin')
+    } catch (error) {
+      error.message = `Rabin chunker not supported, it may have failed to install - ${error.message}`
+
+      throw error
+    }
+  }
+
   let min, max, avg
   if (options.minChunkSize && options.maxChunkSize && options.avgChunkSize) {
     avg = options.avgChunkSize

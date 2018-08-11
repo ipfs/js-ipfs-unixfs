@@ -105,13 +105,20 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
     }
 
     const reducer = createReducer(reduce(file, ipld, options), options)
+    let chunker
+
+    try {
+      chunker = createChunker(options.chunkerOptions)
+    } catch (error) {
+      return callback(error)
+    }
 
     let previous
     let count = 0
 
     pull(
       file.content,
-      createChunker(options.chunkerOptions),
+      chunker,
       pull.map(chunk => {
         if (options.progress && typeof options.progress === 'function') {
           options.progress(chunk.byteLength)

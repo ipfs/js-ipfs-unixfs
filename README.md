@@ -213,7 +213,7 @@ Errors are received by [pull-stream][] sinks.
 ```js
 const exporter = require('ipfs-unixfs-engine').exporter
 const pull = require('pull-stream')
-const drain = require('pull-stream/sinks/collect')
+const collect = require('pull-stream/sinks/collect')
 
 pull(
   exporter(cid, ipldResolver)

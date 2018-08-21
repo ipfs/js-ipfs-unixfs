@@ -1,3 +1,14 @@
+<a name="0.32.3"></a>
+## [0.32.3](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.2...v0.32.3) (2018-08-21)
+
+
+### Bug Fixes
+
+* import with CID version 1 ([6ef929d](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/6ef929d))
+* typo ([c5cb38b](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/c5cb38b))
+
+
+
 <a name="0.32.2"></a>
 ## [0.32.2](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.1...v0.32.2) (2018-08-11)
 

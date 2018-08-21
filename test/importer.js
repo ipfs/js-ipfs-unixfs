@@ -2,6 +2,7 @@
 'use strict'
 
 const importer = require('./../src').importer
+const exporter = require('./../src').exporter
 
 const extend = require('deep-extend')
 const chai = require('chai')
@@ -542,9 +543,22 @@ module.exports = (repo) => {
           path = path[path.length - 1] === '/' ? path : path + '/'
           return {
             path: path + name + '.txt',
-            content: Buffer.alloc(262144 + 5).fill(1)
+            content: Buffer.alloc(size).fill(1)
           }
         }
+
+        const inputFiles = [
+          createInputFile('/foo', 10),
+          createInputFile('/foo', 60),
+          createInputFile('/foo/bar', 78),
+          createInputFile('/foo/baz', 200),
+          // Bigger than maxChunkSize
+          createInputFile('/foo', 262144 + 45),
+          createInputFile('/foo/bar', 262144 + 134),
+          createInputFile('/foo/bar', 262144 + 79),
+          createInputFile('/foo/bar', 262144 + 876),
+          createInputFile('/foo/bar', 262144 + 21)
+        ]
 
         const options = {
           cidVersion: 1,
@@ -560,23 +574,34 @@ module.exports = (repo) => {
 
           each(files, (file, cb) => {
             const cid = new CID(file.multihash).toV1()
-            ipld.get(cid, cb)
+            const inputFile = inputFiles.find(f => f.path === file.path)
+
+            // Just check the intermediate directory can be retrieved
+            if (!inputFile) {
+              return ipld.get(cid, cb)
+            }
+
+            // Check the imported content is correct
+            pull(
+              exporter(cid, ipld),
+              pull.collect((err, nodes) => {
+                expect(err).to.not.exist()
+                pull(
+                  nodes[0].content,
+                  pull.collect((err, chunks) => {
+                    expect(err).to.not.exist()
+                    expect(Buffer.concat(chunks)).to.deep.equal(inputFile.content)
+                    cb()
+                  })
+                )
+              })
+            )
           }, done)
         }
 
         pull(
-          pull.values([
-            createInputFile('/foo', 10),
-            createInputFile('/foo', 60),
-            createInputFile('/foo/bar', 78),
-            createInputFile('/foo/baz', 200),
-            // Bigger than maxChunkSize
-            createInputFile('/foo', 262144 + 45),
-            createInputFile('/foo/bar', 262144 + 134),
-            createInputFile('/foo/bar', 262144 + 79),
-            createInputFile('/foo/bar', 262144 + 876),
-            createInputFile('/foo/bar', 262144 + 21)
-          ]),
+          // Pass a copy of inputFiles, since the importer mutates them
+          pull.values(inputFiles.map(f => Object.assign({}, f))),
           importer(ipld, options),
           pull.collect(onCollected)
         )

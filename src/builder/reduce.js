@@ -27,7 +27,8 @@ module.exports = function reduce (file, ipld, options) {
       return waterfall([
         (cb) => ipld.get(leaf.cid, cb),
         (result, cb) => {
-          const data = result.value.data
+          // If result.value is a buffer, this is a raw leaf otherwise it's a dag-pb node
+          const data = Buffer.isBuffer(result.value) ? result.value : result.value.data
           const fileNode = new UnixFS('file', data)
 
           DAGNode.create(fileNode.marshal(), [], options.hashAlg, (error, node) => {

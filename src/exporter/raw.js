@@ -14,7 +14,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   size = size || node.length
 
   if (offset < 0) {
-    return pull.error(new Error('Offset must be greater than 0'))
+    return pull.error(new Error('Offset must be greater than or equal to 0'))
   }
 
   if (offset > size) {

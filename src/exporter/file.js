@@ -19,7 +19,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   const fileSize = size || file.fileSize()
 
   if (offset < 0) {
-    return pull.error(new Error('Offset must be greater than 0'))
+    return pull.error(new Error('Offset must be greater than or equal to 0'))
   }
 
   if (offset > fileSize) {
@@ -31,7 +31,15 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   }
 
   if (length === 0) {
-    return pull.once(Buffer.alloc(0))
+    return pull.once({
+      depth: depth,
+      content: pull.once(Buffer.alloc(0)),
+      name: name,
+      path: path,
+      hash: cid,
+      size: fileSize,
+      type: 'file'
+    })
   }
 
   if (!offset) {

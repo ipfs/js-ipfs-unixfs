@@ -36,7 +36,7 @@ module.exports = (repo) => {
   describe('exporter', () => {
     let ipld
 
-    function addTestFile ({file, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
+    function addTestFile ({file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves}, cb) {
       pull(
         pull.values([{
           path,
@@ -44,6 +44,7 @@ module.exports = (repo) => {
         }]),
         importer(ipld, {
           strategy,
+          rawLeaves,
           chunkerOptions: {
             maxChunkSize
           }
@@ -54,8 +55,8 @@ module.exports = (repo) => {
       )
     }
 
-    function addAndReadTestFile ({file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize}, cb) {
-      addTestFile({file, strategy, path, maxChunkSize}, (error, multihash) => {
+    function addAndReadTestFile ({file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves}, cb) {
+      addTestFile({file, strategy, path, maxChunkSize, rawLeaves}, (error, multihash) => {
         if (error) {
           return cb(error)
         }
@@ -322,6 +323,21 @@ module.exports = (repo) => {
       )
     })
 
+    it('exports a zero length chunk of a large file', function (done) {
+      this.timeout(30 * 1000)
+
+      addAndReadTestFile({
+        file: bigFile,
+        path: '1.2MiB.txt',
+        rawLeaves: true,
+        length: 0
+      }, (err, data) => {
+        expect(err).to.not.exist()
+        expect(data).to.eql(Buffer.alloc(0))
+        done()
+      })
+    })
+
     it('exports a chunk of a large file > 5mb made from multiple blocks', function (done) {
       this.timeout(30 * 1000)
       const hash = 'QmRQgufjp9vLE8XK2LGKZSsPCFCF6e4iynCQtNB5X2HBKE'
@@ -424,31 +440,119 @@ module.exports = (repo) => {
     it('exports a small file imported with raw leaves', function (done) {
       this.timeout(30 * 1000)
 
-      pull(
-        pull.values([{
-          path: '200Bytes.txt',
-          content: pull.values([smallFile])
-        }]),
-        importer(ipld, {
-          rawLeaves: true
-        }),
-        pull.collect(collected)
-      )
-
-      function collected (err, files) {
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true
+      }, (err, data) => {
         expect(err).to.not.exist()
-        expect(files.length).to.equal(1)
+        expect(data).to.eql(smallFile)
+        done()
+      })
+    })
 
-        pull(
-          exporter(files[0].multihash, ipld),
-          pull.collect((err, files) => {
-            expect(err).to.not.exist()
-            expect(new CID(files[0].hash).toBaseEncodedString()).to.equal('zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q')
+    it('exports a chunk of a small file imported with raw leaves', function (done) {
+      this.timeout(30 * 1000)
 
-            fileEql(files[0], smallFile, done)
-          })
-        )
-      }
+      const length = 100
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        length
+      }, (err, data) => {
+        expect(err).to.not.exist()
+        expect(data).to.eql(smallFile.slice(0, length))
+        done()
+      })
+    })
+
+    it('exports a chunk of a small file imported with raw leaves with length', function (done) {
+      this.timeout(30 * 1000)
+
+      const offset = 100
+      const length = 200
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        offset,
+        length
+      }, (err, data) => {
+        expect(err).to.not.exist()
+        expect(data).to.eql(smallFile.slice(offset))
+        done()
+      })
+    })
+
+    it('exports a zero length chunk of a small file imported with raw leaves', function (done) {
+      this.timeout(30 * 1000)
+
+      const length = 0
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        length
+      }, (err, data) => {
+        expect(err).to.not.exist()
+        expect(data).to.eql(Buffer.alloc(0))
+        done()
+      })
+    })
+
+    it('errors when exporting a chunk of a small file imported with raw leaves and negative length', function (done) {
+      this.timeout(30 * 1000)
+
+      const length = -100
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        length
+      }, (err, data) => {
+        expect(err).to.exist()
+        expect(err.message).to.equal('Length must be greater than or equal to 0')
+        done()
+      })
+    })
+
+    it('errors when exporting a chunk of a small file imported with raw leaves and negative offset', function (done) {
+      this.timeout(30 * 1000)
+
+      const offset = -100
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        offset
+      }, (err, data) => {
+        expect(err).to.exist()
+        expect(err.message).to.equal('Offset must be greater than or equal to 0')
+        done()
+      })
+    })
+
+    it('errors when exporting a chunk of a small file imported with raw leaves and offset greater than file size', function (done) {
+      this.timeout(30 * 1000)
+
+      const offset = 201
+
+      addAndReadTestFile({
+        file: smallFile,
+        path: '200Bytes.txt',
+        rawLeaves: true,
+        offset
+      }, (err, data) => {
+        expect(err).to.exist()
+        expect(err.message).to.equal('Offset must be less than the file size')
+        done()
+      })
     })
 
     it('exports a large file > 1mb imported with raw leaves', function (done) {
@@ -512,7 +616,7 @@ module.exports = (repo) => {
         offset: -1
       }, (error, data) => {
         expect(error).to.be.ok()
-        expect(error.message).to.contain('Offset must be greater than 0')
+        expect(error.message).to.contain('Offset must be greater than or equal to 0')
 
         done()
       })

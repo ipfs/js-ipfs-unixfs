@@ -1,3 +1,13 @@
+<a name="0.32.4"></a>
+## [0.32.4](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.3...v0.32.4) (2018-08-23)
+
+
+### Bug Fixes
+
+* build & export interop with go-ipfs for small file raw leaves ([11885fa](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/11885fa))
+
+
+
 <a name="0.32.3"></a>
 ## [0.32.3](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.2...v0.32.3) (2018-08-21)
 

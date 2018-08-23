@@ -9,7 +9,8 @@ const resolvers = {
   directory: require('./dir-flat'),
   'hamt-sharded-directory': require('./dir-hamt-sharded'),
   file: require('./file'),
-  object: require('./object')
+  object: require('./object'),
+  raw: require('./raw')
 }
 
 module.exports = Object.assign({
@@ -31,15 +32,19 @@ function createResolver (dag, options, depth, parent) {
       if ((typeof item.depth) !== 'number') {
         return pull.error(new Error('no depth'))
       }
+
       if (item.object) {
-        return cb(null, resolveItem(item.object, item, options.offset, options.length))
+        return cb(null, resolveItem(null, item.object, item, options.offset, options.length))
       }
-      dag.get(new CID(item.multihash), (err, node) => {
+
+      const cid = new CID(item.multihash)
+
+      dag.get(cid, (err, node) => {
         if (err) {
           return cb(err)
         }
         // const name = item.fromPathRest ? item.name : item.path
-        cb(null, resolveItem(node.value, item, options.offset, options.length))
+        cb(null, resolveItem(cid, node.value, item, options.offset, options.length))
       })
     }),
     pull.flatten(),
@@ -47,23 +52,25 @@ function createResolver (dag, options, depth, parent) {
     pull.filter((node) => node.depth <= options.maxDepth)
   )
 
-  function resolveItem (node, item, offset, length) {
-    return resolve(node, item.name, item.path, item.pathRest, item.size, dag, item.parent || parent, item.depth, offset, length)
+  function resolveItem (cid, node, item, offset, length) {
+    return resolve(cid, node, item.name, item.path, item.pathRest, item.size, dag, item.parent || parent, item.depth, offset, length)
   }
 
-  function resolve (node, name, path, pathRest, size, dag, parentNode, depth, offset, length) {
+  function resolve (cid, node, name, path, pathRest, size, dag, parentNode, depth, offset, length) {
     const type = typeOf(node)
     const nodeResolver = resolvers[type]
     if (!nodeResolver) {
       return pull.error(new Error('Unkown node type ' + type))
     }
     const resolveDeep = createResolver(dag, options, depth, node)
-    return nodeResolver(node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, offset, length)
+    return nodeResolver(cid, node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, offset, length)
   }
 }
 
 function typeOf (node) {
-  if (Buffer.isBuffer(node.data)) {
+  if (Buffer.isBuffer(node)) {
+    return 'raw'
+  } else if (Buffer.isBuffer(node.data)) {
     return UnixFS.unmarshal(node.data).type
   } else {
     return 'object'

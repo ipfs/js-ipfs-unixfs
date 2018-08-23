@@ -30,6 +30,7 @@ const exporter = unixFSEngine.exporter
 const importer = unixFSEngine.importer
 
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
+const smallFile = loadFixture('test/fixtures/200Bytes.txt')
 
 module.exports = (repo) => {
   describe('exporter', () => {
@@ -420,12 +421,42 @@ module.exports = (repo) => {
       )
     })
 
-    it('exports a large file > 5mb imported with raw leaves', function (done) {
+    it('exports a small file imported with raw leaves', function (done) {
       this.timeout(30 * 1000)
 
       pull(
         pull.values([{
           path: '200Bytes.txt',
+          content: pull.values([smallFile])
+        }]),
+        importer(ipld, {
+          rawLeaves: true
+        }),
+        pull.collect(collected)
+      )
+
+      function collected (err, files) {
+        expect(err).to.not.exist()
+        expect(files.length).to.equal(1)
+
+        pull(
+          exporter(files[0].multihash, ipld),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(new CID(files[0].hash).toBaseEncodedString()).to.equal('zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q')
+
+            fileEql(files[0], smallFile, done)
+          })
+        )
+      }
+    })
+
+    it('exports a large file > 1mb imported with raw leaves', function (done) {
+      this.timeout(30 * 1000)
+
+      pull(
+        pull.values([{
+          path: '1.2MiB.txt',
           content: pull.values([bigFile])
         }]),
         importer(ipld, {

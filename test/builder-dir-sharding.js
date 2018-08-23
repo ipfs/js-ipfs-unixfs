@@ -115,7 +115,7 @@ module.exports = (repo) => {
             expect(nodes.length).to.be.eql(2)
             const expectedHash = new CID(shardedHash).toBaseEncodedString()
             expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(nodes[0].hash).to.be.eql(expectedHash)
+            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
             expect(nodes[1].size).to.be.eql(21)
             pull(

@@ -219,7 +219,11 @@ module.exports = (repo) => {
       pam: {
         multihash: 'QmPAixYTaYnPe795fcWcuRpo6tfwHgRKNiBHpMzoomDVN6',
         size: 2656553
-      }
+      },
+      '200Bytes.txt with raw leaves': extend({}, baseFiles['200Bytes.txt'], {
+        multihash: 'zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q',
+        size: 200
+      })
     }, strategyOverrides[strategy])
 
     const expected = extend({}, defaultResults, strategies[strategy])
@@ -315,6 +319,21 @@ module.exports = (repo) => {
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
+            done()
+          })
+        )
+      })
+
+      it('small file (smaller than a chunk) with raw leaves', (done) => {
+        pull(
+          pull.values([{
+            path: '200Bytes.txt',
+            content: pull.values([smallFile])
+          }]),
+          importer(ipld, Object.assign({}, options, { rawLeaves: true })),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt with raw leaves']])
             done()
           })
         )

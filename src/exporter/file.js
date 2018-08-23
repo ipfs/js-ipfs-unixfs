@@ -5,9 +5,10 @@ const UnixFS = require('ipfs-unixfs')
 const CID = require('cids')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
+const extractDataFromBlock = require('./extract-data-from-block')
 
 // Logic to export a single (possibly chunked) unixfs file.
-module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth, offset, length) => {
+module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, offset, length) => {
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
@@ -18,7 +19,7 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
   const fileSize = size || file.fileSize()
 
   if (offset < 0) {
-    return pull.error(new Error('Offset must be greater than 0'))
+    return pull.error(new Error('Offset must be greater than or equal to 0'))
   }
 
   if (offset > fileSize) {
@@ -30,7 +31,15 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
   }
 
   if (length === 0) {
-    return pull.once(Buffer.alloc(0))
+    return pull.once({
+      depth: depth,
+      content: pull.once(Buffer.alloc(0)),
+      name: name,
+      path: path,
+      hash: cid,
+      size: fileSize,
+      type: 'file'
+    })
   }
 
   if (!offset) {
@@ -48,7 +57,7 @@ module.exports = (node, name, path, pathRest, resolve, size, dag, parent, depth,
     content: content,
     name: name,
     path: path,
-    hash: node.multihash,
+    hash: cid,
     size: fileSize,
     type: 'file'
   }])
@@ -148,26 +157,4 @@ function streamBytes (dag, node, fileSize, offset, length) {
     pull.map(getData),
     pull.filter(Boolean)
   )
-}
-
-function extractDataFromBlock (block, streamPosition, begin, end) {
-  const blockLength = block.length
-
-  if (begin >= streamPosition + blockLength) {
-    // If begin is after the start of the block, return an empty block
-    // This can happen when internal nodes contain data
-    return Buffer.alloc(0)
-  }
-
-  if (end - streamPosition < blockLength) {
-    // If the end byte is in the current block, truncate the block to the end byte
-    block = block.slice(0, end - streamPosition)
-  }
-
-  if (begin > streamPosition && begin < (streamPosition + blockLength)) {
-    // If the start byte is in the current block, skip to the start byte
-    block = block.slice(begin - streamPosition)
-  }
-
-  return block
 }

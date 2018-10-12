@@ -1,3 +1,14 @@
+<a name="0.32.7"></a>
+## [0.32.7](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.6...v0.32.7) (2018-10-12)
+
+
+### Bug Fixes
+
+* return correct chunks of streams, fixes [#229](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/229) ([362c685](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/362c685))
+* skip rabin tests on windows ([ea9e3c3](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/ea9e3c3))
+
+
+
 <a name="0.32.6"></a>
 ## [0.32.6](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.5...v0.32.6) (2018-10-12)
 

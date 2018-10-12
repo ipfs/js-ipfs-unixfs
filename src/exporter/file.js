@@ -77,36 +77,25 @@ function streamBytes (dag, node, fileSize, offset, length) {
 
   const end = offset + length
 
-  function getData ({ node, start }) {
-    try {
-      if (Buffer.isBuffer(node)) {
-        // this is a raw node
-        return extractDataFromBlock(node, start, offset, end)
-      }
+  return pull(
+    traverse.depthFirst({
+      node,
+      start: 0,
+      end: fileSize
+    }, getChildren(dag, offset, end)),
+    pull.map(extractData(offset, end)),
+    pull.filter(Boolean)
+  )
+}
 
-      const file = UnixFS.unmarshal(node.data)
-
-      if (!file.data) {
-        if (file.blockSizes.length) {
-          return
-        }
-
-        return Buffer.alloc(0)
-      }
-
-      return extractDataFromBlock(file.data, start, offset, end)
-    } catch (error) {
-      throw new Error(`Failed to unmarshal node - ${error.message}`)
-    }
-  }
-
+function getChildren (dag, offset, end) {
   // as we step through the children, keep track of where we are in the stream
   // so we can filter out nodes we're not interested in
   let streamPosition = 0
 
-  function visitor ({ node }) {
+  return function visitor ({ node }) {
     if (Buffer.isBuffer(node)) {
-      // this is a raw node
+      // this is a leaf node, can't traverse any further
       return pull.empty()
     }
 
@@ -131,7 +120,8 @@ function streamBytes (dag, node, fileSize, offset, length) {
         const child = {
           link: link,
           start: streamPosition,
-          end: streamPosition + file.blockSizes[index]
+          end: streamPosition + file.blockSizes[index],
+          size: file.blockSizes[index]
         }
 
         streamPosition = child.end
@@ -161,14 +151,46 @@ function streamBytes (dag, node, fileSize, offset, length) {
       })
     )
   }
+}
 
-  return pull(
-    traverse.depthFirst({
-      node,
-      start: 0,
-      end: fileSize
-    }, visitor),
-    pull.map(getData),
-    pull.filter(Boolean)
-  )
+function extractData (requestedStart, requestedEnd) {
+  let streamPosition = -1
+
+  return function getData ({ node, start, end }) {
+    let block
+
+    if (Buffer.isBuffer(node)) {
+      block = node
+    } else {
+      try {
+        const file = UnixFS.unmarshal(node.data)
+
+        if (!file.data) {
+          if (file.blockSizes.length) {
+            return
+          }
+
+          return Buffer.alloc(0)
+        }
+
+        block = file.data
+      } catch (error) {
+        throw new Error(`Failed to unmarshal node - ${error.message}`)
+      }
+    }
+
+    if (block && block.length) {
+      if (streamPosition === -1) {
+        streamPosition = start
+      }
+
+      const output = extractDataFromBlock(block, streamPosition, requestedStart, requestedEnd)
+
+      streamPosition += block.length
+
+      return output
+    }
+
+    return Buffer.alloc(0)
+  }
 }

@@ -1,22 +1,23 @@
 'use strict'
 
-module.exports = function extractDataFromBlock (block, streamPosition, begin, end) {
+module.exports = function extractDataFromBlock (block, blockStart, requestedStart, requestedEnd) {
   const blockLength = block.length
+  const blockEnd = blockStart + blockLength
 
-  if (begin >= streamPosition + blockLength) {
-    // If begin is after the start of the block, return an empty block
-    // This can happen when internal nodes contain data
+  if (requestedStart >= blockEnd || requestedEnd < blockStart) {
+    // If we are looking for a byte range that is starts after the start of the block,
+    // return an empty block.  This can happen when internal nodes contain data
     return Buffer.alloc(0)
   }
 
-  if (end - streamPosition < blockLength) {
+  if (requestedEnd >= blockStart && requestedEnd < blockEnd) {
     // If the end byte is in the current block, truncate the block to the end byte
-    block = block.slice(0, end - streamPosition)
+    block = block.slice(0, requestedEnd - blockStart)
   }
 
-  if (begin > streamPosition && begin < (streamPosition + blockLength)) {
+  if (requestedStart >= blockStart && requestedStart < blockEnd) {
     // If the start byte is in the current block, skip to the start byte
-    block = block.slice(begin - streamPosition)
+    block = block.slice(requestedStart - blockStart)
   }
 
   return block

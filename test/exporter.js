@@ -323,6 +323,33 @@ module.exports = (repo) => {
       )
     })
 
+    it('exports the right chunks of files when offsets are specified', function (done) {
+      this.timeout(30 * 1000)
+      const offset = 3
+      const data = Buffer.alloc(300 * 1024)
+
+      addAndReadTestFile({
+        file: data,
+        offset: 0
+      }, (err, fileWithNoOffset) => {
+        expect(err).to.not.exist()
+
+        addAndReadTestFile({
+          file: data,
+          offset
+        }, (err, fileWithOffset) => {
+          expect(err).to.not.exist()
+
+          expect(fileWithNoOffset.length).to.equal(data.length)
+          expect(fileWithNoOffset.length - fileWithOffset.length).to.equal(offset)
+          expect(fileWithOffset.length).to.equal(data.length - offset)
+          expect(fileWithNoOffset.length).to.equal(fileWithOffset.length + offset)
+
+          done()
+        })
+      })
+    })
+
     it('exports a zero length chunk of a large file', function (done) {
       this.timeout(30 * 1000)
 

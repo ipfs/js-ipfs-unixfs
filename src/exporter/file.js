@@ -15,7 +15,14 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     return pull.empty()
   }
 
-  const file = UnixFS.unmarshal(node.data)
+  let file
+
+  try {
+    file = UnixFS.unmarshal(node.data)
+  } catch (error) {
+    return pull.error(error)
+  }
+
   const fileSize = size || file.fileSize()
 
   if (offset < 0) {
@@ -103,7 +110,14 @@ function streamBytes (dag, node, fileSize, offset, length) {
       return pull.empty()
     }
 
-    const file = UnixFS.unmarshal(node.data)
+    let file
+
+    try {
+      file = UnixFS.unmarshal(node.data)
+    } catch (error) {
+      return pull.error(error)
+    }
+
     const nodeHasData = Boolean(file.data && file.data.length)
 
     // handle case where data is present on leaf nodes and internal nodes

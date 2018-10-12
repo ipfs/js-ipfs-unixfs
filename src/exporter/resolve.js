@@ -43,6 +43,7 @@ function createResolver (dag, options, depth, parent) {
         if (err) {
           return cb(err)
         }
+
         // const name = item.fromPathRest ? item.name : item.path
         cb(null, resolveItem(cid, node.value, item, options.offset, options.length))
       })
@@ -57,7 +58,14 @@ function createResolver (dag, options, depth, parent) {
   }
 
   function resolve (cid, node, name, path, pathRest, size, dag, parentNode, depth, offset, length) {
-    const type = typeOf(node)
+    let type
+
+    try {
+      type = typeOf(node)
+    } catch (error) {
+      return pull.error(error)
+    }
+
     const nodeResolver = resolvers[type]
     if (!nodeResolver) {
       return pull.error(new Error('Unkown node type ' + type))

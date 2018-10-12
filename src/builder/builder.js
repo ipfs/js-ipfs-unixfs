@@ -96,7 +96,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
       }
       callback(null, {
         path: item.path,
-        multihash: node.cid.buffer,
+        multihash: node.multihash,
         size: node.size
       })
     })

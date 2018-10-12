@@ -77,10 +77,17 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
           return cb(null, node)
         }
 
-        node.cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
+        const cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
+
+        node = new DAGNode(
+          node.data,
+          node.links,
+          node.serialized,
+          cid
+        )
 
         ipld.put(node, {
-          cid: node.cid
+          cid
         }, (err) => cb(err, node))
       }
     ], (err, node) => {

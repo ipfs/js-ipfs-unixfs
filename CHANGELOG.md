@@ -1,3 +1,13 @@
+<a name="0.32.6"></a>
+## [0.32.6](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.5...v0.32.6) (2018-10-12)
+
+
+### Bug Fixes
+
+* do not use cid property of DAGNodes just yet ([7a2a308](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/7a2a308))
+
+
+
 <a name="0.32.5"></a>
 ## [0.32.5](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.4...v0.32.5) (2018-10-12)
 

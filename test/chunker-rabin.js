@@ -21,7 +21,6 @@ describe('chunker: rabin', function () {
   })
 
   it('chunks non flat buffers', (done) => {
-
     const b1 = Buffer.alloc(2 * 256)
     const b2 = Buffer.alloc(1 * 256)
     const b3 = Buffer.alloc(5 * 256)

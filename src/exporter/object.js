@@ -10,9 +10,11 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     newNode = node[pathElem]
     const newName = path + '/' + pathElem
     if (!newNode) {
-      return pull.error('not found')
+      return pull.error(new Error(`not found`))
     }
+
     const isCID = CID.isCID(newNode)
+
     return pull(
       pull.values([{
         depth: depth,

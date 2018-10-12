@@ -1,3 +1,14 @@
+<a name="0.32.5"></a>
+## [0.32.5](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.4...v0.32.5) (2018-10-12)
+
+
+### Bug Fixes
+
+* do not overwrite cid property of DAGNodes ([c2e38ae](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/c2e38ae))
+* make sure errors from unmarshalling are caught ([8b2335c](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/8b2335c))
+
+
+
 <a name="0.32.4"></a>
 ## [0.32.4](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.3...v0.32.4) (2018-08-23)
 

@@ -7,13 +7,21 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
+const os = require('os')
 
 const rawFile = loadFixture('test/fixtures/1MiB.txt')
 
 describe('chunker: rabin', function () {
   this.timeout(30000)
 
+  before(function () {
+    if (os.platform() === 'win32') {
+      return this.skip()
+    }
+  })
+
   it('chunks non flat buffers', (done) => {
+
     const b1 = Buffer.alloc(2 * 256)
     const b2 = Buffer.alloc(1 * 256)
     const b3 = Buffer.alloc(5 * 256)

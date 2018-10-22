@@ -23,7 +23,7 @@ module.exports = (repo) => {
 
     before(() => {
       const bs = new BlockService(repo)
-      ipld = new Ipld(bs)
+      ipld = new Ipld({blockService: bs})
     })
 
     it('export a file 2 levels down', (done) => {

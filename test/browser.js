@@ -41,6 +41,7 @@ describe('IPFS data importing tests on the Browser', function () {
 
   // Chunkers
   require('./chunker-fixed-size')
+  require('./chunker-rabin-browser')
 
   // Graph Builders
   require('./builder')(repo)

@@ -1,6 +1,7 @@
 'use strict'
 
 const toPull = require('stream-to-pull-stream')
+const through = require('pull-through')
 
 let createRabin
 
@@ -8,10 +9,16 @@ module.exports = (options) => {
   if (!createRabin) {
     try {
       createRabin = require('rabin')
-    } catch (error) {
-      error.message = `Rabin chunker not supported, it may have failed to install - ${error.message}`
 
-      throw error
+      if (typeof createRabin !== 'function') {
+        throw new Error('createRabin was not a function')
+      }
+    } catch (err) {
+      const error = new Error(`Rabin chunker not available, it may have failed to install or not be supported on this platform`)
+
+      return through(function () {
+        this.emit('error', error)
+      })
     }
   }
 

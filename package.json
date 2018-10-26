@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",

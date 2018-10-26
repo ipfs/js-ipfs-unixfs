@@ -148,7 +148,7 @@ module.exports = (repo) => {
 
     before(() => {
       const bs = new BlockService(repo)
-      ipld = new Ipld(bs)
+      ipld = new Ipld({blockService: bs})
     })
 
     it('ensure hash inputs are sanitized', (done) => {

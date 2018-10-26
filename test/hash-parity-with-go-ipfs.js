@@ -35,7 +35,7 @@ module.exports = (repo) => {
 
       before(() => {
         const bs = new BlockService(repo)
-        ipld = new Ipld(bs)
+        ipld = new Ipld({blockService: bs})
       })
 
       it('yields the same tree as go-ipfs', function (done) {

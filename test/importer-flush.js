@@ -17,7 +17,7 @@ module.exports = (repo) => {
 
     before(() => {
       const bs = new BlockService(repo)
-      ipld = new Ipld(bs)
+      ipld = new Ipld({blockService: bs})
     })
 
     it('can push a single root file and flush yields no dirs', (done) => {

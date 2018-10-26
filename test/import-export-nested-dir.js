@@ -19,7 +19,7 @@ module.exports = (repo) => {
 
     before(() => {
       const bs = new BlockService(repo)
-      ipld = new Ipld(bs)
+      ipld = new Ipld({blockService: bs})
     })
 
     it('imports', function (done) {

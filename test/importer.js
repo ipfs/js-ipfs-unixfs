@@ -243,7 +243,7 @@ module.exports = (repo) => {
 
       before(() => {
         const bs = new BlockService(repo)
-        ipld = new Ipld(bs)
+        ipld = new Ipld({blockService: bs})
       })
 
       it('fails on bad input', (done) => {

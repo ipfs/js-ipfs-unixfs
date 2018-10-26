@@ -36,8 +36,8 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^14.0.0",
-    "chai": "^4.1.2",
+    "aegir": "^17.0.0",
+    "chai": "^4.2.0",
     "dirty-chai": "^2.0.1"
   },
   "dependencies": {

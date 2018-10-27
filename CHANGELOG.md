@@ -1,3 +1,13 @@
+<a name="0.33.0"></a>
+# [0.33.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.8...v0.33.0) (2018-10-27)
+
+
+### Bug Fixes
+
+* fixes [#230](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/230) by returning a through stream that emits the error instead of throwing it ([fdd8429](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/fdd8429))
+
+
+
 <a name="0.32.8"></a>
 ## [0.32.8](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.7...v0.32.8) (2018-10-25)
 

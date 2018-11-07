@@ -837,7 +837,7 @@ module.exports = (repo) => {
         ], cb),
         (file, cb) => {
           pull(
-            exporter(file.multihash, ipld),
+            exporter(file.cid, ipld),
             pull.asyncMap((file, cb) => readFile(file, cb)),
             pull.through(buffer => {
               expect(buffer).to.deep.equal(Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
@@ -886,7 +886,7 @@ module.exports = (repo) => {
         },
         (file, cb) => {
           pull(
-            exporter(file.multihash, ipld),
+            exporter(file.cid, ipld),
             pull.asyncMap((file, cb) => readFile(file, cb)),
             pull.through(buffer => {
               expect(buffer).to.deep.equal(
@@ -910,7 +910,7 @@ module.exports = (repo) => {
         ], cb),
         (file, cb) => {
           pull(
-            exporter(file.multihash, ipld, {
+            exporter(file.cid, ipld, {
               offset: 4
             }),
             pull.asyncMap((file, cb) => readFile(file, cb)),
@@ -1004,11 +1004,11 @@ function createAndPersistNode (ipld, type, data, children, callback) {
   const links = []
 
   children.forEach(child => {
-    const leaf = UnixFS.unmarshal(child.data)
+    const leaf = UnixFS.unmarshal(child.node.data)
 
     file.addBlockSize(leaf.fileSize())
 
-    links.push(new DAGLink('', child.size, child.multihash))
+    links.push(new DAGLink('', child.node.size, child.cid))
   })
 
   DAGNode.create(file.marshal(), links, (error, node) => {
@@ -1017,7 +1017,12 @@ function createAndPersistNode (ipld, type, data, children, callback) {
     }
 
     ipld.put(node, {
-      cid: new CID(node.multihash)
-    }, (error) => callback(error, node))
+      version: 1,
+      hashAlg: 'sha2-256',
+      format: 'dag-pb'
+    }, (error, cid) => callback(error, {
+      node,
+      cid
+    }))
   })
 }

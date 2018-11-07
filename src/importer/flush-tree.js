@@ -5,6 +5,7 @@ const CID = require('cids')
 const dagPB = require('ipld-dag-pb')
 const mapValues = require('async/mapValues')
 const waterfall = require('async/waterfall')
+const persist = require('../utils/persist')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
@@ -34,8 +35,8 @@ module.exports = (files, ipld, source, callback) => {
  * received an array of files with the format:
  * {
  *    path: // full path
- *    multihash: // multihash of the dagNode
  *    size: // cumulative size
+ *    cid: // multihash of the dagNode
  * }
  *
  * returns a JSON object that represents a tree where branches are the paths
@@ -67,7 +68,7 @@ function createTree (files) {
         tmpTree[splitted[i]] = {}
       }
       if (i === splitted.length - 1) {
-        tmpTree[splitted[i]] = file.multihash
+        tmpTree[splitted[i]] = file.cid
       } else {
         tmpTree = tmpTree[splitted[i]]
       }
@@ -79,13 +80,13 @@ function createTree (files) {
 
 /*
  * create a size index that goes like:
- * { <multihash>: <size> }
+ * { <cid>: <size> }
  */
 function createSizeIndex (files) {
   const sizeIndex = {}
 
   files.forEach((file) => {
-    sizeIndex[new CID(file.multihash).toBaseEncodedString()] = file.size
+    sizeIndex[file.cid.toBaseEncodedString()] = file.size
   })
 
   return sizeIndex
@@ -131,15 +132,15 @@ function traverse (tree, sizeIndex, path, ipld, source, done) {
 
     waterfall([
       (cb) => DAGNode.create(dir.marshal(), links, cb),
-      (node, cb) => {
-        const cid = new CID(node.multihash)
+      (node, cb) => persist(node, ipld, {}, cb),
+      ({ cid, node }, cb) => {
         sizeIndex[cid.toBaseEncodedString()] = node.size
 
-        ipld.put(node, {
-          cid
-        }, (err) => cb(err, node))
+        cb(null, {
+          cid, node
+        })
       }
-    ], (err, node) => {
+    ], (err, results) => {
       if (err) {
         source.push(new Error('failed to store dirNode'))
         return done(err)
@@ -148,12 +149,12 @@ function traverse (tree, sizeIndex, path, ipld, source, done) {
       if (path) {
         source.push({
           path: path,
-          multihash: node.multihash,
-          size: node.size
+          size: results.node.size,
+          multihash: results.cid.buffer
         })
       }
 
-      done(null, node.multihash)
+      done(null, results.cid)
     })
   })
 }

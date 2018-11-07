@@ -132,7 +132,7 @@ const checkLeafNodeTypes = (ipld, options, expected, done) => {
         node.links.map(link => {
           return (done) => {
             waterfall([
-              (next) => ipld.get(new CID(link.multihash), next),
+              (next) => ipld.get(link.cid, next),
               (result, next) => {
                 const node = result.value
                 const meta = UnixFs.unmarshal(node.data)

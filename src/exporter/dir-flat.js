@@ -13,7 +13,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
     name: name,
     depth: depth,
     path: path,
-    hash: cid,
+    multihash: cid.buffer,
     size: node.size,
     type: 'dir'
   }
@@ -26,7 +26,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
         size: link.size,
         name: link.name,
         path: path + '/' + link.name,
-        multihash: link.multihash,
+        multihash: link.cid.buffer,
         linkName: link.name,
         pathRest: pathRest.slice(1),
         type: 'dir'

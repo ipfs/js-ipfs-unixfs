@@ -20,7 +20,7 @@ module.exports = (ipld, multihash, callback) => {
           }
 
           return callback(
-            null, node.links.map(link => new CID(link.multihash))
+            null, node.links.map(link => link.cid)
           )
         }),
         pull.filter(Boolean),

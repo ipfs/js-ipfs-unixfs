@@ -6,13 +6,11 @@ const pull = require('pull-stream')
 const through = require('pull-through')
 const parallel = require('async/parallel')
 const waterfall = require('async/waterfall')
-const dagPB = require('ipld-dag-pb')
-const CID = require('cids')
-const multihash = require('multihashing-async')
-
+const persist = require('../utils/persist')
 const reduce = require('./reduce')
-
-const DAGNode = dagPB.DAGNode
+const {
+  DAGNode
+} = require('ipld-dag-pb')
 
 const defaultOptions = {
   chunkerOptions: {
@@ -27,12 +25,6 @@ const defaultOptions = {
 
 module.exports = function builder (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
-  options.cidVersion = options.cidVersion || options.cidVersion
-  options.hashAlg = options.hashAlg || defaultOptions.hashAlg
-
-  if (options.hashAlg !== 'sha2-256') {
-    options.cidVersion = 1
-  }
 
   return function (source) {
     return function (items, cb) {
@@ -71,33 +63,17 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
     const d = new UnixFS('directory')
 
     waterfall([
-      (cb) => DAGNode.create(d.marshal(), [], options.hashAlg, cb),
-      (node, cb) => {
-        if (options.onlyHash) {
-          return cb(null, node)
-        }
-
-        const cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
-
-        node = new DAGNode(
-          node.data,
-          node.links,
-          node.serialized,
-          cid
-        )
-
-        ipld.put(node, {
-          cid
-        }, (err) => cb(err, node))
-      }
-    ], (err, node) => {
+      (cb) => DAGNode.create(d.marshal(), [], cb),
+      (node, cb) => persist(node, ipld, options, cb)
+    ], (err, result) => {
       if (err) {
         return callback(err)
       }
+
       callback(null, {
         path: item.path,
-        multihash: node.multihash,
-        size: node.size
+        multihash: result.cid.buffer,
+        size: result.node.size
       })
     })
   }
@@ -134,55 +110,42 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
       }),
       pull.asyncMap((buffer, callback) => {
         if (options.rawLeaves) {
-          return multihash(buffer, options.hashAlg, (error, hash) => {
-            if (error) {
-              return callback(error)
-            }
-
-            return callback(null, {
-              multihash: hash,
-              size: buffer.length,
-              leafSize: buffer.length,
-              cid: new CID(1, 'raw', hash),
-              data: buffer
-            })
+          return callback(null, {
+            size: buffer.length,
+            leafSize: buffer.length,
+            data: buffer
           })
         }
 
         const file = new UnixFS(options.leafType, buffer)
 
-        DAGNode.create(file.marshal(), [], options.hashAlg, (err, node) => {
+        DAGNode.create(file.marshal(), [], (err, node) => {
           if (err) {
             return callback(err)
           }
 
           callback(null, {
-            multihash: node.multihash,
             size: node.size,
             leafSize: file.fileSize(),
-            cid: new CID(options.cidVersion, 'dag-pb', node.multihash),
             data: node
           })
         })
       }),
       pull.asyncMap((leaf, callback) => {
-        if (options.onlyHash) {
-          return callback(null, leaf)
-        }
+        persist(leaf.data, ipld, options, (error, results) => {
+          if (error) {
+            return callback(error)
+          }
 
-        ipld.put(leaf.data, {
-          cid: leaf.cid
-        }, (error) => callback(error, leaf))
-      }),
-      pull.map((leaf) => {
-        return {
-          path: file.path,
-          multihash: leaf.cid.buffer,
-          size: leaf.size,
-          leafSize: leaf.leafSize,
-          name: '',
-          cid: leaf.cid
-        }
+          callback(null, {
+            size: leaf.size,
+            leafSize: leaf.leafSize,
+            data: results.node,
+            multihash: results.cid.buffer,
+            path: leaf.path,
+            name: ''
+          })
+        })
       }),
       through( // mark as single node if only one single node
         function onData (data) {

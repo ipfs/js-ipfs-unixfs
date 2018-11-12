@@ -54,9 +54,11 @@ module.exports = (path, dag, options) => {
   const pathLengthToCut = join(
     [dPath.base].concat(dPath.rest.slice(0, dPath.rest.length - 1))).length
 
+  const cid = new CID(dPath.base)
+
   return pull(
     pull.values([{
-      multihash: new CID(dPath.base),
+      multihash: cid.buffer,
       name: dPath.base,
       path: dPath.base,
       pathRest: dPath.rest,
@@ -70,7 +72,7 @@ module.exports = (path, dag, options) => {
         name: node.name,
         path: finalPathFor(node),
         size: node.size,
-        hash: node.hash || node.multihash,
+        hash: node.multihash,
         content: node.content,
         type: node.type
       }

@@ -3,13 +3,13 @@
 const leftPad = require('left-pad')
 const whilst = require('async/whilst')
 const waterfall = require('async/waterfall')
-const CID = require('cids')
 const dagPB = require('ipld-dag-pb')
 const UnixFS = require('ipfs-unixfs')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 const multihashing = require('multihashing-async')
 const Dir = require('./dir')
+const persist = require('../utils/persist')
 
 const Bucket = require('../hamt')
 
@@ -71,14 +71,15 @@ class DirSharded extends Dir {
   }
 
   flush (path, ipld, source, callback) {
-    flush(this._options, this._bucket, path, ipld, source, (err, node) => {
+    flush(this._options, this._bucket, path, ipld, source, (err, results) => {
       if (err) {
-        callback(err)
+        return callback(err)
       } else {
-        this.multihash = node.multihash
-        this.size = node.size
+        this.multihash = results.cid.buffer
+        this.size = results.node.size
       }
-      callback(null, node)
+
+      callback(null, results)
     })
   }
 }
@@ -112,19 +113,19 @@ function flush (options, bucket, path, ipld, source, callback) {
         callback(err)
         return // early
       }
-      haveLinks(links)
+      haveLinks(links, callback)
     }
   )
 
   function collectChild (child, index, callback) {
     const labelPrefix = leftPad(index.toString(16).toUpperCase(), 2, '0')
     if (Bucket.isBucket(child)) {
-      flush(options, child, path, ipld, null, (err, node) => {
+      flush(options, child, path, ipld, null, (err, { cid, node }) => {
         if (err) {
           callback(err)
           return // early
         }
-        links.push(new DAGLink(labelPrefix, node.size, node.multihash))
+        links.push(new DAGLink(labelPrefix, node.size, cid))
         callback()
       })
     } else {
@@ -135,39 +136,27 @@ function flush (options, bucket, path, ipld, source, callback) {
     }
   }
 
-  function haveLinks (links) {
+  function haveLinks (links, callback) {
     // go-ipfs uses little endian, that's why we have to
     // reverse the bit field before storing it
     const data = Buffer.from(children.bitField().reverse())
     const dir = new UnixFS('hamt-sharded-directory', data)
     dir.fanout = bucket.tableSize()
     dir.hashType = options.hashFn.code
-    waterfall(
-      [
-        (callback) => DAGNode.create(dir.marshal(), links, options.hashAlg, callback),
-        (node, callback) => {
-          if (options.onlyHash) return callback(null, node)
-
-          let cid = new CID(node.multihash)
-
-          if (options.cidVersion === 1) {
-            cid = cid.toV1()
-          }
-
-          ipld.put(node, { cid }, (err) => callback(err, node))
-        },
-        (node, callback) => {
-          const pushable = {
-            path: path,
-            multihash: node.multihash,
-            size: node.size
-          }
-          if (source) {
-            source.push(pushable)
-          }
-          callback(null, node)
+    waterfall([
+      (cb) => DAGNode.create(dir.marshal(), links, cb),
+      (node, cb) => persist(node, ipld, options, cb),
+      ({ cid, node }, cb) => {
+        const pushable = {
+          path: path,
+          size: node.size,
+          multihash: cid.buffer
         }
-      ],
-      callback)
+        if (source) {
+          source.push(pushable)
+        }
+        cb(null, { cid, node })
+      }
+    ], callback)
   }
 }

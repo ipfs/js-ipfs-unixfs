@@ -3,7 +3,7 @@
 const waterfall = require('async/waterfall')
 const dagPB = require('ipld-dag-pb')
 const UnixFS = require('ipfs-unixfs')
-const CID = require('cids')
+const persist = require('../utils/persist')
 
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
@@ -14,10 +14,10 @@ module.exports = function reduce (file, ipld, options) {
       const leaf = leaves[0]
 
       return callback(null, {
-        path: file.path,
-        multihash: leaf.multihash,
         size: leaf.size,
         leafSize: leaf.leafSize,
+        multihash: leaf.multihash,
+        path: file.path,
         name: leaf.name
       })
     }
@@ -28,44 +28,23 @@ module.exports = function reduce (file, ipld, options) {
     const links = leaves.map((leaf) => {
       f.addBlockSize(leaf.leafSize)
 
-      let cid = leaf.cid
-
-      if (!cid) {
-        // we are an intermediate node
-        cid = new CID(options.cidVersion, 'dag-pb', leaf.multihash)
-      }
-
-      return new DAGLink(leaf.name, leaf.size, cid.buffer)
+      return new DAGLink(leaf.name, leaf.size, leaf.multihash)
     })
 
     waterfall([
-      (cb) => DAGNode.create(f.marshal(), links, options.hashAlg, cb),
-      (node, cb) => {
-        const cid = new CID(options.cidVersion, 'dag-pb', node.multihash)
-
-        if (options.onlyHash) {
-          return cb(null, {
-            node, cid
-          })
-        }
-
-        ipld.put(node, {
-          cid
-        }, (error) => cb(error, {
-          node, cid
-        }))
-      }
+      (cb) => DAGNode.create(f.marshal(), links, cb),
+      (node, cb) => persist(node, ipld, options, cb)
     ], (error, result) => {
       if (error) {
         return callback(error)
       }
 
       callback(null, {
-        name: '',
-        path: file.path,
-        multihash: result.cid.buffer,
         size: result.node.size,
-        leafSize: f.fileSize()
+        leafSize: f.fileSize(),
+        multihash: result.cid.buffer,
+        path: file.path,
+        name: ''
       })
     })
   }

@@ -11,10 +11,8 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
-const IPFS = require('ipfs')
-const os = require('os')
-const path = require('path')
 const CID = require('cids')
+const IPLD = require('ipld')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -108,11 +106,6 @@ const strategyOverrides = {
 }
 
 describe('with dag-api', function () {
-  // TODO: waiting for IPFS support on windows, https://github.com/ipfs/js-ipfs-unixfs-engine/issues/196
-  if (os.platform() === 'win32') {
-    return
-  }
-
   strategies.forEach(strategy => {
     const baseFiles = strategyBaseFiles[strategy]
     const defaultResults = extend({}, baseFiles, {
@@ -168,7 +161,7 @@ describe('with dag-api', function () {
     describe('importer: ' + strategy, function () {
       this.timeout(50 * 1000)
 
-      let node
+      let dag
 
       const options = {
         strategy: strategy,
@@ -181,12 +174,15 @@ describe('with dag-api', function () {
       before(function (done) {
         this.timeout(30 * 1000)
 
-        node = new IPFS({
-          repo: path.join(os.tmpdir(), 'unixfs-test-' + Math.random()),
-          start: false
-        })
+        IPLD.inMemory((err, resolver) => {
+          if (err) {
+            return done(err)
+          }
 
-        node.on('ready', done)
+          dag = resolver
+
+          done()
+        })
       })
 
       it('fails on bad input', (done) => {
@@ -195,7 +191,7 @@ describe('with dag-api', function () {
             path: '200Bytes.txt',
             content: 'banana'
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.onEnd((err) => {
             expect(err).to.exist()
             done()
@@ -206,7 +202,7 @@ describe('with dag-api', function () {
       it('doesn\'t yield anything on empty source', (done) => {
         pull(
           pull.empty(),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(0)
@@ -220,7 +216,7 @@ describe('with dag-api', function () {
             path: 'emptyfile',
             content: pull.empty()
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
@@ -242,7 +238,7 @@ describe('with dag-api', function () {
               content: pull.values([smallFile])
             }
           ]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.onEnd((err) => {
             expect(err).to.exist()
             expect(err.message).to.be.eql('detected more than one root')
@@ -257,7 +253,7 @@ describe('with dag-api', function () {
             path: '200Bytes.txt',
             content: pull.values([smallFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
@@ -272,7 +268,7 @@ describe('with dag-api', function () {
             path: '200Bytes.txt',
             content: smallFile
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
@@ -287,7 +283,7 @@ describe('with dag-api', function () {
             path: 'foo/bar/200Bytes.txt',
             content: pull.values([smallFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect(collected)
         )
 
@@ -315,7 +311,7 @@ describe('with dag-api', function () {
             path: '1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
@@ -330,7 +326,7 @@ describe('with dag-api', function () {
             path: 'foo-big/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -349,7 +345,7 @@ describe('with dag-api', function () {
           pull.values([{
             path: 'empty-dir'
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -369,7 +365,7 @@ describe('with dag-api', function () {
             path: 'pim/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -396,7 +392,7 @@ describe('with dag-api', function () {
             path: 'pam/1.2MiB.txt',
             content: pull.values([bigFile])
           }]),
-          importer(node.dag, options),
+          importer(dag, options),
           pull.collect((err, files) => {
             expect(err).to.not.exist()
 
@@ -409,25 +405,25 @@ describe('with dag-api', function () {
 
         function eachFile (file) {
           if (file.path === 'pam/pum/200Bytes.txt') {
-            expect(file.multihash).to.be.eql(expected['200Bytes.txt'].multihash)
+            expect(file.cid).to.be.eql(expected['200Bytes.txt'].cid)
             expect(file.size).to.be.eql(expected['200Bytes.txt'].size)
           }
           if (file.path === 'pam/pum/1.2MiB.txt') {
-            expect(file.multihash).to.be.eql(expected['1.2MiB.txt'].multihash)
+            expect(file.cid).to.be.eql(expected['1.2MiB.txt'].cid)
             expect(file.size).to.be.eql(expected['1.2MiB.txt'].size)
           }
           if (file.path === 'pam/pum') {
             const dir = expected['pam/pum']
-            expect(file.multihash).to.be.eql(dir.multihash)
+            expect(file.cid).to.be.eql(dir.cid)
             expect(file.size).to.be.eql(dir.size)
           }
           if (file.path === 'pam/1.2MiB.txt') {
-            expect(file.multihash).to.be.eql(expected['1.2MiB.txt'].multihash)
+            expect(file.cid).to.be.eql(expected['1.2MiB.txt'].cid)
             expect(file.size).to.be.eql(expected['1.2MiB.txt'].size)
           }
           if (file.path === 'pam') {
             const dir = expected.pam
-            expect(file.multihash).to.be.eql(dir.multihash)
+            expect(file.cid).to.be.eql(dir.cid)
             expect(file.size).to.be.eql(dir.size)
           }
         }

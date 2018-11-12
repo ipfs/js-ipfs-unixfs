@@ -2,12 +2,12 @@
 
 const asyncEachSeries = require('async/eachSeries')
 const waterfall = require('async/waterfall')
-const CID = require('cids')
 const dagPB = require('ipld-dag-pb')
 const UnixFS = require('ipfs-unixfs')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 const Dir = require('./dir')
+const persist = require('../utils/persist')
 
 class DirFlat extends Dir {
   constructor (props, _options) {
@@ -56,28 +56,17 @@ class DirFlat extends Dir {
       })
 
     const dir = new UnixFS('directory')
-    const options = this._options
 
     waterfall(
       [
-        (callback) => DAGNode.create(dir.marshal(), links, options.hashAlg, callback),
-        (node, callback) => {
-          if (options.onlyHash) return callback(null, node)
-
-          let cid = new CID(node.multihash)
-
-          if (options.cidVersion === 1) {
-            cid = cid.toV1()
-          }
-
-          ipld.put(node, { cid }, (err) => callback(err, node))
-        },
-        (node, callback) => {
-          this.multihash = node.multihash
+        (callback) => DAGNode.create(dir.marshal(), links, callback),
+        (node, callback) => persist(node, ipld, this._options, callback),
+        ({cid, node}, callback) => {
+          this.multihash = cid.buffer
           this.size = node.size
           const pushable = {
             path: path,
-            multihash: node.multihash,
+            multihash: cid.buffer,
             size: node.size
           }
           source.push(pushable)

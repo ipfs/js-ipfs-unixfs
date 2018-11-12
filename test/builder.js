@@ -4,10 +4,9 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream')
 const mh = require('multihashes')
-const Ipld = require('ipld')
+const IPLD = require('ipld')
 const eachSeries = require('async').eachSeries
 const CID = require('cids')
 const UnixFS = require('ipfs-unixfs')
@@ -20,9 +19,16 @@ module.exports = (repo) => {
 
     const testMultihashes = Object.keys(mh.names).slice(1, 40)
 
-    before(() => {
-      const bs = new BlockService(repo)
-      ipld = new Ipld({blockService: bs})
+    before((done) => {
+      IPLD.inMemory((err, resolver) => {
+        if (err) {
+          return done(err)
+        }
+
+        ipld = resolver
+
+        done()
+      })
     })
 
     it('allows multihash hash algorithm to be specified', (done) => {

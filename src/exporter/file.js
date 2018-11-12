@@ -2,7 +2,6 @@
 
 const traverse = require('pull-traverse')
 const UnixFS = require('ipfs-unixfs')
-const CID = require('cids')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 const extractDataFromBlock = require('./extract-data-from-block')
@@ -43,7 +42,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
       content: pull.once(Buffer.alloc(0)),
       name: name,
       path: path,
-      hash: cid,
+      multihash: cid.buffer,
       size: fileSize,
       type: 'file'
     })
@@ -64,7 +63,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     content: content,
     name: name,
     path: path,
-    hash: cid,
+    multihash: cid.buffer,
     size: fileSize,
     type: 'file'
   }])
@@ -142,7 +141,7 @@ function getChildren (dag, offset, end) {
     return pull(
       pull.values(filteredLinks),
       paramap((child, cb) => {
-        dag.get(new CID(child.link.multihash), (error, result) => cb(error, {
+        dag.get(child.link.cid, (error, result) => cb(error, {
           start: child.start,
           end: child.end,
           node: result && result.value,

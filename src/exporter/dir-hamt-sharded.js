@@ -13,7 +13,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
       name: name,
       depth: depth,
       path: path,
-      hash: cid,
+      multihash: cid.buffer,
       size: node.size,
       type: 'dir'
     }
@@ -36,7 +36,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
             depth: depth + 1,
             name: p,
             path: pp,
-            multihash: link.multihash,
+            multihash: link.cid.buffer,
             pathRest: p ? pathRest.slice(1) : pathRest,
             parent: dir || parent
           }

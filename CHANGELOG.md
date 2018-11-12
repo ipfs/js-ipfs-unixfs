@@ -1,3 +1,13 @@
+<a name="0.34.0"></a>
+# [0.34.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.33.0...v0.34.0) (2018-11-12)
+
+
+### Bug Fixes
+
+* updates ipld-dag-pb dep to version without .cid properties ([aa61cce](https://github.com/ipfs/js-ipfs-unixfs-engine/commit/aa61cce))
+
+
+
 <a name="0.33.0"></a>
 # [0.33.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.32.8...v0.33.0) (2018-10-27)
 

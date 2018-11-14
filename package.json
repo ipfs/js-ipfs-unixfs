@@ -1,12 +1,11 @@
 {
-  "name": "ipfs-unixfs-engine",
+  "name": "ipfs-unixfs-exporter",
   "version": "0.34.0",
-  "description": "JavaScript implementation of the unixfs Engine used by IPFS",
+  "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
-    "fs": false,
-    "rabin": false
+    "fs": false
   },
   "scripts": {
     "test": "aegir test",
@@ -22,60 +21,42 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-engine.git"
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-exporter.git"
   },
   "keywords": [
     "IPFS"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ipfs/js-ipfs-unixfs-engine/issues"
+    "url": "https://github.com/ipfs/js-ipfs-unixfs-exporter/issues"
   },
   "engines": {
     "node": ">=8.0.0",
     "npm": ">=3.0.0"
   },
-  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engine#readme",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-exporter#readme",
   "devDependencies": {
     "aegir": "^17.0.0",
     "chai": "^4.2.0",
+    "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
-    "ipfs-block-service": "~0.15.1",
-    "ipfs-repo": "~0.25.0",
+    "ipfs-unixfs-importer": "~0.34.0",
     "ipld": "~0.20.0",
-    "mkdirp": "~0.5.1",
-    "multihashes": "~0.4.14",
-    "ncp": "^2.0.0",
-    "pull-generate": "^2.2.0",
+    "ipld-dag-pb": "~0.15.0",
+    "pull-pushable": "^2.2.0",
     "pull-stream-to-stream": "^1.3.4",
     "pull-zip": "^2.0.1",
-    "rimraf": "^2.6.2",
-    "sinon": "^7.1.0"
+    "sinon": "^7.1.0",
+    "stream-to-pull-stream": "^1.7.2"
   },
   "dependencies": {
     "async": "^2.6.1",
     "cids": "~0.5.5",
-    "deep-extend": "~0.6.0",
     "ipfs-unixfs": "~0.1.16",
-    "ipld-dag-pb": "~0.15.0",
-    "left-pad": "^1.3.0",
-    "multihashing-async": "~0.5.1",
-    "pull-batch": "^1.0.0",
-    "pull-block": "^1.4.0",
     "pull-cat": "^1.1.11",
-    "pull-pair": "^1.1.0",
     "pull-paramap": "^1.2.2",
-    "pull-pause": "0.0.2",
-    "pull-pushable": "^2.2.0",
     "pull-stream": "^3.6.9",
-    "pull-through": "^1.0.18",
-    "pull-traverse": "^1.0.3",
-    "pull-write": "^1.1.4",
-    "sparse-array": "^1.3.1",
-    "stream-to-pull-stream": "^1.7.2"
-  },
-  "optionalDependencies": {
-    "rabin": "^1.6.0"
+    "pull-traverse": "^1.0.3"
   },
   "contributors": [
     "Alan Shaw <alan@tableflip.io>",

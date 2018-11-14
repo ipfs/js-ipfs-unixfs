@@ -1,7 +1,0 @@
-=============== Apr 22, 2016 (WEST) ===============
-03:16:42.272495 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-03:16:42.272857 db@open opening
-03:16:42.275673 db@janitor F·4 G·0
-03:16:42.275700 db@open done T·2.831108ms
-03:16:42.596938 db@close closing
-03:16:42.597082 db@close done T·139.194µs

@@ -10,7 +10,8 @@ const pull = require('pull-stream')
 const map = require('async/map')
 const CID = require('cids')
 
-const unixFSEngine = require('./../')
+const importer = require('./../src')
+const exporter = require('ipfs-unixfs-exporter')
 
 module.exports = (repo) => {
   describe('import and export: directory', () => {
@@ -32,7 +33,7 @@ module.exports = (repo) => {
           { path: 'a/b/g', content: pull.values([Buffer.from('ice')]) },
           { path: 'a/b/h', content: pull.values([Buffer.from('cream')]) }
         ]),
-        unixFSEngine.importer(ipld),
+        importer(ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.map(normalizeNode).sort(byPath)).to.be.eql([
@@ -62,7 +63,7 @@ module.exports = (repo) => {
       this.timeout(20 * 1000)
 
       pull(
-        unixFSEngine.exporter(rootHash, ipld),
+        exporter(rootHash, ipld),
         pull.collect((err, files) => {
           expect(err).to.not.exist()
           map(

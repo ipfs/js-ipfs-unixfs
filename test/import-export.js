@@ -11,8 +11,8 @@ const pull = require('pull-stream')
 const loadFixture = require('aegir/fixtures')
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
-const unixFSEngine = require('./../')
-const exporter = unixFSEngine.exporter
+const importer = require('./../src')
+const exporter = require('ipfs-unixfs-exporter')
 
 const strategies = [
   'flat',
@@ -52,7 +52,7 @@ module.exports = (repo) => {
 
           pull(
             pull.values([{ path: path, content: pull.values(bigFile) }]),
-            unixFSEngine.importer(ipld, importerOptions),
+            importer(ipld, importerOptions),
             pull.map((file) => {
               expect(file.path).to.eql(path)
 

@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('./../src').importer
-const exporter = require('./../src').exporter
+const importer = require('./../src')
+const exporter = require('ipfs-unixfs-exporter')
 
 const chai = require('chai')
 chai.use(require('dirty-chai'))

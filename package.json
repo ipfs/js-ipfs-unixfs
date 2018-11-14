@@ -1,7 +1,7 @@
 {
-  "name": "ipfs-unixfs-engine",
+  "name": "ipfs-unixfs-importer",
   "version": "0.34.0",
-  "description": "JavaScript implementation of the unixfs Engine used by IPFS",
+  "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
@@ -22,26 +22,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-engine.git"
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-importer.git"
   },
   "keywords": [
     "IPFS"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ipfs/js-ipfs-unixfs-engine/issues"
+    "url": "https://github.com/ipfs/js-ipfs-unixfs-importer/issues"
   },
   "engines": {
     "node": ">=8.0.0",
     "npm": ">=3.0.0"
   },
-  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-engine#readme",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-importer#readme",
   "devDependencies": {
     "aegir": "^17.0.0",
     "chai": "^4.2.0",
     "dirty-chai": "^2.0.1",
     "ipfs-block-service": "~0.15.1",
     "ipfs-repo": "~0.25.0",
+    "ipfs-unixfs-exporter": "~0.34.0",
     "ipld": "~0.20.0",
     "mkdirp": "~0.5.1",
     "multihashes": "~0.4.14",

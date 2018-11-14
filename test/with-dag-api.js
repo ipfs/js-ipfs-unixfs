@@ -3,7 +3,7 @@
 
 'use strict'
 
-const importer = require('./../src').importer
+const importer = require('./../src')
 
 const extend = require('deep-extend')
 const chai = require('chai')

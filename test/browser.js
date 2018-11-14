@@ -56,11 +56,6 @@ describe('IPFS data importing tests on the Browser', function () {
   require('./importer')(repo)
   require('./importer-flush')(repo)
 
-  // Exporter
-  // TODO: make these tests not require data on the repo
-  // require('./exporter')(repo)
-  // require('./exporter-subtree')(repo)
-
   // Other
   require('./import-export')(repo)
   require('./import-export-nested-dir')(repo)

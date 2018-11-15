@@ -142,15 +142,26 @@ function getChildren (dag, offset, end) {
     }
 
     return pull(
-      pull.values(filteredLinks),
-      paramap((child, cb) => {
-        dag.get(child.link.cid, (error, result) => cb(error, {
-          start: child.start,
-          end: child.end,
-          node: result && result.value,
-          size: child.size
-        }))
-      })
+      pull.once(filteredLinks),
+      paramap((children, cb) => {
+        dag.getMany(children.map(child => child.link.cid), (error, results) => {
+          if (error) {
+            return cb(error)
+          }
+
+          cb(null, results.map((result, index) => {
+            const child = children[index]
+
+            return {
+              start: child.start,
+              end: child.end,
+              node: result,
+              size: child.size
+            }
+          }))
+        })
+      }),
+      pull.flatten()
     )
   }
 }

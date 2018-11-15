@@ -313,7 +313,7 @@ describe('exporter', () => {
   })
 
   it('exports a large file > 5mb', function (done) {
-    this.timeout(10 * 1000)
+    this.timeout(30 * 1000)
 
     waterfall([
       (cb) => addTestFile({
@@ -332,7 +332,8 @@ describe('exporter', () => {
   })
 
   it('exports a chunk of a large file > 5mb', function (done) {
-    this.timeout(10 * 1000)
+    this.timeout(30 * 1000)
+
     const offset = 0
     const length = 5
     const bytes = randomBytes(ONE_MEG * 6)

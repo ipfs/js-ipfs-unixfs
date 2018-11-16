@@ -106,12 +106,16 @@ message Data {
     File = 2;
     Metadata = 3;
     Symlink = 4;
+    HAMTShard = 5;
   }
 
   required DataType Type = 1;
   optional bytes Data = 2;
   optional uint64 filesize = 3;
   repeated uint64 blocksizes = 4;
+
+  optional uint64 hashType = 5;
+  optional uint64 fanout = 6;
 }
 
 message Metadata {
@@ -125,7 +129,7 @@ message Metadata {
 var data = new UnixFS(<type>, [<content>])
 ```
 
-Type can be: `['raw', 'directory', 'file', 'metadata', 'symlink']`
+Type can be: `['raw', 'directory', 'file', 'metadata', 'symlink', 'hamt-sharded-directory']`
 
 #### add and remove a block size to the block size list
 
@@ -161,4 +165,3 @@ This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/c
 ## License
 
 [MIT](LICENSE)
-

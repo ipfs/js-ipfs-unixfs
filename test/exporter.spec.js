@@ -32,8 +32,6 @@ const ONE_MEG = Math.pow(1024, 2)
 const bigFile = randomBytes(ONE_MEG * 1.2)
 const smallFile = randomBytes(200)
 
-// loadFixture('test/fixtures/200Bytes.txt')
-
 describe('exporter', () => {
   let ipld
 

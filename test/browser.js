@@ -34,11 +34,6 @@ describe('IPFS data importing tests on the Browser', function () {
     ], done)
   })
 
-  // HAMT
-  require('./hamt')
-  require('./hamt-consumable-buffer')
-  require('./hamt-consumable-hash')
-
   // Chunkers
   require('./chunker-fixed-size')
   require('./chunker-rabin-browser')

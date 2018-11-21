@@ -11,26 +11,28 @@ const multihashing = require('multihashing-async')
 const Dir = require('./dir')
 const persist = require('../utils/persist')
 
-const Bucket = require('../hamt')
+const Bucket = require('hamt-sharding')
 
 const hashFn = function (value, callback) {
-  multihashing(value, 'murmur3-128', (err, hash) => {
-    if (err) {
-      callback(err)
-    } else {
-      // Multihashing inserts preamble of 2 bytes. Remove it.
-      // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
-      // implementation only uses the first 64, so we must do the same
-      // for parity..
-      const justHash = hash.slice(2, 10)
-      const length = justHash.length
-      const result = Buffer.alloc(length)
-      // TODO: invert buffer because that's how Go impl does it
-      for (let i = 0; i < length; i++) {
-        result[length - i - 1] = justHash[i]
+  return new Promise((resolve, reject) => {
+    multihashing(value, 'murmur3-128', (err, hash) => {
+      if (err) {
+        reject(err)
+      } else {
+        // Multihashing inserts preamble of 2 bytes. Remove it.
+        // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
+        // implementation only uses the first 64, so we must do the same
+        // for parity..
+        const justHash = hash.slice(2, 10)
+        const length = justHash.length
+        const result = Buffer.alloc(length)
+        // TODO: invert buffer because that's how Go impl does it
+        for (let i = 0; i < length; i++) {
+          result[length - i - 1] = justHash[i]
+        }
+        resolve(result)
       }
-      callback(null, result)
-    }
+    })
   })
 }
 hashFn.code = 0x22 // TODO: get this from multihashing-async?
@@ -46,12 +48,23 @@ class DirSharded extends Dir {
     this._bucket = Bucket(options)
   }
 
-  put (name, value, callback) {
-    this._bucket.put(name, value, callback)
+  async put (name, value, callback) {
+    try {
+      await this._bucket.put(name, value)
+
+      return callback()
+    } catch (err) {
+      console.error(err)
+      return callback(err)
+    }
   }
 
-  get (name, callback) {
-    this._bucket.get(name, callback)
+  async get (name, callback) {
+    try {
+      return callback(null, await this._bucket.get(name))
+    } catch (err) {
+      return callback(err)
+    }
   }
 
   childCount () {
@@ -63,11 +76,31 @@ class DirSharded extends Dir {
   }
 
   onlyChild (callback) {
-    this._bucket.onlyChild(callback)
+    try {
+      return callback(null, this._bucket.onlyChild())
+    } catch (err) {
+      return callback(err)
+    }
   }
 
-  eachChildSeries (iterator, callback) {
-    this._bucket.eachLeafSeries(iterator, callback)
+  async eachChildSeries (iterator, callback) {
+    try {
+      for await (const child of this._bucket.eachLeafSeries()) {
+        await new Promise((resolve, reject) => {
+          iterator(child.key, child.value, (err) => {
+            if (err) {
+              return reject(err)
+            }
+
+            resolve()
+          })
+        })
+      }
+
+      callback()
+    } catch (err) {
+      callback(err)
+    }
   }
 
   flush (path, ipld, source, callback) {

@@ -44,13 +44,17 @@ module.exports = (repo) => {
           ]),
           importer(ipld, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            expect(nodes[0].path).to.be.eql('a/b')
-            expect(nodes[1].path).to.be.eql('a')
-            nonShardedHash = nodes[1].multihash
-            expect(nonShardedHash).to.exist()
-            done()
+            try {
+              expect(err).to.not.exist()
+              expect(nodes.length).to.be.eql(2)
+              expect(nodes[0].path).to.be.eql('a/b')
+              expect(nodes[1].path).to.be.eql('a')
+              nonShardedHash = nodes[1].multihash
+              expect(nonShardedHash).to.exist()
+              done()
+            } catch (err) {
+              done(err)
+            }
           })
         )
       })
@@ -69,14 +73,18 @@ module.exports = (repo) => {
           ]),
           importer(ipld, options),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            expect(nodes[0].path).to.be.eql('a/b')
-            expect(nodes[1].path).to.be.eql('a')
-            shardedHash = nodes[1].multihash
-            // hashes are different
-            expect(shardedHash).to.not.equal(nonShardedHash)
-            done()
+            try {
+              expect(err).to.not.exist()
+              expect(nodes.length).to.be.eql(2)
+              expect(nodes[0].path).to.be.eql('a/b')
+              expect(nodes[1].path).to.be.eql('a')
+              shardedHash = nodes[1].multihash
+              // hashes are different
+              expect(shardedHash).to.not.equal(nonShardedHash)
+              done()
+            } catch (err) {
+              done(err)
+            }
           })
         )
       })
@@ -85,13 +93,18 @@ module.exports = (repo) => {
         pull(
           exporter(nonShardedHash, ipld),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            const expectedHash = new CID(nonShardedHash).toBaseEncodedString()
-            expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
-            expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(29)
+            try {
+              expect(err).to.not.exist()
+              expect(nodes.length).to.be.eql(2)
+              const expectedHash = new CID(nonShardedHash).toBaseEncodedString()
+              expect(nodes[0].path).to.be.eql(expectedHash)
+              expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
+              expect(nodes[1].path).to.be.eql(expectedHash + '/b')
+              expect(nodes[1].size).to.be.eql(29)
+            } catch (err) {
+              return done(err)
+            }
+
             pull(
               nodes[1].content,
               pull.collect(collected)
@@ -100,10 +113,14 @@ module.exports = (repo) => {
         )
 
         function collected (err, content) {
-          expect(err).to.not.exist()
-          expect(content.length).to.be.eql(1)
-          expect(content[0].toString()).to.be.eql('i have the best bytes')
-          done()
+          try {
+            expect(err).to.not.exist()
+            expect(content.length).to.be.eql(1)
+            expect(content[0].toString()).to.be.eql('i have the best bytes')
+            done()
+          } catch (err) {
+            done(err)
+          }
         }
       })
 
@@ -111,13 +128,18 @@ module.exports = (repo) => {
         pull(
           exporter(shardedHash, ipld),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            const expectedHash = new CID(shardedHash).toBaseEncodedString()
-            expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
-            expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(21)
+            try {
+              expect(err).to.not.exist()
+              expect(nodes.length).to.be.eql(2)
+              const expectedHash = new CID(shardedHash).toBaseEncodedString()
+              expect(nodes[0].path).to.be.eql(expectedHash)
+              expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
+              expect(nodes[1].path).to.be.eql(expectedHash + '/b')
+              expect(nodes[1].size).to.be.eql(21)
+            } catch (err) {
+              return done(err)
+            }
+
             pull(
               nodes[1].content,
               pull.collect(collected)
@@ -126,10 +148,14 @@ module.exports = (repo) => {
         )
 
         function collected (err, content) {
-          expect(err).to.not.exist()
-          expect(content.length).to.be.eql(1)
-          expect(content[0].toString()).to.be.eql('i have the best bytes')
-          done()
+          try {
+            expect(err).to.not.exist()
+            expect(content.length).to.be.eql(1)
+            expect(content[0].toString()).to.be.eql('i have the best bytes')
+            done()
+          } catch (err) {
+            done(err)
+          }
         }
       })
     })
@@ -144,12 +170,16 @@ module.exports = (repo) => {
           push,
           importer(ipld),
           pull.collect((err, nodes) => {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(maxDirs + 1)
-            const last = nodes[nodes.length - 1]
-            expect(last.path).to.be.eql('big')
-            rootHash = last.multihash
-            done()
+            try {
+              expect(err).to.not.exist()
+              expect(nodes.length).to.be.eql(maxDirs + 1)
+              const last = nodes[nodes.length - 1]
+              expect(last.path).to.be.eql('big')
+              rootHash = last.multihash
+              done()
+            } catch (err) {
+              done(err)
+            }
           })
         )
 

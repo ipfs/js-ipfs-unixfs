@@ -19,7 +19,7 @@ describe('chunker: rabin browser', function () {
 
     pull(
       pull.values([b1, b2, b3]),
-      chunker({minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192}),
+      chunker({ minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192 }),
       pull.collect((err) => {
         expect(err).to.exist()
         expect(err.message).to.include('Rabin chunker not available')

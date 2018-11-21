@@ -61,7 +61,7 @@ class DirFlat extends Dir {
       [
         (callback) => DAGNode.create(dir.marshal(), links, callback),
         (node, callback) => persist(node, ipld, this._options, callback),
-        ({cid, node}, callback) => {
+        ({ cid, node }, callback) => {
           this.multihash = cid.buffer
           this.size = node.size
           const pushable = {

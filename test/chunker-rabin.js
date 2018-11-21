@@ -31,7 +31,7 @@ describe('chunker: rabin', function () {
 
     pull(
       pull.values([b1, b2, b3]),
-      chunker({minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192}),
+      chunker({ minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192 }),
       pull.collect((err, chunks) => {
         expect(err).to.not.exist()
         chunks.forEach((chunk) => {
@@ -48,7 +48,7 @@ describe('chunker: rabin', function () {
     b1.fill('a')
     pull(
       pull.values([b1]),
-      chunker({avgChunkSize: 256}),
+      chunker({ avgChunkSize: 256 }),
       pull.collect((err, chunks) => {
         expect(err).to.not.exist()
         chunks.forEach((chunk) => {

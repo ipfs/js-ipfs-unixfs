@@ -54,7 +54,6 @@ class DirSharded extends Dir {
 
       return callback()
     } catch (err) {
-      console.error(err)
       return callback(err)
     }
   }

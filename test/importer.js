@@ -309,6 +309,24 @@ module.exports = (repo) => {
         )
       })
 
+      it('small file with an escaped slash in the title', (done) => {
+        const filePath = `small-\\/file-${Math.random()}.txt`
+
+        pull(
+          pull.values([{
+            path: filePath,
+            content: pull.values([smallFile])
+          }]),
+          importer(ipld, options),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(files.length).to.equal(1)
+            expect(files[0].path).to.equal(filePath)
+            done()
+          })
+        )
+      })
+
       it('small file (smaller than a chunk)', (done) => {
         pull(
           pull.values([{

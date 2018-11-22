@@ -9,6 +9,7 @@ const pushable = require('pull-pushable')
 const DirFlat = require('./dir-flat')
 const flatToShard = require('./flat-to-shard')
 const Dir = require('./dir')
+const toPathComponents = require('../utils/to-path-components')
 
 module.exports = createTreeBuilder
 
@@ -91,7 +92,7 @@ function createTreeBuilder (ipld, _options) {
   // ---- Add to tree
 
   function addToTree (elem, callback) {
-    const pathElems = (elem.path || '').split('/').filter(notEmpty)
+    const pathElems = toPathComponents(elem.path || '')
     let parent = tree
     const lastIndex = pathElems.length - 1
 
@@ -210,8 +211,4 @@ function createTreeBuilder (ipld, _options) {
       }
     })
   }
-}
-
-function notEmpty (str) {
-  return Boolean(str)
 }

@@ -4,6 +4,7 @@ const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 const CID = require('cids')
+const waterfall = require('async/waterfall')
 
 const resolvers = {
   directory: require('./dir-flat'),
@@ -34,30 +35,37 @@ function createResolver (dag, options, depth, parent) {
       }
 
       if (item.object) {
-        return cb(null, resolveItem(null, item.object, item, options.offset, options.length))
+        return cb(null, resolveItem(null, item.object, item, options))
       }
 
       const cid = new CID(item.multihash)
 
-      dag.get(cid, (err, node) => {
-        if (err) {
-          return cb(err)
-        }
-
-        // const name = item.fromPathRest ? item.name : item.path
-        cb(null, resolveItem(cid, node.value, item, options.offset, options.length))
-      })
+      waterfall([
+        (done) => dag.get(cid, done),
+        (node, done) => done(null, resolveItem(cid, node.value, item, options))
+      ], cb)
     }),
     pull.flatten(),
     pull.filter(Boolean),
     pull.filter((node) => node.depth <= options.maxDepth)
   )
 
-  function resolveItem (cid, node, item, offset, length) {
-    return resolve(cid, node, item.name, item.path, item.pathRest, item.size, dag, item.parent || parent, item.depth, offset, length)
+  function resolveItem (cid, node, item, options) {
+    return resolve({
+      cid,
+      node,
+      name: item.name,
+      path: item.path,
+      pathRest: item.pathRest,
+      size: item.size,
+      dag,
+      parentNode: item.parent || parent,
+      depth: item.depth,
+      options
+    })
   }
 
-  function resolve (cid, node, name, path, pathRest, size, dag, parentNode, depth, offset, length) {
+  function resolve ({ cid, node, name, path, pathRest, size, dag, parentNode, depth, options }) {
     let type
 
     try {
@@ -67,11 +75,14 @@ function createResolver (dag, options, depth, parent) {
     }
 
     const nodeResolver = resolvers[type]
+
     if (!nodeResolver) {
       return pull.error(new Error('Unkown node type ' + type))
     }
+
     const resolveDeep = createResolver(dag, options, depth, node)
-    return nodeResolver(cid, node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, offset, length)
+
+    return nodeResolver(cid, node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, options)
   }
 }
 

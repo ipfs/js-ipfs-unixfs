@@ -31,7 +31,7 @@ function pathBaseAndRest (path) {
 
   return {
     base: pathBase,
-    rest: pathRest.split('/').filter(Boolean)
+    rest: toPathComponents(pathRest)
   }
 }
 
@@ -103,4 +103,12 @@ function join (paths) {
     }
     return acc + path
   }, '')
+}
+
+const toPathComponents = (path = '') => {
+  // split on / unless escaped with \
+  return (path
+    .trim()
+    .match(/([^\\\][^/]|\\\/)+/g) || [])
+    .filter(Boolean)
 }

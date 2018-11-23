@@ -229,6 +229,34 @@ describe('exporter', () => {
     })
   })
 
+  it('small file in a directory with an escaped slash in the title', (done) => {
+    const fileName = `small-\\/file-${Math.random()}.txt`
+    const filePath = `/foo/${fileName}`
+
+    pull(
+      pull.values([{
+        path: filePath,
+        content: pull.values([smallFile])
+      }]),
+      importer(ipld),
+      pull.collect((err, files) => {
+        expect(err).to.not.exist()
+
+        const path = `/ipfs/${new CID(files[1].multihash).toBaseEncodedString()}/${fileName}`
+
+        pull(
+          exporter(path, ipld),
+          pull.collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(files.length).to.equal(1)
+            expect(files[0].path).to.equal(fileName)
+            done()
+          })
+        )
+      })
+    )
+  })
+
   it('exports a chunk of a file with no links', (done) => {
     const offset = 0
     const length = 5

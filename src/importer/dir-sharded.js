@@ -10,7 +10,10 @@ const DAGNode = dagPB.DAGNode
 const multihashing = require('multihashing-async')
 const Dir = require('./dir')
 const persist = require('../utils/persist')
-
+const toPull = require('async-iterator-to-pull-stream')
+const pull = require('pull-stream/pull')
+const onEnd = require('pull-stream/sinks/on-end')
+const asyncMap = require('pull-stream/throughs/async-map')
 const Bucket = require('hamt-sharding')
 
 const hashFn = function (value, callback) {
@@ -82,24 +85,14 @@ class DirSharded extends Dir {
     }
   }
 
-  async eachChildSeries (iterator, callback) {
-    try {
-      for await (const child of this._bucket.eachLeafSeries()) {
-        await new Promise((resolve, reject) => {
-          iterator(child.key, child.value, (err) => {
-            if (err) {
-              return reject(err)
-            }
-
-            resolve()
-          })
-        })
-      }
-
-      callback()
-    } catch (err) {
-      callback(err)
-    }
+  eachChildSeries (iterator, callback) {
+    pull(
+      toPull(this._bucket.eachLeafSeries()),
+      asyncMap((child, cb) => {
+        iterator(child.key, child.value, cb)
+      }),
+      onEnd(callback)
+    )
   }
 
   flush (path, ipld, source, callback) {

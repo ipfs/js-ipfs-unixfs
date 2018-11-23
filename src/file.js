@@ -7,7 +7,7 @@ const paramap = require('pull-paramap')
 const extractDataFromBlock = require('./extract-data-from-block')
 
 // Logic to export a single (possibly chunked) unixfs file.
-module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, offset, length) => {
+module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) => {
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
@@ -23,6 +23,9 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   }
 
   const fileSize = size || file.fileSize()
+
+  let offset = options.offset
+  let length = options.length
 
   if (offset < 0) {
     return pull.error(new Error('Offset must be greater than or equal to 0'))

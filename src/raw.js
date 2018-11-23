@@ -4,7 +4,7 @@ const pull = require('pull-stream')
 const extractDataFromBlock = require('./extract-data-from-block')
 
 // Logic to export a single raw block
-module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, offset, length) => {
+module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) => {
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
@@ -12,6 +12,9 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   }
 
   size = size || node.length
+
+  let offset = options.offset
+  let length = options.length
 
   if (offset < 0) {
     return pull.error(new Error('Offset must be greater than or equal to 0'))

@@ -60,7 +60,7 @@ describe('exporter', () => {
     })
   }
 
-  function addTestFile ({file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves}, cb) {
+  function addTestFile ({ file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }, cb) {
     pull(
       pull.values([{
         path,
@@ -79,8 +79,8 @@ describe('exporter', () => {
     )
   }
 
-  function addAndReadTestFile ({file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves}, cb) {
-    addTestFile({file, strategy, path, maxChunkSize, rawLeaves}, (error, multihash) => {
+  function addAndReadTestFile ({ file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }, cb) {
+    addTestFile({ file, strategy, path, maxChunkSize, rawLeaves }, (error, multihash) => {
       if (error) {
         return cb(error)
       }
@@ -100,7 +100,7 @@ describe('exporter', () => {
     })
   }
 
-  function addTestDirectory ({directory, strategy = 'balanced', maxChunkSize}, callback) {
+  function addTestDirectory ({ directory, strategy = 'balanced', maxChunkSize }, callback) {
     const input = push()
     const dirName = path.basename(directory)
 
@@ -293,7 +293,8 @@ describe('exporter', () => {
         content: randomBytes(100),
         links: [
           new DAGLink('', file.node.size, file.cid)
-        ]}, cb),
+        ]
+      }, cb),
       (result, cb) => {
         pull(
           exporter(result.cid, ipld, {

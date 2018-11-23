@@ -6,7 +6,7 @@ const cat = require('pull-cat')
 // Logic to export a unixfs directory.
 module.exports = dirExporter
 
-function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth) {
+function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) {
   const accepts = pathRest[0]
 
   const dir = {
@@ -37,7 +37,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
   ]
 
   // place dir before if not specifying subtree
-  if (!pathRest.length) {
+  if (!pathRest.length || options.fullPath) {
     streams.unshift(pull.values([dir]))
   }
 

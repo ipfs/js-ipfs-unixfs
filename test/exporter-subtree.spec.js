@@ -143,6 +143,50 @@ describe('exporter subtree', () => {
       }
     ], done)
   })
+
+  it('exports all components of a path', (done) => {
+    const content = randomBytes(ONE_MEG)
+
+    waterfall([
+      (cb) => pull(
+        pull.values([{
+          path: './200Bytes.txt',
+          content: randomBytes(ONE_MEG)
+        }, {
+          path: './level-1/200Bytes.txt',
+          content
+        }, {
+          path: './level-1/level-2'
+        }, {
+          path: './level-1/level-2/200Bytes.txt',
+          content
+        }]),
+        importer(ipld),
+        pull.collect(cb)
+      ),
+      (files, cb) => cb(null, files.pop().multihash),
+      (buf, cb) => cb(null, new CID(buf)),
+      (cid, cb) => pull(
+        exporter(`${cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld, {
+          fullPath: true
+        }),
+        pull.collect((err, files) => cb(err, { cid, files }))
+      ),
+      ({ cid, files }, cb) => {
+        expect(files.length).to.equal(4)
+        expect(files[0].path).to.equal(cid.toBaseEncodedString())
+        expect(files[0].name).to.equal(cid.toBaseEncodedString())
+        expect(files[1].path).to.equal(`${cid.toBaseEncodedString()}/level-1`)
+        expect(files[1].name).to.equal('level-1')
+        expect(files[2].path).to.equal(`${cid.toBaseEncodedString()}/level-1/level-2`)
+        expect(files[2].name).to.equal('level-2')
+        expect(files[3].path).to.equal(`${cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`)
+        expect(files[3].name).to.equal('200Bytes.txt')
+
+        cb()
+      }
+    ], done)
+  })
 })
 
 function fileEql (f1, f2, done) {

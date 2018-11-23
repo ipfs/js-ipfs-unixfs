@@ -15,7 +15,7 @@ const randomBytes = require('./helpers/random-bytes')
 const exporter = require('../src')
 const importer = require('ipfs-unixfs-importer')
 
-const SHARD_SPLIT_THRESHOLD = 1000
+const SHARD_SPLIT_THRESHOLD = 10
 
 describe('exporter sharded', function () {
   this.timeout(30000)
@@ -51,7 +51,8 @@ describe('exporter sharded', function () {
           }))
         ),
         importer(ipld, {
-          wrap: true
+          wrap: true,
+          shardSplitThreshold: SHARD_SPLIT_THRESHOLD
         }),
         pull.collect(cb)
       ),

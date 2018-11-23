@@ -104,6 +104,91 @@ pull(
 )
 ```
 
+### `fullPath`
+
+If specified the exporter will emit an entry for every path component encountered.
+
+```javascript
+const exporter = require('ipfs-unixfs-exporter')
+const pull = require('pull-stream')
+const collect = require('pull-stream/sinks/collect')
+
+pull(
+  exporter('QmFoo.../bar/baz.txt', ipld, {
+    fullPath: true
+  })
+  collect((err, files) => {
+    console.info(files)
+
+    // [{
+    //   depth: 0,
+    //   name: 'QmFoo...',
+    //   path: 'QmFoo...',
+    //   size: ...
+    //   hash: Buffer
+    //   content: undefined
+    //   type: 'dir'
+    // }, {
+    //   depth: 1,
+    //   name: 'bar',
+    //   path: 'QmFoo.../bar',
+    //   size: ...
+    //   hash: Buffer
+    //   content: undefined
+    //   type: 'dir'
+    // }, {
+    //   depth: 2,
+    //   name: 'baz.txt',
+    //   path: 'QmFoo.../bar/baz.txt',
+    //   size: ...
+    //   hash: Buffer
+    //   content: <Pull stream>
+    //   type: 'file'
+    // }]
+    //
+  })
+)
+```
+
+### `maxDepth`
+
+If specified the exporter will only emit entries up to the specified depth.
+
+```javascript
+const exporter = require('ipfs-unixfs-exporter')
+const pull = require('pull-stream')
+const collect = require('pull-stream/sinks/collect')
+
+pull(
+  exporter('QmFoo.../bar/baz.txt', ipld, {
+    fullPath: true,
+    maxDepth: 1
+  })
+  collect((err, files) => {
+    console.info(files)
+
+    // [{
+    //   depth: 0,
+    //   name: 'QmFoo...',
+    //   path: 'QmFoo...',
+    //   size: ...
+    //   hash: Buffer
+    //   content: undefined
+    //   type: 'dir'
+    // }, {
+    //   depth: 1,
+    //   name: 'bar',
+    //   path: 'QmFoo.../bar',
+    //   size: ...
+    //   hash: Buffer
+    //   content: undefined
+    //   type: 'dir'
+    // }]
+    //
+  })
+)
+```
+
 [dag API]: https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md
 [ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs

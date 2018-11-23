@@ -38,7 +38,8 @@ function pathBaseAndRest (path) {
 const defaultOptions = {
   maxDepth: Infinity,
   offset: undefined,
-  length: undefined
+  length: undefined,
+  fullPath: false
 }
 
 module.exports = (path, dag, options) => {
@@ -70,7 +71,7 @@ module.exports = (path, dag, options) => {
       return {
         depth: node.depth,
         name: node.name,
-        path: finalPathFor(node),
+        path: options.fullPath ? node.path : finalPathFor(node),
         size: node.size,
         hash: node.multihash,
         content: node.content,

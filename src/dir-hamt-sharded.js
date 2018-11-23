@@ -6,7 +6,7 @@ const cat = require('pull-cat')
 // Logic to export a unixfs directory.
 module.exports = shardedDirExporter
 
-function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth) {
+function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) {
   let dir
   if (!parent || (parent.path !== path)) {
     dir = {
@@ -49,7 +49,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
     )
   ]
 
-  if (!pathRest.length) {
+  if (!pathRest.length || options.fullPath) {
     streams.unshift(pull.values([dir]))
   }
 

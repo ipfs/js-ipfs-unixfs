@@ -1,3 +1,21 @@
+<a name="0.35.0"></a>
+# [0.35.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.34.0...v0.35.0) (2018-11-23)
+
+
+### Bug Fixes
+
+* export all files from hamt sharded directories ([4add865](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/4add865))
+* increase test timeout ([0ae27e1](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/0ae27e1))
+* support slashes in filenames ([b69abce](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/b69abce))
+* use dag.getMany to avoid overloading the DHT, when it arrives ([f479d28](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/f479d28)), closes [ipfs/js-ipfs-unixfs-engine#216](https://github.com/ipfs/js-ipfs-unixfs-engine/issues/216)
+
+
+### Features
+
+* add `fullPath` option ([21dd221](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/21dd221))
+
+
+
 <a name="0.34.0"></a>
 # [0.34.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.33.0...v0.34.0) (2018-11-12)
 

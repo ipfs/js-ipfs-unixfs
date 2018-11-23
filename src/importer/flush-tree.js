@@ -6,6 +6,7 @@ const dagPB = require('ipld-dag-pb')
 const mapValues = require('async/mapValues')
 const waterfall = require('async/waterfall')
 const persist = require('../utils/persist')
+const toPathComponents = require('../utils/to-path-components')
 const DAGLink = dagPB.DAGLink
 const DAGNode = dagPB.DAGNode
 
@@ -54,7 +55,7 @@ function createTree (files) {
   const fileTree = {}
 
   files.forEach((file) => {
-    let splitted = file.path.split('/')
+    let splitted = toPathComponents(file.path)
     if (splitted.length === 1) {
       return // adding just one file
     }

@@ -33,7 +33,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
         }
         if (accept) {
           return {
-            depth: depth + 1,
+            depth: p ? depth + 1 : depth,
             name: p,
             path: pp,
             multihash: link.cid.buffer,

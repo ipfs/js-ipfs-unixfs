@@ -1,3 +1,18 @@
+<a name="0.36.0"></a>
+# [0.36.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.34.0...v0.36.0) (2018-11-23)
+
+
+### Bug Fixes
+
+* support slashes in filenames ([3171fab](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/3171fab))
+
+
+### Features
+
+* split hamt out into separate module, closes [#1](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/1) ([bf216a9](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/bf216a9))
+
+
+
 <a name="0.34.0"></a>
 # [0.34.0](https://github.com/ipfs/js-ipfs-unixfs-engine/compare/v0.33.0...v0.34.0) (2018-11-12)
 

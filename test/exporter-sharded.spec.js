@@ -17,7 +17,9 @@ const importer = require('ipfs-unixfs-importer')
 
 const SHARD_SPLIT_THRESHOLD = 1000
 
-describe('exporter sharded', () => {
+describe('exporter sharded', function () {
+  this.timeout(30000)
+
   let ipld
 
   before((done) => {
@@ -77,6 +79,7 @@ describe('exporter sharded', () => {
         const dir = exported.shift()
 
         expect(dir.hash).to.deep.equal(directory.buffer)
+        expect(exported.length).to.equal(Object.keys(files).length)
 
         parallel(
           exported.map(exported => (cb) => {
@@ -99,6 +102,50 @@ describe('exporter sharded', () => {
           }),
           cb
         )
+      }
+    ], done)
+  })
+
+  it('exports all the files from a sharded directory with maxDepth', (done) => {
+    const files = {}
+    let dirCid
+
+    for (let i = 0; i < (SHARD_SPLIT_THRESHOLD + 1); i++) {
+      files[`file-${Math.random()}.txt`] = {
+        content: randomBytes(100)
+      }
+    }
+
+    waterfall([
+      (cb) => pull(
+        pull.values(
+          Object.keys(files).map(path => ({
+            path,
+            content: files[path].content
+          }))
+        ),
+        importer(ipld, {
+          wrap: true
+        }),
+        pull.collect(cb)
+      ),
+      (imported, cb) => {
+        dirCid = new CID(imported.pop().multihash)
+
+        pull(
+          exporter(dirCid, ipld, {
+            maxDepth: 1
+          }),
+          pull.collect(cb)
+        )
+      },
+      (exported, cb) => {
+        const dir = exported.shift()
+
+        expect(dir.hash).to.deep.equal(dirCid.buffer)
+        expect(exported.length).to.equal(Object.keys(files).length)
+
+        cb()
       }
     ], done)
   })

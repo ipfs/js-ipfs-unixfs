@@ -1,3 +1,13 @@
+<a name="0.37.0"></a>
+# [0.37.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.36.0...v0.37.0) (2018-11-26)
+
+
+### Features
+
+* export hash function from sharding ([7e24107](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/7e24107))
+
+
+
 <a name="0.36.0"></a>
 # [0.36.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.34.0...v0.36.0) (2018-11-23)
 

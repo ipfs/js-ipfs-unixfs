@@ -16,7 +16,7 @@ const onEnd = require('pull-stream/sinks/on-end')
 const asyncMap = require('pull-stream/throughs/async-map')
 const Bucket = require('hamt-sharding')
 
-const hashFn = function (value, callback) {
+const hashFn = function (value) {
   return new Promise((resolve, reject) => {
     multihashing(value, 'murmur3-128', (err, hash) => {
       if (err) {
@@ -110,6 +110,7 @@ class DirSharded extends Dir {
 }
 
 module.exports = createDirSharded
+module.exports.hashFn = hashFn
 
 function createDirSharded (props, _options) {
   return new DirSharded(props, _options)

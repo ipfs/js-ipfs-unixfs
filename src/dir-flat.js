@@ -18,9 +18,15 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
     type: 'dir'
   }
 
+  // we are at the max depth so no need to descend into children
+  if (options.maxDepth && options.maxDepth <= depth) {
+    return pull.values([dir])
+  }
+
   const streams = [
     pull(
       pull.values(node.links),
+      pull.filter((item) => accepts === undefined || item.name === accepts),
       pull.map((link) => ({
         depth: depth + 1,
         size: link.size,
@@ -31,7 +37,6 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
         pathRest: pathRest.slice(1),
         type: 'dir'
       })),
-      pull.filter((item) => accepts === undefined || item.linkName === accepts),
       resolve
     )
   ]

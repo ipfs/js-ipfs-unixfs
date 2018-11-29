@@ -19,6 +19,11 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
     }
   }
 
+  // we are at the max depth so no need to descend into children
+  if (options.maxDepth && options.maxDepth <= depth) {
+    return pull.values([dir])
+  }
+
   const streams = [
     pull(
       pull.values(node.links),
@@ -31,6 +36,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
         if (p && pathRest.length) {
           accept = (p === pathRest[0])
         }
+
         if (accept) {
           return {
             depth: p ? depth + 1 : depth,
@@ -49,6 +55,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
     )
   ]
 
+  // place dir before if not specifying subtree
   if (!pathRest.length || options.fullPath) {
     streams.unshift(pull.values([dir]))
   }

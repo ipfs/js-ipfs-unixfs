@@ -1,3 +1,13 @@
+<a name="0.35.1"></a>
+## [0.35.1](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.0...v0.35.1) (2018-11-29)
+
+
+### Performance Improvements
+
+* do not descend into subtrees ([cca3531](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/cca3531))
+
+
+
 <a name="0.35.0"></a>
 # [0.35.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.34.0...v0.35.0) (2018-11-23)
 

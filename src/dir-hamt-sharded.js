@@ -1,6 +1,9 @@
 'use strict'
 
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const filter = require('pull-stream/throughs/filter')
+const map = require('pull-stream/throughs/map')
 const cat = require('pull-cat')
 
 // Logic to export a unixfs directory.
@@ -21,13 +24,13 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
 
   // we are at the max depth so no need to descend into children
   if (options.maxDepth && options.maxDepth <= depth) {
-    return pull.values([dir])
+    return values([dir])
   }
 
   const streams = [
     pull(
-      pull.values(node.links),
-      pull.map((link) => {
+      values(node.links),
+      map((link) => {
         // remove the link prefix (2 chars for the bucket index)
         const p = link.name.substring(2)
         const pp = p ? path + '/' + p : path
@@ -50,14 +53,14 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
           return ''
         }
       }),
-      pull.filter(Boolean),
+      filter(Boolean),
       resolve
     )
   ]
 
   // place dir before if not specifying subtree
   if (!pathRest.length || options.fullPath) {
-    streams.unshift(pull.values([dir]))
+    streams.unshift(values([dir]))
   }
 
   return cat(streams)

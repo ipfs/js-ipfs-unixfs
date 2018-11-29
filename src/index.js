@@ -1,6 +1,10 @@
 'use strict'
 
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const error = require('pull-stream/sources/error')
+const filter = require('pull-stream/throughs/filter')
+const map = require('pull-stream/throughs/map')
 const CID = require('cids')
 
 const createResolver = require('./resolve').createResolver
@@ -49,7 +53,7 @@ module.exports = (path, dag, options) => {
   try {
     dPath = pathBaseAndRest(path)
   } catch (err) {
-    return pull.error(err)
+    return error(err)
   }
 
   const pathLengthToCut = join(
@@ -58,7 +62,7 @@ module.exports = (path, dag, options) => {
   const cid = new CID(dPath.base)
 
   return pull(
-    pull.values([{
+    values([{
       multihash: cid.buffer,
       name: dPath.base,
       path: dPath.base,
@@ -66,8 +70,8 @@ module.exports = (path, dag, options) => {
       depth: 0
     }]),
     createResolver(dag, options),
-    pull.filter(Boolean),
-    pull.map((node) => {
+    filter(Boolean),
+    map((node) => {
       return {
         depth: node.depth,
         name: node.name,

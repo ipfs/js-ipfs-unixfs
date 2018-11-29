@@ -1,6 +1,8 @@
 'use strict'
 
-const pull = require('pull-stream')
+const error = require('pull-stream/sources/error')
+const once = require('pull-stream/sources/once')
+const empty = require('pull-stream/sources/empty')
 const extractDataFromBlock = require('./extract-data-from-block')
 
 // Logic to export a single raw block
@@ -8,7 +10,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
-    return pull.empty()
+    return empty()
   }
 
   size = size || node.length
@@ -17,21 +19,21 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   let length = options.length
 
   if (offset < 0) {
-    return pull.error(new Error('Offset must be greater than or equal to 0'))
+    return error(new Error('Offset must be greater than or equal to 0'))
   }
 
   if (offset > size) {
-    return pull.error(new Error('Offset must be less than the file size'))
+    return error(new Error('Offset must be less than the file size'))
   }
 
   if (length < 0) {
-    return pull.error(new Error('Length must be greater than or equal to 0'))
+    return error(new Error('Length must be greater than or equal to 0'))
   }
 
   if (length === 0) {
-    return pull.once({
+    return once({
       depth,
-      content: pull.once(Buffer.alloc(0)),
+      content: once(Buffer.alloc(0)),
       hash: cid,
       name,
       path,
@@ -48,9 +50,9 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     length = size - offset
   }
 
-  return pull.once({
+  return once({
     depth,
-    content: pull.once(extractDataFromBlock(node, 0, offset, offset + length)),
+    content: once(extractDataFromBlock(node, 0, offset, offset + length)),
     hash: cid,
     name,
     path,

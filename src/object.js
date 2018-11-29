@@ -1,7 +1,9 @@
 'use strict'
 
 const CID = require('cids')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const error = require('pull-stream/sources/error')
 
 module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth) => {
   let newNode
@@ -10,13 +12,13 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     newNode = node[pathElem]
     const newName = path + '/' + pathElem
     if (!newNode) {
-      return pull.error(new Error(`not found`))
+      return error(new Error(`not found`))
     }
 
     const isCID = CID.isCID(newNode)
 
     return pull(
-      pull.values([{
+      values([{
         depth: depth,
         name: pathElem,
         path: newName,
@@ -27,6 +29,6 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
       }]),
       resolve)
   } else {
-    return pull.error(new Error('invalid node type'))
+    return error(new Error('invalid node type'))
   }
 }

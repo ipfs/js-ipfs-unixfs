@@ -2,7 +2,14 @@
 
 const traverse = require('pull-traverse')
 const UnixFS = require('ipfs-unixfs')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const error = require('pull-stream/sources/error')
+const once = require('pull-stream/sources/once')
+const empty = require('pull-stream/sources/empty')
+const filter = require('pull-stream/throughs/filter')
+const flatten = require('pull-stream/throughs/flatten')
+const map = require('pull-stream/throughs/map')
 const paramap = require('pull-paramap')
 const extractDataFromBlock = require('./extract-data-from-block')
 
@@ -11,15 +18,15 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
-    return pull.empty()
+    return empty()
   }
 
   let file
 
   try {
     file = UnixFS.unmarshal(node.data)
-  } catch (error) {
-    return pull.error(error)
+  } catch (err) {
+    return error(err)
   }
 
   const fileSize = size || file.fileSize()
@@ -28,21 +35,21 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   let length = options.length
 
   if (offset < 0) {
-    return pull.error(new Error('Offset must be greater than or equal to 0'))
+    return error(new Error('Offset must be greater than or equal to 0'))
   }
 
   if (offset > fileSize) {
-    return pull.error(new Error('Offset must be less than the file size'))
+    return error(new Error('Offset must be less than the file size'))
   }
 
   if (length < 0) {
-    return pull.error(new Error('Length must be greater than or equal to 0'))
+    return error(new Error('Length must be greater than or equal to 0'))
   }
 
   if (length === 0) {
-    return pull.once({
+    return once({
       depth: depth,
-      content: pull.once(Buffer.alloc(0)),
+      content: once(Buffer.alloc(0)),
       name: name,
       path: path,
       multihash: cid.buffer,
@@ -61,7 +68,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
 
   const content = streamBytes(dag, node, fileSize, offset, length)
 
-  return pull.values([{
+  return values([{
     depth: depth,
     content: content,
     name: name,
@@ -74,7 +81,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
 
 function streamBytes (dag, node, fileSize, offset, length) {
   if (offset === fileSize || length === 0) {
-    return pull.once(Buffer.alloc(0))
+    return once(Buffer.alloc(0))
   }
 
   const end = offset + length
@@ -85,8 +92,8 @@ function streamBytes (dag, node, fileSize, offset, length) {
       start: 0,
       end: fileSize
     }, getChildren(dag, offset, end)),
-    pull.map(extractData(offset, end)),
-    pull.filter(Boolean)
+    map(extractData(offset, end)),
+    filter(Boolean)
   )
 }
 
@@ -98,15 +105,15 @@ function getChildren (dag, offset, end) {
   return function visitor ({ node }) {
     if (Buffer.isBuffer(node)) {
       // this is a leaf node, can't traverse any further
-      return pull.empty()
+      return empty()
     }
 
     let file
 
     try {
       file = UnixFS.unmarshal(node.data)
-    } catch (error) {
-      return pull.error(error)
+    } catch (err) {
+      return error(err)
     }
 
     const nodeHasData = Boolean(file.data && file.data.length)
@@ -142,11 +149,11 @@ function getChildren (dag, offset, end) {
     }
 
     return pull(
-      pull.once(filteredLinks),
+      once(filteredLinks),
       paramap((children, cb) => {
-        dag.getMany(children.map(child => child.link.cid), (error, results) => {
-          if (error) {
-            return cb(error)
+        dag.getMany(children.map(child => child.link.cid), (err, results) => {
+          if (err) {
+            return cb(err)
           }
 
           cb(null, results.map((result, index) => {
@@ -161,7 +168,7 @@ function getChildren (dag, offset, end) {
           }))
         })
       }),
-      pull.flatten()
+      flatten()
     )
   }
 }
@@ -187,8 +194,8 @@ function extractData (requestedStart, requestedEnd) {
         }
 
         block = file.data
-      } catch (error) {
-        throw new Error(`Failed to unmarshal node - ${error.message}`)
+      } catch (err) {
+        throw new Error(`Failed to unmarshal node - ${err.message}`)
       }
     }
 

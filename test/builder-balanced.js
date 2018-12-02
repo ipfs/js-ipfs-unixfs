@@ -4,7 +4,9 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 
 const builder = require('../src/builder/balanced')
 
@@ -23,9 +25,9 @@ const options = {
 describe('builder: balanced', () => {
   it('reduces one value into itself', (callback) => {
     pull(
-      pull.values([1]),
+      values([1]),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([1])
         callback()
@@ -35,9 +37,9 @@ describe('builder: balanced', () => {
 
   it('reduces 3 values into parent', (callback) => {
     pull(
-      pull.values([1, 2, 3]),
+      values([1, 2, 3]),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([{
           children: [1, 2, 3]
@@ -49,9 +51,9 @@ describe('builder: balanced', () => {
 
   it('obeys max children per node', (callback) => {
     pull(
-      pull.values([1, 2, 3, 4]),
+      values([1, 2, 3, 4]),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
@@ -70,9 +72,9 @@ describe('builder: balanced', () => {
 
   it('refolds 2 parent nodes', (callback) => {
     pull(
-      pull.values([1, 2, 3, 4, 5, 6, 7]),
+      values([1, 2, 3, 4, 5, 6, 7]),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {

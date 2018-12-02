@@ -5,7 +5,9 @@ const chunker = require('./../src/chunker/rabin')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const os = require('os')
 
@@ -30,9 +32,9 @@ describe('chunker: rabin', function () {
     b3.fill('c')
 
     pull(
-      pull.values([b1, b2, b3]),
+      values([b1, b2, b3]),
       chunker({ minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192 }),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
         chunks.forEach((chunk) => {
           expect(chunk).to.have.length.gte(48)
@@ -47,9 +49,9 @@ describe('chunker: rabin', function () {
     const b1 = Buffer.alloc(10 * 256)
     b1.fill('a')
     pull(
-      pull.values([b1]),
+      values([b1]),
       chunker({ avgChunkSize: 256 }),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
         chunks.forEach((chunk) => {
           expect(chunk).to.have.length.gte(256 / 3)
@@ -69,9 +71,9 @@ describe('chunker: rabin', function () {
       maxChunkSize: KiB256 + (KiB256 / 2)
     }
     pull(
-      pull.values([file]),
+      values([file]),
       chunker(opts),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
 
         chunks.forEach((chunk) => {

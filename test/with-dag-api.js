@@ -9,7 +9,11 @@ const extend = require('deep-extend')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const empty = require('pull-stream/sources/empty')
+const onEnd = require('pull-stream/sinks/on-end')
+const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const CID = require('cids')
 const IPLD = require('ipld')
@@ -187,12 +191,12 @@ describe('with dag-api', function () {
 
       it('fails on bad input', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
             content: 'banana'
           }]),
           importer(dag, options),
-          pull.onEnd((err) => {
+          onEnd((err) => {
             expect(err).to.exist()
             done()
           })
@@ -201,9 +205,9 @@ describe('with dag-api', function () {
 
       it('doesn\'t yield anything on empty source', (done) => {
         pull(
-          pull.empty(),
+          empty(),
           importer(dag, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(0)
             done()
@@ -212,12 +216,12 @@ describe('with dag-api', function () {
 
       it('doesn\'t yield anything on empty file', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'emptyfile',
-            content: pull.empty()
+            content: empty()
           }]),
           importer(dag, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
             // always yield empty node
@@ -228,18 +232,18 @@ describe('with dag-api', function () {
 
       it('fails on more than one root', (done) => {
         pull(
-          pull.values([
+          values([
             {
               path: '/beep/200Bytes.txt',
-              content: pull.values([smallFile])
+              content: values([smallFile])
             },
             {
               path: '/boop/200Bytes.txt',
-              content: pull.values([smallFile])
+              content: values([smallFile])
             }
           ]),
           importer(dag, options),
-          pull.onEnd((err) => {
+          onEnd((err) => {
             expect(err).to.exist()
             expect(err.message).to.be.eql('detected more than one root')
             done()
@@ -249,12 +253,12 @@ describe('with dag-api', function () {
 
       it('small file (smaller than a chunk)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
@@ -264,12 +268,12 @@ describe('with dag-api', function () {
 
       it('small file as buffer (smaller than a chunk)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
             content: smallFile
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
@@ -279,12 +283,12 @@ describe('with dag-api', function () {
 
       it('small file (smaller than a chunk) inside a dir', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'foo/bar/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(dag, options),
-          pull.collect(collected)
+          collect(collected)
         )
 
         function collected (err, files) {
@@ -307,12 +311,12 @@ describe('with dag-api', function () {
 
       it('file bigger than a single chunk', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
             done()
@@ -322,12 +326,12 @@ describe('with dag-api', function () {
 
       it('file bigger than a single chunk inside a dir', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'foo-big/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([
@@ -342,11 +346,11 @@ describe('with dag-api', function () {
 
       it('empty directory', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'empty-dir'
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([expected['empty-dir']])
@@ -358,15 +362,15 @@ describe('with dag-api', function () {
 
       it('directory with files', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'pim/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }, {
             path: 'pim/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).be.eql([
@@ -382,18 +386,18 @@ describe('with dag-api', function () {
 
       it('nested directory (2 levels deep)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'pam/pum/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }, {
             path: 'pam/pum/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }, {
             path: 'pam/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(dag, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             // need to sort as due to parallel storage the order can vary

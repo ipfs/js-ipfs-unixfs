@@ -1,6 +1,9 @@
 'use strict'
 
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const asyncMap = require('pull-stream/throughs/async-map')
+const collect = require('pull-stream/sinks/collect')
 const pushable = require('pull-pushable')
 const pullPair = require('pull-pair')
 const batch = require('pull-batch')
@@ -29,14 +32,14 @@ module.exports = function balancedReduceToRoot (reduce, options) {
   function reduceToParents (_chunks, callback) {
     let chunks = _chunks
     if (Array.isArray(chunks)) {
-      chunks = pull.values(chunks)
+      chunks = values(chunks)
     }
 
     pull(
       chunks,
       batch(options.maxChildrenPerNode),
-      pull.asyncMap(reduce),
-      pull.collect(reduced)
+      asyncMap(reduce),
+      collect(reduced)
     )
 
     function reduced (err, roots) {

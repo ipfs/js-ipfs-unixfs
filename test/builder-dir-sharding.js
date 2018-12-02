@@ -9,7 +9,10 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const asyncMap = require('pull-stream/throughs/async-map')
+const collect = require('pull-stream/sinks/collect')
 const pushable = require('pull-pushable')
 const whilst = require('async/whilst')
 const setImmediate = require('async/setImmediate')
@@ -36,14 +39,14 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([
+          values([
             {
               path: 'a/b',
               content: pull.values([Buffer.from('i have the best bytes')])
             }
           ]),
           importer(ipld, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             try {
               expect(err).to.not.exist()
               expect(nodes.length).to.be.eql(2)
@@ -65,14 +68,14 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([
+          values([
             {
               path: 'a/b',
-              content: pull.values([Buffer.from('i have the best bytes')])
+              content: values([Buffer.from('i have the best bytes')])
             }
           ]),
           importer(ipld, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             try {
               expect(err).to.not.exist()
               expect(nodes.length).to.be.eql(2)
@@ -92,7 +95,7 @@ module.exports = (repo) => {
       it('exporting unsharded hash results in the correct files', (done) => {
         pull(
           exporter(nonShardedHash, ipld),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             try {
               expect(err).to.not.exist()
               expect(nodes.length).to.be.eql(2)
@@ -107,7 +110,7 @@ module.exports = (repo) => {
 
             pull(
               nodes[1].content,
-              pull.collect(collected)
+              collect(collected)
             )
           })
         )
@@ -127,7 +130,7 @@ module.exports = (repo) => {
       it('exporting sharded hash results in the correct files', (done) => {
         pull(
           exporter(shardedHash, ipld),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             try {
               expect(err).to.not.exist()
               expect(nodes.length).to.be.eql(2)
@@ -142,7 +145,7 @@ module.exports = (repo) => {
 
             pull(
               nodes[1].content,
-              pull.collect(collected)
+              collect(collected)
             )
           })
         )
@@ -169,7 +172,7 @@ module.exports = (repo) => {
         pull(
           push,
           importer(ipld),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             try {
               expect(err).to.not.exist()
               expect(nodes.length).to.be.eql(maxDirs + 1)
@@ -193,7 +196,7 @@ module.exports = (repo) => {
             i++
             const pushable = {
               path: 'big/' + leftPad(i.toString(), 4, '0'),
-              content: pull.values([Buffer.from(i.toString())])
+              content: values([Buffer.from(i.toString())])
             }
             push.push(pushable)
             setImmediate(callback)
@@ -210,11 +213,11 @@ module.exports = (repo) => {
         const entries = {}
         pull(
           exporter(rootHash, ipld),
-          pull.asyncMap((node, callback) => {
+          asyncMap((node, callback) => {
             if (node.content) {
               pull(
                 node.content,
-                pull.collect(collected)
+                collect(collected)
               )
             } else {
               entries[node.path] = node
@@ -227,7 +230,7 @@ module.exports = (repo) => {
               callback(null, node)
             }
           }),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             const paths = Object.keys(entries).sort()
             expect(paths.length).to.be.eql(2001)
@@ -265,7 +268,7 @@ module.exports = (repo) => {
         pull(
           push,
           importer(ipld),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             const last = nodes[nodes.length - 1]
             expect(last.path).to.be.eql('big')
@@ -289,7 +292,7 @@ module.exports = (repo) => {
             }
             const pushed = {
               path: dir.concat(leftPad(i.toString(), 4, '0')).join('/'),
-              content: pull.values([Buffer.from(i.toString())])
+              content: values([Buffer.from(i.toString())])
             }
             push.push(pushed)
             pending--
@@ -312,11 +315,11 @@ module.exports = (repo) => {
         const entries = {}
         pull(
           exporter(rootHash, ipld),
-          pull.asyncMap((node, callback) => {
+          asyncMap((node, callback) => {
             if (node.content) {
               pull(
                 node.content,
-                pull.collect(collected)
+                collect(collected)
               )
             } else {
               entries[node.path] = node
@@ -329,7 +332,7 @@ module.exports = (repo) => {
               callback(null, node)
             }
           }),
-          pull.collect(collected)
+          collect(collected)
         )
 
         function collected (err, nodes) {
@@ -371,7 +374,7 @@ module.exports = (repo) => {
         const exportHash = new CID(rootHash).toBaseEncodedString() + '/big/big/2000'
         pull(
           exporter(exportHash, ipld),
-          pull.collect(collected)
+          collect(collected)
         )
 
         function collected (err, nodes) {
@@ -382,7 +385,7 @@ module.exports = (repo) => {
           ])
           pull(
             nodes[0].content,
-            pull.collect((err, content) => {
+            collect((err, content) => {
               expect(err).to.not.exist()
               expect(content.toString()).to.equal('2000')
               done()

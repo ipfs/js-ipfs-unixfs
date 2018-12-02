@@ -5,7 +5,9 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const Ipld = require('ipld')
 const CID = require('cids')
 const createBuilder = require('../src/builder')
@@ -44,9 +46,9 @@ module.exports = (repo) => {
       }
 
       pull(
-        pull.values([inputFile]),
+        values([inputFile]),
         createBuilder(FixedSizeChunker, ipld, options),
-        pull.collect(onCollected)
+        collect(onCollected)
       )
     })
   })

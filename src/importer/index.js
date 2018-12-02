@@ -1,7 +1,8 @@
 'use strict'
 
 const pause = require('pull-pause')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const map = require('pull-stream/throughs/map')
 const writable = require('pull-write')
 const pushable = require('pull-pushable')
 const assert = require('assert')
@@ -69,7 +70,7 @@ module.exports = function (ipld, _options) {
     entry,
     pausable,
     dagStream,
-    pull.map((node) => {
+    map((node) => {
       pending--
       if (!pending) {
         process.nextTick(() => {

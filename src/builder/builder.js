@@ -2,7 +2,11 @@
 
 const extend = require('deep-extend')
 const UnixFS = require('ipfs-unixfs')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const asyncMap = require('pull-stream/throughs/async-map')
+const map = require('pull-stream/throughs/map')
+const collect = require('pull-stream/sinks/collect')
 const through = require('pull-through')
 const parallel = require('async/parallel')
 const waterfall = require('async/waterfall')
@@ -80,7 +84,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
 
   function createAndStoreFile (file, callback) {
     if (Buffer.isBuffer(file.content)) {
-      file.content = pull.values([file.content])
+      file.content = values([file.content])
     }
 
     if (typeof file.content !== 'function') {
@@ -102,13 +106,13 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
     pull(
       file.content,
       chunker,
-      pull.map(chunk => {
+      map(chunk => {
         if (options.progress && typeof options.progress === 'function') {
           options.progress(chunk.byteLength)
         }
         return Buffer.from(chunk)
       }),
-      pull.asyncMap((buffer, callback) => {
+      asyncMap((buffer, callback) => {
         if (options.rawLeaves) {
           return callback(null, {
             size: buffer.length,
@@ -131,7 +135,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
           })
         })
       }),
-      pull.asyncMap((leaf, callback) => {
+      asyncMap((leaf, callback) => {
         persist(leaf.data, ipld, options, (error, results) => {
           if (error) {
             return callback(error)
@@ -166,7 +170,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
         }
       ),
       reducer,
-      pull.collect((err, roots) => {
+      collect((err, roots) => {
         if (err) {
           callback(err)
         } else {

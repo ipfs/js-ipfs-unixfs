@@ -1,3 +1,13 @@
+<a name="0.35.2"></a>
+## [0.35.2](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.1...v0.35.2) (2018-12-02)
+
+
+### Performance Improvements
+
+* deep require pull stream modules ([8dc4211](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/8dc4211))
+
+
+
 <a name="0.35.1"></a>
 ## [0.35.1](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.0...v0.35.1) (2018-11-29)
 

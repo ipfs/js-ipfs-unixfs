@@ -1,6 +1,9 @@
 'use strict'
 
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const filter = require('pull-stream/throughs/filter')
+const map = require('pull-stream/throughs/map')
 const cat = require('pull-cat')
 
 // Logic to export a unixfs directory.
@@ -20,14 +23,14 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
 
   // we are at the max depth so no need to descend into children
   if (options.maxDepth && options.maxDepth <= depth) {
-    return pull.values([dir])
+    return values([dir])
   }
 
   const streams = [
     pull(
-      pull.values(node.links),
-      pull.filter((item) => accepts === undefined || item.name === accepts),
-      pull.map((link) => ({
+      values(node.links),
+      filter((item) => accepts === undefined || item.name === accepts),
+      map((link) => ({
         depth: depth + 1,
         size: link.size,
         name: link.name,
@@ -43,7 +46,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
 
   // place dir before if not specifying subtree
   if (!pathRest.length || options.fullPath) {
-    streams.unshift(pull.values([dir]))
+    streams.unshift(values([dir]))
   }
 
   return cat(streams)

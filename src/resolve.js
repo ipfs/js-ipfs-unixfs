@@ -1,7 +1,11 @@
 'use strict'
 
 const UnixFS = require('ipfs-unixfs')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const error = require('pull-stream/sources/error')
+const filter = require('pull-stream/throughs/filter')
+const flatten = require('pull-stream/throughs/flatten')
+const map = require('pull-stream/throughs/map')
 const paramap = require('pull-paramap')
 const CID = require('cids')
 const waterfall = require('async/waterfall')
@@ -25,13 +29,13 @@ function createResolver (dag, options, depth, parent) {
   }
 
   if (depth > options.maxDepth) {
-    return pull.map(identity)
+    return map(identity)
   }
 
   return pull(
     paramap((item, cb) => {
       if ((typeof item.depth) !== 'number') {
-        return pull.error(new Error('no depth'))
+        return error(new Error('no depth'))
       }
 
       if (item.object) {
@@ -45,9 +49,9 @@ function createResolver (dag, options, depth, parent) {
         (node, done) => done(null, resolveItem(cid, node.value, item, options))
       ], cb)
     }),
-    pull.flatten(),
-    pull.filter(Boolean),
-    pull.filter((node) => node.depth <= options.maxDepth)
+    flatten(),
+    filter(Boolean),
+    filter((node) => node.depth <= options.maxDepth)
   )
 
   function resolveItem (cid, node, item, options) {
@@ -70,14 +74,14 @@ function createResolver (dag, options, depth, parent) {
 
     try {
       type = typeOf(node)
-    } catch (error) {
-      return pull.error(error)
+    } catch (err) {
+      return error(err)
     }
 
     const nodeResolver = resolvers[type]
 
     if (!nodeResolver) {
-      return pull.error(new Error('Unkown node type ' + type))
+      return error(new Error('Unkown node type ' + type))
     }
 
     const resolveDeep = createResolver(dag, options, depth, node)

@@ -40,7 +40,7 @@
     "chai": "^4.2.0",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
-    "ipfs-unixfs-importer": "~0.36.0",
+    "ipfs-unixfs-importer": "~0.37.1",
     "ipld": "~0.20.0",
     "ipld-dag-pb": "~0.15.0",
     "pull-pushable": "^2.2.0",

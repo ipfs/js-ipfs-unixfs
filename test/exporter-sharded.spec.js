@@ -85,7 +85,7 @@ describe('exporter sharded', function () {
           wrap: true,
           shardSplitThreshold: SHARD_SPLIT_THRESHOLD
         }),
-        pull.collect(cb)
+        collect(cb)
       ),
       (imported, cb) => {
         directory = new CID(imported.pop().multihash)
@@ -104,7 +104,7 @@ describe('exporter sharded', function () {
 
         pull(
           exporter(directory, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
@@ -117,7 +117,7 @@ describe('exporter sharded', function () {
           exported.map(exported => (cb) => {
             pull(
               exported.content,
-              pull.collect((err, bufs) => {
+              collect((err, bufs) => {
                 if (err) {
                   cb(err)
                 }
@@ -160,7 +160,7 @@ describe('exporter sharded', function () {
           wrap: true,
           shardSplitThreshold: SHARD_SPLIT_THRESHOLD
         }),
-        pull.collect(cb)
+        collect(cb)
       ),
       (imported, cb) => {
         dirCid = new CID(imported.pop().multihash)
@@ -169,7 +169,7 @@ describe('exporter sharded', function () {
           exporter(dirCid, ipld, {
             maxDepth: 1
           }),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
@@ -189,23 +189,19 @@ describe('exporter sharded', function () {
       (dir, cb) => {
         pull(
           exporter(`/ipfs/${dir.toBaseEncodedString()}`, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(32)
+        expect(exported.length).to.equal(32)
 
-          const dir = exported.shift()
+        const dir = exported.shift()
 
-          expect(dir.type).to.equal('dir')
+        expect(dir.type).to.equal('dir')
 
-          exported.forEach(file => expect(file.type).to.equal('file'))
+        exported.forEach(file => expect(file.type).to.equal('file'))
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -216,21 +212,17 @@ describe('exporter sharded', function () {
       (dir, cb) => {
         pull(
           exporter(`/ipfs/${dir.toBaseEncodedString()}/file-14`, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const file = exported.shift()
+        const file = exported.shift()
 
-          expect(file.name).to.deep.equal('file-14')
+        expect(file.name).to.deep.equal('file-14')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -241,21 +233,17 @@ describe('exporter sharded', function () {
       (dir, cb) => {
         pull(
           exporter(`/ipfs/${dir.toBaseEncodedString()}/file-30`, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const file = exported.shift()
+        const file = exported.shift()
 
-          expect(file.name).to.deep.equal('file-30')
+        expect(file.name).to.deep.equal('file-30')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -266,21 +254,17 @@ describe('exporter sharded', function () {
       (dir, cb) => {
         pull(
           exporter(`/ipfs/${dir.toBaseEncodedString()}/file-2567`, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const file = exported.shift()
+        const file = exported.shift()
 
-          expect(file.name).to.deep.equal('file-2567')
+        expect(file.name).to.deep.equal('file-2567')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -293,21 +277,17 @@ describe('exporter sharded', function () {
           exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
             maxDepth: 3
           }),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const entry = exported.pop()
+        const entry = exported.pop()
 
-          expect(entry.name).to.deep.equal('baz')
+        expect(entry.name).to.deep.equal('baz')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -320,21 +300,17 @@ describe('exporter sharded', function () {
           exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
             maxDepth: 2
           }),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const entry = exported.pop()
+        const entry = exported.pop()
 
-          expect(entry.name).to.deep.equal('bar')
+        expect(entry.name).to.deep.equal('bar')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -347,22 +323,18 @@ describe('exporter sharded', function () {
           exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld, {
             fullPath: true
           }),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(5)
+        expect(exported.length).to.equal(5)
 
-          expect(exported[1].name).to.equal('foo')
-          expect(exported[2].name).to.equal('bar')
-          expect(exported[3].name).to.equal('baz')
-          expect(exported[4].name).to.equal('file-1')
+        expect(exported[1].name).to.equal('foo')
+        expect(exported[2].name).to.equal('bar')
+        expect(exported[3].name).to.equal('baz')
+        expect(exported[4].name).to.equal('file-1')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -375,24 +347,20 @@ describe('exporter sharded', function () {
           exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
             fullPath: true
           }),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(35)
+        expect(exported.length).to.equal(35)
 
-          expect(exported[1].name).to.equal('foo')
-          expect(exported[2].name).to.equal('bar')
-          expect(exported[3].name).to.equal('baz')
-          expect(exported[4].name).to.equal('file-14')
+        expect(exported[1].name).to.equal('foo')
+        expect(exported[2].name).to.equal('bar')
+        expect(exported[3].name).to.equal('baz')
+        expect(exported[4].name).to.equal('file-14')
 
-          exported.slice(4).forEach(file => expect(file.type).to.equal('file'))
+        exported.slice(4).forEach(file => expect(file.type).to.equal('file'))
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })
@@ -427,21 +395,17 @@ describe('exporter sharded', function () {
       (dir, cb) => {
         pull(
           exporter(`/ipfs/${dir.toBaseEncodedString()}/normal-dir/shard/file-1`, ipld),
-          pull.collect(cb)
+          collect(cb)
         )
       },
       (exported, cb) => {
-        try {
-          expect(exported.length).to.equal(1)
+        expect(exported.length).to.equal(1)
 
-          const entry = exported.pop()
+        const entry = exported.pop()
 
-          expect(entry.name).to.deep.equal('file-1')
+        expect(entry.name).to.deep.equal('file-1')
 
-          cb()
-        } catch (e) {
-          cb(e)
-        }
+        cb()
       }
     ], done)
   })

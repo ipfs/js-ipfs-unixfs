@@ -80,7 +80,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
       return addLinksToHamtBucket(node.links, options.lastBucket, options.rootBucket, cb)
     },
     (cb) => findPosition(targetFile, options.rootBucket, cb),
-    ({ position }, cb) => {
+    (position, cb) => {
       let prefix = toPrefix(position.pos)
       const bucketPath = toBucketPath(position)
 
@@ -191,7 +191,7 @@ const findPosition = (file, bucket, cb) => {
         return
       }
 
-      cb(null, { position })
+      cb(null, position)
     })
 }
 

@@ -8,7 +8,10 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const map = require('pull-stream/throughs/map')
+const collect = require('pull-stream/sinks/collect')
 const pushable = require('pull-pushable')
 
 module.exports = (repo) => {
@@ -26,11 +29,11 @@ module.exports = (repo) => {
       pull(
         source,
         importer,
-        pull.map(node => {
+        map(node => {
           expect(node.path).to.be.eql('a')
           return node
         }),
-        pull.collect((err, files) => {
+        collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.length).to.be.eql(1)
           done()
@@ -39,7 +42,7 @@ module.exports = (repo) => {
 
       source.push({
         path: 'a',
-        content: pull.values([Buffer.from('hey')])
+        content: values([Buffer.from('hey')])
       })
 
       importer.flush((err, hash) => {
@@ -56,7 +59,7 @@ module.exports = (repo) => {
       pull(
         source,
         importer,
-        pull.map(function (node) {
+        map(function (node) {
           count++
           if (count === 1) {
             expect(node.path).to.be.eql('b/c')
@@ -65,7 +68,7 @@ module.exports = (repo) => {
           }
           return node
         }),
-        pull.collect((err, files) => {
+        collect((err, files) => {
           expect(err).to.not.exist()
           expect(count).to.be.eql(2)
           done()
@@ -74,7 +77,7 @@ module.exports = (repo) => {
 
       source.push({
         path: 'b/c',
-        content: pull.values([Buffer.from('hey')])
+        content: values([Buffer.from('hey')])
       })
 
       importer.flush((err, hash) => {
@@ -98,12 +101,12 @@ module.exports = (repo) => {
       pull(
         source,
         importer,
-        pull.map((node) => {
+        map((node) => {
           count++
           markDirAsYielded(node)
           return node
         }),
-        pull.collect((err, files) => {
+        collect((err, files) => {
           expect(err).to.not.exist()
           expect(count).to.be.eql(2)
           done()
@@ -129,7 +132,7 @@ module.exports = (repo) => {
         const filePath = dirPath + '/filename'
         const file = {
           path: filePath,
-          content: pull.values([Buffer.from('file with path ' + filePath)])
+          content: values([Buffer.from('file with path ' + filePath)])
         }
         source.push(file)
         if (currentDir.depth === 0 || childCount + 1 === maxEntriesPerDir) {

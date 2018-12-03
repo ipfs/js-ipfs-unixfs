@@ -7,7 +7,12 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const concat = require('pull-stream/sinks/concat')
+const flatten = require('pull-stream/throughs/flatten')
+const map = require('pull-stream/throughs/map')
+const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
@@ -23,7 +28,7 @@ const strategies = [
 function fileEql (f1, fileData, callback) {
   pull(
     f1.content,
-    pull.concat((err, data) => {
+    concat((err, data) => {
       expect(err).to.not.exist()
       // TODO: eql is super slow at comparing large buffers
       // expect(data).to.eql(fileData)
@@ -51,15 +56,15 @@ module.exports = (repo) => {
           const path = strategy + '-big.dat'
 
           pull(
-            pull.values([{ path: path, content: pull.values(bigFile) }]),
+            values([{ path: path, content: values(bigFile) }]),
             importer(ipld, importerOptions),
-            pull.map((file) => {
+            map((file) => {
               expect(file.path).to.eql(path)
 
               return exporter(file.multihash, ipld)
             }),
-            pull.flatten(),
-            pull.collect((err, files) => {
+            flatten(),
+            collect((err, files) => {
               expect(err).to.not.exist()
               expect(files[0].size).to.eql(bigFile.length)
               fileEql(files[0], bigFile, done)

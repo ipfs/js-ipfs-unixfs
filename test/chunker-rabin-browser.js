@@ -5,7 +5,9 @@ const chunker = require('./../src/chunker/rabin')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 
 describe('chunker: rabin browser', function () {
   it('returns an error', (done) => {
@@ -18,9 +20,9 @@ describe('chunker: rabin browser', function () {
     b3.fill('c')
 
     pull(
-      pull.values([b1, b2, b3]),
+      values([b1, b2, b3]),
       chunker({ minChunkSize: 48, avgChunkSize: 96, maxChunkSize: 192 }),
-      pull.collect((err) => {
+      collect((err) => {
         expect(err).to.exist()
         expect(err.message).to.include('Rabin chunker not available')
 

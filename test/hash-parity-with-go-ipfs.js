@@ -7,7 +7,9 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const CID = require('cids')
 const Ipld = require('ipld')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
@@ -41,14 +43,14 @@ module.exports = (repo) => {
       it('yields the same tree as go-ipfs', function (done) {
         this.timeout(10 * 1000)
         pull(
-          pull.values([
+          values([
             {
               path: 'big.dat',
               content: randomByteStream(45900000, 7382)
             }
           ]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(files.length).to.be.equal(1)
 

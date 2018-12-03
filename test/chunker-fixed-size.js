@@ -5,7 +5,11 @@ const chunker = require('./../src/chunker/fixed-size')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const infinite = require('pull-stream/sources/infinite')
+const values = require('pull-stream/sources/values')
+const take = require('pull-stream/throughs/take')
+const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 
 const rawFile = loadFixture('test/fixtures/1MiB.txt')
@@ -23,9 +27,9 @@ describe('chunker: fixed size', function () {
     b3.fill('c')
 
     pull(
-      pull.values([b1, b2, b3]),
+      values([b1, b2, b3]),
       chunker(256),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
         expect(chunks).to.have.length(8)
         chunks.forEach((chunk) => {
@@ -38,10 +42,10 @@ describe('chunker: fixed size', function () {
 
   it('256 Bytes chunks', (done) => {
     pull(
-      pull.infinite(() => Buffer.from('a')),
-      pull.take(256 * 12),
+      infinite(() => Buffer.from('a')),
+      take(256 * 12),
       chunker(256),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
         expect(chunks).to.have.length(12)
         chunks.forEach((chunk) => {
@@ -56,9 +60,9 @@ describe('chunker: fixed size', function () {
     const KiB256 = 262144
 
     pull(
-      pull.values(rawFile),
+      values(rawFile),
       chunker(KiB256),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
 
         expect(chunks).to.have.length(4)
@@ -75,9 +79,9 @@ describe('chunker: fixed size', function () {
     let file = Buffer.concat([rawFile, Buffer.from('hello')])
 
     pull(
-      pull.values(file),
+      values(file),
       chunker(KiB256),
-      pull.collect((err, chunks) => {
+      collect((err, chunks) => {
         expect(err).to.not.exist()
 
         expect(chunks).to.have.length(5)

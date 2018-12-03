@@ -1,6 +1,8 @@
 'use strict'
 
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const asyncMap = require('pull-stream/throughs/async-map')
+const collect = require('pull-stream/sinks/collect')
 const pushable = require('pull-pushable')
 const batch = require('pull-batch')
 const pullPair = require('pull-pair')
@@ -19,8 +21,8 @@ module.exports = function trickleReduceToRoot (reduce, options) {
     pausable,
     trickle(0, -1),
     batch(Infinity),
-    pull.asyncMap(reduce),
-    pull.collect((err, roots) => {
+    asyncMap(reduce),
+    collect((err, roots) => {
       if (err) {
         result.end(err)
       } else {
@@ -82,8 +84,8 @@ module.exports = function trickleReduceToRoot (reduce, options) {
             }
           ),
           batch(Infinity),
-          pull.asyncMap(reduce),
-          pull.collect((err, nodes) => {
+          asyncMap(reduce),
+          collect((err, nodes) => {
             pendingResumes--
             if (err) {
               result.end(err)

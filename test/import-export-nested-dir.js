@@ -6,7 +6,9 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const BlockService = require('ipfs-block-service')
 const Ipld = require('ipld')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const map = require('async/map')
 const CID = require('cids')
 
@@ -27,14 +29,14 @@ module.exports = (repo) => {
       this.timeout(20 * 1000)
 
       pull(
-        pull.values([
+        values([
           { path: 'a/b/c/d/e', content: pull.values([Buffer.from('banana')]) },
           { path: 'a/b/c/d/f', content: pull.values([Buffer.from('strawberry')]) },
           { path: 'a/b/g', content: pull.values([Buffer.from('ice')]) },
           { path: 'a/b/h', content: pull.values([Buffer.from('cream')]) }
         ]),
         importer(ipld),
-        pull.collect((err, files) => {
+        collect((err, files) => {
           expect(err).to.not.exist()
           expect(files.map(normalizeNode).sort(byPath)).to.be.eql([
             { path: 'a/b/h',
@@ -64,7 +66,7 @@ module.exports = (repo) => {
 
       pull(
         exporter(rootHash, ipld),
-        pull.collect((err, files) => {
+        collect((err, files) => {
           expect(err).to.not.exist()
           map(
             files,
@@ -72,7 +74,7 @@ module.exports = (repo) => {
               if (file.content) {
                 pull(
                   file.content,
-                  pull.collect(mapFile(file, callback))
+                  collect(mapFile(file, callback))
                 )
               } else {
                 callback(null, { path: file.path })

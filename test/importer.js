@@ -10,7 +10,10 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const spy = require('sinon/lib/sinon/spy')
 const BlockService = require('ipfs-block-service')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const once = require('pull-stream/sources/once')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const CID = require('cids')
 const Ipld = require('ipld')
 const loadFixture = require('aegir/fixtures')
@@ -113,12 +116,12 @@ const strategyOverrides = {
 const checkLeafNodeTypes = (ipld, options, expected, done) => {
   waterfall([
     (cb) => pull(
-      pull.once({
+      once({
         path: '/foo',
         content: Buffer.alloc(262144 + 5).fill(1)
       }),
       importer(ipld, options),
-      pull.collect(cb)
+      collect(cb)
     ),
     (files, cb) => ipld.get(new CID(files[0].multihash), cb),
     (result, cb) => {
@@ -156,7 +159,7 @@ const checkNodeLinks = (ipld, options, expected, done) => {
         content: Buffer.alloc(100).fill(1)
       }),
       importer(ipld, options),
-      pull.collect(cb)
+      collect(cb)
     ),
     (files, cb) => ipld.get(new CID(files[0].multihash), cb),
     (result, cb) => {
@@ -248,7 +251,7 @@ module.exports = (repo) => {
 
       it('fails on bad input', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
             content: 'banana'
           }]),
@@ -264,7 +267,7 @@ module.exports = (repo) => {
         pull(
           pull.empty(),
           importer(ipld, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(0)
             done()
@@ -273,12 +276,12 @@ module.exports = (repo) => {
 
       it('doesn\'t yield anything on empty file', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'emptyfile',
             content: pull.empty()
           }]),
           importer(ipld, options),
-          pull.collect((err, nodes) => {
+          collect((err, nodes) => {
             expect(err).to.not.exist()
             expect(nodes.length).to.be.eql(1)
 
@@ -290,14 +293,14 @@ module.exports = (repo) => {
 
       it('fails on more than one root', (done) => {
         pull(
-          pull.values([
+          values([
             {
               path: '/beep/200Bytes.txt',
-              content: pull.values([smallFile])
+              content: values([smallFile])
             },
             {
               path: '/boop/200Bytes.txt',
-              content: pull.values([bigFile])
+              content: values([bigFile])
             }
           ]),
           importer(ipld, options),
@@ -313,12 +316,12 @@ module.exports = (repo) => {
         const filePath = `small-\\/file-${Math.random()}.txt`
 
         pull(
-          pull.values([{
+          values([{
             path: filePath,
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(files.length).to.equal(1)
             expect(files[0].path).to.equal(filePath)
@@ -329,12 +332,12 @@ module.exports = (repo) => {
 
       it('small file (smaller than a chunk)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
@@ -344,12 +347,12 @@ module.exports = (repo) => {
 
       it('small file (smaller than a chunk) with raw leaves', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(ipld, Object.assign({}, options, { rawLeaves: true })),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt with raw leaves']])
             done()
@@ -359,12 +362,12 @@ module.exports = (repo) => {
 
       it('small file as buffer (smaller than a chunk)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: '200Bytes.txt',
             content: smallFile
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
             done()
@@ -374,12 +377,12 @@ module.exports = (repo) => {
 
       it('small file (smaller than a chunk) inside a dir', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'foo/bar/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }]),
           importer(ipld, options),
-          pull.collect(collected)
+          collect(collected)
         )
 
         function collected (err, files) {
@@ -403,12 +406,12 @@ module.exports = (repo) => {
       it('file bigger than a single chunk', function (done) {
         this.timeout(60 * 1000)
         pull(
-          pull.values([{
+          values([{
             path: '1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
             expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
             done()
@@ -419,12 +422,12 @@ module.exports = (repo) => {
       it('file bigger than a single chunk inside a dir', function (done) {
         this.timeout(60 * 1000)
         pull(
-          pull.values([{
+          values([{
             path: 'foo-big/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([
@@ -439,11 +442,11 @@ module.exports = (repo) => {
 
       it('empty directory', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'empty-dir'
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).to.be.eql([expected['empty-dir']])
@@ -455,15 +458,15 @@ module.exports = (repo) => {
 
       it('directory with files', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'pim/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }, {
             path: 'pim/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             expect(stringifyMh(files)).be.eql([
@@ -479,18 +482,18 @@ module.exports = (repo) => {
 
       it('nested directory (2 levels deep)', (done) => {
         pull(
-          pull.values([{
+          values([{
             path: 'pam/pum/200Bytes.txt',
-            content: pull.values([smallFile])
+            content: values([smallFile])
           }, {
             path: 'pam/pum/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }, {
             path: 'pam/1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect((err, files) => {
+          collect((err, files) => {
             expect(err).to.not.exist()
 
             // need to sort as due to parallel storage the order
@@ -551,9 +554,9 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([inputFile]),
+          values([inputFile]),
           importer(ipld, options),
-          pull.collect(onCollected)
+          collect(onCollected)
         )
       })
 
@@ -561,12 +564,12 @@ module.exports = (repo) => {
         options.progress = spy()
 
         pull(
-          pull.values([{
+          values([{
             path: '1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect(() => {
+          collect(() => {
             expect(options.progress.called).to.equal(true)
             expect(options.progress.args[0][0]).to.equal(1024)
             done()
@@ -621,11 +624,11 @@ module.exports = (repo) => {
             // Check the imported content is correct
             pull(
               exporter(cid, ipld),
-              pull.collect((err, nodes) => {
+              collect((err, nodes) => {
                 expect(err).to.not.exist()
                 pull(
                   nodes[0].content,
-                  pull.collect((err, chunks) => {
+                  collect((err, chunks) => {
                     expect(err).to.not.exist()
                     expect(Buffer.concat(chunks)).to.deep.equal(inputFile.content)
                     cb()
@@ -638,9 +641,9 @@ module.exports = (repo) => {
 
         pull(
           // Pass a copy of inputFiles, since the importer mutates them
-          pull.values(inputFiles.map(f => Object.assign({}, f))),
+          values(inputFiles.map(f => Object.assign({}, f))),
           importer(ipld, options),
-          pull.collect(onCollected)
+          collect(onCollected)
         )
       })
 
@@ -674,12 +677,12 @@ module.exports = (repo) => {
         options.rawLeaves = true
 
         pull(
-          pull.values([{
+          values([{
             path: '1.2MiB.txt',
-            content: pull.values([bigFile])
+            content: values([bigFile])
           }]),
           importer(ipld, options),
-          pull.collect((error, files) => {
+          collect((error, files) => {
             expect(error).to.not.exist()
 
             const node = files[0]

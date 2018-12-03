@@ -4,7 +4,9 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 const mh = require('multihashes')
 const IPLD = require('ipld')
 const eachSeries = require('async').eachSeries
@@ -61,9 +63,9 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([Object.assign({}, inputFile)]),
+          values([Object.assign({}, inputFile)]),
           createBuilder(FixedSizeChunker, ipld, options),
-          pull.collect(onCollected)
+          collect(onCollected)
         )
       }, done)
     })
@@ -97,9 +99,9 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([Object.assign({}, inputFile)]),
+          values([Object.assign({}, inputFile)]),
           createBuilder(FixedSizeChunker, ipld, options),
-          pull.collect(onCollected)
+          collect(onCollected)
         )
       }, done)
     })
@@ -133,9 +135,9 @@ module.exports = (repo) => {
         }
 
         pull(
-          pull.values([Object.assign({}, inputFile)]),
+          values([Object.assign({}, inputFile)]),
           createBuilder(FixedSizeChunker, ipld, options),
-          pull.collect(onCollected)
+          collect(onCollected)
         )
       }, done)
     })

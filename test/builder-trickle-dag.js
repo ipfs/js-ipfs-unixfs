@@ -4,7 +4,10 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const count = require('pull-stream/sources/count')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 
 const builder = require('../src/builder/trickle')
 
@@ -24,9 +27,9 @@ const options = {
 describe('builder: trickle', () => {
   it('reduces one value into itself', callback => {
     pull(
-      pull.values([1]),
+      values([1]),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([1])
         callback()
@@ -36,9 +39,9 @@ describe('builder: trickle', () => {
 
   it('reduces 3 values into parent', callback => {
     pull(
-      pull.count(2),
+      count(2),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
@@ -56,9 +59,9 @@ describe('builder: trickle', () => {
 
   it('reduces 6 values correclty', callback => {
     pull(
-      pull.count(5),
+      count(5),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
@@ -83,9 +86,9 @@ describe('builder: trickle', () => {
 
   it('reduces 9 values correclty', callback => {
     pull(
-      pull.count(8),
+      count(8),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
@@ -117,9 +120,9 @@ describe('builder: trickle', () => {
 
   it('reduces 12 values correclty', callback => {
     pull(
-      pull.count(11),
+      count(11),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         setTimeout(() => {
           expect(result).to.be.eql([
@@ -160,9 +163,9 @@ describe('builder: trickle', () => {
 
   it('reduces 21 values correclty', callback => {
     pull(
-      pull.count(20),
+      count(20),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {
@@ -222,9 +225,9 @@ describe('builder: trickle', () => {
 
   it('forms correct trickle tree', callback => {
     pull(
-      pull.count(99),
+      count(99),
       builder(reduce, options),
-      pull.collect((err, result) => {
+      collect((err, result) => {
         expect(err).to.not.exist()
         expect(result).to.be.eql([
           {

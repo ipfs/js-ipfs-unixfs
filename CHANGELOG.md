@@ -1,3 +1,13 @@
+<a name="0.37.1"></a>
+## [0.37.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.0...v0.37.1) (2018-12-03)
+
+
+### Performance Improvements
+
+* deep require pull stream modules ([092b5b4](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/092b5b4))
+
+
+
 <a name="0.37.0"></a>
 # [0.37.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.36.0...v0.37.0) (2018-11-26)
 

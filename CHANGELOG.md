@@ -1,3 +1,13 @@
+<a name="0.35.3"></a>
+## [0.35.3](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.2...v0.35.3) (2018-12-03)
+
+
+### Performance Improvements
+
+* only descend into hamt subshard that has the target entry ([fdad329](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/fdad329)), closes [#9](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues/9)
+
+
+
 <a name="0.35.2"></a>
 ## [0.35.2](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.1...v0.35.2) (2018-12-02)
 

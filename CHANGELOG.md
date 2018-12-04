@@ -1,3 +1,13 @@
+<a name="0.35.5"></a>
+## [0.35.5](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.4...v0.35.5) (2018-12-04)
+
+
+### Bug Fixes
+
+* fix regext to not match square brackets ([667f6e9](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/667f6e9))
+
+
+
 <a name="0.35.4"></a>
 ## [0.35.4](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.3...v0.35.4) (2018-12-03)
 

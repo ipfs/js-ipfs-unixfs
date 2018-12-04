@@ -42,7 +42,7 @@
     "dirty-chai": "^2.0.1",
     "ipfs-block-service": "~0.15.1",
     "ipfs-repo": "~0.25.0",
-    "ipfs-unixfs-exporter": "~0.34.0",
+    "ipfs-unixfs-exporter": "~0.35.4",
     "ipld": "~0.20.0",
     "mkdirp": "~0.5.1",
     "multihashes": "~0.4.14",

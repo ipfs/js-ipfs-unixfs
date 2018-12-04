@@ -1,3 +1,13 @@
+<a name="0.37.2"></a>
+## [0.37.2](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.1...v0.37.2) (2018-12-04)
+
+
+### Bug Fixes
+
+* fix regex to match files with square brackets ([986f945](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/986f945))
+
+
+
 <a name="0.37.1"></a>
 ## [0.37.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.0...v0.37.1) (2018-12-03)
 

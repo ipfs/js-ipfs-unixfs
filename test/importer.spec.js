@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('./../src')
+const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 
 const extend = require('deep-extend')

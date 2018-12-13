@@ -2,23 +2,24 @@
 'use strict'
 
 // Chunkers
-require('./chunker-fixed-size')
-require('./chunker-rabin')
+require('./chunker-fixed-size.spec')
+require('./chunker-rabin.spec')
+require('./chunker-rabin-browser.spec')
 
 // Graph Builders
-require('./builder')
-require('./builder-flat')
-require('./builder-balanced')
-require('./builder-trickle-dag')
-require('./builder-only-hash')
-require('./builder-dir-sharding')
+require('./builder.spec')
+require('./builder-flat.spec')
+require('./builder-balanced.spec')
+require('./builder-trickle-dag.spec')
+require('./builder-only-hash.spec')
+require('./builder-dir-sharding.spec')
 
 // Importer
-require('./importer')
-require('./importer-flush')
+require('./importer.spec')
+require('./importer-flush.spec')
 
 // Other
-require('./import-export')
-require('./import-export-nested-dir')
-require('./hash-parity-with-go-ipfs')
-require('./with-dag-api')
+require('./import-export.spec')
+require('./import-export-nested-dir.spec')
+require('./hash-parity-with-go-ipfs.spec')
+require('./with-dag-api.spec')

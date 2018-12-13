@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const createImporter = require('./../src')
+const createImporter = require('../src')
 
 const chai = require('chai')
 chai.use(require('dirty-chai'))

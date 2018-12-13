@@ -15,7 +15,7 @@ const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 
-const importer = require('./../src')
+const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 
 const strategies = [

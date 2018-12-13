@@ -11,7 +11,7 @@ const collect = require('pull-stream/sinks/collect')
 const map = require('async/map')
 const CID = require('cids')
 
-const importer = require('./../src')
+const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 
 describe('import and export: directory', () => {

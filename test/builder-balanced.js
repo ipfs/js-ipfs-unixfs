@@ -7,7 +7,6 @@ const expect = chai.expect
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
-
 const builder = require('../src/builder/balanced')
 
 function reduce (leaves, callback) {

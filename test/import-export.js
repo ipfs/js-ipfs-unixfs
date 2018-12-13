@@ -5,8 +5,7 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const BlockService = require('ipfs-block-service')
-const Ipld = require('ipld')
+const IPLD = require('ipld')
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const concat = require('pull-stream/sinks/concat')
@@ -37,41 +36,44 @@ function fileEql (f1, fileData, callback) {
   )
 }
 
-module.exports = (repo) => {
-  describe('import and export', function () {
-    this.timeout(30 * 1000)
+describe('import and export', function () {
+  this.timeout(30 * 1000)
 
-    strategies.forEach((strategy) => {
-      const importerOptions = { strategy: strategy }
+  strategies.forEach((strategy) => {
+    const importerOptions = { strategy: strategy }
 
-      describe('using builder: ' + strategy, () => {
-        let ipld
+    describe('using builder: ' + strategy, () => {
+      let ipld
 
-        before(() => {
-          const bs = new BlockService(repo)
-          ipld = new Ipld({ blockService: bs })
+      before((done) => {
+        IPLD.inMemory((err, resolver) => {
+          expect(err).to.not.exist()
+
+          ipld = resolver
+
+          done()
         })
+      })
 
-        it('import and export', (done) => {
-          const path = strategy + '-big.dat'
+      it('import and export', (done) => {
+        const path = strategy + '-big.dat'
 
-          pull(
-            values([{ path: path, content: values(bigFile) }]),
-            importer(ipld, importerOptions),
-            map((file) => {
-              expect(file.path).to.eql(path)
+        pull(
+          values([{ path: path, content: values(bigFile) }]),
+          importer(ipld, importerOptions),
+          map((file) => {
+            expect(file.path).to.eql(path)
 
-              return exporter(file.multihash, ipld)
-            }),
-            flatten(),
-            collect((err, files) => {
-              expect(err).to.not.exist()
-              expect(files[0].size).to.eql(bigFile.length)
-              fileEql(files[0], bigFile, done)
-            })
-          )
-        })
+            return exporter(file.multihash, ipld)
+          }),
+          flatten(),
+          collect((err, files) => {
+            expect(err).to.not.exist()
+            expect(files[0].size).to.eql(bigFile.length)
+            fileEql(files[0], bigFile, done)
+          })
+        )
       })
     })
   })
-}
+})

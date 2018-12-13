@@ -6,12 +6,11 @@ const importer = require('./../src')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const BlockService = require('ipfs-block-service')
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
 const CID = require('cids')
-const Ipld = require('ipld')
+const IPLD = require('ipld')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 
 const strategies = [
@@ -26,40 +25,43 @@ const expectedHashes = {
   trickle: 'QmYPsm9oVGjWECkT7KikZmrf8imggqKe8uS8Jco3qfWUCH'
 }
 
-module.exports = (repo) => {
-  strategies.forEach(strategy => {
-    const options = {
-      strategy: strategy
-    }
+strategies.forEach(strategy => {
+  const options = {
+    strategy: strategy
+  }
 
-    describe('go-ipfs interop using importer:' + strategy, () => {
-      let ipld
+  describe('go-ipfs interop using importer:' + strategy, () => {
+    let ipld
 
-      before(() => {
-        const bs = new BlockService(repo)
-        ipld = new Ipld({ blockService: bs })
-      })
+    before((done) => {
+      IPLD.inMemory((err, resolver) => {
+        expect(err).to.not.exist()
 
-      it('yields the same tree as go-ipfs', function (done) {
-        this.timeout(10 * 1000)
-        pull(
-          values([
-            {
-              path: 'big.dat',
-              content: randomByteStream(45900000, 7382)
-            }
-          ]),
-          importer(ipld, options),
-          collect((err, files) => {
-            expect(err).to.not.exist()
-            expect(files.length).to.be.equal(1)
+        ipld = resolver
 
-            const file = files[0]
-            expect(new CID(file.multihash).toBaseEncodedString()).to.be.equal(expectedHashes[strategy])
-            done()
-          })
-        )
+        done()
       })
     })
+
+    it('yields the same tree as go-ipfs', function (done) {
+      this.timeout(10 * 1000)
+      pull(
+        values([
+          {
+            path: 'big.dat',
+            content: randomByteStream(45900000, 7382)
+          }
+        ]),
+        importer(ipld, options),
+        collect((err, files) => {
+          expect(err).to.not.exist()
+          expect(files.length).to.be.equal(1)
+
+          const file = files[0]
+          expect(new CID(file.multihash).toBaseEncodedString()).to.be.equal(expectedHashes[strategy])
+          done()
+        })
+      )
+    })
   })
-}
+})

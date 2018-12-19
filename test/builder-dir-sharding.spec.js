@@ -45,7 +45,7 @@ describe('builder: directory sharding', function () {
         values([
           {
             path: 'a/b',
-            content: pull.values([Buffer.from('i have the best bytes')])
+            content: values([Buffer.from('i have the best bytes')])
           }
         ]),
         importer(ipld, options),

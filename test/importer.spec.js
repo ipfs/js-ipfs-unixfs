@@ -10,9 +10,11 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const spy = require('sinon/lib/sinon/spy')
 const pull = require('pull-stream/pull')
+const empty = require('pull-stream/sources/empty')
 const once = require('pull-stream/sources/once')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
+const onEnd = require('pull-stream/sinks/on-end')
 const CID = require('cids')
 const IPLD = require('ipld')
 const loadFixture = require('aegir/fixtures')
@@ -153,7 +155,7 @@ const checkLeafNodeTypes = (ipld, options, expected, done) => {
 const checkNodeLinks = (ipld, options, expected, done) => {
   waterfall([
     (cb) => pull(
-      pull.once({
+      once({
         path: '/foo',
         content: Buffer.alloc(100).fill(1)
       }),
@@ -258,7 +260,7 @@ strategies.forEach((strategy) => {
           content: 'banana'
         }]),
         importer(ipld, options),
-        pull.onEnd((err) => {
+        onEnd((err) => {
           expect(err).to.exist()
           done()
         })
@@ -267,7 +269,7 @@ strategies.forEach((strategy) => {
 
     it('doesn\'t yield anything on empty source', (done) => {
       pull(
-        pull.empty(),
+        empty(),
         importer(ipld, options),
         collect((err, nodes) => {
           expect(err).to.not.exist()
@@ -280,7 +282,7 @@ strategies.forEach((strategy) => {
       pull(
         values([{
           path: 'emptyfile',
-          content: pull.empty()
+          content: empty()
         }]),
         importer(ipld, options),
         collect((err, nodes) => {
@@ -306,7 +308,7 @@ strategies.forEach((strategy) => {
           }
         ]),
         importer(ipld, options),
-        pull.onEnd((err) => {
+        onEnd((err) => {
           expect(err).to.exist()
           expect(err.message).to.be.eql('detected more than one root')
           done()

@@ -50,11 +50,13 @@ And write the importing logic:
 
 ```js
 const importer = require('ipfs-unixfs-importer')
-const pull = require('pull-stream')
+const pull = require('pull-stream/pull')
+const values = require('pull-stream/sources/values')
+const collect = require('pull-stream/sinks/collect')
 
 // Import path /tmp/foo/bar
 pull(
-  pull.values([{
+  values([{
     path: '/tmp/foo/bar',
     content: fs.createReadStream(file)
   }, {
@@ -68,7 +70,7 @@ pull(
   importer(<ipld-resolver instance>, <options>),
 
   // Handle the error and do something with the results
-  pull.collect((err, files) => {
+  collect((err, files) => {
     console.info(files)
   })
 )

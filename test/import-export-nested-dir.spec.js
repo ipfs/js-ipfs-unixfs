@@ -33,10 +33,10 @@ describe('import and export: directory', () => {
 
     pull(
       values([
-        { path: 'a/b/c/d/e', content: pull.values([Buffer.from('banana')]) },
-        { path: 'a/b/c/d/f', content: pull.values([Buffer.from('strawberry')]) },
-        { path: 'a/b/g', content: pull.values([Buffer.from('ice')]) },
-        { path: 'a/b/h', content: pull.values([Buffer.from('cream')]) }
+        { path: 'a/b/c/d/e', content: values([Buffer.from('banana')]) },
+        { path: 'a/b/c/d/f', content: values([Buffer.from('strawberry')]) },
+        { path: 'a/b/g', content: values([Buffer.from('ice')]) },
+        { path: 'a/b/h', content: values([Buffer.from('cream')]) }
       ]),
       importer(ipld),
       collect((err, files) => {

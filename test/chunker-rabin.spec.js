@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chunker = require('./../src/chunker/rabin')
+const chunker = require('../src/chunker/rabin')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -10,6 +10,7 @@ const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const os = require('os')
+const isNode = require('detect-node')
 
 const rawFile = loadFixture('test/fixtures/1MiB.txt')
 
@@ -19,6 +20,10 @@ describe('chunker: rabin', function () {
   before(function () {
     if (os.platform() === 'win32') {
       return this.skip()
+    }
+
+    if (!isNode) {
+      this.skip()
     }
   })
 

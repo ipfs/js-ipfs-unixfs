@@ -176,8 +176,6 @@ describe('with dag-api', function () {
       }
 
       before(function (done) {
-        this.timeout(30 * 1000)
-
         IPLD.inMemory((err, resolver) => {
           if (err) {
             return done(err)

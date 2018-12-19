@@ -1,16 +1,23 @@
 /* eslint-env mocha */
 'use strict'
 
-const chunker = require('./../src/chunker/rabin')
+const chunker = require('../src/chunker/rabin')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
+const isNode = require('detect-node')
 
-describe('chunker: rabin browser', function () {
-  it('returns an error', (done) => {
+describe('chunker: rabin browser', () => {
+  before(function () {
+    if (isNode) {
+      this.skip()
+    }
+  })
+
+  it('returns an error', function (done) {
     const b1 = Buffer.alloc(2 * 256)
     const b2 = Buffer.alloc(1 * 256)
     const b3 = Buffer.alloc(5 * 256)

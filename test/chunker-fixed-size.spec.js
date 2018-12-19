@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chunker = require('./../src/chunker/fixed-size')
+const chunker = require('../src/chunker/fixed-size')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -11,11 +11,17 @@ const values = require('pull-stream/sources/values')
 const take = require('pull-stream/throughs/take')
 const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
-
+const isNode = require('detect-node')
 const rawFile = loadFixture('test/fixtures/1MiB.txt')
 
 describe('chunker: fixed size', function () {
   this.timeout(30000)
+
+  before(function () {
+    if (!isNode) {
+      this.skip()
+    }
+  })
 
   it('chunks non flat buffers', (done) => {
     const b1 = Buffer.alloc(2 * 256)

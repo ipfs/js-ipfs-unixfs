@@ -1,3 +1,13 @@
+<a name="0.37.3"></a>
+## [0.37.3](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.2...v0.37.3) (2018-12-19)
+
+
+### Bug Fixes
+
+* increase sharding timeouts ([69210b6](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/69210b6))
+
+
+
 <a name="0.37.2"></a>
 ## [0.37.2](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.1...v0.37.2) (2018-12-04)
 

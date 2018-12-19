@@ -42,7 +42,7 @@
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-exporter": "~0.35.4",
-    "ipld": "~0.20.0",
+    "ipld": "~0.20.2",
     "multihashes": "~0.4.14",
     "pull-generate": "^2.2.0",
     "pull-traverse": "^1.0.3",

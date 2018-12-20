@@ -4,12 +4,11 @@ const extend = require('deep-extend')
 const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
-const asyncMap = require('pull-stream/throughs/async-map')
-const map = require('pull-stream/throughs/map')
 const collect = require('pull-stream/sinks/collect')
 const through = require('pull-through')
 const parallel = require('async/parallel')
 const waterfall = require('async/waterfall')
+const paraMap = require('pull-paramap')
 const persist = require('../utils/persist')
 const reduce = require('./reduce')
 const {
@@ -106,50 +105,53 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
     pull(
       file.content,
       chunker,
-      map(chunk => {
+      through(chunk => {
         if (options.progress && typeof options.progress === 'function') {
           options.progress(chunk.byteLength)
         }
-        return chunk
       }),
-      asyncMap((buffer, callback) => {
-        if (options.rawLeaves) {
-          return callback(null, {
-            size: buffer.length,
-            leafSize: buffer.length,
-            data: buffer
-          })
-        }
+      paraMap((buffer, callback) => {
+        waterfall([
+          (cb) => {
+            if (options.rawLeaves) {
+              return cb(null, {
+                size: buffer.length,
+                leafSize: buffer.length,
+                data: buffer
+              })
+            }
 
-        const file = new UnixFS(options.leafType, buffer)
+            const file = new UnixFS(options.leafType, buffer)
 
-        DAGNode.create(file.marshal(), [], (err, node) => {
-          if (err) {
-            return callback(err)
+            DAGNode.create(file.marshal(), [], (err, node) => {
+              if (err) {
+                return cb(err)
+              }
+
+              cb(null, {
+                size: node.size,
+                leafSize: file.fileSize(),
+                data: node
+              })
+            })
+          },
+          (leaf, cb) => {
+            persist(leaf.data, ipld, options, (error, results) => {
+              if (error) {
+                return cb(error)
+              }
+
+              cb(null, {
+                size: leaf.size,
+                leafSize: leaf.leafSize,
+                data: results.node,
+                multihash: results.cid.buffer,
+                path: leaf.path,
+                name: ''
+              })
+            })
           }
-
-          callback(null, {
-            size: node.size,
-            leafSize: file.fileSize(),
-            data: node
-          })
-        })
-      }),
-      asyncMap((leaf, callback) => {
-        persist(leaf.data, ipld, options, (error, results) => {
-          if (error) {
-            return callback(error)
-          }
-
-          callback(null, {
-            size: leaf.size,
-            leafSize: leaf.leafSize,
-            data: results.node,
-            multihash: results.cid.buffer,
-            path: leaf.path,
-            name: ''
-          })
-        })
+        ], callback)
       }),
       through( // mark as single node if only one single node
         function onData (data) {

@@ -5,7 +5,8 @@ const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
-const through = require('pull-through')
+const through = require('pull-stream/throughs/through')
+const pullThrough = require('pull-through')
 const parallel = require('async/parallel')
 const waterfall = require('async/waterfall')
 const paraMap = require('pull-paramap')
@@ -153,7 +154,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
           }
         ], callback)
       }),
-      through( // mark as single node if only one single node
+      pullThrough( // mark as single node if only one single node
         function onData (data) {
           count++
           if (previous) {

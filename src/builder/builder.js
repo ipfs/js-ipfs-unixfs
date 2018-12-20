@@ -110,7 +110,7 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
         if (options.progress && typeof options.progress === 'function') {
           options.progress(chunk.byteLength)
         }
-        return Buffer.from(chunk)
+        return chunk
       }),
       asyncMap((buffer, callback) => {
         if (options.rawLeaves) {

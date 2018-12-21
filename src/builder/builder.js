@@ -24,7 +24,8 @@ const defaultOptions = {
   rawLeaves: false,
   hashAlg: 'sha2-256',
   leafType: 'file',
-  cidVersion: 0
+  cidVersion: 0,
+  progress: () => {}
 }
 
 module.exports = function builder (createChunker, ipld, createReducer, _options) {
@@ -106,10 +107,8 @@ module.exports = function builder (createChunker, ipld, createReducer, _options)
     pull(
       file.content,
       chunker,
-      through(chunk => {
-        if (options.progress && typeof options.progress === 'function') {
-          options.progress(chunk.byteLength)
-        }
+      through(buffer => {
+        options.progress(buffer.length)
       }),
       paraMap((buffer, callback) => {
         waterfall([

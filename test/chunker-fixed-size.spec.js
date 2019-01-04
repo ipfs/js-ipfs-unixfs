@@ -66,7 +66,7 @@ describe('chunker: fixed size', function () {
     const KiB256 = 262144
 
     pull(
-      values(rawFile),
+      values([rawFile]),
       chunker(KiB256),
       collect((err, chunks) => {
         expect(err).to.not.exist()
@@ -85,7 +85,7 @@ describe('chunker: fixed size', function () {
     let file = Buffer.concat([rawFile, Buffer.from('hello')])
 
     pull(
-      values(file),
+      values([file]),
       chunker(KiB256),
       collect((err, chunks) => {
         expect(err).to.not.exist()

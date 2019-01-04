@@ -59,7 +59,7 @@ describe('import and export', function () {
         const path = strategy + '-big.dat'
 
         pull(
-          values([{ path: path, content: values(bigFile) }]),
+          values([{ path: path, content: values([bigFile]) }]),
           importer(ipld, importerOptions),
           map((file) => {
             expect(file.path).to.eql(path)

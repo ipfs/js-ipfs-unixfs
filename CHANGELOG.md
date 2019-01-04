@@ -1,3 +1,20 @@
+<a name="0.38.0"></a>
+# [0.38.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.3...v0.38.0) (2019-01-04)
+
+
+### Bug Fixes
+
+* pull-stream/throughs/through is not pull-through ([df0abfa](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/df0abfa))
+
+
+### Performance Improvements
+
+* do not create new buffers ([4ef5dbc](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/4ef5dbc))
+* switch out pull-block for bl ([#12](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/12)) ([4e5b618](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/4e5b618))
+* write files in parallel chunks, use a through instead of a map ([6a86d55](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/6a86d55))
+
+
+
 <a name="0.37.3"></a>
 ## [0.37.3](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.2...v0.37.3) (2018-12-19)
 

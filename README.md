@@ -124,9 +124,13 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 
 - `wrap` (boolean, defaults to false): if true, a wrapping node will be created
 - `shardSplitThreshold` (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)
-- `chunker` (string, defaults to `"fixed"`): the chunking strategy. Now only supports `"fixed"`
+- `chunker` (string, defaults to `"fixed"`): the chunking strategy. Supports:
+  - `fixed`
+  - `rabin`
 - `chunkerOptions` (object, optional): the options for the chunker. Defaults to an object with the following properties:
-  - `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size for the `fixed` chunker.
+  - `avgChunkSize` (positive integer, defaults to `262144`): the average chunk size (rabin chunker only)
+  - `minChunkSize` (positive integer): the minimum chunk size (rabin chunker only)
+  - `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size
 - `strategy` (string, defaults to `"balanced"`): the DAG builder strategy name. Supports:
   - `flat`: flat list of chunks
   - `balanced`: builds a balanced tree

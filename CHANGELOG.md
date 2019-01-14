@@ -1,3 +1,13 @@
+<a name="0.38.1"></a>
+## [0.38.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.38.0...v0.38.1) (2019-01-14)
+
+
+### Bug Fixes
+
+* turn non-function progress callback into a noop ([#16](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/16)) ([6d2c15d](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/6d2c15d))
+
+
+
 <a name="0.38.0"></a>
 # [0.38.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.37.3...v0.38.0) (2019-01-04)
 

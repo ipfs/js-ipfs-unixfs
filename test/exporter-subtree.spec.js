@@ -5,6 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const CID = require('cids')
 const pull = require('pull-stream')
 const randomBytes = require('./helpers/random-bytes')
@@ -19,7 +20,7 @@ describe('exporter subtree', () => {
   let ipld
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

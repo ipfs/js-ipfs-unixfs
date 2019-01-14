@@ -5,6 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
@@ -19,7 +20,7 @@ describe('import and export: directory', () => {
   let ipld
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

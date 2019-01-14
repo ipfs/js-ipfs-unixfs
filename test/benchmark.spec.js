@@ -10,6 +10,7 @@ const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const onEnd = require('pull-stream/sinks/on-end')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const bufferStream = require('pull-buffer-stream')
 
 const REPEATS = 10
@@ -22,7 +23,7 @@ describe.skip('benchmark', function () {
   let ipld
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

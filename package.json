@@ -43,6 +43,7 @@
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-exporter": "~0.35.4",
     "ipld": "~0.20.2",
+    "ipld-in-memory": "^2.0.0",
     "multihashes": "~0.4.14",
     "pull-buffer-stream": "^1.0.1",
     "pull-generate": "^2.2.0",

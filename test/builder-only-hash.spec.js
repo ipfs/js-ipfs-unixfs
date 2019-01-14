@@ -8,6 +8,7 @@ const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const CID = require('cids')
 const createBuilder = require('../src/builder')
 const FixedSizeChunker = require('../src/chunker/fixed-size')
@@ -16,7 +17,7 @@ describe('builder: onlyHash', () => {
   let ipld
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

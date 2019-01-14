@@ -17,6 +17,7 @@ const collect = require('pull-stream/sinks/collect')
 const loadFixture = require('aegir/fixtures')
 const CID = require('cids')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -176,7 +177,7 @@ describe('with dag-api', function () {
       }
 
       before(function (done) {
-        IPLD.inMemory((err, resolver) => {
+        inMemory(IPLD, (err, resolver) => {
           if (err) {
             return done(err)
           }

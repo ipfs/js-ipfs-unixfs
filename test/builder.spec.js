@@ -9,6 +9,7 @@ const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
 const mh = require('multihashes')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const eachSeries = require('async').eachSeries
 const CID = require('cids')
 const UnixFS = require('ipfs-unixfs')
@@ -19,7 +20,7 @@ describe('builder', () => {
   let ipld
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

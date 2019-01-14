@@ -11,6 +11,7 @@ const values = require('pull-stream/sources/values')
 const collect = require('pull-stream/sinks/collect')
 const CID = require('cids')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 
 const strategies = [
@@ -34,7 +35,7 @@ strategies.forEach(strategy => {
     let ipld
 
     before((done) => {
-      IPLD.inMemory((err, resolver) => {
+      inMemory(IPLD, (err, resolver) => {
         expect(err).to.not.exist()
 
         ipld = resolver

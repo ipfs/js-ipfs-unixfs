@@ -17,6 +17,7 @@ const collect = require('pull-stream/sinks/collect')
 const onEnd = require('pull-stream/sinks/on-end')
 const CID = require('cids')
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const loadFixture = require('aegir/fixtures')
 const each = require('async/each')
 const waterfall = require('async/waterfall')
@@ -244,7 +245,7 @@ strategies.forEach((strategy) => {
     }
 
     before((done) => {
-      IPLD.inMemory((err, resolver) => {
+      inMemory(IPLD, (err, resolver) => {
         expect(err).to.not.exist()
 
         ipld = resolver

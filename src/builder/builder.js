@@ -30,6 +30,7 @@ const defaultOptions = {
 
 module.exports = function builder (createChunker, ipld, createReducer, _options) {
   const options = extend({}, defaultOptions, _options)
+  options.progress = typeof options.progress === 'function' ? options.progress : defaultOptions.progress
 
   return function (source) {
     return function (items, cb) {

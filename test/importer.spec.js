@@ -267,6 +267,23 @@ strategies.forEach((strategy) => {
       )
     })
 
+    it('survives bad progress option', (done) => {
+      pull(
+        values([{
+          path: '200Bytes.txt',
+          content: Buffer.from([0, 1, 2])
+        }]),
+        importer(ipld, {
+          ...options,
+          progress: null
+        }),
+        onEnd((err) => {
+          expect(err).to.not.exist()
+          done()
+        })
+      )
+    })
+
     it('doesn\'t yield anything on empty source', (done) => {
       pull(
         empty(),

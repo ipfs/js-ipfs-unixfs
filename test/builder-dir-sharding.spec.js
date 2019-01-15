@@ -18,9 +18,7 @@ const setImmediate = require('async/setImmediate')
 const leftPad = require('left-pad')
 const CID = require('cids')
 
-describe('builder: directory sharding', function () {
-  this.timeout(60 * 1000)
-
+describe('builder: directory sharding', () => {
   let ipld
 
   before((done) => {
@@ -166,7 +164,9 @@ describe('builder: directory sharding', function () {
     })
   })
 
-  describe('big dir', () => {
+  describe('big dir', function () {
+    this.timeout(30 * 1000)
+
     const maxDirs = 2000
     let rootHash
 
@@ -261,7 +261,9 @@ describe('builder: directory sharding', function () {
     })
   })
 
-  describe('big nested dir', () => {
+  describe('big nested dir', function () {
+    this.timeout(450 * 1000)
+
     const maxDirs = 2000
     const maxDepth = 3
     let rootHash

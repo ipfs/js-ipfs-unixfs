@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "0.35.7",
+  "version": "0.35.8",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -60,6 +60,7 @@
     "pull-traverse": "^1.0.3"
   },
   "contributors": [
+    "Alan Shaw <alan.shaw@protocol.ai>",
     "Alan Shaw <alan@tableflip.io>",
     "Arpit Agarwal <atvanguard@users.noreply.github.com>",
     "Bernard Mordan <bernard@tableflip.io>",

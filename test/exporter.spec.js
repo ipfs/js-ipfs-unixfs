@@ -5,6 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
+const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
 const pull = require('pull-stream')
 const zip = require('pull-zip')
@@ -171,7 +172,7 @@ describe('exporter', () => {
   }
 
   before((done) => {
-    IPLD.inMemory((err, resolver) => {
+    inMemory(IPLD, (err, resolver) => {
       expect(err).to.not.exist()
 
       ipld = resolver

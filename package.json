@@ -39,6 +39,7 @@
   "devDependencies": {
     "aegir": "^18.0.2",
     "chai": "^4.2.0",
+    "cids": "~0.5.5",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-exporter": "~0.35.4",
@@ -54,7 +55,6 @@
     "async": "^2.6.1",
     "async-iterator-to-pull-stream": "^1.1.0",
     "bl": "^2.1.2",
-    "cids": "~0.5.5",
     "deep-extend": "~0.6.0",
     "hamt-sharding": "~0.0.2",
     "ipfs-unixfs": "~0.1.16",

@@ -1,3 +1,7 @@
+## [0.35.9](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.8...v0.35.9) (2019-02-06)
+
+
+
 <a name="0.35.8"></a>
 ## [0.35.8](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.7...v0.35.8) (2019-01-16)
 

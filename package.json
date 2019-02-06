@@ -52,9 +52,11 @@
   "dependencies": {
     "async": "^2.6.1",
     "cids": "~0.5.5",
+    "hamt-sharding": "0.0.2",
     "ipfs-unixfs": "~0.1.16",
     "ipfs-unixfs-importer": "~0.38.0",
     "pull-cat": "^1.1.11",
+    "pull-defer": "~0.2.3",
     "pull-paramap": "^1.2.2",
     "pull-stream": "^3.6.9",
     "pull-traverse": "^1.0.3"

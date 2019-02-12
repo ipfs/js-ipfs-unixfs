@@ -8,10 +8,10 @@
     "fs": false
   },
   "scripts": {
-    "test": "aegir test -f test/index.js",
+    "test": "aegir test -t node -t browser",
     "test:node": "aegir test -t node",
-    "test:browser": "aegir test -t browser -f test/index.js",
-    "test:webworker": "aegir test -t webworker -f test/index.js",
+    "test:browser": "aegir test -t browser",
+    "test:webworker": "aegir test -t webworker",
     "build": "aegir build",
     "lint": "aegir lint",
     "release": "aegir release",
@@ -36,9 +36,10 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^17.0.0",
+    "aegir": "^18.0.0",
     "chai": "^4.2.0",
-    "dirty-chai": "^2.0.1"
+    "dirty-chai": "^2.0.1",
+    "safe-buffer": "^5.1.2"
   },
   "dependencies": {
     "protons": "^1.0.1"

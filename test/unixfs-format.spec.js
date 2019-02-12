@@ -46,7 +46,7 @@ describe('unixfs-format', () => {
   })
 
   it('file', () => {
-    const data = new UnixFS('file', new Buffer('batata'))
+    const data = new UnixFS('file', Buffer.from('batata'))
     const marshalled = data.marshal()
     const unmarshalled = UnixFS.unmarshal(marshalled)
     expect(data.type).to.equal(unmarshalled.type)

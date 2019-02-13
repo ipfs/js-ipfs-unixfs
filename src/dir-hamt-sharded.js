@@ -164,11 +164,7 @@ const addLinksToHamtBucket = (links, bucket, rootBucket, callback) => {
       return rootBucket.put(link.name.substring(2), true)
     })
   )
-    .catch(err => {
-      callback(err)
-      callback = null
-    })
-    .then(() => callback && callback())
+    .then(() => callback(), callback)
 }
 
 const toPrefix = (position) => {
@@ -181,10 +177,6 @@ const toPrefix = (position) => {
 
 const findPosition = (file, bucket, cb) => {
   bucket._findNewBucketAndPos(file)
-    .catch(err => {
-      cb(err)
-      cb = null
-    })
     .then(position => {
       if (!cb) {
         // would have errored in catch block above
@@ -192,7 +184,7 @@ const findPosition = (file, bucket, cb) => {
       }
 
       cb(null, position)
-    })
+    }, cb)
 }
 
 const toBucketPath = (position) => {

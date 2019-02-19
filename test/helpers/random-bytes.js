@@ -1,11 +1,22 @@
 'use strict'
 
-module.exports = function randomBytes (length) {
-  const buffer = Buffer.alloc(length)
+const crypto = require('crypto')
+const MAX_BYTES = 65536
 
-  for (let i = 0; i < length; i++) {
-    buffer[i] = Math.floor(Math.random() * 256) + 1
+// One day this will be merged: https://github.com/crypto-browserify/randombytes/pull/16
+module.exports = function randomBytes (num) {
+  num = parseInt(num)
+  const bytes = Buffer.allocUnsafe(num)
+
+  for (let offset = 0; offset < num; offset += MAX_BYTES) {
+    let size = MAX_BYTES
+
+    if ((offset + size) > num) {
+      size = num - offset
+    }
+
+    crypto.randomFillSync(bytes, offset, size)
   }
 
-  return buffer
+  return bytes
 }

@@ -40,7 +40,7 @@
     "chai": "^4.2.0",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
-    "ipld": "~0.20.2",
+    "ipld": "~0.21.1",
     "ipld-dag-pb": "~0.15.2",
     "ipld-in-memory": "^2.0.0",
     "pull-pushable": "^2.2.0",

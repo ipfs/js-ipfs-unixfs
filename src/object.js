@@ -23,7 +23,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
         name: pathElem,
         path: newName,
         pathRest: pathRest.slice(1),
-        multihash: isCID && newNode,
+        cid: isCID && newNode,
         object: !isCID && newNode,
         parent: parent
       }]),

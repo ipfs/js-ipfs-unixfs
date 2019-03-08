@@ -125,7 +125,7 @@ pull(
     //   name: 'QmFoo...',
     //   path: 'QmFoo...',
     //   size: ...
-    //   hash: Buffer
+    //   cid: CID
     //   content: undefined
     //   type: 'dir'
     // }, {
@@ -133,7 +133,7 @@ pull(
     //   name: 'bar',
     //   path: 'QmFoo.../bar',
     //   size: ...
-    //   hash: Buffer
+    //   cid: CID
     //   content: undefined
     //   type: 'dir'
     // }, {
@@ -141,7 +141,7 @@ pull(
     //   name: 'baz.txt',
     //   path: 'QmFoo.../bar/baz.txt',
     //   size: ...
-    //   hash: Buffer
+    //   cid: CID
     //   content: <Pull stream>
     //   type: 'file'
     // }]
@@ -172,7 +172,7 @@ pull(
     //   name: 'QmFoo...',
     //   path: 'QmFoo...',
     //   size: ...
-    //   hash: Buffer
+    //   cid: CID
     //   content: undefined
     //   type: 'dir'
     // }, {
@@ -180,7 +180,7 @@ pull(
     //   name: 'bar',
     //   path: 'QmFoo.../bar',
     //   size: ...
-    //   hash: Buffer
+    //   cid: CID
     //   content: undefined
     //   type: 'dir'
     // }]

@@ -34,7 +34,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     return once({
       depth,
       content: once(Buffer.alloc(0)),
-      hash: cid,
+      cid,
       name,
       path,
       size,
@@ -53,7 +53,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
   return once({
     depth,
     content: once(extractDataFromBlock(node, 0, offset, offset + length)),
-    hash: cid,
+    cid,
     name,
     path,
     size,

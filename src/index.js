@@ -63,7 +63,7 @@ module.exports = (path, dag, options) => {
 
   return pull(
     values([{
-      multihash: cid.buffer,
+      cid,
       name: dPath.base,
       path: dPath.base,
       pathRest: dPath.rest,
@@ -77,7 +77,7 @@ module.exports = (path, dag, options) => {
         name: node.name,
         path: options.fullPath ? node.path : finalPathFor(node),
         size: node.size,
-        hash: node.multihash,
+        cid: node.cid,
         content: node.content,
         type: node.type
       }

@@ -111,7 +111,7 @@ describe('exporter sharded', function () {
       (exported, cb) => {
         const dir = exported.shift()
 
-        expect(dir.hash).to.deep.equal(directory.buffer)
+        expect(dir.cid.equals(directory)).to.be.true()
         expect(exported.length).to.equal(Object.keys(files).length)
 
         parallel(
@@ -124,7 +124,7 @@ describe('exporter sharded', function () {
                 }
 
                 // validate the CID
-                expect(files[exported.name].cid.buffer).to.deep.equal(exported.hash)
+                expect(files[exported.name].cid.equals(exported.cid)).to.be.true()
 
                 // validate the exported file content
                 expect(files[exported.name].content).to.deep.equal(bufs[0])
@@ -176,7 +176,7 @@ describe('exporter sharded', function () {
       (exported, cb) => {
         const dir = exported.shift()
 
-        expect(dir.hash).to.deep.equal(dirCid.buffer)
+        expect(dir.cid.equals(dirCid)).to.be.true()
         expect(exported.length).to.equal(Object.keys(files).length)
 
         cb()

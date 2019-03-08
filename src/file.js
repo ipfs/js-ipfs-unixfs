@@ -52,7 +52,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
       content: once(Buffer.alloc(0)),
       name: name,
       path: path,
-      multihash: cid.buffer,
+      cid,
       size: fileSize,
       type: 'file'
     })
@@ -73,7 +73,7 @@ module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, d
     content: content,
     name: name,
     path: path,
-    multihash: cid.buffer,
+    cid,
     size: fileSize,
     type: 'file'
   }])

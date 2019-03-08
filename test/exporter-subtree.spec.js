@@ -51,7 +51,7 @@ describe('exporter subtree', () => {
         pull.collect((err, files) => cb(err, { cid, files }))
       ),
       ({ cid, files }, cb) => {
-        files.forEach(file => expect(file).to.have.property('hash'))
+        files.forEach(file => expect(file).to.have.property('cid'))
 
         expect(files.length).to.equal(1)
         expect(files[0].path).to.equal('200Bytes.txt')

@@ -7,7 +7,6 @@ const filter = require('pull-stream/throughs/filter')
 const flatten = require('pull-stream/throughs/flatten')
 const map = require('pull-stream/throughs/map')
 const paramap = require('pull-paramap')
-const CID = require('cids')
 const waterfall = require('async/waterfall')
 
 const resolvers = {
@@ -42,11 +41,9 @@ function createResolver (dag, options, depth, parent) {
         return cb(null, resolveItem(null, item.object, item, options))
       }
 
-      const cid = new CID(item.multihash)
-
       waterfall([
-        (done) => dag.get(cid, done),
-        (node, done) => done(null, resolveItem(cid, node.value, item, options))
+        (done) => dag.get(item.cid, done),
+        (node, done) => done(null, resolveItem(item.cid, node.value, item, options))
       ], cb)
     }),
     flatten(),

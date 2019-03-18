@@ -54,7 +54,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "async-iterator-to-pull-stream": "^1.1.0",
-    "bl": "^2.1.2",
+    "bl": "^3.0.0",
     "deep-extend": "~0.6.0",
     "hamt-sharding": "~0.0.2",
     "ipfs-unixfs": "~0.1.16",

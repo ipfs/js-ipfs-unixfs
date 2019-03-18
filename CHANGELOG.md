@@ -1,3 +1,8 @@
+<a name="0.38.5"></a>
+## [0.38.5](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.38.4...v0.38.5) (2019-03-18)
+
+
+
 <a name="0.38.4"></a>
 ## [0.38.4](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.38.3...v0.38.4) (2019-01-18)
 

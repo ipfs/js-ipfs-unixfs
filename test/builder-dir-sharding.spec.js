@@ -103,9 +103,9 @@ describe('builder: directory sharding', () => {
             expect(nodes.length).to.be.eql(2)
             const expectedHash = new CID(nonShardedHash).toBaseEncodedString()
             expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
+            expect(nodes[0].cid.toBaseEncodedString()).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(29)
+            expect(nodes[1].size).to.be.eql(21)
           } catch (err) {
             return done(err)
           }
@@ -138,7 +138,7 @@ describe('builder: directory sharding', () => {
             expect(nodes.length).to.be.eql(2)
             const expectedHash = new CID(shardedHash).toBaseEncodedString()
             expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(new CID(nodes[0].hash).toBaseEncodedString()).to.be.eql(expectedHash)
+            expect(nodes[0].cid.toBaseEncodedString()).to.be.eql(expectedHash)
             expect(nodes[1].path).to.be.eql(expectedHash + '/b')
             expect(nodes[1].size).to.be.eql(21)
           } catch (err) {

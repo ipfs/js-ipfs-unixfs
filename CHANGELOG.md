@@ -1,3 +1,13 @@
+<a name="0.36.1"></a>
+## [0.36.1](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.36.0...v0.36.1) (2019-03-18)
+
+
+### Bug Fixes
+
+* make exporter report file sizes without protobuf overhead ([#20](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues/20)) ([8d1bddd](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/8d1bddd)), closes [ipfs/js-ipfs#1934](https://github.com/ipfs/js-ipfs/issues/1934)
+
+
+
 <a name="0.36.0"></a>
 # [0.36.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.35.9...v0.36.0) (2019-03-08)
 

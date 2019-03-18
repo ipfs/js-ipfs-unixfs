@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-importer",
-  "version": "0.38.4",
+  "version": "0.38.5",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -85,6 +85,7 @@
     "Francisco Baio Dias <xicombd@gmail.com>",
     "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
     "Greenkeeper <support@greenkeeper.io>",
+    "Hugo Dias <mail@hugodias.me>",
     "Marcin Rataj <lidel@lidel.org>",
     "Pedro Teixeira <i@pgte.me>",
     "Richard Littauer <richard.littauer@gmail.com>",

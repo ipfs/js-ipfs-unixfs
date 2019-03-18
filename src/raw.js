@@ -6,14 +6,14 @@ const empty = require('pull-stream/sources/empty')
 const extractDataFromBlock = require('./extract-data-from-block')
 
 // Logic to export a single raw block
-module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) => {
+module.exports = (cid, node, name, path, pathRest, resolve, dag, parent, depth, options) => {
   const accepts = pathRest[0]
 
   if (accepts !== undefined && accepts !== path) {
     return empty()
   }
 
-  size = size || node.length
+  const size = node.length
 
   let offset = options.offset
   let length = options.length

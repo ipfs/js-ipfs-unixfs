@@ -9,7 +9,7 @@ const cat = require('pull-cat')
 // Logic to export a unixfs directory.
 module.exports = dirExporter
 
-function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) {
+function dirExporter (cid, node, name, path, pathRest, resolve, dag, parent, depth, options) {
   const accepts = pathRest[0]
 
   const dir = {
@@ -17,7 +17,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
     depth: depth,
     path: path,
     cid,
-    size: node.size,
+    size: 0,
     type: 'dir'
   }
 
@@ -32,7 +32,7 @@ function dirExporter (cid, node, name, path, pathRest, resolve, size, dag, paren
       filter((item) => accepts === undefined || item.name === accepts),
       map((link) => ({
         depth: depth + 1,
-        size: link.size,
+        size: 0,
         name: link.name,
         path: path + '/' + link.name,
         cid: link.cid,

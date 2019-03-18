@@ -58,7 +58,6 @@ function createResolver (dag, options, depth, parent) {
       name: item.name,
       path: item.path,
       pathRest: item.pathRest,
-      size: item.size,
       dag,
       parentNode: item.parent || parent,
       depth: item.depth,
@@ -66,7 +65,7 @@ function createResolver (dag, options, depth, parent) {
     })
   }
 
-  function resolve ({ cid, node, name, path, pathRest, size, dag, parentNode, depth, options }) {
+  function resolve ({ cid, node, name, path, pathRest, dag, parentNode, depth, options }) {
     let type
 
     try {
@@ -83,7 +82,7 @@ function createResolver (dag, options, depth, parent) {
 
     const resolveDeep = createResolver(dag, options, depth, node)
 
-    return nodeResolver(cid, node, name, path, pathRest, resolveDeep, size, dag, parentNode, depth, options)
+    return nodeResolver(cid, node, name, path, pathRest, resolveDeep, dag, parentNode, depth, options)
   }
 }
 

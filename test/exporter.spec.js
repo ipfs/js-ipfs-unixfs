@@ -382,6 +382,7 @@ describe('exporter', () => {
       ),
       ({ cid, files: [ file ] }, cb) => {
         expect(file).to.have.property('path', cid.toBaseEncodedString())
+        expect(file).to.have.property('size', ONE_MEG * 6)
         fileEql(file, null, cb)
       }
     ], done)
@@ -499,6 +500,12 @@ describe('exporter', () => {
           `${cid.toBaseEncodedString()}/level-1/200Bytes.txt`,
           `${cid.toBaseEncodedString()}/level-1/level-2`
         ])
+
+        files
+          .filter(file => file.type === 'dir')
+          .forEach(dir => {
+            expect(dir).to.has.property('size', 0)
+          })
 
         pull(
           pull.values(files),

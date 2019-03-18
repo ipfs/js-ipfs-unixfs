@@ -5,7 +5,7 @@ const pull = require('pull-stream/pull')
 const values = require('pull-stream/sources/values')
 const error = require('pull-stream/sources/error')
 
-module.exports = (cid, node, name, path, pathRest, resolve, size, dag, parent, depth) => {
+module.exports = (cid, node, name, path, pathRest, resolve, dag, parent, depth) => {
   let newNode
   if (pathRest.length) {
     const pathElem = pathRest[0]

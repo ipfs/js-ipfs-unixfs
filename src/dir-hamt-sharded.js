@@ -14,7 +14,7 @@ const waterfall = require('async/waterfall')
 // Logic to export a unixfs directory.
 module.exports = shardedDirExporter
 
-function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag, parent, depth, options) {
+function shardedDirExporter (cid, node, name, path, pathRest, resolve, dag, parent, depth, options) {
   let dir
   if (!parent || (parent.path !== path)) {
     dir = {
@@ -22,7 +22,7 @@ function shardedDirExporter (cid, node, name, path, pathRest, resolve, size, dag
       depth: depth,
       path: path,
       cid,
-      size: node.size,
+      size: 0,
       type: 'dir'
     }
   }

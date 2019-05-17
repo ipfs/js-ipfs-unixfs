@@ -7,13 +7,11 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const collect = require('pull-stream/sinks/collect')
-const CID = require('cids')
-const waterfall = require('async/waterfall')
-const parallel = require('async/parallel')
-const randomBytes = require('./helpers/random-bytes')
+const mh = require('multihashes')
+const mc = require('multicodec')
+const all = require('async-iterator-all')
+const last = require('async-iterator-last')
+const randomBytes = require('async-iterator-buffer-stream')
 const exporter = require('../src')
 const importer = require('ipfs-unixfs-importer')
 const {
@@ -28,30 +26,24 @@ describe('exporter sharded', function () {
 
   let ipld
 
-  const createShard = (numFiles, callback) => {
-    createShardWithFileNames(numFiles, (index) => `file-${index}`, callback)
+  const createShard = (numFiles) => {
+    return createShardWithFileNames(numFiles, (index) => `file-${index}`)
   }
 
-  const createShardWithFileNames = (numFiles, fileName, callback) => {
+  const createShardWithFileNames = (numFiles, fileName) => {
     const files = new Array(numFiles).fill(0).map((_, index) => ({
       path: fileName(index),
       content: Buffer.from([0, 1, 2, 3, 4, index])
     }))
 
-    createShardWithFiles(files, callback)
+    return createShardWithFiles(files)
   }
 
-  const createShardWithFiles = (files, callback) => {
-    pull(
-      values(files),
-      importer(ipld, {
-        shardSplitThreshold: SHARD_SPLIT_THRESHOLD,
-        wrap: true
-      }),
-      collect((err, files) => {
-        callback(err, files ? new CID(files.pop().multihash) : undefined)
-      })
-    )
+  const createShardWithFiles = async (files) => {
+    return (await last(importer(files, ipld, {
+      shardSplitThreshold: SHARD_SPLIT_THRESHOLD,
+      wrapWithDirectory: true
+    }))).cid
   }
 
   before((done) => {
@@ -64,350 +56,158 @@ describe('exporter sharded', function () {
     })
   })
 
-  it('exports a sharded directory', (done) => {
+  it('exports a sharded directory', async () => {
     const files = {}
-    let directory
 
     for (let i = 0; i < (SHARD_SPLIT_THRESHOLD + 1); i++) {
       files[`file-${Math.random()}.txt`] = {
-        content: randomBytes(100)
+        content: Buffer.concat(await all(randomBytes(100)))
       }
     }
 
-    waterfall([
-      (cb) => pull(
-        pull.values(
-          Object.keys(files).map(path => ({
-            path,
-            content: files[path].content
-          }))
-        ),
-        importer(ipld, {
-          wrap: true,
-          shardSplitThreshold: SHARD_SPLIT_THRESHOLD
-        }),
-        collect(cb)
-      ),
-      (imported, cb) => {
-        directory = new CID(imported.pop().multihash)
+    const imported = await all(importer(Object.keys(files).map(path => ({
+      path,
+      content: files[path].content
+    })), ipld, {
+      wrapWithDirectory: true,
+      shardSplitThreshold: SHARD_SPLIT_THRESHOLD
+    }))
 
-        // store the CIDs, we will validate them later
-        imported.forEach(imported => {
-          files[imported.path].cid = new CID(imported.multihash)
-        })
+    const dirCid = imported.pop().cid
 
-        ipld.get(directory, cb)
-      },
-      ({ value, cid }, cb) => {
-        const dir = UnixFS.unmarshal(value.data)
+    // store the CIDs, we will validate them later
+    imported.forEach(imported => {
+      files[imported.path].cid = imported.cid
+    })
 
-        expect(dir.type).to.equal('hamt-sharded-directory')
+    const dir = await ipld.get(dirCid)
+    const dirMetadata = UnixFS.unmarshal(dir.Data)
 
-        pull(
-          exporter(directory, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        const dir = exported.shift()
+    expect(dirMetadata.type).to.equal('hamt-sharded-directory')
 
-        expect(dir.cid.equals(directory)).to.be.true()
-        expect(exported.length).to.equal(Object.keys(files).length)
+    const exported = await exporter(dirCid, ipld)
 
-        parallel(
-          exported.map(exported => (cb) => {
-            pull(
-              exported.content,
-              collect((err, bufs) => {
-                if (err) {
-                  cb(err)
-                }
+    expect(exported.cid.equals(dirCid)).to.be.true()
 
-                // validate the CID
-                expect(files[exported.name].cid.equals(exported.cid)).to.be.true()
+    const dirFiles = await all(exported.content())
+    expect(dirFiles.length).to.equal(Object.keys(files).length)
 
-                // validate the exported file content
-                expect(files[exported.name].content).to.deep.equal(bufs[0])
+    for (let i = 0; i < dirFiles.length; i++) {
+      const dirFile = dirFiles[i]
+      const data = Buffer.concat(await all(dirFile.content()))
 
-                cb()
-              })
-            )
-          }),
-          cb
-        )
-      }
-    ], done)
-  })
+      // validate the CID
+      expect(files[dirFile.name].cid.equals(dirFile.cid)).to.be.true()
 
-  it('exports all the files from a sharded directory with maxDepth', (done) => {
-    const files = {}
-    let dirCid
-
-    for (let i = 0; i < (SHARD_SPLIT_THRESHOLD + 1); i++) {
-      files[`file-${Math.random()}.txt`] = {
-        content: randomBytes(100)
-      }
+      // validate the exported file content
+      expect(files[dirFile.name].content).to.deep.equal(data)
     }
-
-    waterfall([
-      (cb) => pull(
-        pull.values(
-          Object.keys(files).map(path => ({
-            path,
-            content: files[path].content
-          }))
-        ),
-        importer(ipld, {
-          wrap: true,
-          shardSplitThreshold: SHARD_SPLIT_THRESHOLD
-        }),
-        collect(cb)
-      ),
-      (imported, cb) => {
-        dirCid = new CID(imported.pop().multihash)
-
-        pull(
-          exporter(dirCid, ipld, {
-            maxDepth: 1
-          }),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        const dir = exported.shift()
-
-        expect(dir.cid.equals(dirCid)).to.be.true()
-        expect(exported.length).to.equal(Object.keys(files).length)
-
-        cb()
-      }
-    ], done)
   })
 
-  it('exports all files from a sharded directory with subshards', (done) => {
-    waterfall([
-      (cb) => createShard(31, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}`, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(32)
+  it('exports all files from a sharded directory with subshards', async () => {
+    const numFiles = 31
+    const dirCid = await createShard(numFiles)
+    const exported = await exporter(dirCid, ipld)
+    const files = await all(exported.content())
+    expect(files.length).to.equal(numFiles)
 
-        const dir = exported.shift()
+    expect(exported.unixfs.type).to.equal('hamt-sharded-directory')
 
-        expect(dir.type).to.equal('dir')
-
-        exported.forEach(file => expect(file.type).to.equal('file'))
-
-        cb()
-      }
-    ], done)
+    files.forEach(file => expect(file.unixfs.type).to.equal('file'))
   })
 
-  it('exports one file from a sharded directory', (done) => {
-    waterfall([
-      (cb) => createShard(31, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/file-14`, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('exports one file from a sharded directory', async () => {
+    const dirCid = await createShard(31)
+    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-14`, ipld)
 
-        const file = exported.shift()
-
-        expect(file.name).to.deep.equal('file-14')
-
-        cb()
-      }
-    ], done)
+    expect(exported.name).to.equal('file-14')
   })
 
-  it('exports one file from a sharded directory sub shard', (done) => {
-    waterfall([
-      (cb) => createShard(31, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/file-30`, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('exports one file from a sharded directory sub shard', async () => {
+    const dirCid = await createShard(31)
+    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-30`, ipld)
 
-        const file = exported.shift()
-
-        expect(file.name).to.deep.equal('file-30')
-
-        cb()
-      }
-    ], done)
+    expect(exported.name).to.deep.equal('file-30')
   })
 
-  it('exports one file from a shard inside a shard inside a shard', (done) => {
-    waterfall([
-      (cb) => createShard(2568, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/file-2567`, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('exports one file from a shard inside a shard inside a shard', async () => {
+    const dirCid = await createShard(2568)
+    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-2567`, ipld)
 
-        const file = exported.shift()
-
-        expect(file.name).to.deep.equal('file-2567')
-
-        cb()
-      }
-    ], done)
+    expect(exported.name).to.deep.equal('file-2567')
   })
 
-  it('uses maxDepth to only extract a deep folder from the sharded directory', (done) => {
-    waterfall([
-      (cb) => createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
-            maxDepth: 3
-          }),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('extracts a deep folder from the sharded directory', async () => {
+    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
+    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld)
 
-        const entry = exported.pop()
-
-        expect(entry.name).to.deep.equal('baz')
-
-        cb()
-      }
-    ], done)
+    expect(exported.name).to.deep.equal('baz')
   })
 
-  it('uses maxDepth to only extract an intermediate folder from the sharded directory', (done) => {
-    waterfall([
-      (cb) => createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
-            maxDepth: 2
-          }),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('extracts an intermediate folder from the sharded directory', async () => {
+    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
+    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar`, ipld)
 
-        const entry = exported.pop()
-
-        expect(entry.name).to.deep.equal('bar')
-
-        cb()
-      }
-    ], done)
+    expect(exported.name).to.deep.equal('bar')
   })
 
-  it('uses fullPath extract all intermediate entries from the sharded directory', (done) => {
-    waterfall([
-      (cb) => createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld, {
-            fullPath: true
-          }),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(5)
+  it('uses .path to extract all intermediate entries from the sharded directory', async () => {
+    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
+    const exported = await all(exporter.path(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld))
 
-        expect(exported[1].name).to.equal('foo')
-        expect(exported[2].name).to.equal('bar')
-        expect(exported[3].name).to.equal('baz')
-        expect(exported[4].name).to.equal('file-1')
+    expect(exported.length).to.equal(5)
 
-        cb()
-      }
-    ], done)
+    expect(exported[0].name).to.equal(dirCid.toBaseEncodedString())
+    expect(exported[1].name).to.equal('foo')
+    expect(exported[1].path).to.equal(`${dirCid.toBaseEncodedString()}/foo`)
+    expect(exported[2].name).to.equal('bar')
+    expect(exported[2].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar`)
+    expect(exported[3].name).to.equal('baz')
+    expect(exported[3].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar/baz`)
+    expect(exported[4].name).to.equal('file-1')
+    expect(exported[4].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`)
   })
 
-  it('uses fullPath extract all intermediate entries from the sharded directory as well as the contents', (done) => {
-    waterfall([
-      (cb) => createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, cb),
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/foo/bar/baz`, ipld, {
-            fullPath: true
-          }),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(35)
+  it('uses .path to extract all intermediate entries from the sharded directory as well as the contents', async () => {
+    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
+    const exported = await all(exporter.path(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld))
 
-        expect(exported[1].name).to.equal('foo')
-        expect(exported[2].name).to.equal('bar')
-        expect(exported[3].name).to.equal('baz')
-        expect(exported[4].name).to.equal('file-14')
+    expect(exported.length).to.equal(4)
 
-        exported.slice(4).forEach(file => expect(file.type).to.equal('file'))
+    expect(exported[1].name).to.equal('foo')
+    expect(exported[2].name).to.equal('bar')
+    expect(exported[3].name).to.equal('baz')
 
-        cb()
-      }
-    ], done)
+    const files = await all(exported[3].content())
+
+    expect(files.length).to.equal(31)
+
+    files.forEach(file => {
+      expect(file.unixfs.type).to.equal('file')
+    })
   })
 
-  it('exports a file from a sharded directory inside a regular directory inside a sharded directory', (done) => {
-    waterfall([
-      (cb) => createShard(15, cb),
-      (dir, cb) => {
-        DAGNode.create(new UnixFS('directory').marshal(), [
-          new DAGLink('shard', 5, dir)
-        ], cb)
-      },
-      (node, cb) => {
-        ipld.put(node, {
-          version: 0,
-          format: 'dag-pb',
-          hashAlg: 'sha2-256'
-        }, cb)
-      },
-      (cid, cb) => {
-        DAGNode.create(new UnixFS('hamt-sharded-directory').marshal(), [
-          new DAGLink('75normal-dir', 5, cid)
-        ], cb)
-      },
-      (node, cb) => {
-        ipld.put(node, {
-          version: 1,
-          format: 'dag-pb',
-          hashAlg: 'sha2-256'
-        }, cb)
-      },
-      (dir, cb) => {
-        pull(
-          exporter(`/ipfs/${dir.toBaseEncodedString()}/normal-dir/shard/file-1`, ipld),
-          collect(cb)
-        )
-      },
-      (exported, cb) => {
-        expect(exported.length).to.equal(1)
+  it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
+    const dirCid = await createShard(15)
 
-        const entry = exported.pop()
+    const node = await DAGNode.create(new UnixFS('directory').marshal(), [
+      new DAGLink('shard', 5, dirCid)
+    ])
+    const nodeCid = await ipld.put(node, mc.DAG_PB, {
+      cidVersion: 0,
+      hashAlg: mh.names['sha2-256']
+    })
 
-        expect(entry.name).to.deep.equal('file-1')
+    const shardNode = await DAGNode.create(new UnixFS('hamt-sharded-directory').marshal(), [
+      new DAGLink('75normal-dir', 5, nodeCid)
+    ])
+    const shardNodeCid = await ipld.put(shardNode, mc.DAG_PB, {
+      cidVersion: 1,
+      hashAlg: mh.names['sha2-256']
+    })
 
-        cb()
-      }
-    ], done)
+    const exported = await exporter(`/ipfs/${shardNodeCid.toBaseEncodedString()}/normal-dir/shard/file-1`, ipld)
+
+    expect(exported.name).to.deep.equal('file-1')
   })
 })

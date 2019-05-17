@@ -1,113 +1,9 @@
 'use strict'
 
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const error = require('pull-stream/sources/error')
-const filter = require('pull-stream/throughs/filter')
-const map = require('pull-stream/throughs/map')
+const errCode = require('err-code')
 const CID = require('cids')
-
-const createResolver = require('./resolve').createResolver
-
-function pathBaseAndRest (path) {
-  // Buffer -> raw multihash or CID in buffer
-  let pathBase = path
-  let pathRest = '/'
-
-  if (Buffer.isBuffer(path)) {
-    pathBase = (new CID(path)).toBaseEncodedString()
-  }
-
-  if (typeof path === 'string') {
-    if (path.indexOf('/ipfs/') === 0) {
-      path = pathBase = path.substring(6)
-    }
-    const subtreeStart = path.indexOf('/')
-    if (subtreeStart > 0) {
-      pathBase = path.substring(0, subtreeStart)
-      pathRest = path.substring(subtreeStart)
-    }
-  } else if (CID.isCID(pathBase)) {
-    pathBase = pathBase.toBaseEncodedString()
-  }
-
-  pathBase = (new CID(pathBase)).toBaseEncodedString()
-
-  return {
-    base: pathBase,
-    rest: toPathComponents(pathRest)
-  }
-}
-
-const defaultOptions = {
-  maxDepth: Infinity,
-  offset: undefined,
-  length: undefined,
-  fullPath: false
-}
-
-module.exports = (path, dag, options) => {
-  options = Object.assign({}, defaultOptions, options)
-
-  let dPath
-  try {
-    dPath = pathBaseAndRest(path)
-  } catch (err) {
-    return error(err)
-  }
-
-  const pathLengthToCut = join(
-    [dPath.base].concat(dPath.rest.slice(0, dPath.rest.length - 1))).length
-
-  const cid = new CID(dPath.base)
-
-  return pull(
-    values([{
-      cid,
-      name: dPath.base,
-      path: dPath.base,
-      pathRest: dPath.rest,
-      depth: 0
-    }]),
-    createResolver(dag, options),
-    filter(Boolean),
-    map((node) => {
-      return {
-        depth: node.depth,
-        name: node.name,
-        path: options.fullPath ? node.path : finalPathFor(node),
-        size: node.size,
-        cid: node.cid,
-        content: node.content,
-        type: node.type
-      }
-    })
-  )
-
-  function finalPathFor (node) {
-    if (!dPath.rest.length) {
-      return node.path
-    }
-
-    let retPath = node.path.substring(pathLengthToCut)
-    if (retPath.charAt(0) === '/') {
-      retPath = retPath.substring(1)
-    }
-    if (!retPath) {
-      retPath = dPath.rest[dPath.rest.length - 1] || dPath.base
-    }
-    return retPath
-  }
-}
-
-function join (paths) {
-  return paths.reduce((acc, path) => {
-    if (acc.length) {
-      acc += '/'
-    }
-    return acc + path
-  }, '')
-}
+const resolve = require('./resolvers')
+const last = require('async-iterator-last')
 
 const toPathComponents = (path = '') => {
   // split on / unless escaped with \
@@ -116,3 +12,98 @@ const toPathComponents = (path = '') => {
     .match(/([^\\^/]|\\\/)+/g) || [])
     .filter(Boolean)
 }
+
+const cidAndRest = (path) => {
+  if (Buffer.isBuffer(path)) {
+    return {
+      cid: new CID(path),
+      toResolve: []
+    }
+  }
+
+  if (CID.isCID(path)) {
+    return {
+      cid: path,
+      toResolve: []
+    }
+  }
+
+  if (typeof path === 'string') {
+    if (path.indexOf('/ipfs/') === 0) {
+      path = path.substring(6)
+    }
+
+    const output = toPathComponents(path)
+
+    return {
+      cid: new CID(output[0]),
+      toResolve: output.slice(1)
+    }
+  }
+
+  throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
+}
+
+const walkPath = async function * (path, ipld) {
+  let {
+    cid,
+    toResolve
+  } = cidAndRest(path)
+  let name = cid.toBaseEncodedString()
+  let entryPath = name
+  const startingDepth = toResolve.length
+
+  while (true) {
+    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, ipld)
+
+    if (!result.entry && !result.next) {
+      throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
+    }
+
+    if (result.entry) {
+      yield result.entry
+    }
+
+    if (!result.next) {
+      return
+    }
+
+    // resolve further parts
+    toResolve = result.next.toResolve
+    cid = result.next.cid
+    name = result.next.name
+    entryPath = result.next.path
+  }
+}
+
+const exporter = (path, ipld) => {
+  return last(walkPath(path, ipld))
+}
+
+const recursive = async function * (path, ipld) {
+  const node = await exporter(path, ipld)
+
+  yield node
+
+  if (node.unixfs && node.unixfs.type.includes('dir')) {
+    for await (const child of recurse(node)) {
+      yield child
+    }
+  }
+
+  async function * recurse (node) {
+    for await (const file of node.content()) {
+      yield file
+
+      if (file.unixfs.type.includes('dir')) {
+        for await (const subFile of recurse(file)) {
+          yield subFile
+        }
+      }
+    }
+  }
+}
+
+module.exports = exporter
+module.exports.path = walkPath
+module.exports.recursive = recursive

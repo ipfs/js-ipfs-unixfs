@@ -41,7 +41,6 @@
     "aegir": "^18.0.2",
     "async-iterator-all": "^1.0.0",
     "async-iterator-buffer-stream": "^1.0.0",
-    "async-iterator-first": "^1.0.0",
     "async-iterator-last": "^1.0.0",
     "chai": "^4.2.0",
     "cids": "~0.7.1",
@@ -59,6 +58,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "async-iterator-batch": "~0.0.1",
+    "async-iterator-first": "^1.0.0",
     "async-iterator-to-pull-stream": "^1.3.0",
     "bl": "^3.0.0",
     "deep-extend": "~0.6.0",

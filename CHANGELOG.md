@@ -1,3 +1,13 @@
+<a name="0.39.0"></a>
+# [0.39.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.38.5...v0.39.0) (2019-05-17)
+
+
+### Features
+
+* switch to async await ([#24](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/24)) ([2a40ecb](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/2a40ecb))
+
+
+
 <a name="0.38.5"></a>
 ## [0.38.5](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.38.4...v0.38.5) (2019-03-18)
 

@@ -6,12 +6,9 @@ const importer = require('../src')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const onEnd = require('pull-stream/sinks/on-end')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const bufferStream = require('pull-buffer-stream')
+const bufferStream = require('async-iterator-buffer-stream')
 
 const REPEATS = 10
 const FILE_SIZE = Math.pow(2, 20) * 500 // 500MB
@@ -35,14 +32,14 @@ describe.skip('benchmark', function () {
   const times = []
 
   after(() => {
-    console.info(`Percent\tms`)
+    console.info(`Percent\tms`) // eslint-disable-line no-console
     times.forEach((time, index) => {
-      console.info(`${index}\t${parseInt(time / REPEATS)}`)
+      console.info(`${index}\t${parseInt(time / REPEATS)}`) // eslint-disable-line no-console
     })
   })
 
   for (let i = 0; i < REPEATS; i++) {
-    it(`run ${i}`, (done) => { // eslint-disable-line no-loop-func
+    it(`run ${i}`, async () => { // eslint-disable-line no-loop-func
       this.timeout(0)
 
       const size = FILE_SIZE
@@ -67,22 +64,17 @@ describe.skip('benchmark', function () {
 
       const buf = Buffer.alloc(CHUNK_SIZE).fill(0)
 
-      pull(
-        values([{
-          path: '200Bytes.txt',
-          content: bufferStream(size, {
-            chunkSize: CHUNK_SIZE,
-            generator: (num, cb) => {
-              cb(null, buf)
-            }
-          })
-        }]),
-        importer(ipld, options),
-        onEnd((err) => {
-          expect(err).to.not.exist()
-          done()
+      for await (const file of importer({ // eslint-disable-line no-unused-vars
+        path: '200Bytes.txt',
+        content: bufferStream(size, {
+          chunkSize: CHUNK_SIZE,
+          generator: () => {
+            return buf
+          }
         })
-      )
+      }, ipld, options)) {
+        // do nothing
+      }
     })
   }
 })

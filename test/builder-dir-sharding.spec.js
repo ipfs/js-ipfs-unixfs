@@ -9,15 +9,9 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const asyncMap = require('pull-stream/throughs/async-map')
-const collect = require('pull-stream/sinks/collect')
-const pushable = require('pull-pushable')
-const whilst = require('async/whilst')
-const setImmediate = require('async/setImmediate')
 const leftPad = require('left-pad')
-const CID = require('cids')
+const all = require('async-iterator-all')
+const last = require('async-iterator-last')
 
 describe('builder: directory sharding', () => {
   let ipld
@@ -33,135 +27,99 @@ describe('builder: directory sharding', () => {
   })
 
   describe('basic dirbuilder', () => {
-    let nonShardedHash, shardedHash
-
-    it('yields a non-sharded dir', (done) => {
-      const options = {
+    it('yields a non-sharded dir', async () => {
+      const content = Buffer.from('i have the best bytes')
+      const nodes = await all(importer([{
+        path: 'a/b',
+        content
+      }], ipld, {
         shardSplitThreshold: Infinity // never shard
-      }
+      }))
 
-      pull(
-        values([
-          {
-            path: 'a/b',
-            content: values([Buffer.from('i have the best bytes')])
-          }
-        ]),
-        importer(ipld, options),
-        collect((err, nodes) => {
-          try {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            expect(nodes[0].path).to.be.eql('a/b')
-            expect(nodes[1].path).to.be.eql('a')
-            nonShardedHash = nodes[1].multihash
-            expect(nonShardedHash).to.exist()
-            done()
-          } catch (err) {
-            done(err)
-          }
-        })
-      )
+      expect(nodes.length).to.equal(2)
+
+      expect(nodes[0].path).to.equal('a/b')
+      expect(nodes[1].path).to.equal('a')
+
+      const dirNode = await exporter(nodes[1].cid, ipld)
+      expect(dirNode.unixfs.type).to.equal('directory')
+
+      const fileNode = await exporter(nodes[0].cid, ipld)
+      expect(fileNode.unixfs.type).to.equal('file')
+      expect(Buffer.concat(await all(fileNode.content()))).to.deep.equal(content)
     })
 
-    it('yields a sharded dir', (done) => {
-      const options = {
+    it('yields a sharded dir', async () => {
+      const nodes = await all(importer([{
+        path: 'a/b',
+        content: Buffer.from('i have the best bytes')
+      }], ipld, {
         shardSplitThreshold: 0 // always shard
-      }
+      }))
 
-      pull(
-        values([
-          {
-            path: 'a/b',
-            content: values([Buffer.from('i have the best bytes')])
-          }
-        ]),
-        importer(ipld, options),
-        collect((err, nodes) => {
-          try {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            expect(nodes[0].path).to.be.eql('a/b')
-            expect(nodes[1].path).to.be.eql('a')
-            shardedHash = nodes[1].multihash
-            // hashes are different
-            expect(shardedHash).to.not.equal(nonShardedHash)
-            done()
-          } catch (err) {
-            done(err)
-          }
-        })
-      )
+      expect(nodes.length).to.equal(2)
+      expect(nodes[0].path).to.equal('a/b')
+      expect(nodes[1].path).to.equal('a')
+
+      const node = await exporter(nodes[1].cid, ipld)
+
+      expect(node.unixfs.type).to.equal('hamt-sharded-directory')
     })
 
-    it('exporting unsharded hash results in the correct files', (done) => {
-      pull(
-        exporter(nonShardedHash, ipld),
-        collect((err, nodes) => {
-          try {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            const expectedHash = new CID(nonShardedHash).toBaseEncodedString()
-            expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(nodes[0].cid.toBaseEncodedString()).to.be.eql(expectedHash)
-            expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(21)
-          } catch (err) {
-            return done(err)
-          }
+    it('exporting unsharded hash results in the correct files', async () => {
+      const content = 'i have the best bytes'
+      const nodes = await all(importer([{
+        path: 'a/b',
+        content: Buffer.from(content)
+      }], ipld, {
+        shardSplitThreshold: Infinity // never shard
+      }))
 
-          pull(
-            nodes[1].content,
-            collect(collected)
-          )
-        })
-      )
+      const nonShardedHash = nodes[1].cid
 
-      function collected (err, content) {
-        try {
-          expect(err).to.not.exist()
-          expect(content.length).to.be.eql(1)
-          expect(content[0].toString()).to.be.eql('i have the best bytes')
-          done()
-        } catch (err) {
-          done(err)
-        }
-      }
+      const dir = await exporter(nonShardedHash, ipld)
+      const files = await all(dir.content())
+
+      expect(files.length).to.equal(1)
+
+      const expectedHash = nonShardedHash.toBaseEncodedString()
+
+      expect(dir.path).to.be.eql(expectedHash)
+      expect(dir.cid.toBaseEncodedString()).to.be.eql(expectedHash)
+      expect(files[0].path).to.be.eql(expectedHash + '/b')
+      expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
+
+      const fileContent = Buffer.concat(await all(files[0].content()))
+
+      expect(fileContent.toString()).to.equal(content)
     })
 
-    it('exporting sharded hash results in the correct files', (done) => {
-      pull(
-        exporter(shardedHash, ipld),
-        collect((err, nodes) => {
-          try {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(2)
-            const expectedHash = new CID(shardedHash).toBaseEncodedString()
-            expect(nodes[0].path).to.be.eql(expectedHash)
-            expect(nodes[0].cid.toBaseEncodedString()).to.be.eql(expectedHash)
-            expect(nodes[1].path).to.be.eql(expectedHash + '/b')
-            expect(nodes[1].size).to.be.eql(21)
-          } catch (err) {
-            return done(err)
-          }
+    it('exporting sharded hash results in the correct files', async () => {
+      const content = 'i have the best bytes'
+      const nodes = await all(importer([{
+        path: 'a/b',
+        content: Buffer.from(content)
+      }], ipld, {
+        shardSplitThreshold: 0 // always shard
+      }))
 
-          pull(
-            nodes[1].content,
-            collect(collected)
-          )
-        })
-      )
+      const shardedHash = nodes[1].cid
 
-      function collected (err, content) {
-        try {
-          expect(err).to.not.exist()
-          expect(content.length).to.be.eql(1)
-          expect(content[0].toString()).to.be.eql('i have the best bytes')
-          done()
-        } catch (err) {
-          done(err)
-        }
-      }
+      const dir = await exporter(shardedHash, ipld)
+      const files = await all(dir.content())
+
+      expect(files.length).to.equal(1)
+
+      const expectedHash = shardedHash.toBaseEncodedString()
+
+      expect(dir.path).to.be.eql(expectedHash)
+      expect(dir.cid.toBaseEncodedString()).to.be.eql(expectedHash)
+      expect(files[0].path).to.be.eql(expectedHash + '/b')
+      expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
+
+      const fileContent = Buffer.concat(await all(files[0].content()))
+
+      expect(fileContent.toString()).to.equal(content)
     })
   })
 
@@ -169,95 +127,47 @@ describe('builder: directory sharding', () => {
     this.timeout(30 * 1000)
 
     const maxDirs = 2000
-    let rootHash
 
-    it('imports a big dir', (done) => {
-      const push = pushable()
-      pull(
-        push,
-        importer(ipld),
-        collect((err, nodes) => {
-          try {
-            expect(err).to.not.exist()
-            expect(nodes.length).to.be.eql(maxDirs + 1)
-            const last = nodes[nodes.length - 1]
-            expect(last.path).to.be.eql('big')
-            rootHash = last.multihash
-            done()
-          } catch (err) {
-            done(err)
+    it('imports a big dir', async () => {
+      const source = {
+        [Symbol.asyncIterator]: async function * () {
+          for (let i = 0; i < maxDirs; i++) {
+            yield {
+              path: 'big/' + leftPad(i.toString(), 4, '0'),
+              content: Buffer.from(i.toString())
+            }
           }
-        })
-      )
-
-      let pending = maxDirs
-      let i = 0
-
-      whilst(
-        () => pending,
-        (callback) => {
-          pending--
-          i++
-          const pushable = {
-            path: 'big/' + leftPad(i.toString(), 4, '0'),
-            content: values([Buffer.from(i.toString())])
-          }
-          push.push(pushable)
-          setImmediate(callback)
-        },
-        (err) => {
-          expect(err).to.not.exist()
-          push.end()
         }
-      )
+      }
+
+      const nodes = await all(importer(source, ipld))
+
+      expect(nodes.length).to.equal(maxDirs + 1)
+      const last = nodes[nodes.length - 1]
+      expect(last.path).to.equal('big')
     })
 
-    it('exports a big dir', (done) => {
-      const contentEntries = []
-      const entries = {}
-      pull(
-        exporter(rootHash, ipld),
-        asyncMap((node, callback) => {
-          if (node.content) {
-            pull(
-              node.content,
-              collect(collected)
-            )
-          } else {
-            entries[node.path] = node
-            callback()
+    it('exports a big dir', async () => {
+      const source = {
+        [Symbol.asyncIterator]: async function * () {
+          for (let i = 0; i < maxDirs; i++) {
+            yield {
+              path: 'big/' + leftPad(i.toString(), 4, '0'),
+              content: Buffer.from(i.toString())
+            }
           }
-
-          function collected (err, content) {
-            expect(err).to.not.exist()
-            entries[node.path] = { content: content.toString() }
-            callback(null, node)
-          }
-        }),
-        collect((err, nodes) => {
-          expect(err).to.not.exist()
-          const paths = Object.keys(entries).sort()
-          expect(paths.length).to.be.eql(2001)
-          paths.forEach(eachPath)
-          done()
-        })
-      )
-
-      function eachPath (path, index) {
-        if (!index) {
-          // first dir
-          expect(path).to.be.eql(new CID(rootHash).toBaseEncodedString())
-          const entry = entries[path]
-          expect(entry).to.exist()
-          expect(entry.content).to.not.exist()
-          return
         }
-        // dir entries
-        const content = entries[path] && entries[path].content
-        if (content) {
-          expect(content).to.be.eql(index.toString())
-          contentEntries.push(path)
-        }
+      }
+
+      const nodes = await all(importer(source, ipld))
+
+      expect(nodes.length).to.equal(maxDirs + 1) // files plus the containing directory
+
+      const dir = await exporter(nodes[nodes.length - 1].cid, ipld)
+
+      for await (const entry of dir.content()) {
+        const content = Buffer.concat(await all(entry.content()))
+        expect(content.toString()).to.equal(parseInt(entry.name, 10).toString())
       }
     })
   })
@@ -269,135 +179,123 @@ describe('builder: directory sharding', () => {
     const maxDepth = 3
     let rootHash
 
-    it('imports a big dir', (done) => {
-      const push = pushable()
-      pull(
-        push,
-        importer(ipld),
-        collect((err, nodes) => {
-          expect(err).to.not.exist()
-          const last = nodes[nodes.length - 1]
-          expect(last.path).to.be.eql('big')
-          rootHash = last.multihash
-          done()
-        })
-      )
+    before(async () => {
+      const source = {
+        [Symbol.asyncIterator]: async function * () {
+          let pending = maxDirs
+          let pendingDepth = maxDepth
+          let i = 0
+          let depth = 1
 
-      let pending = maxDirs
-      let pendingDepth = maxDepth
-      let i = 0
+          while (pendingDepth && pending) {
+            i++
+            const dir = []
+
+            for (let d = 0; d < depth; d++) {
+              dir.push('big')
+            }
+
+            yield {
+              path: dir.concat(leftPad(i.toString(), 4, '0')).join('/'),
+              content: Buffer.from(i.toString())
+            }
+
+            pending--
+            if (!pending) {
+              pendingDepth--
+              pending = maxDirs
+              i = 0
+              depth++
+            }
+          }
+        }
+      }
+
+      const node = await last(importer(source, ipld))
+      expect(node.path).to.equal('big')
+
+      rootHash = node.cid
+    })
+
+    it('imports a big dir', async () => {
+      const dir = await exporter(rootHash, ipld)
+
+      const verifyContent = async (node) => {
+        if (node.unixfs.type === 'file') {
+          const bufs = await all(node.content())
+          const content = Buffer.concat(bufs)
+          expect(content.toString()).to.equal(parseInt(node.name, 10).toString())
+        } else {
+          for await (const entry of node.content()) {
+            await verifyContent(entry)
+          }
+        }
+      }
+
+      await verifyContent(dir)
+    })
+
+    it('exports a big dir', async () => {
+      const collectContent = async (node, entries = {}) => {
+        if (node.unixfs.type === 'file') {
+          entries[node.path] = {
+            content: Buffer.concat(await all(node.content())).toString()
+          }
+        } else {
+          entries[node.path] = node
+
+          for await (const entry of node.content()) {
+            await collectContent(entry, entries)
+          }
+        }
+
+        return entries
+      }
+
+      const eachPath = (path) => {
+        if (!index) {
+          // first dir
+          if (depth === 1) {
+            expect(path).to.equal(dir.cid.toBaseEncodedString())
+          }
+
+          const entry = entries[path]
+          expect(entry).to.exist()
+          expect(entry.content).to.not.be.a('string')
+        } else {
+          // dir entries
+          const pathElements = path.split('/')
+          expect(pathElements.length).to.equal(depth + 1)
+          const lastElement = pathElements[pathElements.length - 1]
+          expect(lastElement).to.equal(leftPad(index.toString(), 4, '0'))
+          expect(entries[path].content).to.equal(index.toString())
+        }
+        index++
+        if (index > maxDirs) {
+          index = 0
+          depth++
+        }
+      }
+
+      const dir = await exporter(rootHash, ipld)
+
+      const entries = await collectContent(dir)
+      let index = 0
       let depth = 1
 
-      whilst(
-        () => pendingDepth && pending,
-        (callback) => {
-          i++
-          const dir = []
-          for (let d = 0; d < depth; d++) {
-            dir.push('big')
-          }
-          const pushed = {
-            path: dir.concat(leftPad(i.toString(), 4, '0')).join('/'),
-            content: values([Buffer.from(i.toString())])
-          }
-          push.push(pushed)
-          pending--
-          if (!pending) {
-            pendingDepth--
-            pending = maxDirs
-            i = 0
-            depth++
-          }
-          setImmediate(callback)
-        },
-        (err) => {
-          expect(err).to.not.exist()
-          push.end()
-        }
-      )
+      const paths = Object.keys(entries).sort()
+      expect(paths.length).to.equal(maxDepth * maxDirs + maxDepth)
+      paths.forEach(eachPath)
     })
 
-    it('exports a big dir', (done) => {
-      const entries = {}
-      pull(
-        exporter(rootHash, ipld),
-        asyncMap((node, callback) => {
-          if (node.content) {
-            pull(
-              node.content,
-              collect(collected)
-            )
-          } else {
-            entries[node.path] = node
-            callback()
-          }
+    it('exports a big dir with subpath', async () => {
+      const exportHash = rootHash.toBaseEncodedString() + '/big/big/2000'
 
-          function collected (err, content) {
-            expect(err).to.not.exist()
-            entries[node.path] = { content: content.toString() }
-            callback(null, node)
-          }
-        }),
-        collect(collected)
-      )
+      const node = await exporter(exportHash, ipld)
+      expect(node.path).to.equal(exportHash)
 
-      function collected (err, nodes) {
-        expect(err).to.not.exist()
-        const paths = Object.keys(entries).sort()
-        expect(paths.length).to.be.eql(maxDepth * maxDirs + maxDepth)
-        let index = 0
-        let depth = 1
-        paths.forEach(eachPath)
-        done()
-
-        function eachPath (path) {
-          if (!index) {
-            // first dir
-            if (depth === 1) {
-              expect(path).to.be.eql(new CID(rootHash).toBaseEncodedString())
-            }
-            const entry = entries[path]
-            expect(entry).to.exist()
-            expect(entry.content).to.not.exist()
-          } else {
-            // dir entries
-            const pathElements = path.split('/')
-            expect(pathElements.length).to.be.eql(depth + 1)
-            const lastElement = pathElements[pathElements.length - 1]
-            expect(lastElement).to.be.eql(leftPad(index.toString(), 4, '0'))
-            expect(entries[path].content).to.be.eql(index.toString())
-          }
-          index++
-          if (index > maxDirs) {
-            index = 0
-            depth++
-          }
-        }
-      }
-    })
-
-    it('exports a big dir with subpath', (done) => {
-      const exportHash = new CID(rootHash).toBaseEncodedString() + '/big/big/2000'
-      pull(
-        exporter(exportHash, ipld),
-        collect(collected)
-      )
-
-      function collected (err, nodes) {
-        expect(err).to.not.exist()
-        expect(nodes.length).to.equal(1)
-        expect(nodes.map((node) => node.path)).to.deep.equal([
-          '2000'
-        ])
-        pull(
-          nodes[0].content,
-          collect((err, content) => {
-            expect(err).to.not.exist()
-            expect(content.toString()).to.equal('2000')
-            done()
-          })
-        )
-      }
+      const content = Buffer.concat(await all(node.content()))
+      expect(content.toString()).to.equal('2000')
     })
   })
 })

@@ -1,50 +1,39 @@
 'use strict'
 
 const BufferList = require('bl')
-const through = require('pull-through')
 
-module.exports = (options) => {
-  let maxSize = (typeof options === 'number') ? options : options.maxChunkSize
+module.exports = async function * fixedSizeChunker (source, options) {
   let bl = new BufferList()
   let currentLength = 0
   let emitted = false
+  const maxChunkSize = options.maxChunkSize
 
-  return through(
-    function onData (buffer) {
-      bl.append(buffer)
+  for await (const buffer of source) {
+    bl.append(buffer)
 
-      currentLength += buffer.length
+    currentLength += buffer.length
 
-      while (currentLength >= maxSize) {
-        this.queue(bl.slice(0, maxSize))
+    while (currentLength >= maxChunkSize) {
+      yield bl.slice(0, maxChunkSize)
+      emitted = true
 
-        emitted = true
+      // throw away consumed bytes
+      if (maxChunkSize === bl.length) {
+        bl = new BufferList()
+        currentLength = 0
+      } else {
+        const newBl = new BufferList()
+        newBl.append(bl.shallowSlice(maxChunkSize))
+        bl = newBl
 
-        // throw away consumed bytes
-        if (maxSize === bl.length) {
-          bl = new BufferList()
-          currentLength = 0
-        } else {
-          const newBl = new BufferList()
-          newBl.append(bl.shallowSlice(maxSize))
-          bl = newBl
-
-          // update our offset
-          currentLength -= maxSize
-        }
+        // update our offset
+        currentLength -= maxChunkSize
       }
-    },
-    function onEnd () {
-      if (currentLength) {
-        this.queue(bl.slice(0, currentLength))
-        emitted = true
-      }
-
-      if (!emitted) {
-        this.queue(Buffer.alloc(0))
-      }
-
-      this.queue(null)
     }
-  )
+  }
+
+  if (!emitted || currentLength) {
+    // return any remaining bytes or an empty buffer
+    yield bl.slice(0, currentLength)
+  }
 }

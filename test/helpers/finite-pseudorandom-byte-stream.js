@@ -1,35 +1,24 @@
 'use strict'
 
-const pull = require('pull-stream/pull')
-const take = require('pull-stream/throughs/take')
-const collect = require('pull-stream/sinks/collect')
-const generate = require('pull-generate')
-
-const randomByteStream = require('./random-byte-stream')
-const chunker = require('../../src/chunker/fixed-size')
-
 const REPEATABLE_CHUNK_SIZE = 300000
 
-module.exports = function (maxSize, seed) {
+module.exports = async function * (maxSize, seed) {
   const chunks = Math.ceil(maxSize / REPEATABLE_CHUNK_SIZE)
-  return pull(
-    generate(0, generator),
-    take(chunks)
-  )
+  let emitted = 0
+  const buf = Buffer.alloc(REPEATABLE_CHUNK_SIZE)
 
-  function generator (iteration, cb) {
-    if (iteration === 0) {
-      pull(
-        randomByteStream(seed),
-        chunker(REPEATABLE_CHUNK_SIZE),
-        take(1),
-        collect((err, results) => {
-          const result = results[0]
-          cb(err, result, result)
-        })
-      )
-    } else {
-      cb(null, iteration, iteration)
+  while (emitted !== chunks) {
+    for (let i = 0; i < buf.length; i++) {
+      buf[i] = 256 & Math.floor(random(seed) * 256)
     }
+
+    yield buf
+
+    emitted++
   }
+}
+
+function random (seed) {
+  const x = Math.sin(seed) * 10000
+  return x - Math.floor(x)
 }

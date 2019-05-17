@@ -6,12 +6,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const collect = require('pull-stream/sinks/collect')
-const map = require('async/map')
-const CID = require('cids')
-
+const all = require('async-iterator-all')
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 
@@ -29,98 +24,94 @@ describe('import and export: directory', () => {
     })
   })
 
-  it('imports', function (done) {
+  it('imports', async function () {
     this.timeout(20 * 1000)
 
-    pull(
-      values([
-        { path: 'a/b/c/d/e', content: values([Buffer.from('banana')]) },
-        { path: 'a/b/c/d/f', content: values([Buffer.from('strawberry')]) },
-        { path: 'a/b/g', content: values([Buffer.from('ice')]) },
-        { path: 'a/b/h', content: values([Buffer.from('cream')]) }
-      ]),
-      importer(ipld),
-      collect((err, files) => {
-        expect(err).to.not.exist()
-        expect(files.map(normalizeNode).sort(byPath)).to.be.eql([
-          { path: 'a/b/h',
-            multihash: 'QmWHMpCtdNjemT2F3SjyrmnBXQXwEohaZd4apcbFBhbFRC' },
-          { path: 'a/b/g',
-            multihash: 'QmQGwYzzTPcbqTiy2Nbp88gqqBqCWY4QZGfen45LFZkD5n' },
-          { path: 'a/b/c/d/f',
-            multihash: 'QmNVHs2dy7AjGUotsubWVncRsD3SpRXm8MgmCCQTVdVACz' },
-          { path: 'a/b/c/d/e',
-            multihash: 'QmYPbDKwc7oneCcEc6BcRSN5GXthTGWUCd19bTCyP9u3vH' },
-          { path: 'a/b/c/d',
-            multihash: 'QmQGDXr3ysARM38n7h79Tx7yD3YxuzcnZ1naG71WMojPoj' },
-          { path: 'a/b/c',
-            multihash: 'QmYTVcjYpN3hQLtJstCPE8hhEacAYjWAuTmmAAXoonamuE' },
-          { path: 'a/b',
-            multihash: 'QmWyWYxq1GD9fEyckf5LrJv8hMW35CwfWwzDBp8bTw3NQj' },
-          { path: 'a',
-            multihash: rootHash }
-        ])
-        done()
-      })
-    )
+    const source = [{
+      path: 'a/b/c/d/e',
+      content: Buffer.from('banana')
+    }, {
+      path: 'a/b/c/d/f',
+      content: Buffer.from('strawberry')
+    }, {
+      path: 'a/b/g',
+      content: Buffer.from('ice')
+    }, {
+      path: 'a/b/h',
+      content: Buffer.from('cream')
+    }]
+
+    const files = await all(importer(source, ipld))
+
+    expect(files.map(normalizeNode).sort(byPath)).to.be.eql([{
+      path: 'a/b/h',
+      multihash: 'QmWHMpCtdNjemT2F3SjyrmnBXQXwEohaZd4apcbFBhbFRC'
+    }, {
+      path: 'a/b/g',
+      multihash: 'QmQGwYzzTPcbqTiy2Nbp88gqqBqCWY4QZGfen45LFZkD5n'
+    }, {
+      path: 'a/b/c/d/f',
+      multihash: 'QmNVHs2dy7AjGUotsubWVncRsD3SpRXm8MgmCCQTVdVACz'
+    }, {
+      path: 'a/b/c/d/e',
+      multihash: 'QmYPbDKwc7oneCcEc6BcRSN5GXthTGWUCd19bTCyP9u3vH'
+    }, {
+      path: 'a/b/c/d',
+      multihash: 'QmQGDXr3ysARM38n7h79Tx7yD3YxuzcnZ1naG71WMojPoj'
+    }, {
+      path: 'a/b/c',
+      multihash: 'QmYTVcjYpN3hQLtJstCPE8hhEacAYjWAuTmmAAXoonamuE'
+    }, {
+      path: 'a/b',
+      multihash: 'QmWyWYxq1GD9fEyckf5LrJv8hMW35CwfWwzDBp8bTw3NQj'
+    }, {
+      path: 'a',
+      multihash: rootHash
+    }])
   })
 
-  it('exports', function (done) {
+  it('exports', async function () {
     this.timeout(20 * 1000)
 
-    pull(
-      exporter(rootHash, ipld),
-      collect((err, files) => {
-        expect(err).to.not.exist()
-        map(
-          files,
-          (file, callback) => {
-            if (file.content) {
-              pull(
-                file.content,
-                collect(mapFile(file, callback))
-              )
-            } else {
-              callback(null, { path: file.path })
-            }
-          },
-          (err, files) => {
-            expect(err).to.not.exist()
-            expect(files.filter(fileHasContent).sort(byPath)).to.eql([
-              { path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/h',
-                content: 'cream' },
-              { path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/g',
-                content: 'ice' },
-              { path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/c/d/f',
-                content: 'strawberry' },
-              { path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/c/d/e',
-                content: 'banana' }
-            ])
-            done()
-          })
-      })
-    )
+    const dir = await exporter(rootHash, ipld)
+    const files = await recursiveExport(dir, rootHash)
 
-    function mapFile (file, callback) {
-      return (err, fileContent) => {
-        callback(err, fileContent && {
-          path: file.path,
-          content: fileContent.toString()
-        })
-      }
-    }
+    expect(files.sort(byPath)).to.eql([{
+      path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/h',
+      content: 'cream'
+    }, {
+      path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/g',
+      content: 'ice'
+    }, {
+      path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/c/d/f',
+      content: 'strawberry'
+    }, {
+      path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/c/d/e',
+      content: 'banana'
+    }])
   })
 })
+
+async function recursiveExport (node, path, entries = []) {
+  for await (const entry of node.content()) {
+    if (entry.unixfs.type === 'directory') {
+      await recursiveExport(entry, `${path}/${entry.name}`, entries)
+    } else {
+      entries.push({
+        path: `${path}/${entry.name}`,
+        content: Buffer.concat(await all(entry.content())).toString()
+      })
+    }
+  }
+
+  return entries
+}
 
 function normalizeNode (node) {
   return {
     path: node.path,
-    multihash: new CID(node.multihash).toBaseEncodedString()
+    multihash: node.cid.toBaseEncodedString()
   }
-}
-
-function fileHasContent (file) {
-  return Boolean(file.content)
 }
 
 function byPath (a, b) {

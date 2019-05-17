@@ -1,15 +1,11 @@
 'use strict'
 
-module.exports = function randomByteStream (_seed) {
-  let seed = _seed
-  return (end, cb) => {
-    if (end) {
-      cb(end)
-    } else {
-      const r = Math.floor(random(seed) * 256)
-      seed = r
-      cb(null, Buffer.from([r]))
-    }
+module.exports = async function * randomByteStream (seed) {
+  while (true) {
+    const r = Math.floor(random(seed) * 256)
+    seed = r
+
+    yield Buffer.from([r])
   }
 }
 

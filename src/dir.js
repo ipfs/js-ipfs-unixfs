@@ -1,8 +1,8 @@
 'use strict'
 
 module.exports = class Dir {
-  constructor (props, _options) {
-    this._options = _options || {}
+  constructor (props, options) {
+    this.options = options || {}
     Object.assign(this, props)
   }
 }

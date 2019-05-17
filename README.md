@@ -19,13 +19,16 @@
 
 ## Table of Contents
 
-- [Install](#install)
-- [Usage](#usage)
-  - [Example](#example)
-  - [API](#api)
-    - [const add = importer(dag, options)](#const-import--importerdag--options)
-- [Contribute](#contribute)
-- [License](#license)
+- [ipfs-unixfs-importer](#ipfs-unixfs-importer)
+  - [Lead Maintainer](#lead-maintainer)
+  - [Table of Contents](#table-of-contents)
+  - [Install](#install)
+  - [Usage](#usage)
+    - [Example](#example)
+      - [API](#api)
+      - [const import = importer(source, ipld [, options])](#const-import--importersource-ipld--options)
+  - [Contribute](#contribute)
+  - [License](#license)
 
 ## Install
 
@@ -50,51 +53,46 @@ And write the importing logic:
 
 ```js
 const importer = require('ipfs-unixfs-importer')
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const collect = require('pull-stream/sinks/collect')
 
 // Import path /tmp/foo/bar
-pull(
-  values([{
-    path: '/tmp/foo/bar',
-    content: fs.createReadStream(file)
-  }, {
-    path: '/tmp/foo/quxx',
-    content: fs.createReadStream(file2)
-  }
-  }]),
+const source = [{
+  path: '/tmp/foo/bar',
+  content: fs.createReadStream(file)
+}, {
+  path: '/tmp/foo/quxx',
+  content: fs.createReadStream(file2)
+}]
 
-  // You need to create and pass an ipld-resolve instance
-  // https://github.com/ipld/js-ipld-resolver
-  importer(<ipld-resolver instance>, <options>),
-
-  // Handle the error and do something with the results
-  collect((err, files) => {
-    console.info(files)
-  })
-)
+// You need to create and pass an ipld-resolve instance
+// https://github.com/ipld/js-ipld-resolver
+for await (const entry of importer(source, ipld, options)) {
+  console.info(entry)
+}
 ```
 
-When run, the stat of DAGNode is outputted for each file on data event until the root:
+When run, metadata about DAGNodes in the created tree is printed until the root:
 
 ```js
-{ multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  size: 39243,
-  path: '/tmp/foo/bar' }
-
-{ multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  size: 59843,
-  path: '/tmp/foo/quxx' }
-
-{ multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  size: 93242,
-  path: '/tmp/foo' }
-
-{ multihash: <Buffer 12 20 bd e2 2b 57 3f 6f bd 7c cc 5a 11 7f 28 6c a2 9a 9f c0 90 e1 d4 16 d0 5f 42 81 ec 0c 2a 7f 7f 93>,
-  size: 94234,
-  path: '/tmp' }
-
+{
+  cid: CID, // see https://github.com/multiformats/js-cid
+  path: 'tmp/foo/bar',
+  unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+}
+{
+  cid: CID, // see https://github.com/multiformats/js-cid
+  path: 'tmp/foo/quxx',
+  unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+}
+{
+  cid: CID, // see https://github.com/multiformats/js-cid
+  path: 'tmp/foo',
+  unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+}
+{
+  cid: CID, // see https://github.com/multiformats/js-cid
+  path: 'tmp',
+  unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+}
 ```
 
 #### API
@@ -103,20 +101,20 @@ When run, the stat of DAGNode is outputted for each file on data event until the
 const importer = require('ipfs-unixfs-importer')
 ```
 
-#### const import = importer(dag [, options])
+#### const import = importer(source, ipld [, options])
 
-The `import` object is a duplex pull stream that takes objects of the form:
+The `import` function returns an async iterator takes a source async iterator that yields objects of the form:
 
 ```js
 {
   path: 'a name',
-  content: (Buffer, pull-stream emitting Buffers or a Readable stream)
+  content: (Buffer or iterator emitting Buffers)
 }
 ```
 
 `import` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-`dag` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md)
+`ipld` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md)
 
 The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
 
@@ -148,10 +146,8 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
 - `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
 
-[dag API]: https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md
 [ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
-[pull-stream]: https://www.npmjs.com/package/pull-stream
 
 ## Contribute
 

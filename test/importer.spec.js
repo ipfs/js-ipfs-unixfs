@@ -9,46 +9,38 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const spy = require('sinon/lib/sinon/spy')
-const pull = require('pull-stream/pull')
-const empty = require('pull-stream/sources/empty')
-const once = require('pull-stream/sources/once')
-const values = require('pull-stream/sources/values')
-const collect = require('pull-stream/sinks/collect')
-const onEnd = require('pull-stream/sinks/on-end')
-const CID = require('cids')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const loadFixture = require('aegir/fixtures')
-const each = require('async/each')
-const waterfall = require('async/waterfall')
-const parallel = require('async/parallel')
 const UnixFs = require('ipfs-unixfs')
 const collectLeafCids = require('./helpers/collect-leaf-cids')
+const loadFixture = require('aegir/fixtures')
+const isNode = require('detect-node')
+const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
+const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Bytes.txt')
+const all = require('async-iterator-all')
+const first = require('async-iterator-first')
 
 function stringifyMh (files) {
   return files.map((file) => {
-    file.multihash = new CID(file.multihash).toBaseEncodedString()
-    return file
+    return {
+      ...file,
+      cid: file.cid.toBaseEncodedString()
+    }
   })
 }
 
-const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
-const smallFile = loadFixture('test/fixtures/200Bytes.txt')
-
 const baseFiles = {
   '200Bytes.txt': {
-    path: '200Bytes.txt',
-    multihash: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
-    size: 211,
-    name: '',
-    leafSize: 200
+    cid: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
+    size: 200,
+    type: 'file',
+    path: '200Bytes.txt'
   },
   '1.2MiB.txt': {
-    path: '1.2MiB.txt',
-    multihash: 'QmbPN6CXXWpejfQgnRYnMQcVYkFHEntHWqLNQjbkatYCh1',
-    size: 1328062,
-    name: '',
-    leafSize: 1258000
+    cid: 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q',
+    size: 1258000,
+    type: 'file',
+    path: '1.2MiB.txt'
   }
 }
 
@@ -56,124 +48,112 @@ const strategyBaseFiles = {
   flat: baseFiles,
   balanced: extend({}, baseFiles, {
     '1.2MiB.txt': {
-      multihash: 'QmeEGqUisUD2T6zU96PrZnCkHfXCGuQeGWKu4UoSuaZL3d',
-      size: 1335420
+      cid: 'QmW7BDxEbGqxxSYVtn3peNPQgdDXbWkoQ6J1EFYAEuQV3Q',
+      type: 'file'
     }
   }),
   trickle: extend({}, baseFiles, {
     '1.2MiB.txt': {
-      multihash: 'QmaiSohNUt1rBf2Lqz6ou54NHVPTbXbBoPuq9td4ekcBx4',
-      size: 1334599
+      cid: 'QmfAxsHrpaLLuhbqqbo9KQyvQNawMnVSwutYoJed75pnco',
+      type: 'file'
     }
   })
 }
 
 const strategies = [
   'flat',
-  'balanced',
-  'trickle'
+  'balanced'
+  // 'trickle'
 ]
 
 const strategyOverrides = {
   balanced: {
     'foo-big': {
+      cid: 'QmaFgyFJUP4fxFySJCddg2Pj6rpwSywopWk87VEVv52RSj',
       path: 'foo-big',
-      multihash: 'QmQ1S6eEamaf4t948etp8QiYQ9avrKCogiJnPRgNkVreLv',
-      size: 1335478
+      size: 1335478,
+      type: 'directory'
     },
     pim: {
-      multihash: 'QmUpzaN4Jio2GB3HoPSRCMQD5EagdMWjSEGD4SGZXaCw7W',
-      size: 1335744
+      cid: 'QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i',
+      path: 'pim',
+      size: 1335744,
+      type: 'directory'
     },
     'pam/pum': {
-      multihash: 'QmUpzaN4Jio2GB3HoPSRCMQD5EagdMWjSEGD4SGZXaCw7W',
-      size: 1335744
+      cid: 'QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i',
+      path: 'pam/pum',
+      size: 1335744,
+      type: 'directory'
     },
     pam: {
-      multihash: 'QmVoVD4fEWFLJLjvRCg4bGrziFhgECiaezp79AUfhuLgno',
-      size: 2671269
+      cid: 'QmRgdtzNx1H1BPJqShdhvWZ2D4DA2HUgZJ3XLtoXei27Av',
+      path: 'pam',
+      size: 2671269,
+      type: 'directory'
     }
   },
   trickle: {
     'foo-big': {
+      cid: 'QmPh6KSS7ghTqzgWhaoCiLoHFPF7HGqUxx7q9vcM5HUN4U',
       path: 'foo-big',
-      multihash: 'QmPh6KSS7ghTqzgWhaoCiLoHFPF7HGqUxx7q9vcM5HUN4U',
-      size: 1334657
+      size: 1334657,
+      type: 'directory'
     },
     pim: {
-      multihash: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
-      size: 1334923
+      cid: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
+      path: 'pim',
+      size: 1334923,
+      type: 'directory'
     },
     'pam/pum': {
-      multihash: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
-      size: 1334923
+      cid: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
+      path: 'pam/pum',
+      size: 1334923,
+      type: 'directory'
     },
     pam: {
-      multihash: 'QmZTJah1xpG9X33ZsPtDEi1tYSHGDqQMRHsGV5xKzAR2j4',
-      size: 2669627
+      cid: 'QmZTJah1xpG9X33ZsPtDEi1tYSHGDqQMRHsGV5xKzAR2j4',
+      path: 'pam',
+      size: 2669627,
+      type: 'directory'
     }
   }
 }
 
-const checkLeafNodeTypes = (ipld, options, expected, done) => {
-  waterfall([
-    (cb) => pull(
-      once({
-        path: '/foo',
-        content: Buffer.alloc(262144 + 5).fill(1)
-      }),
-      importer(ipld, options),
-      collect(cb)
-    ),
-    (files, cb) => ipld.get(new CID(files[0].multihash), cb),
-    (result, cb) => {
-      const node = result.value
-      const meta = UnixFs.unmarshal(node.data)
+const checkLeafNodeTypes = async (ipld, options, expected) => {
+  const file = await first(importer([{
+    path: 'foo',
+    content: Buffer.alloc(262144 + 5).fill(1)
+  }], ipld, options))
 
-      expect(meta.type).to.equal('file')
-      expect(node.links.length).to.equal(2)
+  const node = await ipld.get(file.cid)
+  const meta = UnixFs.unmarshal(node.Data)
 
-      parallel(
-        node.links.map(link => {
-          return (done) => {
-            waterfall([
-              (next) => ipld.get(link.cid, next),
-              (result, next) => {
-                const node = result.value
-                const meta = UnixFs.unmarshal(node.data)
+  expect(meta.type).to.equal('file')
+  expect(node.Links.length).to.equal(2)
 
-                expect(meta.type).to.equal(expected)
+  const linkedNodes = await Promise.all(
+    node.Links.map(link => ipld.get(link.Hash))
+  )
 
-                next()
-              }
-            ], done)
-          }
-        }), cb)
-    }
-  ], done)
+  linkedNodes.forEach(node => {
+    const meta = UnixFs.unmarshal(node.Data)
+    expect(meta.type).to.equal(expected)
+  })
 }
 
-const checkNodeLinks = (ipld, options, expected, done) => {
-  waterfall([
-    (cb) => pull(
-      once({
-        path: '/foo',
-        content: Buffer.alloc(100).fill(1)
-      }),
-      importer(ipld, options),
-      collect(cb)
-    ),
-    (files, cb) => ipld.get(new CID(files[0].multihash), cb),
-    (result, cb) => {
-      const node = result.value
-      const meta = UnixFs.unmarshal(node.data)
+const checkNodeLinks = async (ipld, options, expected) => {
+  for await (const file of importer([{
+    path: 'foo',
+    content: Buffer.alloc(100).fill(1)
+  }], ipld, options)) {
+    const node = await ipld.get(file.cid)
+    const meta = UnixFs.unmarshal(node.Data)
 
-      expect(meta.type).to.equal('file')
-      expect(node.links.length).to.equal(expected)
-
-      cb()
-    }
-  ], done)
+    expect(meta.type).to.equal('file')
+    expect(node.Links.length).to.equal(expected)
+  }
 }
 
 strategies.forEach((strategy) => {
@@ -184,21 +164,24 @@ strategies.forEach((strategy) => {
     }),
     foo: {
       path: 'foo',
-      multihash: 'QmQrb6KKWGo8w7zKfx2JksptY6wN7B2ysSBdKZr4xMU36d',
-      size: 320
+      cid: 'QmQrb6KKWGo8w7zKfx2JksptY6wN7B2ysSBdKZr4xMU36d',
+      size: 320,
+      type: 'directory'
     },
     'foo/bar': {
       path: 'foo/bar',
-      multihash: 'Qmf5BQbTUyUAvd6Ewct83GYGnE1F6btiC3acLhR8MDxgkD',
-      size: 270
+      cid: 'Qmf5BQbTUyUAvd6Ewct83GYGnE1F6btiC3acLhR8MDxgkD',
+      size: 270,
+      type: 'directory'
     },
     'foo-big/1.2MiB.txt': extend({}, baseFiles['1.2MiB.txt'], {
       path: 'foo-big/1.2MiB.txt'
     }),
     'foo-big': {
       path: 'foo-big',
-      multihash: 'Qma6JU3FoXU9eAzgomtmYPjzFBwVc2rRbECQpmHFiA98CJ',
-      size: 1328120
+      cid: 'QmaFgyFJUP4fxFySJCddg2Pj6rpwSywopWk87VEVv52RSj',
+      size: 1328120,
+      type: 'directory'
     },
     'pim/200Bytes.txt': extend({}, baseFiles['200Bytes.txt'], {
       path: 'pim/200Bytes.txt'
@@ -208,40 +191,62 @@ strategies.forEach((strategy) => {
     }),
     pim: {
       path: 'pim',
-      multihash: 'QmNk8VPGb3fkAQgoxctXo4Wmnr4PayFTASy4MiVXTtXqiA',
-      size: 1328386
+      cid: 'QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i',
+      size: 1328386,
+      type: 'directory'
     },
     'empty-dir': {
       path: 'empty-dir',
-      multihash: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
-      size: 4
+      cid: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
+      size: 4,
+      type: 'directory'
     },
     'pam/pum': {
-      multihash: 'QmNk8VPGb3fkAQgoxctXo4Wmnr4PayFTASy4MiVXTtXqiA',
-      size: 1328386
+      cid: 'QmY8a78tx6Tk6naDgWCgTsd9EqGrUJRrH7dDyQhjyrmH2i',
+      path: 'pam/pum',
+      size: 1328386,
+      type: 'directory'
     },
     pam: {
-      multihash: 'QmPAixYTaYnPe795fcWcuRpo6tfwHgRKNiBHpMzoomDVN6',
-      size: 2656553
+      cid: 'QmRgdtzNx1H1BPJqShdhvWZ2D4DA2HUgZJ3XLtoXei27Av',
+      path: 'pam',
+      size: 2656553,
+      type: 'directory'
     },
     '200Bytes.txt with raw leaves': extend({}, baseFiles['200Bytes.txt'], {
-      multihash: 'zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q',
+      cid: 'zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q',
       size: 200
     })
   }, strategyOverrides[strategy])
 
   const expected = extend({}, defaultResults, strategies[strategy])
 
+  const expectFiles = (actualFiles, expectedFiles) => {
+    expect(actualFiles.length).to.equal(expectedFiles.length)
+
+    for (let i = 0; i < expectedFiles.length; i++) {
+      const expectedFile = expected[expectedFiles[i]]
+      const actualFile = actualFiles[i]
+
+      expect(actualFile.path).to.equal(expectedFile.path)
+      expect(actualFile.cid.toBaseEncodedString('base58btc')).to.equal(expectedFile.cid)
+
+      if (actualFile.unixfs) {
+        expect(actualFile.unixfs.type).to.equal(expectedFile.type)
+
+        if (actualFile.unixfs.type === 'file') {
+          expect(actualFile.unixfs.fileSize()).to.equal(expectedFile.size)
+        }
+      }
+    }
+  }
+
   describe('importer: ' + strategy, function () {
     this.timeout(30 * 1000)
 
     let ipld
     const options = {
-      strategy: strategy,
-      maxChildrenPerNode: 10,
-      chunkerOptions: {
-        maxChunkSize: 1024
-      }
+      strategy: strategy
     }
 
     before((done) => {
@@ -254,370 +259,293 @@ strategies.forEach((strategy) => {
       })
     })
 
-    it('fails on bad input', (done) => {
-      pull(
-        values([{
+    it('fails on bad content', async () => {
+      try {
+        await all(importer([{
           path: '200Bytes.txt',
-          content: 'banana'
-        }]),
-        importer(ipld, options),
-        onEnd((err) => {
-          expect(err).to.exist()
-          done()
-        })
-      )
-    })
-
-    it('survives bad progress option', (done) => {
-      pull(
-        values([{
-          path: '200Bytes.txt',
-          content: Buffer.from([0, 1, 2])
-        }]),
-        importer(ipld, {
-          ...options,
-          progress: null
-        }),
-        onEnd((err) => {
-          expect(err).to.not.exist()
-          done()
-        })
-      )
-    })
-
-    it('doesn\'t yield anything on empty source', (done) => {
-      pull(
-        empty(),
-        importer(ipld, options),
-        collect((err, nodes) => {
-          expect(err).to.not.exist()
-          expect(nodes.length).to.be.eql(0)
-          done()
-        }))
-    })
-
-    it('doesn\'t yield anything on empty file', (done) => {
-      pull(
-        values([{
-          path: 'emptyfile',
-          content: empty()
-        }]),
-        importer(ipld, options),
-        collect((err, nodes) => {
-          expect(err).to.not.exist()
-          expect(nodes.length).to.be.eql(1)
-
-          // always yield empty node
-          expect(new CID(nodes[0].multihash).toBaseEncodedString()).to.be.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
-          done()
-        }))
-    })
-
-    it('fails on more than one root', (done) => {
-      pull(
-        values([
-          {
-            path: '/beep/200Bytes.txt',
-            content: values([smallFile])
-          },
-          {
-            path: '/boop/200Bytes.txt',
-            content: values([bigFile])
-          }
-        ]),
-        importer(ipld, options),
-        onEnd((err) => {
-          expect(err).to.exist()
-          expect(err.message).to.be.eql('detected more than one root')
-          done()
-        })
-      )
-    })
-
-    it('small file with an escaped slash in the title', (done) => {
-      const filePath = `small-\\/file-${Math.random()}.txt`
-
-      pull(
-        values([{
-          path: filePath,
-          content: values([smallFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(files.length).to.equal(1)
-          expect(files[0].path).to.equal(filePath)
-          done()
-        })
-      )
-    })
-
-    it('small file with square brackets in the title', (done) => {
-      const filePath = `small-[v]-file-${Math.random()}.txt`
-
-      pull(
-        values([{
-          path: filePath,
-          content: values([smallFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(files.length).to.equal(1)
-          expect(files[0].path).to.equal(filePath)
-          done()
-        })
-      )
-    })
-
-    it('small file (smaller than a chunk)', (done) => {
-      pull(
-        values([{
-          path: '200Bytes.txt',
-          content: values([smallFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
-          done()
-        })
-      )
-    })
-
-    it('small file (smaller than a chunk) with raw leaves', (done) => {
-      pull(
-        values([{
-          path: '200Bytes.txt',
-          content: values([smallFile])
-        }]),
-        importer(ipld, Object.assign({}, options, { rawLeaves: true })),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt with raw leaves']])
-          done()
-        })
-      )
-    })
-
-    it('small file as buffer (smaller than a chunk)', (done) => {
-      pull(
-        values([{
-          path: '200Bytes.txt',
-          content: smallFile
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(stringifyMh(files)).to.be.eql([expected['200Bytes.txt']])
-          done()
-        })
-      )
-    })
-
-    it('small file (smaller than a chunk) inside a dir', (done) => {
-      pull(
-        values([{
-          path: 'foo/bar/200Bytes.txt',
-          content: values([smallFile])
-        }]),
-        importer(ipld, options),
-        collect(collected)
-      )
-
-      function collected (err, files) {
-        expect(err).to.not.exist()
-        expect(files.length).to.equal(3)
-        stringifyMh(files).forEach((file) => {
-          if (file.path === 'foo/bar/200Bytes.txt') {
-            expect(file).to.be.eql(expected['foo/bar/200Bytes.txt'])
-          }
-          if (file.path === 'foo') {
-            expect(file).to.be.eql(expected.foo)
-          }
-          if (file.path === 'foo/bar') {
-            expect(file).to.be.eql(expected['foo/bar'])
-          }
-        })
-        done()
+          content: 7
+        }], ipld, options))
+        throw new Error('No error was thrown')
+      } catch (err) {
+        expect(err.code).to.equal('ERR_INVALID_CONTENT')
       }
     })
 
-    it('file bigger than a single chunk', function (done) {
+    it('fails on an iterator that yields bad content', async () => {
+      try {
+        await all(importer([{
+          path: '200Bytes.txt',
+          content: {
+            [Symbol.asyncIterator]: async function * () {
+              yield 7
+            }
+          }
+        }], ipld, options))
+        throw new Error('No error was thrown')
+      } catch (err) {
+        expect(err.code).to.equal('ERR_INVALID_CONTENT')
+      }
+    })
+
+    it('doesn\'t yield anything on empty source', async () => {
+      const files = await all(importer([], ipld, options))
+
+      expect(files).to.be.empty()
+    })
+
+    it('doesn\'t yield anything on empty file', async () => {
+      const files = await all(importer([{
+        path: 'emptyfile',
+        content: Buffer.alloc(0)
+      }], ipld, options))
+
+      expect(files.length).to.eql(1)
+
+      // always yield empty node
+      expect(files[0].cid.toBaseEncodedString()).to.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
+    })
+
+    it('fails on more than one root', async () => {
+      try {
+        await all(importer([{
+          path: 'beep/200Bytes.txt',
+          content: smallFile
+        }, {
+          path: 'boop/200Bytes.txt',
+          content: bigFile
+        }], ipld, options))
+
+        throw new Error('No error was thrown')
+      } catch (err) {
+        expect(err.code).to.equal('ERR_MORE_THAN_ONE_ROOT')
+      }
+    })
+
+    it('accepts strings as content', async () => {
+      const content = 'I am a string'
+      const res = await all(importer([{
+        path: '200Bytes.txt',
+        content
+      }], ipld, options))
+
+      const file = await exporter(res[0].cid, ipld)
+      const fileContent = await all(file.content())
+
+      expect(fileContent.toString()).to.equal(content)
+    })
+
+    it('small file with an escaped slash in the title', async () => {
+      const filePath = `small-\\/file-${Math.random()}.txt`
+      const files = await all(importer([{
+        path: filePath,
+        content: smallFile
+      }], ipld, options))
+
+      expect(files.length).to.equal(1)
+      expect(files[0].path).to.equal(filePath)
+    })
+
+    it('small file with square brackets in the title', async () => {
+      const filePath = `small-[v]-file-${Math.random()}.txt`
+      const files = await all(importer([{
+        path: filePath,
+        content: smallFile
+      }], ipld, options))
+
+      expect(files.length).to.equal(1)
+      expect(files[0].path).to.equal(filePath)
+    })
+
+    it('small file as buffer (smaller than a chunk)', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile
+      }], ipld, options))
+
+      expectFiles(files, [
+        '200Bytes.txt'
+      ])
+    })
+
+    it('small file as array (smaller than a chunk)', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: Array.from(smallFile)
+      }], ipld, options))
+
+      expectFiles(files, [
+        '200Bytes.txt'
+      ])
+    })
+
+    it('small file as string (smaller than a chunk)', async () => {
+      const file = await first(importer([{
+        path: '200Bytes.txt',
+        content: 'this is a file\n'
+      }], ipld, options))
+
+      expect(file.cid.toBaseEncodedString()).to.equal('QmZMb7HWpbevpcdhbUV1ZZgdji8vh5uQ13KxczChGrK9Rd')
+    })
+
+    it('small file (smaller than a chunk) with raw leaves', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile
+      }], ipld, {
+        ...options,
+        rawLeaves: true
+      }))
+
+      expectFiles(files, [
+        '200Bytes.txt with raw leaves'
+      ])
+    })
+
+    it('small file (smaller than a chunk) inside a dir', async () => {
+      const files = await all(importer([{
+        path: 'foo/bar/200Bytes.txt',
+        content: smallFile
+      }], ipld, options))
+
+      expectFiles(files, [
+        'foo/bar/200Bytes.txt',
+        'foo/bar',
+        'foo'
+      ])
+    })
+
+    it('file bigger than a single chunk', async () => {
       this.timeout(60 * 1000)
-      pull(
-        values([{
-          path: '1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
-          expect(stringifyMh(files)).to.be.eql([expected['1.2MiB.txt']])
-          done()
-        })
-      )
+
+      const files = await all(importer([{
+        path: '1.2MiB.txt',
+        content: bigFile
+      }], ipld, options))
+
+      expectFiles(files, [
+        '1.2MiB.txt'
+      ])
     })
 
-    it('file bigger than a single chunk inside a dir', function (done) {
+    it('file bigger than a single chunk inside a dir', async () => {
       this.timeout(60 * 1000)
-      pull(
-        values([{
-          path: 'foo-big/1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
 
-          expect(stringifyMh(files)).to.be.eql([
-            expected['foo-big/1.2MiB.txt'],
-            expected['foo-big']
-          ])
+      const files = await all(importer([{
+        path: 'foo-big/1.2MiB.txt',
+        content: bigFile
+      }], ipld, options))
 
-          done()
-        })
-      )
+      expectFiles(files, [
+        'foo-big/1.2MiB.txt',
+        'foo-big'
+      ])
     })
 
-    it('empty directory', (done) => {
-      pull(
-        values([{
-          path: 'empty-dir'
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
+    it('empty directory', async () => {
+      const files = await all(importer([{
+        path: 'empty-dir'
+      }], ipld, options))
 
-          expect(stringifyMh(files)).to.be.eql([expected['empty-dir']])
-
-          done()
-        })
-      )
+      expectFiles(files, [
+        'empty-dir'
+      ])
     })
 
-    it('directory with files', (done) => {
-      pull(
-        values([{
-          path: 'pim/200Bytes.txt',
-          content: values([smallFile])
-        }, {
-          path: 'pim/1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
+    it('directory with files', async () => {
+      const files = await all(importer([{
+        path: 'pim/200Bytes.txt',
+        content: smallFile
+      }, {
+        path: 'pim/1.2MiB.txt',
+        content: bigFile
+      }], ipld, options))
 
-          expect(stringifyMh(files)).be.eql([
-            expected['pim/200Bytes.txt'],
-            expected['pim/1.2MiB.txt'],
-            expected.pim]
-          )
-
-          done()
-        })
-      )
+      expectFiles(files, [
+        'pim/200Bytes.txt',
+        'pim/1.2MiB.txt',
+        'pim'
+      ])
     })
 
-    it('nested directory (2 levels deep)', (done) => {
-      pull(
-        values([{
-          path: 'pam/pum/200Bytes.txt',
-          content: values([smallFile])
-        }, {
-          path: 'pam/pum/1.2MiB.txt',
-          content: values([bigFile])
-        }, {
-          path: 'pam/1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect((err, files) => {
-          expect(err).to.not.exist()
+    it('nested directory (2 levels deep)', async () => {
+      const files = await all(importer([{
+        path: 'pam/pum/200Bytes.txt',
+        content: smallFile
+      }, {
+        path: 'pam/pum/1.2MiB.txt',
+        content: bigFile
+      }, {
+        path: 'pam/1.2MiB.txt',
+        content: bigFile
+      }], ipld, options))
 
-          // need to sort as due to parallel storage the order
-          // can vary
-          stringifyMh(files).forEach(eachFile)
+      const result = stringifyMh(files)
 
-          done()
-        })
-      )
+      expect(result.length).to.equal(5)
+
+      result.forEach(eachFile)
 
       function eachFile (file) {
         if (file.path === 'pam/pum/200Bytes.txt') {
-          expect(file.multihash).to.be.eql(expected['200Bytes.txt'].multihash)
-          expect(file.size).to.be.eql(expected['200Bytes.txt'].size)
-        }
-        if (file.path === 'pam/pum/1.2MiB.txt') {
-          expect(file.multihash).to.be.eql(expected['1.2MiB.txt'].multihash)
-          expect(file.size).to.be.eql(expected['1.2MiB.txt'].size)
-        }
-        if (file.path === 'pam/pum') {
-          const dir = expected['pam/pum']
-          expect(file.multihash).to.be.eql(dir.multihash)
-          expect(file.size).to.be.eql(dir.size)
-        }
-        if (file.path === 'pam/1.2MiB.txt') {
-          expect(file.multihash).to.be.eql(expected['1.2MiB.txt'].multihash)
-          expect(file.size).to.be.eql(expected['1.2MiB.txt'].size)
-        }
-        if (file.path === 'pam') {
-          const dir = expected.pam
-          expect(file.multihash).to.be.eql(dir.multihash)
-          expect(file.size).to.be.eql(dir.size)
+          expect(file.cid).to.equal(expected['200Bytes.txt'].cid)
+          expect(file.unixfs.fileSize()).to.equal(expected['200Bytes.txt'].size)
+        } else if (file.path === 'pam/pum/1.2MiB.txt') {
+          expect(file.cid).to.equal(expected['1.2MiB.txt'].cid)
+          expect(file.unixfs.fileSize()).to.equal(expected['1.2MiB.txt'].size)
+        } else if (file.path === 'pam/pum') {
+          expect(file.cid).to.equal(expected['pam/pum'].cid)
+        } else if (file.path === 'pam/1.2MiB.txt') {
+          expect(file.cid).to.equal(expected['1.2MiB.txt'].cid)
+          expect(file.unixfs.fileSize()).to.equal(expected['1.2MiB.txt'].size)
+        } else if (file.path === 'pam') {
+          expect(file.cid).to.equal(expected.pam.cid)
+        } else {
+          throw new Error(`Unexpected path ${file.path}`)
         }
       }
     })
 
-    it('will not write to disk if passed "onlyHash" option', (done) => {
+    it('will not write to disk if passed "onlyHash" option', async () => {
       const content = String(Math.random() + Date.now())
-      const inputFile = {
+      const files = await all(importer([{
         path: content + '.txt',
         content: Buffer.from(content)
+      }], ipld, {
+        onlyHash: true
+      }))
+
+      const file = files[0]
+      expect(file).to.exist()
+
+      try {
+        await ipld.get(file.cid)
+
+        throw new Error('No error was thrown')
+      } catch (err) {
+        expect(err.code).to.equal('ERR_NOT_FOUND')
       }
+    })
+
+    it('will call an optional progress function', async () => {
+      const maxChunkSize = 2048
 
       const options = {
-        onlyHash: true
+        progress: spy(),
+        chunkerOptions: {
+          maxChunkSize
+        }
       }
 
-      const onCollected = (err, files) => {
-        if (err) return done(err)
+      await all(importer([{
+        path: '1.2MiB.txt',
+        content: bigFile
+      }], ipld, options))
 
-        const file = files[0]
-        expect(file).to.exist()
-
-        ipld.get(new CID(file.multihash), (err) => {
-          expect(err).to.exist()
-          done()
-        })
-      }
-
-      pull(
-        values([inputFile]),
-        importer(ipld, options),
-        collect(onCollected)
-      )
+      expect(options.progress.called).to.equal(true)
+      expect(options.progress.args[0][0]).to.equal(maxChunkSize)
     })
 
-    it('will call an optional progress function', (done) => {
-      options.progress = spy()
-
-      pull(
-        values([{
-          path: '1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect(() => {
-          expect(options.progress.called).to.equal(true)
-          expect(options.progress.args[0][0]).to.equal(1024)
-          done()
-        })
-      )
-    })
-
-    it('will import files with CID version 1', (done) => {
+    it('will import files with CID version 1', async () => {
       const createInputFile = (path, size) => {
         const name = String(Math.random() + Date.now())
         path = path[path.length - 1] === '/' ? path : path + '/'
@@ -646,104 +574,75 @@ strategies.forEach((strategy) => {
         shardSplitThreshold: 3
       }
 
-      const onCollected = (err, files) => {
-        if (err) return done(err)
+      // Pass a copy of inputFiles, since the importer mutates them
+      const files = await all(importer(inputFiles.map(f => Object.assign({}, f)), ipld, options))
 
-        const file = files[0]
-        expect(file).to.exist()
+      const file = files[0]
+      expect(file).to.exist()
 
-        each(files, (file, cb) => {
-          const cid = new CID(file.multihash).toV1()
-          const inputFile = inputFiles.find(f => f.path === file.path)
+      for (let i = 0; i < file.length; i++) {
+        const file = files[i]
 
-          // Just check the intermediate directory can be retrieved
-          if (!inputFile) {
-            return ipld.get(cid, cb)
-          }
+        const cid = file.cid.toV1()
+        const inputFile = inputFiles.find(f => f.path === file.path)
 
-          // Check the imported content is correct
-          pull(
-            exporter(cid, ipld),
-            collect((err, nodes) => {
-              expect(err).to.not.exist()
-              pull(
-                nodes[0].content,
-                collect((err, chunks) => {
-                  expect(err).to.not.exist()
-                  expect(Buffer.concat(chunks)).to.deep.equal(inputFile.content)
-                  cb()
-                })
-              )
-            })
-          )
-        }, done)
+        // Just check the intermediate directory can be retrieved
+        if (!inputFile) {
+          await ipld.get(cid)
+        }
+
+        // Check the imported content is correct
+        const node = await exporter(cid, ipld)
+        const chunks = []
+
+        for await (const chunk of node.content()) {
+          chunks.push(chunk)
+        }
+
+        expect(Buffer.concat(chunks)).to.deep.equal(inputFile.content)
       }
-
-      pull(
-        // Pass a copy of inputFiles, since the importer mutates them
-        values(inputFiles.map(f => Object.assign({}, f))),
-        importer(ipld, options),
-        collect(onCollected)
-      )
     })
 
-    it('imports file with raw leaf nodes when specified', (done) => {
-      checkLeafNodeTypes(ipld, {
+    it('imports file with raw leaf nodes when specified', async () => {
+      return checkLeafNodeTypes(ipld, {
         leafType: 'raw'
-      }, 'raw', done)
+      }, 'raw')
     })
 
-    it('imports file with file leaf nodes when specified', (done) => {
-      checkLeafNodeTypes(ipld, {
+    it('imports file with file leaf nodes when specified', async () => {
+      return checkLeafNodeTypes(ipld, {
         leafType: 'file'
-      }, 'file', done)
+      }, 'file')
     })
 
-    it('reduces file to single node when specified', (done) => {
-      checkNodeLinks(ipld, {
+    it('reduces file to single node when specified', async () => {
+      return checkNodeLinks(ipld, {
         reduceSingleLeafToSelf: true
-      }, 0, done)
+      }, 0)
     })
 
-    it('does not reduce file to single node when overidden by options', (done) => {
-      checkNodeLinks(ipld, {
+    it('does not reduce file to single node when overidden by options', async () => {
+      return checkNodeLinks(ipld, {
         reduceSingleLeafToSelf: false
-      }, 1, done)
+      }, 1)
     })
 
-    it('uses raw leaf nodes when requested', (done) => {
+    it('uses raw leaf nodes when requested', async () => {
       this.timeout(60 * 1000)
 
-      options.rawLeaves = true
+      const options = {
+        rawLeaves: true
+      }
 
-      pull(
-        values([{
-          path: '1.2MiB.txt',
-          content: values([bigFile])
-        }]),
-        importer(ipld, options),
-        collect((error, files) => {
-          expect(error).to.not.exist()
-
-          const node = files[0]
-
-          collectLeafCids(ipld, node.multihash, (error, cids) => {
-            expect(error).to.be.not.ok()
-
-            const rawNodes = cids
-              .filter(cid => cid.codec === 'raw')
-
-            expect(rawNodes).to.not.be.empty()
-
-            rawNodes
-              .forEach(cid => {
-                expect(cid.version).to.equal(1)
-              })
-
-            done()
-          })
-        })
-      )
+      for await (const file of importer([{
+        path: '1.2MiB.txt',
+        content: bigFile
+      }], ipld, options)) {
+        for await (const { cid } of collectLeafCids(file.cid, ipld)) {
+          expect(cid.codec).to.be('raw')
+          expect(cid.version).to.be(1)
+        }
+      }
     })
   })
 })

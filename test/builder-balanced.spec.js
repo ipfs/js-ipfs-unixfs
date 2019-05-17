@@ -4,16 +4,14 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const pull = require('pull-stream/pull')
-const values = require('pull-stream/sources/values')
-const collect = require('pull-stream/sinks/collect')
-const builder = require('../src/builder/balanced')
+const builder = require('../src/dag-builder/file/balanced')
+const all = require('async-iterator-all')
 
-function reduce (leaves, callback) {
+function reduce (leaves) {
   if (leaves.length > 1) {
-    callback(null, { children: leaves })
+    return { children: leaves }
   } else {
-    callback(null, leaves[0])
+    return leaves[0]
   }
 }
 
@@ -22,74 +20,51 @@ const options = {
 }
 
 describe('builder: balanced', () => {
-  it('reduces one value into itself', (callback) => {
-    pull(
-      values([1]),
-      builder(reduce, options),
-      collect((err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.be.eql([1])
-        callback()
-      })
-    )
+  it('reduces one value into itself', async () => {
+    const source = [1]
+
+    const result = await all(builder(source, reduce, options))
+
+    expect(result).to.deep.equal(source)
   })
 
-  it('reduces 3 values into parent', (callback) => {
-    pull(
-      values([1, 2, 3]),
-      builder(reduce, options),
-      collect((err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.be.eql([{
-          children: [1, 2, 3]
-        }])
-        callback()
-      })
-    )
+  it('reduces 3 values into parent', async () => {
+    const source = [1, 2, 3]
+
+    const result = await all(builder(source, reduce, options))
+
+    expect(result).to.deep.equal([{
+      children: [1, 2, 3]
+    }])
   })
 
-  it('obeys max children per node', (callback) => {
-    pull(
-      values([1, 2, 3, 4]),
-      builder(reduce, options),
-      collect((err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.be.eql([
-          {
-            children: [
-              {
-                children: [1, 2, 3]
-              },
-              4
-            ]
-          }
-        ])
-        callback()
-      })
-    )
+  it('obeys max children per node', async () => {
+    const source = [1, 2, 3, 4]
+
+    const result = await all(builder(source, reduce, options))
+
+    expect(result).to.deep.equal([{
+      children: [{
+        children: [1, 2, 3]
+      },
+      4
+      ]
+    }])
   })
 
-  it('refolds 2 parent nodes', (callback) => {
-    pull(
-      values([1, 2, 3, 4, 5, 6, 7]),
-      builder(reduce, options),
-      collect((err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.be.eql([
-          {
-            children: [
-              {
-                children: [1, 2, 3]
-              },
-              {
-                children: [4, 5, 6]
-              },
-              7
-            ]
-          }
-        ])
-        callback()
-      })
-    )
+  it('refolds 2 parent nodes', async () => {
+    const source = [1, 2, 3, 4, 5, 6, 7]
+
+    const result = await all(builder(source, reduce, options))
+
+    expect(result).to.deep.equal([{
+      children: [{
+        children: [1, 2, 3]
+      }, {
+        children: [4, 5, 6]
+      },
+      7
+      ]
+    }])
   })
 })

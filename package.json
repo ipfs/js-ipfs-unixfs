@@ -58,7 +58,7 @@
     "err-code": "^1.1.2",
     "hamt-sharding": "~0.0.2",
     "ipfs-unixfs": "~0.1.16",
-    "ipfs-unixfs-importer": "~0.38.5"
+    "ipfs-unixfs-importer": "~0.39.0"
   },
   "contributors": [
     "Alan Shaw <alan.shaw@protocol.ai>",

@@ -1,3 +1,13 @@
+<a name="0.37.0"></a>
+# [0.37.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.36.1...v0.37.0) (2019-05-17)
+
+
+### Features
+
+* convert to async/await ([#21](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues/21)) ([7119a09](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/7119a09))
+
+
+
 <a name="0.36.1"></a>
 ## [0.36.1](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.36.0...v0.36.1) (2019-03-18)
 

@@ -1,3 +1,13 @@
+<a name="0.39.2"></a>
+## [0.39.2](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.1...v0.39.2) (2019-05-17)
+
+
+### Bug Fixes
+
+* move async-iterator-first out of dev deps ([7b76f4b](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/7b76f4b))
+
+
+
 <a name="0.39.1"></a>
 ## [0.39.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.0...v0.39.1) (2019-05-17)
 

@@ -42,7 +42,7 @@ strategies.forEach(strategy => {
     })
 
     it('yields the same tree as go-ipfs', async function () {
-      this.timeout(10 * 1000)
+      this.timeout(100 * 1000)
 
       const source = [{
         path: 'big.dat',

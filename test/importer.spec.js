@@ -41,6 +41,12 @@ const baseFiles = {
     size: 1258000,
     type: 'file',
     path: '1.2MiB.txt'
+  },
+  'small.txt': {
+    cid: 'QmZMb7HWpbevpcdhbUV1ZZgdji8vh5uQ13KxczChGrK9Rd',
+    size: 15,
+    type: 'file',
+    path: 'small.txt'
   }
 }
 
@@ -53,6 +59,12 @@ const strategyBaseFiles = {
     }
   }),
   trickle: extend({}, baseFiles, {
+    '200Bytes.txt': {
+      cid: 'QmY8bwnoKAKvJ8qtyPhWNxSS6sxiGVTJ9VpdQffs2KB5pE',
+      size: 200,
+      type: 'file',
+      path: '200Bytes.txt'
+    },
     '1.2MiB.txt': {
       cid: 'QmfAxsHrpaLLuhbqqbo9KQyvQNawMnVSwutYoJed75pnco',
       type: 'file'
@@ -62,8 +74,8 @@ const strategyBaseFiles = {
 
 const strategies = [
   'flat',
-  'balanced'
-  // 'trickle'
+  'balanced',
+  'trickle'
 ]
 
 const strategyOverrides = {
@@ -95,28 +107,52 @@ const strategyOverrides = {
   },
   trickle: {
     'foo-big': {
-      cid: 'QmPh6KSS7ghTqzgWhaoCiLoHFPF7HGqUxx7q9vcM5HUN4U',
+      cid: 'QmaKbhFRy9kcCbcwrLsqYHWMiY44BDYkqTCMpAxDdd2du2',
       path: 'foo-big',
       size: 1334657,
       type: 'directory'
     },
     pim: {
-      cid: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
+      cid: 'QmbWGdnua4YuYpWJb7fE25PRbW9GbKKLqq9Ucmnsg2gxnt',
       path: 'pim',
       size: 1334923,
       type: 'directory'
     },
     'pam/pum': {
-      cid: 'QmPAn3G2x2nrq4A1fu2XUpwWtpqG4D1YXFDrU615NHvJbr',
+      cid: 'QmbWGdnua4YuYpWJb7fE25PRbW9GbKKLqq9Ucmnsg2gxnt',
       path: 'pam/pum',
       size: 1334923,
       type: 'directory'
     },
     pam: {
-      cid: 'QmZTJah1xpG9X33ZsPtDEi1tYSHGDqQMRHsGV5xKzAR2j4',
+      cid: 'QmSuh47G9Qm3PFv1zziojtHxqCjuurSdtWAzxLxoKJPq2U',
       path: 'pam',
       size: 2669627,
       type: 'directory'
+    },
+    '200Bytes.txt with raw leaves': {
+      cid: 'QmagyRwMfYhczYNv5SvcJc8xxXjZQBTTHS2jEqNMva2mYT',
+      size: 200,
+      path: '200Bytes.txt',
+      type: 'file'
+    },
+    'foo/bar': {
+      cid: 'QmTGMxKPzSGNBDp6jhTwnZxGW6w1S9ciyycRJ4b2qcQaHK',
+      size: 0,
+      path: 'foo/bar',
+      type: 'directory'
+    },
+    foo: {
+      cid: 'Qme4A8fZmwfZESappfPcxSMTZVACiEzhHKtYRMuM1hbkDp',
+      size: 0,
+      path: 'foo',
+      type: 'directory'
+    },
+    'small.txt': {
+      cid: 'QmXmZ3qT328JxWtQXqrmvma2FmPp7tMdNiSuYvVJ5QRhKs',
+      size: 15,
+      type: 'file',
+      path: 'small.txt'
     }
   }
 }
@@ -301,7 +337,7 @@ strategies.forEach((strategy) => {
 
       expect(files.length).to.eql(1)
 
-      // always yield empty node
+      // always yield empty file node
       expect(files[0].cid.toBaseEncodedString()).to.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
     })
 
@@ -379,12 +415,14 @@ strategies.forEach((strategy) => {
     })
 
     it('small file as string (smaller than a chunk)', async () => {
-      const file = await first(importer([{
-        path: '200Bytes.txt',
+      const files = await all(importer([{
+        path: 'small.txt',
         content: 'this is a file\n'
       }], ipld, options))
 
-      expect(file.cid.toBaseEncodedString()).to.equal('QmZMb7HWpbevpcdhbUV1ZZgdji8vh5uQ13KxczChGrK9Rd')
+      expectFiles(files, [
+        'small.txt'
+      ])
     })
 
     it('small file (smaller than a chunk) with raw leaves', async () => {

@@ -81,8 +81,19 @@ const reduce = (file, ipld, options) => {
     // create a parent node and add all the leaves
     const f = new UnixFS('file')
 
-    const links = await Promise.all(
-      leaves.map(async (leaf) => {
+    const links = leaves
+      .filter(leaf => {
+        if (leaf.cid.codec === 'raw' && leaf.node.length) {
+          return true
+        }
+
+        if (!leaf.unixfs.data && leaf.unixfs.fileSize()) {
+          return true
+        }
+
+        return Boolean(leaf.unixfs.data.length)
+      })
+      .map((leaf) => {
         if (leaf.cid.codec === 'raw') {
           // node is a leaf buffer
           f.addBlockSize(leaf.node.length)
@@ -100,7 +111,6 @@ const reduce = (file, ipld, options) => {
 
         return new DAGLink(leaf.name, leaf.node.size, leaf.cid)
       })
-    )
 
     const node = DAGNode.create(f.marshal(), links)
     const cid = await persist(node, ipld, options)

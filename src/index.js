@@ -87,8 +87,9 @@ module.exports = async function * (source, ipld, options = {}) {
   }
 
   // go-ifps trickle dag defaults to unixfs raw leaves, balanced dag defaults to file leaves
-  if (options.strategy === 'trickle' && !options.leafType) {
+  if (options.strategy === 'trickle') {
     opts.leafType = 'raw'
+    opts.reduceSingleLeafToSelf = false
   }
 
   if (options.format) {

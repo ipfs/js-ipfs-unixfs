@@ -1,3 +1,13 @@
+<a name="0.39.6"></a>
+## [0.39.6](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.5...v0.39.6) (2019-05-20)
+
+
+### Bug Fixes
+
+* final trickle dag tests ([#27](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/27)) ([72b8bc7](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/72b8bc7))
+
+
+
 <a name="0.39.5"></a>
 ## [0.39.5](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.4...v0.39.5) (2019-05-20)
 

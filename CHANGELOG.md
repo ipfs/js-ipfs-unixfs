@@ -1,3 +1,13 @@
+<a name="0.39.4"></a>
+## [0.39.4](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.3...v0.39.4) (2019-05-20)
+
+
+### Bug Fixes
+
+* add missing dependency async-iterator-all ([#26](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/26)) ([83d4075](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/83d4075))
+
+
+
 <a name="0.39.3"></a>
 ## [0.39.3](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.2...v0.39.3) (2019-05-18)
 

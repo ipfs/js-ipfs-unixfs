@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-importer",
-  "version": "0.39.5",
+  "version": "0.39.6",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -73,6 +73,7 @@
   "contributors": [
     "Alan Shaw <alan.shaw@protocol.ai>",
     "Alan Shaw <alan@tableflip.io>",
+    "Alex Potsides <alex@achingbrain.net>",
     "Arpit Agarwal <atvanguard@users.noreply.github.com>",
     "Bernard Mordan <bernard@tableflip.io>",
     "Dan Ordille <dordille@gmail.com>",
@@ -88,7 +89,6 @@
     "Richard Schneider <makaretu@gmail.com>",
     "Stephen Whitmore <stephen.whitmore@gmail.com>",
     "Volker Mische <volker.mische@gmail.com>",
-    "achingbrain <alex@achingbrain.net>",
     "greenkeeper[bot] <greenkeeper[bot]@users.noreply.github.com>",
     "jbenet <juan@benet.ai>",
     "nginnever <ginneversource@gmail.com>",

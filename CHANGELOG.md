@@ -1,3 +1,13 @@
+<a name="0.39.7"></a>
+## [0.39.7](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.6...v0.39.7) (2019-05-23)
+
+
+### Bug Fixes
+
+* remove leftpad ([#28](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/28)) ([0aeb0f6](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/0aeb0f6))
+
+
+
 <a name="0.39.6"></a>
 ## [0.39.6](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.5...v0.39.6) (2019-05-20)
 

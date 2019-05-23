@@ -62,7 +62,6 @@
     "hamt-sharding": "~0.0.2",
     "ipfs-unixfs": "~0.1.16",
     "ipld-dag-pb": "~0.17.2",
-    "left-pad": "^1.3.0",
     "multicodec": "~0.5.1",
     "multihashing-async": "~0.7.0",
     "superstruct": "~0.6.1"

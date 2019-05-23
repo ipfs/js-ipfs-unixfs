@@ -9,7 +9,6 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const leftPad = require('left-pad')
 const all = require('async-iterator-all')
 const last = require('async-iterator-last')
 
@@ -133,7 +132,7 @@ describe('builder: directory sharding', () => {
         [Symbol.asyncIterator]: async function * () {
           for (let i = 0; i < maxDirs; i++) {
             yield {
-              path: 'big/' + leftPad(i.toString(), 4, '0'),
+              path: 'big/' + i.toString().padStart(4, '0'),
               content: Buffer.from(i.toString())
             }
           }
@@ -152,7 +151,7 @@ describe('builder: directory sharding', () => {
         [Symbol.asyncIterator]: async function * () {
           for (let i = 0; i < maxDirs; i++) {
             yield {
-              path: 'big/' + leftPad(i.toString(), 4, '0'),
+              path: 'big/' + i.toString().padStart(4, '0'),
               content: Buffer.from(i.toString())
             }
           }
@@ -196,7 +195,7 @@ describe('builder: directory sharding', () => {
             }
 
             yield {
-              path: dir.concat(leftPad(i.toString(), 4, '0')).join('/'),
+              path: dir.concat(i.toString().padStart(4, '0')).join('/'),
               content: Buffer.from(i.toString())
             }
 
@@ -267,7 +266,7 @@ describe('builder: directory sharding', () => {
           const pathElements = path.split('/')
           expect(pathElements.length).to.equal(depth + 1)
           const lastElement = pathElements[pathElements.length - 1]
-          expect(lastElement).to.equal(leftPad(index.toString(), 4, '0'))
+          expect(lastElement).to.equal(index.toString().padStart(4, '0'))
           expect(entries[path].content).to.equal(index.toString())
         }
         index++

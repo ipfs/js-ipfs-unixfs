@@ -1,6 +1,5 @@
 'use strict'
 
-const leftPad = require('left-pad')
 const {
   DAGLink,
   DAGNode
@@ -95,7 +94,7 @@ async function * flush (path, bucket, ipld, options) {
       continue
     }
 
-    const labelPrefix = leftPad(i.toString(16).toUpperCase(), 2, '0')
+    const labelPrefix = i.toString(16).toUpperCase().padStart(2, '0')
 
     if (Bucket.isBucket(child)) {
       let shard

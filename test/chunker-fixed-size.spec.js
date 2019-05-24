@@ -13,12 +13,6 @@ const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt'
 describe('chunker: fixed size', function () {
   this.timeout(30000)
 
-  before(function () {
-    if (!isNode) {
-      this.skip()
-    }
-  })
-
   it('chunks non flat buffers', async () => {
     const b1 = Buffer.alloc(2 * 256)
     const b2 = Buffer.alloc(1 * 256)

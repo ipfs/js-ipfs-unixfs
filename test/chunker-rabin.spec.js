@@ -6,7 +6,6 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const loadFixture = require('aegir/fixtures')
-const os = require('os')
 const isNode = require('detect-node')
 const all = require('async-iterator-all')
 
@@ -15,15 +14,11 @@ const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt'
 describe('chunker: rabin', function () {
   this.timeout(30000)
 
-  before(function () {
-    if (os.platform() === 'win32') {
-      return this.skip()
-    }
-
-    if (!isNode) {
-      this.skip()
-    }
-  })
+  const defaultOptions = {
+    avgChunkSize: 262144,
+    window: 64,
+    polynomial: 17437180132763653
+  }
 
   it('chunks non flat buffers', async () => {
     const b1 = Buffer.alloc(2 * 256)
@@ -35,16 +30,22 @@ describe('chunker: rabin', function () {
     b3.fill('c')
 
     const chunks = await all(chunker([b1, b2, b3], {
+      ...defaultOptions,
       minChunkSize: 48,
       avgChunkSize: 96,
-      maxChunkSize: 192,
-      window: 16,
-      polynomial: '0x3DF305DFB2A805'
+      maxChunkSize: 192
     }))
 
-    chunks.forEach((chunk) => {
-      expect(chunk).to.have.length.gte(48)
-      expect(chunk).to.have.length.lte(192)
+    const size = chunks.reduce((acc, curr) => acc + curr.length, 0)
+
+    expect(size).to.equal(b1.length + b2.length + b3.length)
+
+    chunks.forEach((chunk, index) => {
+      if (index === chunks.length - 1) {
+        expect(chunk.length).to.equal(128)
+      } else {
+        expect(chunk.length).to.equal(192)
+      }
     })
   })
 
@@ -53,11 +54,10 @@ describe('chunker: rabin', function () {
     b1.fill('a')
 
     const chunks = await all(chunker([b1], {
+      ...defaultOptions,
       maxChunkSize: 262144,
       minChunkSize: 1,
-      avgChunkSize: 256,
-      window: 16,
-      polynomial: '0x3DF305DFB2A805'
+      avgChunkSize: 256
     }))
 
     chunks.forEach((chunk) => {
@@ -70,11 +70,10 @@ describe('chunker: rabin', function () {
     const KiB256 = 262144
     let file = Buffer.concat([rawFile, Buffer.from('hello')])
     const opts = {
+      ...defaultOptions,
       minChunkSize: KiB256 / 3,
       avgChunkSize: KiB256,
-      maxChunkSize: KiB256 + (KiB256 / 2),
-      window: 16,
-      polynomial: '0x3DF305DFB2A805'
+      maxChunkSize: KiB256 + (KiB256 / 2)
     }
 
     const chunks = await all(chunker([file], opts))

@@ -18,12 +18,12 @@ const ChunkerOptions = struct({
   maxChunkSize: 'number?',
   avgChunkSize: 'number?',
   window: 'number?',
-  polynomial: 'string?'
+  polynomial: 'number?'
 }, {
   maxChunkSize: 262144,
   avgChunkSize: 262144,
   window: 16,
-  polynomial: '0x3DF305DFB2A805'
+  polynomial: 17437180132763653 // https://github.com/ipfs/go-ipfs-chunker/blob/d0125832512163708c0804a3cda060e21acddae4/rabin.go#L11
 })
 
 const BuilderOptions = struct({

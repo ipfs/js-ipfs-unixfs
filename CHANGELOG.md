@@ -1,3 +1,13 @@
+<a name="0.39.8"></a>
+## [0.39.8](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.7...v0.39.8) (2019-05-24)
+
+
+### Bug Fixes
+
+* make trickle dag importer compatible with go ([#29](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/29)) ([01c7323](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/01c7323))
+
+
+
 <a name="0.39.7"></a>
 ## [0.39.7](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.6...v0.39.7) (2019-05-23)
 

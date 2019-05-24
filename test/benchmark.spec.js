@@ -9,6 +9,7 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const bufferStream = require('async-iterator-buffer-stream')
+const all = require('async-iterator-all')
 
 const REPEATS = 10
 const FILE_SIZE = Math.pow(2, 20) * 500 // 500MB
@@ -64,7 +65,7 @@ describe.skip('benchmark', function () {
 
       const buf = Buffer.alloc(CHUNK_SIZE).fill(0)
 
-      for await (const file of importer({ // eslint-disable-line no-unused-vars
+      await all(importer([{
         path: '200Bytes.txt',
         content: bufferStream(size, {
           chunkSize: CHUNK_SIZE,
@@ -72,9 +73,7 @@ describe.skip('benchmark', function () {
             return buf
           }
         })
-      }, ipld, options)) {
-        // do nothing
-      }
+      }], ipld, options))
     })
   }
 })

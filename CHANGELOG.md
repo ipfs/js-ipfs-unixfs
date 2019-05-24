@@ -1,3 +1,13 @@
+<a name="0.39.9"></a>
+## [0.39.9](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.8...v0.39.9) (2019-05-24)
+
+
+### Features
+
+* adds js implementation of rabin chunker for windows and browser ([#30](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/30)) ([542b3e4](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/542b3e4))
+
+
+
 <a name="0.39.8"></a>
 ## [0.39.8](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.7...v0.39.8) (2019-05-24)
 

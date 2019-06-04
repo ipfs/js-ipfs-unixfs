@@ -1,3 +1,18 @@
+<a name="0.39.10"></a>
+## [0.39.10](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.9...v0.39.10) (2019-06-04)
+
+
+### Bug Fixes
+
+* remove unused dep ([efa2ca2](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/efa2ca2))
+
+
+### Features
+
+* use a rabin chunker in wasm ([#31](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/31)) ([d4021db](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/d4021db))
+
+
+
 <a name="0.39.9"></a>
 ## [0.39.9](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.8...v0.39.9) (2019-05-24)
 

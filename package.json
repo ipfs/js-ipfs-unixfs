@@ -5,8 +5,7 @@
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
-    "fs": false,
-    "rabin": false
+    "fs": false
   },
   "scripts": {
     "test": "aegir test",
@@ -65,10 +64,8 @@
     "long": "^4.0.0",
     "multicodec": "~0.5.1",
     "multihashing-async": "~0.7.0",
-    "superstruct": "~0.6.1"
-  },
-  "optionalDependencies": {
-    "rabin": "^1.6.0"
+    "superstruct": "~0.6.1",
+    "rabin-wasm": "~0.0.4"
   },
   "contributors": [
     "Alan Shaw <alan.shaw@protocol.ai>",

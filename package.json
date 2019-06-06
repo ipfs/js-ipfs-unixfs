@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-exporter#readme",
   "devDependencies": {
-    "aegir": "^18.0.2",
+    "aegir": "^19.0.3",
     "async-iterator-all": "^1.0.0",
     "async-iterator-buffer-stream": "^1.0.0",
     "async-iterator-first": "^1.0.0",
@@ -58,7 +58,7 @@
     "err-code": "^1.1.2",
     "hamt-sharding": "~0.0.2",
     "ipfs-unixfs": "~0.1.16",
-    "ipfs-unixfs-importer": "~0.39.9"
+    "ipfs-unixfs-importer": "~0.39.11"
   },
   "contributors": [
     "Alan Shaw <alan.shaw@protocol.ai>",

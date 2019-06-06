@@ -56,7 +56,7 @@ describe('chunker: rabin', function () {
     const chunks = await all(chunker([b1], {
       ...defaultOptions,
       maxChunkSize: 262144,
-      minChunkSize: 1,
+      minChunkSize: 18,
       avgChunkSize: 256
     }))
 
@@ -81,6 +81,55 @@ describe('chunker: rabin', function () {
     chunks.forEach((chunk) => {
       expect(chunk).to.have.length.gte(opts.minChunkSize)
       expect(chunk).to.have.length.lte(opts.maxChunkSize)
+    })
+  })
+
+  it('throws when min chunk size is too small', async () => {
+    const opts = {
+      ...defaultOptions,
+      minChunkSize: 1,
+      maxChunkSize: 100
+    }
+
+    try {
+      await all(chunker([], opts))
+      throw new Error('Should have thrown')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_INVALID_MIN_CHUNK_SIZE')
+    }
+  })
+
+  it('throws when avg chunk size is not specified', async () => {
+    const opts = {
+      ...defaultOptions,
+      avgChunkSize: undefined
+    }
+
+    try {
+      await all(chunker([], opts))
+      throw new Error('Should have thrown')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_INVALID_AVG_CHUNK_SIZE')
+    }
+  })
+
+  it('uses the min chunk size when max and avg are too small', async () => {
+    let file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const opts = {
+      ...defaultOptions,
+      minChunkSize: 100,
+      maxChunkSize: 5,
+      avgChunkSize: 5
+    }
+
+    const chunks = await all(chunker([file], opts))
+
+    chunks.forEach((chunk, index) => {
+      if (index === chunks.length - 1) {
+        expect(chunk.length).to.equal(81)
+      } else {
+        expect(chunk.length).to.equal(100)
+      }
     })
   })
 })

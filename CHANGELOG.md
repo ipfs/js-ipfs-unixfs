@@ -1,3 +1,12 @@
+## [0.39.11](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.10...v0.39.11) (2019-06-06)
+
+
+### Bug Fixes
+
+* validate rabin args ([#32](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/32)) ([55c5dba](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/55c5dba))
+
+
+
 <a name="0.39.10"></a>
 ## [0.39.10](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.9...v0.39.10) (2019-06-04)
 

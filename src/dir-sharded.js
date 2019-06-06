@@ -47,7 +47,7 @@ class DirSharded extends Dir {
     await this._bucket.put(name, value)
   }
 
-  async get (name) {
+  get (name) {
     return this._bucket.get(name)
   }
 

@@ -24,7 +24,7 @@ async function * dagBuilder (source, ipld, options) {
       // wrap in iterator if it is array-like or not an iterator
       if ((!source[Symbol.asyncIterator] && !source[Symbol.iterator]) || source.length !== undefined) {
         source = {
-          [Symbol.asyncIterator]: async function * () {
+          [Symbol.iterator]: function * () {
             yield entry.content
           }
         }

@@ -3,7 +3,7 @@
 const mh = require('multihashes')
 const mc = require('multicodec')
 
-const persist = async (node, ipld, options) => {
+const persist = (node, ipld, options) => {
   if (!options.codec && node.length) {
     options.cidVersion = 1
     options.codec = 'raw'

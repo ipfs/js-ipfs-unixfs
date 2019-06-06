@@ -2,7 +2,7 @@
 
 const batch = require('async-iterator-batch')
 
-module.exports = async function * trickleReduceToRoot (source, reduce, options) {
+module.exports = function * trickleReduceToRoot (source, reduce, options) {
   yield trickleStream(source, reduce, options)
 }
 

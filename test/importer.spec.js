@@ -312,7 +312,7 @@ strategies.forEach((strategy) => {
         await all(importer([{
           path: '200Bytes.txt',
           content: {
-            [Symbol.asyncIterator]: async function * () {
+            [Symbol.iterator]: function * () {
               yield 7
             }
           }
@@ -641,25 +641,25 @@ strategies.forEach((strategy) => {
       }
     })
 
-    it('imports file with raw leaf nodes when specified', async () => {
+    it('imports file with raw leaf nodes when specified', () => {
       return checkLeafNodeTypes(ipld, {
         leafType: 'raw'
       }, 'raw')
     })
 
-    it('imports file with file leaf nodes when specified', async () => {
+    it('imports file with file leaf nodes when specified', () => {
       return checkLeafNodeTypes(ipld, {
         leafType: 'file'
       }, 'file')
     })
 
-    it('reduces file to single node when specified', async () => {
+    it('reduces file to single node when specified', () => {
       return checkNodeLinks(ipld, {
         reduceSingleLeafToSelf: true
       }, 0)
     })
 
-    it('does not reduce file to single node when overidden by options', async () => {
+    it('does not reduce file to single node when overidden by options', () => {
       return checkNodeLinks(ipld, {
         reduceSingleLeafToSelf: false
       }, 1)

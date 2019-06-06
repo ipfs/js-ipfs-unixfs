@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-importer#readme",
   "devDependencies": {
-    "aegir": "^18.0.2",
+    "aegir": "^19.0.3",
     "async-iterator-buffer-stream": "^1.0.0",
     "async-iterator-last": "^1.0.0",
     "chai": "^4.2.0",

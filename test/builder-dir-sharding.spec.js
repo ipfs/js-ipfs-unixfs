@@ -129,7 +129,7 @@ describe('builder: directory sharding', () => {
 
     it('imports a big dir', async () => {
       const source = {
-        [Symbol.asyncIterator]: async function * () {
+        [Symbol.iterator]: function * () {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
@@ -148,7 +148,7 @@ describe('builder: directory sharding', () => {
 
     it('exports a big dir', async () => {
       const source = {
-        [Symbol.asyncIterator]: async function * () {
+        [Symbol.iterator]: function * () {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
@@ -180,7 +180,7 @@ describe('builder: directory sharding', () => {
 
     before(async () => {
       const source = {
-        [Symbol.asyncIterator]: async function * () {
+        [Symbol.iterator]: function * () {
           let pending = maxDirs
           let pendingDepth = maxDepth
           let i = 0

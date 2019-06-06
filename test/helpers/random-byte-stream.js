@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = async function * randomByteStream (seed) {
+module.exports = function * randomByteStream (seed) {
   while (true) {
     const r = Math.floor(random(seed) * 256)
     seed = r

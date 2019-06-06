@@ -2,7 +2,7 @@
 
 const REPEATABLE_CHUNK_SIZE = 300000
 
-module.exports = async function * (maxSize, seed) {
+module.exports = function * (maxSize, seed) {
   const chunks = Math.ceil(maxSize / REPEATABLE_CHUNK_SIZE)
   let emitted = 0
   const buf = Buffer.alloc(REPEATABLE_CHUNK_SIZE)

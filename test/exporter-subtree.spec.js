@@ -19,14 +19,8 @@ const exporter = require('./../src')
 describe('exporter subtree', () => {
   let ipld
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   it('exports a file 2 levels down', async () => {

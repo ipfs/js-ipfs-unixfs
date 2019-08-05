@@ -46,14 +46,8 @@ describe('exporter sharded', function () {
     }))).cid
   }
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   it('exports a sharded directory', async () => {
@@ -190,7 +184,7 @@ describe('exporter sharded', function () {
   it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
     const dirCid = await createShard(15)
 
-    const node = await DAGNode.create(new UnixFS('directory').marshal(), [
+    const node = new DAGNode(new UnixFS('directory').marshal(), [
       new DAGLink('shard', 5, dirCid)
     ])
     const nodeCid = await ipld.put(node, mc.DAG_PB, {
@@ -198,7 +192,7 @@ describe('exporter sharded', function () {
       hashAlg: mh.names['sha2-256']
     })
 
-    const shardNode = await DAGNode.create(new UnixFS('hamt-sharded-directory').marshal(), [
+    const shardNode = new DAGNode(new UnixFS('hamt-sharded-directory').marshal(), [
       new DAGLink('75normal-dir', 5, nodeCid)
     ])
     const shardNodeCid = await ipld.put(shardNode, mc.DAG_PB, {

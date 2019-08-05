@@ -40,7 +40,7 @@ describe('exporter', () => {
 
     const file = new UnixFS(options.type, options.content)
 
-    const node = await DAGNode.create(file.marshal(), options.links)
+    const node = new DAGNode(file.marshal(), options.links)
     const cid = await ipld.put(node, mc.DAG_PB, {
       cidVersion: 0,
       hashAlg: mh.names['sha2-256']
@@ -104,7 +104,7 @@ describe('exporter', () => {
       links.push(new DAGLink('', child.node.size, child.cid))
     }
 
-    const node = await DAGNode.create(file.marshal(), links)
+    const node = new DAGNode(file.marshal(), links)
     const cid = await ipld.put(node, mc.DAG_PB, {
       cidVersion: 1,
       hashAlg: mh.names['sha2-256']
@@ -116,14 +116,8 @@ describe('exporter', () => {
     }
   }
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   it('ensure hash inputs are sanitized', async () => {
@@ -197,14 +191,14 @@ describe('exporter', () => {
   it('exports a small file with links', async () => {
     const content = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     const chunk1 = new UnixFS('raw', content.slice(0, 5))
-    const chunkNode1 = await DAGNode.create(chunk1.marshal())
+    const chunkNode1 = new DAGNode(chunk1.marshal())
     const chunkCid1 = await ipld.put(chunkNode1, mc.DAG_PB, {
       cidVersion: 0,
       hashAlg: mh.names['sha2-256']
     })
 
     const chunk2 = new UnixFS('raw', content.slice(5))
-    const chunkNode2 = await DAGNode.create(chunk2.marshal())
+    const chunkNode2 = new DAGNode(chunk2.marshal())
     const chunkCid2 = await ipld.put(chunkNode2, mc.DAG_PB, {
       cidVersion: 0,
       hashAlg: mh.names['sha2-256']
@@ -214,7 +208,7 @@ describe('exporter', () => {
     file.addBlockSize(5)
     file.addBlockSize(5)
 
-    const fileNode = await DAGNode.create(file.marshal(), [
+    const fileNode = new DAGNode(file.marshal(), [
       new DAGLink('', chunkNode1.size, chunkCid1),
       new DAGLink('', chunkNode2.size, chunkCid2)
     ])
@@ -822,7 +816,7 @@ describe('exporter', () => {
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
-    const cid = await ipld.put(await DAGNode.create(Buffer.from([0, 1, 2, 3, 4])), mc.DAG_PB)
+    const cid = await ipld.put(new DAGNode(Buffer.from([0, 1, 2, 3, 4])), mc.DAG_PB)
 
     try {
       await exporter(cid, ipld)
@@ -839,7 +833,7 @@ describe('exporter', () => {
     const file = new UnixFS('file')
     file.addBlockSize(100)
 
-    const cid = await ipld.put(await DAGNode.create(file.marshal(), [
+    const cid = await ipld.put(new DAGNode(file.marshal(), [
       new DAGLink('', 100, cborNodeCid)
     ]), mc.DAG_PB)
 

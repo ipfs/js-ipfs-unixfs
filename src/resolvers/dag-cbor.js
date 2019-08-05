@@ -4,7 +4,7 @@ const CID = require('cids')
 const errCode = require('err-code')
 
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld) => {
-  let node = await ipld.get(cid)
+  const node = await ipld.get(cid)
   let subObject = node
   let subPath = path
 

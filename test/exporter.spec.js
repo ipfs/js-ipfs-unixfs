@@ -626,8 +626,8 @@ describe('exporter', () => {
   it('reads files in multiple steps that are split across lots of nodes in really small chunks', async function () {
     this.timeout(600 * 1000)
 
-    let results = []
-    let chunkSize = 1024
+    const results = []
+    const chunkSize = 1024
     let offset = 0
 
     const cid = await addTestFile({

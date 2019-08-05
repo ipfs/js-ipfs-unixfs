@@ -1,3 +1,12 @@
+# [0.40.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.11...v0.40.0) (2019-08-05)
+
+
+### Bug Fixes
+
+* update to newest IPLD libraries ([#37](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/37)) ([f79355f](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/f79355f))
+
+
+
 ## [0.39.11](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.10...v0.39.11) (2019-06-06)
 
 

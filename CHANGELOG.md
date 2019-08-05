@@ -1,3 +1,12 @@
+# [0.38.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.37.7...v0.38.0) (2019-08-05)
+
+
+### Bug Fixes
+
+* update to newest IPLD libraries ([#23](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues/23)) ([03f4069](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/03f4069))
+
+
+
 ## [0.37.7](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.37.6...v0.37.7) (2019-06-06)
 
 

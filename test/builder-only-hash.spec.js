@@ -12,14 +12,8 @@ const all = require('async-iterator-all')
 describe('builder: onlyHash', () => {
   let ipld
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   it('will only chunk and hash if passed an "onlyHash" option', async () => {

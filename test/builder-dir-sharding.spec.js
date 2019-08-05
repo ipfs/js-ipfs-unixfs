@@ -15,14 +15,8 @@ const last = require('async-iterator-last')
 describe('builder: directory sharding', () => {
   let ipld
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   describe('basic dirbuilder', () => {

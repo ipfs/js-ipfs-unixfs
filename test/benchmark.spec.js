@@ -3,9 +3,6 @@
 
 const importer = require('../src')
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const bufferStream = require('async-iterator-buffer-stream')
@@ -20,14 +17,8 @@ describe.skip('benchmark', function () {
 
   let ipld
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   const times = []

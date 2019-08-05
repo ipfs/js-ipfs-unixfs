@@ -14,14 +14,8 @@ const first = require('async-iterator-first')
 describe('builder', () => {
   let ipld
 
-  before((done) => {
-    inMemory(IPLD, (err, resolver) => {
-      expect(err).to.not.exist()
-
-      ipld = resolver
-
-      done()
-    })
+  before(async () => {
+    ipld = await inMemory(IPLD)
   })
 
   const testMultihashes = Object.keys(mh.names).slice(1, 40)

@@ -29,14 +29,8 @@ describe('import and export', function () {
     describe('using builder: ' + strategy, () => {
       let ipld
 
-      before((done) => {
-        inMemory(IPLD, (err, resolver) => {
-          expect(err).to.not.exist()
-
-          ipld = resolver
-
-          done()
-        })
+      before(async () => {
+        ipld = await inMemory(IPLD)
       })
 
       it('imports and exports', async () => {

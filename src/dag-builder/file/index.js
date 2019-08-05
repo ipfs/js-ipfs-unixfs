@@ -36,7 +36,7 @@ async function * buildFile (source, ipld, options) {
       opts.cidVersion = 1
     } else {
       unixfs = new UnixFS(options.leafType, buffer)
-      node = DAGNode.create(unixfs.marshal(), [])
+      node = new DAGNode(unixfs.marshal())
     }
 
     const cid = await persist(node, ipld, opts)
@@ -112,7 +112,7 @@ const reduce = (file, ipld, options) => {
         return new DAGLink(leaf.name, leaf.node.size, leaf.cid)
       })
 
-    const node = DAGNode.create(f.marshal(), links)
+    const node = new DAGNode(f.marshal(), links)
     const cid = await persist(node, ipld, options)
 
     return {

@@ -31,14 +31,8 @@ strategies.forEach(strategy => {
   describe('go-ipfs interop using importer:' + strategy, () => {
     let ipld
 
-    before((done) => {
-      inMemory(IPLD, (err, resolver) => {
-        expect(err).to.not.exist()
-
-        ipld = resolver
-
-        done()
-      })
+    before(async () => {
+      ipld = await inMemory(IPLD)
     })
 
     it('yields the same tree as go-ipfs', async function () {

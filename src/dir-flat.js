@@ -68,7 +68,7 @@ class DirFlat extends Dir {
     }
 
     const unixfs = new UnixFS('directory')
-    let node = DAGNode.create(unixfs.marshal(), links)
+    const node = new DAGNode(unixfs.marshal(), links)
     const cid = await persist(node, ipld, this.options)
 
     this.cid = cid

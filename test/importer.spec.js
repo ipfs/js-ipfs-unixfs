@@ -285,14 +285,8 @@ strategies.forEach((strategy) => {
       strategy: strategy
     }
 
-    before((done) => {
-      inMemory(IPLD, (err, resolver) => {
-        expect(err).to.not.exist()
-
-        ipld = resolver
-
-        done()
-      })
+    before(async () => {
+      ipld = await inMemory(IPLD)
     })
 
     it('fails on bad content', async () => {

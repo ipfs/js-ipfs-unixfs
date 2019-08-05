@@ -68,7 +68,7 @@ describe('chunker: rabin', function () {
 
   it('256 KiB avg chunks of non scalar filesize', async () => {
     const KiB256 = 262144
-    let file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const file = Buffer.concat([rawFile, Buffer.from('hello')])
     const opts = {
       ...defaultOptions,
       minChunkSize: KiB256 / 3,
@@ -114,7 +114,7 @@ describe('chunker: rabin', function () {
   })
 
   it('uses the min chunk size when max and avg are too small', async () => {
-    let file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const file = Buffer.concat([rawFile, Buffer.from('hello')])
     const opts = {
       ...defaultOptions,
       minChunkSize: 100,

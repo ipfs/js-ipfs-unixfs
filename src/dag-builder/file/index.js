@@ -25,7 +25,7 @@ async function * buildFile (source, ipld, options) {
     let node
     let unixfs
 
-    let opts = {
+    const opts = {
       ...options
     }
 

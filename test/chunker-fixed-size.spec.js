@@ -63,7 +63,7 @@ describe('chunker: fixed size', function () {
 
   it('256 KiB chunks of non scalar filesize', async () => {
     const KiB256 = 262144
-    let file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const file = Buffer.concat([rawFile, Buffer.from('hello')])
 
     const chunks = await all(chunker([file], {
       maxChunkSize: KiB256

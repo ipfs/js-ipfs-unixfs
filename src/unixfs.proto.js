@@ -19,10 +19,10 @@ module.exports = `message Data {
   optional uint64 fanout = 6;
   
   /* file permissions */
-	optional uint32 mode = 7;
-	
-	/* file time data */
-	optional uint32 mtime = 8;
+  optional uint32 mode = 7;
+
+  /* file time data */
+  optional uint32 mtime = 8;
 }
 
 message Metadata {

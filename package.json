@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",

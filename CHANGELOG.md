@@ -1,3 +1,13 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.1.16...v0.2.0) (2019-11-18)
+
+
+### Features
+
+* adds metadata to unixfs ([540f20a](https://github.com/ipfs/js-ipfs-unixfs/commit/540f20a))
+
+
+
 <a name="0.1.16"></a>
 ## [0.1.16](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.1.15...v0.1.16) (2018-10-26)
 

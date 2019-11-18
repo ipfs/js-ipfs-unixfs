@@ -79,6 +79,48 @@ describe('unixfs-format', () => {
     expect(data.blockSizes).to.not.deep.equal(unmarshalled.blockSizes)
   })
 
+  it('default mode for files', () => {
+    const data = new UnixFS('file')
+    expect(data.mode).to.equal(parseInt('0644', 8))
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0644', 8))
+  })
+
+  it('default mode for directories', () => {
+    const data = new UnixFS('directory')
+    expect(data.mode).to.equal(parseInt('0755', 8))
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
+  })
+
+  it('default mode for hamt-sharded-directories', () => {
+    const data = new UnixFS('hamt-sharded-directory')
+    expect(data.mode).to.equal(parseInt('0755', 8))
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
+  })
+
+  it('mode', () => {
+    const mode = parseInt('0555', 8)
+    const data = new UnixFS('file')
+    data.mode = mode
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(mode)
+  })
+
+  it('mtime', () => {
+    const mtime = parseInt(Date.now() / 1000)
+    const data = new UnixFS('file')
+    data.mtime = mtime
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mtime).to.equal(mtime)
+  })
+
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
   it.skip('metadata', () => {})
 

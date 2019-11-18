@@ -57,7 +57,7 @@
     "cids": "~0.7.1",
     "err-code": "^2.0.0",
     "hamt-sharding": "~0.0.2",
-    "ipfs-unixfs": "~0.1.16",
+    "ipfs-unixfs": "^0.2.0",
     "ipfs-unixfs-importer": "~0.40.0"
   },
   "contributors": [

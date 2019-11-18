@@ -32,6 +32,14 @@ function Data (type, data) {
   this.data = data
   this.blockSizes = []
 
+  if (this.type === 'file') {
+    this.mode = parseInt('0644', 8)
+  }
+
+  if (this.type === 'directory' || this.type === 'hamt-sharded-directory') {
+    this.mode = parseInt('0755', 8)
+  }
+
   this.addBlockSize = (size) => {
     this.blockSizes.push(size)
   }
@@ -71,7 +79,6 @@ function Data (type, data) {
       default:
         throw new Error(`Unkown type: "${this.type}"`)
     }
-    let fileSize = this.fileSize()
 
     let data = this.data
 
@@ -85,13 +92,23 @@ function Data (type, data) {
       blockSizes = undefined
     }
 
+    if ((this.type === 'directory' || this.type === 'hamt-sharded-directory') && this.mode === parseInt('0755', 8)) {
+      delete this.mode
+    }
+
+    if (this.type === 'file' && this.mode === parseInt('0644', 8)) {
+      delete this.mode
+    }
+
     return unixfsData.encode({
       Type: type,
       Data: data,
-      filesize: fileSize,
+      filesize: this.fileSize(),
       blocksizes: blockSizes,
       hashType: this.hashType,
-      fanout: this.fanout
+      fanout: this.fanout,
+      mode: this.mode,
+      mtime: this.mtime
     })
   }
 }
@@ -104,6 +121,15 @@ Data.unmarshal = (marsheled) => {
   }
   const obj = new Data(types[decoded.Type], decoded.Data)
   obj.blockSizes = decoded.blocksizes
+
+  if (decoded.mode) {
+    obj.mode = decoded.mode
+  }
+
+  if (decoded.mtime) {
+    obj.mtime = decoded.mtime
+  }
+
   return obj
 }
 

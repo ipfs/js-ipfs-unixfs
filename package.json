@@ -8,7 +8,7 @@
     "fs": false
   },
   "scripts": {
-    "test": "aegir test -t node -t browser",
+    "test": "aegir test -t node -t browser -t webworker",
     "test:node": "aegir test -t node",
     "test:browser": "aegir test -t browser",
     "test:webworker": "aegir test -t webworker",
@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^18.0.0",
+    "aegir": "^20.4.1",
     "chai": "^4.2.0",
     "dirty-chai": "^2.0.1",
     "safe-buffer": "^5.1.2"

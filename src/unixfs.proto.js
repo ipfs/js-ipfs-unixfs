@@ -14,9 +14,10 @@ module.exports = `message Data {
   optional bytes Data = 2;
   optional uint64 filesize = 3;
   repeated uint64 blocksizes = 4;
-
   optional uint64 hashType = 5;
   optional uint64 fanout = 6;
+  optional uint32 mode = 7;
+  optional int64 mtime = 8;
 }
 
 message Metadata {

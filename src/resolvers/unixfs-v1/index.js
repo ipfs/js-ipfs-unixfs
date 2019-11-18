@@ -50,7 +50,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld) 
     }
 
     if (!linkCid) {
-      throw errCode(new Error(`file does not exist`), 'ERR_NOT_FOUND')
+      throw errCode(new Error('file does not exist'), 'ERR_NOT_FOUND')
     }
 
     // remove the path component we have resolved

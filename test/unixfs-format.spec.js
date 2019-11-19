@@ -112,6 +112,36 @@ describe('unixfs-format', () => {
     expect(unmarshalled.mode).to.equal(mode)
   })
 
+  it('empty mode', () => {
+    const mode = 0
+    const data = new UnixFS('file')
+    data.mode = mode
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(mode)
+  })
+
+  it('default file mode', () => {
+    const data = new UnixFS('file')
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0644', 8))
+  })
+
+  it('default directory mode', () => {
+    const data = new UnixFS('directory')
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
+  })
+
+  it('default hamt-sharded-directory mode', () => {
+    const data = new UnixFS('directory')
+    const marshalled = data.marshal()
+    const unmarshalled = UnixFS.unmarshal(marshalled)
+    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
+  })
+
   it('mtime', () => {
     const mtime = parseInt(Date.now() / 1000)
     const data = new UnixFS('file')

@@ -114,19 +114,19 @@ function Data (type, data) {
 }
 
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
-Data.unmarshal = (marsheled) => {
-  const decoded = unixfsData.decode(marsheled)
+Data.unmarshal = (marshaled) => {
+  const decoded = unixfsData.decode(marshaled)
   if (!decoded.Data) {
     decoded.Data = undefined
   }
   const obj = new Data(types[decoded.Type], decoded.Data)
   obj.blockSizes = decoded.blocksizes
 
-  if (decoded.mode) {
+  if (decoded.mode !== null) {
     obj.mode = decoded.mode
   }
 
-  if (decoded.mtime) {
+  if (decoded.mtime !== null) {
     obj.mtime = decoded.mtime
   }
 

@@ -42,7 +42,7 @@
     "safe-buffer": "^5.1.2"
   },
   "dependencies": {
-    "protons": "^1.0.1"
+    "protons": "ipfs/protons#make-optional-values-optional"
   },
   "contributors": [
     "David Dias <daviddias.p@gmail.com>",

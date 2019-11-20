@@ -122,11 +122,11 @@ Data.unmarshal = (marshaled) => {
   const obj = new Data(types[decoded.Type], decoded.Data)
   obj.blockSizes = decoded.blocksizes
 
-  if (decoded.mode !== null) {
+  if (decoded.mode !== undefined) {
     obj.mode = decoded.mode
   }
 
-  if (decoded.mtime !== null) {
+  if (decoded.mtime !== undefined) {
     obj.mtime = decoded.mtime
   }
 

@@ -676,5 +676,245 @@ strategies.forEach((strategy) => {
         }
       }
     })
+
+    it('supports passing mtime', async () => {
+      this.timeout(60 * 1000)
+
+      const options = {
+        rawLeaves: true
+      }
+      const now = parseInt(Date.now() / 1000)
+
+      for await (const file of importer([{
+        path: '1.2MiB.txt',
+        content: bigFile,
+        mtime: now
+      }], ipld, options)) {
+        const node = await exporter(file.cid, ipld)
+
+        expect(node.unixfs.mtime).to.equal(now)
+      }
+    })
+
+    it('supports passing mtime for directories', async () => {
+      this.timeout(60 * 1000)
+
+      const now = parseInt(Date.now() / 1000)
+
+      const entries = await all(importer([{
+        path: '/foo',
+        mtime: now
+      }], ipld))
+
+      const node = await exporter(entries[0].cid, ipld)
+      expect(node.unixfs.mtime).to.equal(now)
+    })
+
+    it('supports passing metadata for wrapping directories', async () => {
+      this.timeout(60 * 1000)
+
+      const now = parseInt(Date.now() / 1000)
+      const perms = parseInt('0777', 8)
+
+      const entries = await all(importer([{
+        path: '/foo',
+        mtime: now,
+        mode: perms
+      }, {
+        path: '/foo/bar.txt',
+        content: bigFile
+      }], ipld))
+
+      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
+
+      if (!node) {
+        expect.fail('no directory found')
+      }
+
+      expect(node.unixfs.mtime).to.equal(now)
+      expect(node.unixfs.mode).to.equal(perms)
+    })
+
+    it('supports passing metadata for intermediate directories', async () => {
+      this.timeout(60 * 1000)
+
+      const now = parseInt(Date.now() / 1000)
+      const perms = parseInt('0777', 8)
+
+      const entries = await all(importer([{
+        path: '/foo/bar',
+        mtime: now,
+        mode: perms
+      }, {
+        path: '/foo/bar/baz.txt',
+        content: bigFile
+      }], ipld))
+
+      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
+
+      if (!node) {
+        expect.fail('no directory found')
+      }
+
+      expect(node.unixfs.mtime).to.equal(now)
+      expect(node.unixfs.mode).to.equal(perms)
+    })
+
+    it('supports passing metadata for out of order intermediate directories', async () => {
+      this.timeout(60 * 1000)
+
+      const now = parseInt(Date.now() / 1000)
+      const perms = parseInt('0777', 8)
+
+      const entries = await all(importer([{
+        path: '/foo/bar/qux.txt',
+        content: bigFile
+      }, {
+        path: '/foo/bar',
+        mtime: now,
+        mode: perms
+      }, {
+        path: '/foo/quux'
+      }, {
+        path: '/foo/bar/baz.txt',
+        content: bigFile
+      }], ipld))
+
+      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const node = nodes.filter(node => node.unixfs.type === 'directory' && node.name === 'bar').pop()
+
+      if (!node) {
+        expect.fail('no directory found')
+      }
+
+      expect(node.unixfs.mtime).to.equal(now)
+      expect(node.unixfs.mode).to.equal(perms)
+    })
+
+    it('supports passing mtime for hamt-sharded-directories', async () => {
+      this.timeout(60 * 1000)
+
+      const now = parseInt(Date.now() / 1000)
+
+      const entries = await all(importer([{
+        path: '/foo',
+        mtime: now
+      }, {
+        path: '/foo/bar.txt',
+        content: bigFile
+      }, {
+        path: '/foo/baz.txt',
+        content: bigFile
+      }, {
+        path: '/foo/qux'
+      }], ipld, {
+        shardSplitThreshold: 0
+      }))
+
+      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const node = nodes.filter(node => node.unixfs.type === 'hamt-sharded-directory').pop()
+
+      if (!node) {
+        expect.fail('no hamt-sharded-directory found')
+      }
+
+      expect(node.unixfs.mtime).to.equal(now)
+    })
+
+    it('supports passing mode', async () => {
+      this.timeout(60 * 1000)
+
+      const options = {
+        rawLeaves: true
+      }
+      const mode = parseInt('0111', 8)
+
+      for await (const file of importer([{
+        path: '1.2MiB.txt',
+        content: bigFile,
+        mode
+      }], ipld, options)) {
+        const node = await exporter(file.cid, ipld)
+
+        expect(node.unixfs.mode).to.equal(mode)
+      }
+    })
+
+    it('supports passing mode for directories', async () => {
+      this.timeout(60 * 1000)
+
+      const mode = parseInt('0111', 8)
+
+      const entries = await all(importer([{
+        path: '/foo',
+        mode
+      }], ipld))
+
+      const node = await exporter(entries[0].cid, ipld)
+      expect(node.unixfs.mode).to.equal(mode)
+    })
+
+    it('supports passing different modes for different files', async () => {
+      this.timeout(60 * 1000)
+
+      const mode1 = parseInt('0111', 8)
+      const mode2 = parseInt('0222', 8)
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: bigFile,
+        mode: mode1
+      }, {
+        path: '/foo/file2.txt',
+        content: bigFile,
+        mode: mode2
+      }], ipld))
+
+      const node1 = await exporter(entries[0].cid, ipld)
+      expect(node1.unixfs.mode).to.equal(mode1)
+
+      const node2 = await exporter(entries[1].cid, ipld)
+      expect(node2.unixfs.mode).to.equal(mode2)
+    })
+
+    it('supports deeply nested files do not inherit custom metadata', async () => {
+      this.timeout(60 * 1000)
+
+      const mode = parseInt('0111', 8)
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: bigFile,
+        mode: mode
+      }, {
+        path: '/foo/bar/baz/file2.txt',
+        content: bigFile
+      }], ipld))
+
+      const node1 = await exporter(entries[0].cid, ipld)
+      expect(node1.unixfs.mode).to.equal(mode)
+
+      const node2 = await exporter(entries[1].cid, ipld)
+      expect(node2.unixfs.mode).to.not.equal(mode)
+    })
+
+    it('files and directories get default metadata if not specified', async () => {
+      this.timeout(60 * 1000)
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: bigFile
+      }], ipld))
+
+      const node1 = await exporter(entries[0].cid, ipld)
+      expect(node1.unixfs.mode).to.equal(parseInt('0644', 8))
+      expect(node1.unixfs.mtime).to.be.undefined()
+
+      const node2 = await exporter(entries[1].cid, ipld)
+      expect(node2.unixfs.mode).to.equal(parseInt('0755', 8))
+      expect(node2.unixfs.mtime).to.be.undefined()
+    })
   })
 })

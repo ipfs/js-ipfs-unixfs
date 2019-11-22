@@ -15,7 +15,7 @@ const dagBuilders = {
   trickle: require('./trickle')
 }
 
-async function * buildFile (source, ipld, options) {
+async function * buildFile (file, source, ipld, options) {
   let count = -1
   let previous
 
@@ -36,6 +36,15 @@ async function * buildFile (source, ipld, options) {
       opts.cidVersion = 1
     } else {
       unixfs = new UnixFS(options.leafType, buffer)
+
+      if (file.mtime) {
+        unixfs.mtime = file.mtime
+      }
+
+      if (file.mode) {
+        unixfs.mode = file.mode
+      }
+
       node = new DAGNode(unixfs.marshal())
     }
 
@@ -80,6 +89,14 @@ const reduce = (file, ipld, options) => {
 
     // create a parent node and add all the leaves
     const f = new UnixFS('file')
+
+    if (file.mtime) {
+      f.mtime = file.mtime
+    }
+
+    if (file.mode) {
+      f.mode = file.mode
+    }
 
     const links = leaves
       .filter(leaf => {
@@ -132,7 +149,7 @@ const fileBuilder = async (file, source, ipld, options) => {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')
   }
 
-  const roots = await all(dagBuilder(buildFile(source, ipld, options), reduce(file, ipld, options), options.builderOptions))
+  const roots = await all(dagBuilder(buildFile(file, source, ipld, options), reduce(file, ipld, options), options.builderOptions))
 
   if (roots.length > 1) {
     throw errCode(new Error('expected a maximum of 1 roots and got ' + roots.length), 'ETOOMANYROOTS')

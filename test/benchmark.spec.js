@@ -24,7 +24,7 @@ describe.skip('benchmark', function () {
   const times = []
 
   after(() => {
-    console.info(`Percent\tms`) // eslint-disable-line no-console
+    console.info('Percent\tms') // eslint-disable-line no-console
     times.forEach((time, index) => {
       console.info(`${index}\t${parseInt(time / REPEATS)}`) // eslint-disable-line no-console
     })

@@ -73,7 +73,7 @@ class DirSharded extends Dir {
   }
 
   async * flush (path, ipld) {
-    for await (const entry of flush(path, this._bucket, ipld, this.options)) {
+    for await (const entry of flush(path, this._bucket, ipld, this, this.options)) {
       yield entry
     }
   }
@@ -83,7 +83,7 @@ module.exports = DirSharded
 
 module.exports.hashFn = hashFn
 
-async function * flush (path, bucket, ipld, options) {
+async function * flush (path, bucket, ipld, shardRoot, options) {
   const children = bucket._children
   const links = []
 
@@ -99,7 +99,7 @@ async function * flush (path, bucket, ipld, options) {
     if (Bucket.isBucket(child)) {
       let shard
 
-      for await (const subShard of await flush('', child, ipld, options)) {
+      for await (const subShard of await flush('', child, ipld, null, options)) {
         shard = subShard
       }
 
@@ -140,6 +140,14 @@ async function * flush (path, bucket, ipld, options) {
   const dir = new UnixFS('hamt-sharded-directory', data)
   dir.fanout = bucket.tableSize()
   dir.hashType = options.hashFn.code
+
+  if (shardRoot && shardRoot.mtime) {
+    dir.mtime = shardRoot.mtime
+  }
+
+  if (shardRoot && shardRoot.mode) {
+    dir.mode = shardRoot.mode
+  }
 
   const node = new DAGNode(dir.marshal(), links)
   const cid = await persist(node, ipld, options)

@@ -20,9 +20,7 @@ module.exports = async function flatToShard (child, dir, threshold, options) {
       await parent.put(newDir.parentKey, newDir)
     }
 
-    if (parent) {
-      return flatToShard(newDir, parent, threshold, options)
-    }
+    return flatToShard(newDir, parent, threshold, options)
   }
 
   return newDir
@@ -36,7 +34,9 @@ async function convertToShard (oldDir, options) {
     parentKey: oldDir.parentKey,
     path: oldDir.path,
     dirty: oldDir.dirty,
-    flat: false
+    flat: false,
+    mtime: oldDir.mtime,
+    mode: oldDir.mode
   }, options)
 
   for await (const { key, child } of oldDir.eachChildSeries()) {

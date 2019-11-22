@@ -1,4 +1,4 @@
-# ipfs-unixfs-importer
+# ipfs-unixfs-importer <!-- omit in toc -->
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
@@ -13,22 +13,19 @@
 
 > JavaScript implementation of the layout and chunking mechanisms used by IPFS to handle Files
 
-## Lead Maintainer
+## Lead Maintainer <!-- omit in toc -->
 
 [Alex Potsides](https://github.com/achingbrain)
 
-## Table of Contents
+## Table of Contents <!-- omit in toc -->
 
-- [ipfs-unixfs-importer](#ipfs-unixfs-importer)
-  - [Lead Maintainer](#lead-maintainer)
-  - [Table of Contents](#table-of-contents)
-  - [Install](#install)
-  - [Usage](#usage)
-    - [Example](#example)
-      - [API](#api)
-      - [const import = importer(source, ipld [, options])](#const-import--importersource-ipld--options)
-  - [Contribute](#contribute)
-  - [License](#license)
+- [Install](#install)
+- [Usage](#usage)
+  - [Example](#example)
+    - [API](#api)
+    - [const import = importer(source, ipld [, options])](#const-import--importersource-ipld--options)
+- [Contribute](#contribute)
+- [License](#license)
 
 ## Install
 
@@ -108,7 +105,9 @@ The `import` function returns an async iterator takes a source async iterator th
 ```js
 {
   path: 'a name',
-  content: (Buffer or iterator emitting Buffers)
+  content: (Buffer or iterator emitting Buffers),
+  mtime: (Number representing seconds since (positive) or before (negative) the Unix Epoch),
+  mode: (Number representing ugo-rwx, setuid, setguid and sticky bit)
 }
 ```
 

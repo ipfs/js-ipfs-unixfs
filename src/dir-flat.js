@@ -17,6 +17,7 @@ class DirFlat extends Dir {
   put (name, value) {
     this.cid = undefined
     this.size = undefined
+
     this._children[name] = value
   }
 
@@ -68,6 +69,15 @@ class DirFlat extends Dir {
     }
 
     const unixfs = new UnixFS('directory')
+
+    if (this.mtime) {
+      unixfs.mtime = this.mtime
+    }
+
+    if (this.mode) {
+      unixfs.mode = this.mode
+    }
+
     const node = new DAGNode(unixfs.marshal(), links)
     const cid = await persist(node, ipld, this.options)
 

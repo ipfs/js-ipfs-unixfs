@@ -36,7 +36,9 @@ async function addToTree (elem, tree, options) {
           parentKey: pathElem,
           path: currentPath,
           dirty: true,
-          flat: true
+          flat: true,
+          mtime: dir && dir.unixfs && dir.unixfs.mtime,
+          mode: dir && dir.unixfs && dir.unixfs.mode
         }, options)
       }
 
@@ -64,28 +66,26 @@ async function * treeBuilder (source, ipld, options) {
     yield entry
   }
 
-  if (tree) {
-    if (!options.wrapWithDirectory) {
-      if (tree.childCount() > 1) {
-        throw errCode(new Error('detected more than one root'), 'ERR_MORE_THAN_ONE_ROOT')
-      }
-
-      const unwrapped = await first(tree.eachChildSeries())
-
-      if (!unwrapped) {
-        return
-      }
-
-      tree = unwrapped.child
+  if (!options.wrapWithDirectory) {
+    if (tree.childCount() > 1) {
+      throw errCode(new Error('detected more than one root'), 'ERR_MORE_THAN_ONE_ROOT')
     }
 
-    if (!tree.dir) {
+    const unwrapped = await first(tree.eachChildSeries())
+
+    if (!unwrapped) {
       return
     }
 
-    for await (const entry of tree.flush(tree.path, ipld)) {
-      yield entry
-    }
+    tree = unwrapped.child
+  }
+
+  if (!tree.dir) {
+    return
+  }
+
+  for await (const entry of tree.flush(tree.path, ipld)) {
+    yield entry
   }
 }
 

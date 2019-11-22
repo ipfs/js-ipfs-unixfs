@@ -1,3 +1,13 @@
+<a name="0.41.0"></a>
+# [0.41.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.40.0...v0.41.0) (2019-11-22)
+
+
+### Features
+
+* support storing metadata in unixfs nodes ([#39](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/39)) ([a47c9ed](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/a47c9ed))
+
+
+
 # [0.40.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.39.11...v0.40.0) (2019-08-05)
 
 

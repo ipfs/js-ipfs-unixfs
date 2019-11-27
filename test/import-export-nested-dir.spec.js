@@ -6,7 +6,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const all = require('async-iterator-all')
+const all = require('it-all')
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 

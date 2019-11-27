@@ -5,7 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const builder = require('../src/dag-builder/file/flat')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 function reduce (leaves) {
   if (leaves.length > 1) {

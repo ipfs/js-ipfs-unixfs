@@ -9,7 +9,7 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
-const first = require('async-iterator-first')
+const first = require('it-first')
 
 describe('builder', () => {
   let ipld
@@ -27,9 +27,7 @@ describe('builder', () => {
     format: 'dag-pb',
     hashAlg: 'sha2-256',
     progress: () => {},
-    chunkerOptions: {
-      maxChunkSize: 262144
-    }
+    maxChunkSize: 262144
   }
 
   it('allows multihash hash algorithm to be specified', async () => {
@@ -45,7 +43,7 @@ describe('builder', () => {
         content: Buffer.from(content)
       }
 
-      const imported = await first(builder([inputFile], ipld, options))
+      const imported = await (await first(builder([inputFile], ipld, options)))()
 
       expect(imported).to.exist()
 
@@ -76,7 +74,7 @@ describe('builder', () => {
         content: Buffer.alloc(262144 + 5).fill(1)
       }
 
-      const imported = await first(builder([Object.assign({}, inputFile)], ipld, options))
+      const imported = await (await first(builder([inputFile], ipld, options)))()
 
       expect(imported).to.exist()
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
@@ -96,7 +94,7 @@ describe('builder', () => {
         content: null
       }
 
-      const imported = await first(builder([Object.assign({}, inputFile)], ipld, options))
+      const imported = await (await first(builder([Object.assign({}, inputFile)], ipld, options)))()
 
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
 

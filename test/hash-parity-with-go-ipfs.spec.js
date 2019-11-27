@@ -9,7 +9,7 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
-const first = require('async-iterator-first')
+const first = require('it-first')
 
 const strategies = [
   'flat',

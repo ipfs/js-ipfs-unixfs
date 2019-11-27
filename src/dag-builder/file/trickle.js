@@ -1,6 +1,6 @@
 'use strict'
 
-const batch = require('async-iterator-batch')
+const batch = require('it-batch')
 
 module.exports = function * trickleReduceToRoot (source, reduce, options) {
   yield trickleStream(source, reduce, options)

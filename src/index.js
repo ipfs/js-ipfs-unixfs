@@ -1,78 +1,41 @@
 'use strict'
 
-const { superstruct } = require('superstruct')
 const dagBuilder = require('./dag-builder')
 const treeBuilder = require('./tree-builder')
-const mh = require('multihashes')
+const parallelBatch = require('it-parallel-batch')
+const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
 
-const struct = superstruct({
-  types: {
-    codec: v => ['dag-pb', 'dag-cbor', 'raw'].includes(v),
-    hashAlg: v => Object.keys(mh.names).includes(v),
-    leafType: v => ['file', 'raw'].includes(v)
-  }
-})
-
-const ChunkerOptions = struct({
-  minChunkSize: 'number?',
-  maxChunkSize: 'number?',
-  avgChunkSize: 'number?',
-  window: 'number?',
-  polynomial: 'number?'
-}, {
-  maxChunkSize: 262144,
-  avgChunkSize: 262144,
-  window: 16,
-  polynomial: 17437180132763653 // https://github.com/ipfs/go-ipfs-chunker/blob/d0125832512163708c0804a3cda060e21acddae4/rabin.go#L11
-})
-
-const BuilderOptions = struct({
-  maxChildrenPerNode: 'number?',
-  layerRepeat: 'number?'
-}, {
-  maxChildrenPerNode: 174,
-  layerRepeat: 4
-})
-
-const Options = struct({
-  chunker: struct.enum(['fixed', 'rabin']),
-  rawLeaves: 'boolean?',
-  hashOnly: 'boolean?',
-  strategy: struct.enum(['balanced', 'flat', 'trickle']),
-  reduceSingleLeafToSelf: 'boolean?',
-  codec: 'codec?',
-  format: 'codec?',
-  hashAlg: 'hashAlg?',
-  leafType: 'leafType?',
-  cidVersion: 'number?',
-  progress: 'function?',
-  wrapWithDirectory: 'boolean?',
-  shardSplitThreshold: 'number?',
-  onlyHash: 'boolean?',
-  chunkerOptions: ChunkerOptions,
-  builderOptions: BuilderOptions,
-
-  wrap: 'boolean?',
-  pin: 'boolean?',
-  recursive: 'boolean?',
-  ignore: 'array?',
-  hidden: 'boolean?',
-  preload: 'boolean?'
-}, {
+const defaultOptions = {
   chunker: 'fixed',
-  strategy: 'balanced',
+  strategy: 'balanced', // 'flat', 'trickle'
   rawLeaves: false,
+  onlyHash: false,
   reduceSingleLeafToSelf: true,
   codec: 'dag-pb',
   hashAlg: 'sha2-256',
-  leafType: 'file',
+  leafType: 'file', // 'raw'
   cidVersion: 0,
   progress: () => () => {},
-  shardSplitThreshold: 1000
-})
+  shardSplitThreshold: 1000,
+  fileImportConcurrency: 50,
+  blockWriteConcurrency: 10,
+  minChunkSize: 262144,
+  maxChunkSize: 262144,
+  avgChunkSize: 262144,
+  window: 16,
+  polynomial: 17437180132763653, // https://github.com/ipfs/go-ipfs-chunker/blob/d0125832512163708c0804a3cda060e21acddae4/rabin.go#L11
+  maxChildrenPerNode: 174,
+  layerRepeat: 4,
+  wrapWithDirectory: false,
+  pin: true,
+  recursive: false,
+  ignore: null, // []
+  hidden: false,
+  preload: true
+}
 
 module.exports = async function * (source, ipld, options = {}) {
-  const opts = Options(options)
+  const opts = mergeOptions(defaultOptions, options)
 
   if (options.cidVersion > 0 && options.rawLeaves === undefined) {
     // if the cid version is 1 or above, use raw leaves as this is
@@ -93,10 +56,10 @@ module.exports = async function * (source, ipld, options = {}) {
   }
 
   if (options.format) {
-    options.codec = options.format
+    opts.codec = options.format
   }
 
-  for await (const entry of treeBuilder(dagBuilder(source, ipld, opts), ipld, opts)) {
+  for await (const entry of treeBuilder(parallelBatch(dagBuilder(source, ipld, opts), opts.fileImportConcurrency), ipld, opts)) {
     yield {
       cid: entry.cid,
       path: entry.path,

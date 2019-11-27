@@ -5,8 +5,8 @@ const importer = require('../src')
 
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const bufferStream = require('async-iterator-buffer-stream')
-const all = require('async-iterator-all')
+const bufferStream = require('it-buffer-stream')
+const all = require('it-all')
 
 const REPEATS = 10
 const FILE_SIZE = Math.pow(2, 20) * 500 // 500MB

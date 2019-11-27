@@ -124,10 +124,9 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `chunker` (string, defaults to `"fixed"`): the chunking strategy. Supports:
   - `fixed`
   - `rabin`
-- `chunkerOptions` (object, optional): the options for the chunker. Defaults to an object with the following properties:
-  - `avgChunkSize` (positive integer, defaults to `262144`): the average chunk size (rabin chunker only)
-  - `minChunkSize` (positive integer): the minimum chunk size (rabin chunker only)
-  - `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size
+- `avgChunkSize` (positive integer, defaults to `262144`): the average chunk size (rabin chunker only)
+- `minChunkSize` (positive integer): the minimum chunk size (rabin chunker only)
+- `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size
 - `strategy` (string, defaults to `"balanced"`): the DAG builder strategy name. Supports:
   - `flat`: flat list of chunks
   - `balanced`: builds a balanced tree
@@ -135,15 +134,16 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
 - `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
 - `reduceSingleLeafToSelf` (boolean, defaults to `true`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
-- `dirBuilder` (object): the options for the directory builder
-  - `hamt` (object): the options for the HAMT sharded directory builder
-    - bits (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
+- `hamtHashFn` (async function(string) Buffer): a function that hashes file names to create HAMT shards
+- `hamtBucketBits` (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
 - `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
 - `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
 - `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
 - `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
+- `blockWriteConcurrency` (positive integer, defaults to 10) How many blocks to hash and write to the block store concurrently. For small numbers of large files this should be high (e.g. 50).
+- `fileImportConcurrency` (number, defaults to 50) How many files to import concurrently. For large numbers of small files this should be high (e.g. 50).
 
 [ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs

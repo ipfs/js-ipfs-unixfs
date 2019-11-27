@@ -17,8 +17,8 @@ const loadFixture = require('aegir/fixtures')
 const isNode = require('detect-node')
 const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
 const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Bytes.txt')
-const all = require('async-iterator-all')
-const first = require('async-iterator-first')
+const all = require('it-all')
+const first = require('it-first')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -563,9 +563,7 @@ strategies.forEach((strategy) => {
 
       const options = {
         progress: spy(),
-        chunkerOptions: {
-          maxChunkSize
-        }
+        maxChunkSize
       }
 
       await all(importer([{

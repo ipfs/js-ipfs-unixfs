@@ -1,13 +1,7 @@
 'use strict'
 
-const batch = require('async-iterator-batch')
+const all = require('it-all')
 
 module.exports = async function * (source, reduce) {
-  const roots = []
-
-  for await (const chunk of batch(source, Infinity)) {
-    roots.push(await reduce(chunk))
-  }
-
-  yield roots[0]
+  yield await reduce(await all(source))
 }

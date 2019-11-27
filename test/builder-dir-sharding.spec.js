@@ -9,8 +9,8 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
-const all = require('async-iterator-all')
-const last = require('async-iterator-last')
+const all = require('it-all')
+const last = require('it-last')
 
 describe('builder: directory sharding', () => {
   let ipld

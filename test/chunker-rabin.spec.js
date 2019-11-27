@@ -7,7 +7,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const loadFixture = require('aegir/fixtures')
 const isNode = require('detect-node')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt')
 

@@ -5,7 +5,7 @@ const flatToShard = require('./flat-to-shard')
 const Dir = require('./dir')
 const toPathComponents = require('./utils/to-path-components')
 const errCode = require('err-code')
-const first = require('async-iterator-first')
+const first = require('it-first')
 
 async function addToTree (elem, tree, options) {
   const pathElems = toPathComponents(elem.path || '')
@@ -61,6 +61,9 @@ async function * treeBuilder (source, ipld, options) {
   }, options)
 
   for await (const entry of source) {
+    if (!entry) {
+      continue
+    }
     tree = await addToTree(entry, tree, options)
 
     yield entry

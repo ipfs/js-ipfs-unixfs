@@ -9,7 +9,7 @@ const multihashing = require('multihashing-async')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 const Bucket = require('hamt-sharding')
-const extend = require('deep-extend')
+const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
 
 const hashFn = async function (value) {
   const hash = await multihashing(Buffer.from(value, 'utf8'), 'murmur3-128')
@@ -31,16 +31,20 @@ const hashFn = async function (value) {
 hashFn.code = 0x22 // TODO: get this from multihashing-async?
 
 const defaultOptions = {
-  hashFn: hashFn
+  hamtHashFn: hashFn,
+  hamtBucketBits: 8
 }
 
 class DirSharded extends Dir {
   constructor (props, options) {
-    options = extend({}, defaultOptions, options)
+    options = mergeOptions(defaultOptions, options)
 
     super(props, options)
 
-    this._bucket = Bucket(options)
+    this._bucket = Bucket({
+      hashFn: options.hamtHashFn,
+      bits: options.hamtBucketBits
+    })
   }
 
   async put (name, value) {
@@ -139,7 +143,7 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
   const data = Buffer.from(children.bitField().reverse())
   const dir = new UnixFS('hamt-sharded-directory', data)
   dir.fanout = bucket.tableSize()
-  dir.hashType = options.hashFn.code
+  dir.hashType = options.hamtHashFn.code
 
   if (shardRoot && shardRoot.mtime) {
     dir.mtime = shardRoot.mtime

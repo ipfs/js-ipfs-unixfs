@@ -1,6 +1,6 @@
 'use strict'
 
-const batch = require('async-iterator-batch')
+const batch = require('it-batch')
 
 async function * balanced (source, reduce, options) {
   yield await reduceToParents(source, reduce, options)

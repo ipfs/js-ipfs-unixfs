@@ -5,7 +5,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const builder = require('../src/dag-builder/file/trickle')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 const createValues = (max) => {
   const output = []

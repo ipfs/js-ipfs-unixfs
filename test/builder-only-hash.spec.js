@@ -7,7 +7,7 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const builder = require('../src/dag-builder')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 describe('builder: onlyHash', () => {
   let ipld
@@ -30,18 +30,14 @@ describe('builder: onlyHash', () => {
       format: 'dag-pb',
       hashAlg: 'sha2-256',
       wrap: true,
-      chunkerOptions: {
-        maxChunkSize: 1024
-      },
-      builderOptions: {
-        maxChildrenPerNode: 254
-      }
+      maxChunkSize: 1024,
+      maxChildrenPerNode: 254
     }))
 
     expect(nodes.length).to.equal(1)
 
     try {
-      await ipld.get(nodes[0].cid)
+      await ipld.get((await nodes[0]()).cid)
 
       throw new Error('Should have errored')
     } catch (err) {

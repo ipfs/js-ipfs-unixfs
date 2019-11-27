@@ -1,3 +1,13 @@
+# [0.42.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.41.0...v0.42.0) (2019-11-27)
+
+
+### Performance Improvements
+
+* avoid unnecessary buffer copy ([#40](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/40)) ([b5e5b5a](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/b5e5b5a15f8460c0effbedfd6aa39a1e594733df))
+* concurrent file import ([#41](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/41)) ([68ac8cc](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/68ac8cc233dbe73fcb8244911e09ed59789cddc9)), closes [#38](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/38)
+
+
+
 <a name="0.41.0"></a>
 # [0.41.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.40.0...v0.41.0) (2019-11-22)
 

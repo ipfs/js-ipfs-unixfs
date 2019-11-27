@@ -51,14 +51,11 @@ const jsRabin = () => {
   return async function * (source, options) {
     const r = await create(options.bits, options.min, options.max, options.window)
     const buffers = new BufferList()
-    let pending = []
 
     for await (const chunk of source) {
       buffers.append(chunk)
-      pending.push(chunk)
 
-      const sizes = r.fingerprint(Buffer.concat(pending))
-      pending = []
+      const sizes = r.fingerprint(chunk)
 
       for (let i = 0; i < sizes.length; i++) {
         var size = sizes[i]

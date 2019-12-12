@@ -30,4 +30,5 @@ message Mode {
 
 message Mtime {
   required int64 value = 1;
+  repeated int64 hrValue = 1;
 }`

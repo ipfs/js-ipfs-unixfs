@@ -21,13 +21,13 @@ module.exports = `message Data {
 }
 
 message Metadata {
-  optional string MimeType = 1;
+  required string MimeType = 1;
 }
 
 message Mode {
-  optional uint32 value = 1;
+  required uint32 value = 1;
 }
 
 message Mtime {
-  repeated int64 value = 1;
+  required int64 value = 1;
 }`

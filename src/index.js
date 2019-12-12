@@ -86,7 +86,7 @@ function Data (type, data) {
 
     let mode
 
-    if (this.mode != null && this.mode >= 0) {
+    if (!isNaN(this.mode)) {
       mode = {
         value: this.mode
       }
@@ -94,11 +94,10 @@ function Data (type, data) {
 
     let mtime
 
-    if (this.mtime != null && this.mtime >= 0) {
+    if (!isNaN(this.mtime)) {
       mtime = {
-        value: [
-          this.mtime
-        ]
+        value: this.mtime,
+        hrValue: []
       }
     }
 
@@ -126,12 +125,12 @@ Data.unmarshal = (marsheled) => {
   const obj = new Data(types[decoded.Type], decoded.Data)
   obj.blockSizes = decoded.blocksizes
 
-  if (decoded.mode != null) {
+  if (decoded.mode) {
     obj.mode = decoded.mode.value
   }
 
-  if (decoded.mtime != null) {
-    obj.mtime = decoded.mtime.value[0]
+  if (decoded.mtime) {
+    obj.mtime = decoded.mtime.value
   }
 
   return obj

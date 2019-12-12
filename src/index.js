@@ -96,7 +96,7 @@ function Data (type, data) {
 
     if (!isNaN(this.mtime)) {
       mtime = {
-        value: this.mtime,
+        seconds: this.mtime,
         hrValue: []
       }
     }
@@ -130,7 +130,7 @@ Data.unmarshal = (marsheled) => {
   }
 
   if (decoded.mtime) {
-    obj.mtime = decoded.mtime.value
+    obj.mtime = decoded.mtime.seconds
   }
 
   return obj

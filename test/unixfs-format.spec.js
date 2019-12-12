@@ -79,37 +79,33 @@ describe('unixfs-format', () => {
     expect(data.blockSizes).to.not.deep.equal(unmarshalled.blockSizes)
   })
 
-  it('default mode for files', () => {
-    const data = new UnixFS('file')
-    expect(data.mode).to.equal(parseInt('0644', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0644', 8))
-  })
-
-  it('default mode for directories', () => {
-    const data = new UnixFS('directory')
-    expect(data.mode).to.equal(parseInt('0755', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
-  })
-
-  it('default mode for hamt-sharded-directories', () => {
-    const data = new UnixFS('hamt-sharded-directory')
-    expect(data.mode).to.equal(parseInt('0755', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
-  })
-
   it('mode', () => {
     const mode = parseInt('0555', 8)
     const data = new UnixFS('file')
     data.mode = mode
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(mode)
+
+    expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
+  })
+
+  it('removes mode', () => {
+    const mode = parseInt('0555', 8)
+    const data = new UnixFS('file')
+    data.mode = mode
+
+    const unmarshalled = UnixFS.unmarshal(data.marshal())
+    expect(unmarshalled).to.have.property('mode', mode)
+
+    delete unmarshalled.mode
+
+    expect(UnixFS.unmarshal(unmarshalled.marshal())).to.not.have.property('mode')
+  })
+
+  it('sets mode to 0', () => {
+    const mode = 0
+    const data = new UnixFS('file')
+    data.mode = mode
+
+    expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
   })
 
   it('mtime', () => {
@@ -119,6 +115,27 @@ describe('unixfs-format', () => {
     const marshalled = data.marshal()
     const unmarshalled = UnixFS.unmarshal(marshalled)
     expect(unmarshalled.mtime).to.equal(mtime)
+  })
+
+  it('removes mtime', () => {
+    const mtime = parseInt(Date.now() / 1000)
+    const data = new UnixFS('file')
+    data.mtime = mtime
+
+    const unmarshalled = UnixFS.unmarshal(data.marshal())
+    expect(unmarshalled).to.have.property('mtime', mtime)
+
+    delete unmarshalled.mtime
+
+    expect(UnixFS.unmarshal(unmarshalled.marshal())).to.not.have.property('mtime')
+  })
+
+  it('sets mtime to 0', () => {
+    const mtime = 0
+    const data = new UnixFS('file')
+    data.mtime = mtime
+
+    expect(UnixFS.unmarshal(data.marshal())).to.have.property('mtime', mtime)
   })
 
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526

@@ -32,14 +32,6 @@ function Data (type, data) {
   this.data = data
   this.blockSizes = []
 
-  if (this.type === 'file') {
-    this.mode = parseInt('0644', 8)
-  }
-
-  if (this.type === 'directory' || this.type === 'hamt-sharded-directory') {
-    this.mode = parseInt('0755', 8)
-  }
-
   this.addBlockSize = (size) => {
     this.blockSizes.push(size)
   }
@@ -92,12 +84,22 @@ function Data (type, data) {
       blockSizes = undefined
     }
 
-    if ((this.type === 'directory' || this.type === 'hamt-sharded-directory') && this.mode === parseInt('0755', 8)) {
-      delete this.mode
+    let mode
+
+    if (this.mode != null && this.mode >= 0) {
+      mode = {
+        value: this.mode
+      }
     }
 
-    if (this.type === 'file' && this.mode === parseInt('0644', 8)) {
-      delete this.mode
+    let mtime
+
+    if (this.mtime != null && this.mtime >= 0) {
+      mtime = {
+        value: [
+          this.mtime
+        ]
+      }
     }
 
     return unixfsData.encode({
@@ -107,8 +109,8 @@ function Data (type, data) {
       blocksizes: blockSizes,
       hashType: this.hashType,
       fanout: this.fanout,
-      mode: this.mode,
-      mtime: this.mtime
+      mode: mode,
+      mtime: mtime
     })
   }
 }
@@ -116,18 +118,20 @@ function Data (type, data) {
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
 Data.unmarshal = (marsheled) => {
   const decoded = unixfsData.decode(marsheled)
+
   if (!decoded.Data) {
     decoded.Data = undefined
   }
+
   const obj = new Data(types[decoded.Type], decoded.Data)
   obj.blockSizes = decoded.blocksizes
 
-  if (decoded.mode) {
-    obj.mode = decoded.mode
+  if (decoded.mode != null) {
+    obj.mode = decoded.mode.value
   }
 
-  if (decoded.mtime) {
-    obj.mtime = decoded.mtime
+  if (decoded.mtime != null) {
+    obj.mtime = decoded.mtime.value[0]
   }
 
   return obj

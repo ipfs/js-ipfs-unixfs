@@ -94,10 +94,9 @@ function Data (type, data) {
 
     let mtime
 
-    if (!isNaN(this.mtime)) {
+    if (this.mtime) {
       mtime = {
-        seconds: this.mtime,
-        hrValue: []
+        seconds: Math.round(this.mtime.getTime() / 1000)
       }
     }
 
@@ -115,8 +114,8 @@ function Data (type, data) {
 }
 
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
-Data.unmarshal = (marsheled) => {
-  const decoded = unixfsData.decode(marsheled)
+Data.unmarshal = (marshaled) => {
+  const decoded = unixfsData.decode(marshaled)
 
   if (!decoded.Data) {
     decoded.Data = undefined
@@ -130,7 +129,7 @@ Data.unmarshal = (marsheled) => {
   }
 
   if (decoded.mtime) {
-    obj.mtime = decoded.mtime.seconds
+    obj.mtime = new Date(decoded.mtime.seconds * 1000)
   }
 
   return obj

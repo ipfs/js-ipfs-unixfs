@@ -51,8 +51,8 @@ function Data (type, data) {
     this.blockSizes.forEach((size) => {
       sum += size
     })
-    if (data) {
-      sum += data.length
+    if (this.data) {
+      sum += this.data.length
     }
     return sum
   }
@@ -87,17 +87,13 @@ function Data (type, data) {
     let mode
 
     if (!isNaN(this.mode)) {
-      mode = {
-        value: this.mode
-      }
+      mode = this.mode
     }
 
     let mtime
 
     if (this.mtime) {
-      mtime = {
-        seconds: Math.round(this.mtime.getTime() / 1000)
-      }
+      mtime = Math.round(this.mtime.getTime() / 1000)
     }
 
     return unixfsData.encode({
@@ -116,20 +112,16 @@ function Data (type, data) {
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
 Data.unmarshal = (marshaled) => {
   const decoded = unixfsData.decode(marshaled)
-
-  if (!decoded.Data) {
-    decoded.Data = undefined
-  }
-
-  const obj = new Data(types[decoded.Type], decoded.Data)
+  const data = decoded.hasData() ? decoded.Data : undefined
+  const obj = new Data(types[decoded.Type], data)
   obj.blockSizes = decoded.blocksizes
 
-  if (decoded.mode) {
-    obj.mode = decoded.mode.value
+  if (decoded.hasMode()) {
+    obj.mode = decoded.mode
   }
 
-  if (decoded.mtime) {
-    obj.mtime = new Date(decoded.mtime.seconds * 1000)
+  if (decoded.hasMtime()) {
+    obj.mtime = new Date(decoded.mtime * 1000)
   }
 
   return obj

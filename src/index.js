@@ -20,17 +20,46 @@ const dirTypes = [
   'hamt-sharded-directory'
 ]
 
-function Data (type, data) {
+const DEFAULT_FILE_MODE = parseInt('0644', 8)
+const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
+
+function Data (arg1, arg2) {
   if (!(this instanceof Data)) {
-    return new Data(type, data)
+    return new Data(arg1, arg2)
   }
+
+  if (arg1 == null) {
+    arg1 = {
+      type: 'file'
+    }
+  }
+
+  let { type, data, blockSizes, mtime, mode } = arg1
+
+  if (typeof arg1 === 'string' || arg1 instanceof String) {
+    // support old-style constructor
+    type = arg1
+    data = arg2
+  }
+
   if (types.indexOf(type) === -1) {
     throw new Error('Type: ' + type + ' is not valid')
   }
 
   this.type = type
   this.data = data
-  this.blockSizes = []
+  this.blockSizes = blockSizes || []
+
+  this.mtime = mtime || new Date(0)
+  this.mode = mode
+
+  if (this.mode === undefined && type === 'file') {
+    this.mode = DEFAULT_FILE_MODE
+  }
+
+  if (this.mode === undefined && type.includes('directory')) {
+    this.mode = DEFAULT_DIRECTORY_MODE
+  }
 
   this.addBlockSize = (size) => {
     this.blockSizes.push(size)
@@ -88,12 +117,24 @@ function Data (type, data) {
 
     if (!isNaN(this.mode)) {
       mode = this.mode
+
+      if (mode === DEFAULT_FILE_MODE && this.type === 'file') {
+        mode = undefined
+      }
+
+      if (mode === DEFAULT_DIRECTORY_MODE && this.type.includes('directory')) {
+        mode = undefined
+      }
     }
 
     let mtime
 
     if (this.mtime) {
       mtime = Math.round(this.mtime.getTime() / 1000)
+
+      if (mtime === 0) {
+        mtime = undefined
+      }
     }
 
     return unixfsData.encode({
@@ -112,19 +153,14 @@ function Data (type, data) {
 // decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
 Data.unmarshal = (marshaled) => {
   const decoded = unixfsData.decode(marshaled)
-  const data = decoded.hasData() ? decoded.Data : undefined
-  const obj = new Data(types[decoded.Type], data)
-  obj.blockSizes = decoded.blocksizes
 
-  if (decoded.hasMode()) {
-    obj.mode = decoded.mode
-  }
-
-  if (decoded.hasMtime()) {
-    obj.mtime = new Date(decoded.mtime * 1000)
-  }
-
-  return obj
+  return new Data({
+    type: types[decoded.Type],
+    data: decoded.hasData() ? decoded.Data : undefined,
+    blockSizes: decoded.blocksizes,
+    mode: decoded.hasMode() ? decoded.mode : undefined,
+    mtime: decoded.hasMtime() ? new Date(decoded.mtime * 1000) : undefined
+  })
 }
 
 exports = module.exports = Data

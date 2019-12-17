@@ -15,8 +15,22 @@ const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
 const Buffer = require('safe-buffer').Buffer
 
 describe('unixfs-format', () => {
+  it('defaults to file', () => {
+    const data = new UnixFS()
+    expect(data.type).to.equal('file')
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
+  })
+
   it('raw', () => {
-    const data = new UnixFS('raw', Buffer.from('bananas'))
+    const data = new UnixFS({
+      type: 'raw',
+      data: Buffer.from('bananas')
+    })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(data.type).to.equal(unmarshaled.type)
@@ -26,7 +40,9 @@ describe('unixfs-format', () => {
   })
 
   it('directory', () => {
-    const data = new UnixFS('directory')
+    const data = new UnixFS({
+      type: 'directory'
+    })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(data.type).to.equal(unmarshaled.type)
@@ -36,7 +52,9 @@ describe('unixfs-format', () => {
   })
 
   it('hamt-sharded-directory', () => {
-    const data = new UnixFS('hamt-sharded-directory')
+    const data = new UnixFS({
+      type: 'hamt-sharded-directory'
+    })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(data.type).to.equal(unmarshaled.type)
@@ -46,7 +64,10 @@ describe('unixfs-format', () => {
   })
 
   it('file', () => {
-    const data = new UnixFS('file', Buffer.from('batata'))
+    const data = new UnixFS({
+      type: 'file',
+      data: Buffer.from('batata')
+    })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(data.type).to.equal(unmarshaled.type)
@@ -56,7 +77,9 @@ describe('unixfs-format', () => {
   })
 
   it('file add blocksize', () => {
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.addBlockSize(256)
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
@@ -67,7 +90,9 @@ describe('unixfs-format', () => {
   })
 
   it('file add and remove blocksize', () => {
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.addBlockSize(256)
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
@@ -81,28 +106,19 @@ describe('unixfs-format', () => {
 
   it('mode', () => {
     const mode = parseInt('0555', 8)
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.mode = mode
 
     expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
   })
 
-  it('removes mode', () => {
-    const mode = parseInt('0555', 8)
-    const data = new UnixFS('file')
-    data.mode = mode
-
-    const unmarshaled = UnixFS.unmarshal(data.marshal())
-    expect(unmarshaled).to.have.property('mode', mode)
-
-    delete unmarshaled.mode
-
-    expect(UnixFS.unmarshal(unmarshaled.marshal())).to.not.have.property('mode')
-  })
-
   it('sets mode to 0', () => {
     const mode = 0
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.mode = mode
 
     expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
@@ -110,31 +126,22 @@ describe('unixfs-format', () => {
 
   it('mtime', () => {
     const mtime = new Date()
-    const data = new UnixFS('file')
-    data.mtime = mtime
+    const data = new UnixFS({
+      type: 'file',
+      mtime
+    })
+
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(unmarshaled.mtime).to.deep.equal(new Date(Math.round(mtime.getTime() / 1000) * 1000))
   })
 
-  it('removes mtime', () => {
-    const mtime = new Date()
-    const data = new UnixFS('file')
-    data.mtime = mtime
-
-    const unmarshaled = UnixFS.unmarshal(data.marshal())
-    expect(unmarshaled).to.have.deep.property('mtime', new Date(Math.round(mtime.getTime() / 1000) * 1000))
-
-    delete unmarshaled.mtime
-
-    expect(UnixFS.unmarshal(unmarshaled.marshal())).to.not.have.property('mtime')
-  })
-
   it('sets mtime to 0', () => {
     const mtime = new Date(0)
-    const data = new UnixFS('file')
-    data.mtime = mtime
-
+    const data = new UnixFS({
+      type: 'file',
+      mtime
+    })
     expect(UnixFS.unmarshal(data.marshal())).to.have.deep.property('mtime', new Date(Math.round(mtime.getTime() / 1000) * 1000))
   })
 
@@ -142,7 +149,9 @@ describe('unixfs-format', () => {
   it.skip('metadata', () => {})
 
   it('symlink', () => {
-    const data = new UnixFS('symlink')
+    const data = new UnixFS({
+      type: 'symlink'
+    })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
     expect(data.type).to.equal(unmarshaled.type)
@@ -153,7 +162,9 @@ describe('unixfs-format', () => {
   it('wrong type', (done) => {
     let data
     try {
-      data = new UnixFS('bananas')
+      data = new UnixFS({
+        type: 'bananas'
+      })
     } catch (err) {
       expect(err).to.exist()
       expect(data).to.not.exist()
@@ -196,7 +207,9 @@ describe('unixfs-format', () => {
   })
 
   it('empty', () => {
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     const marshaled = data.marshal()
 
     expect(marshaled).to.deep.equal(Buffer.from([0x08, 0x02, 0x18, 0x00]))

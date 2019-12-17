@@ -1,4 +1,4 @@
-# ipfs-unixfs JavaScript Implementation
+# ipfs-unixfs JavaScript Implementation <!-- omit in toc -->
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
@@ -14,32 +14,29 @@
 
 [The unixfs spec can be found inside the ipfs/specs repository](http://github.com/ipfs/specs)
 
-## Lead Maintainer
+## Lead Maintainer <!-- omit in toc -->
 
 [Alex Potsides](https://github.com/achingbrain)
 
-## Table of Contents
+## Table of Contents <!-- omit in toc -->
 
-- [ipfs-unixfs JavaScript Implementation](#ipfs-unixfs-javascript-implementation)
-  - [Lead Maintainer](#lead-maintainer)
-  - [Table of Contents](#table-of-contents)
-  - [Install](#install)
-    - [npm](#npm)
-    - [Use in Node.js](#use-in-nodejs)
-    - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify--webpack-or-any-other-bundler)
-    - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
-  - [Usage](#usage)
-    - [Examples](#examples)
-      - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
-      - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
-  - [API](#api)
-      - [unixfs Data Structure](#unixfs-data-structure)
-      - [create an unixfs Data element](#create-an-unixfs-data-element)
-      - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
-      - [get total fileSize](#get-total-filesize)
-      - [marshal and unmarshal](#marshal-and-unmarshal)
-  - [Contribute](#contribute)
-  - [License](#license)
+- [Install](#install)
+  - [npm](#npm)
+  - [Use in Node.js](#use-in-nodejs)
+  - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify-webpack-or-any-other-bundler)
+  - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
+- [Usage](#usage)
+  - [Examples](#examples)
+    - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
+    - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
+- [API](#api)
+    - [unixfs Data Structure](#unixfs-data-structure)
+    - [create an unixfs Data element](#create-an-unixfs-data-element)
+    - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
+    - [get total fileSize](#get-total-filesize)
+    - [marshal and unmarshal](#marshal-and-unmarshal)
+- [Contribute](#contribute)
+- [License](#license)
 
 ## Install
 
@@ -80,7 +77,7 @@ Loading this module through a script tag will make the `Unixfs` obj available in
 #### Create a file composed by several blocks
 
 ```JavaScript
-var data = new Unixfs('file')
+const data = new Unixfs({ type: 'file' })
 data.addBlockSize(256) // add the size of each block
 data.addBlockSize(256)
 // ...
@@ -91,7 +88,7 @@ data.addBlockSize(256)
 Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.
 
 ```JavaScript
-var data = new Unixfs('directory')
+const data = new Unixfs({ type: 'directory' })
 ```
 
 ## API
@@ -99,6 +96,8 @@ var data = new Unixfs('directory')
 #### unixfs Data Structure
 
 ```protobuf
+syntax = "proto2";
+
 message Data {
   enum DataType {
     Raw = 0;
@@ -113,23 +112,36 @@ message Data {
   optional bytes Data = 2;
   optional uint64 filesize = 3;
   repeated uint64 blocksizes = 4;
-
   optional uint64 hashType = 5;
   optional uint64 fanout = 6;
+  optional uint32 mode = 7;
+  optional int64 mtime = 8;
 }
 
 message Metadata {
-  optional string MimeType = 1;
+  required string MimeType = 1;
 }
 ```
 
 #### create an unixfs Data element
 
 ```JavaScript
-var data = new UnixFS(<type>, [<content>])
+const data = new UnixFS([options])
 ```
 
-Type can be: `['raw', 'directory', 'file', 'metadata', 'symlink', 'hamt-sharded-directory']`
+`options` is an optional object argument that might include the following keys:
+
+- type (string, default `file`): The type of UnixFS node.  Can be:
+  - `raw`
+  - `directory`
+  - `file`
+  - `metadata`
+  - `symlink`
+  - `hamt-sharded-directory`
+- data (Buffer): The optional data field for this node
+- blockSizes (Array, default: `[]`): If this is a `file` node that is made up of multiple blocks, `blockSizes` is a list numbers that represent the size of the file chunks stored in each child node. It is used to calculate the total file size.
+- mode (Number, default `0644` for files, `0755` for directories/hamt-sharded-directories) file mode
+- mtime (Date, default `0`): The modification time of this node
 
 #### add and remove a block size to the block size list
 
@@ -149,9 +161,9 @@ data.fileSize() // => size in bytes
 
 #### marshal and unmarshal
 
-```
-var marshaled = data.marshal()
-var unmarshaled = Unixfs.unmarshal(marshaled)
+```javascript
+const marshaled = data.marshal()
+const unmarshaled = Unixfs.unmarshal(marshaled)
 ```
 
 ## Contribute

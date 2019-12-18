@@ -38,8 +38,7 @@
   "devDependencies": {
     "aegir": "^20.4.1",
     "chai": "^4.2.0",
-    "dirty-chai": "^2.0.1",
-    "safe-buffer": "^5.1.2"
+    "dirty-chai": "^2.0.1"
   },
   "dependencies": {
     "protons": "^1.1.0"

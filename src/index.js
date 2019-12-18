@@ -2,9 +2,7 @@
 
 const protons = require('protons')
 const pb = protons(require('./unixfs.proto'))
-// encode/decode
 const unixfsData = pb.Data
-// const unixfsMetadata = pb.MetaData // encode/decode
 
 const types = [
   'raw',
@@ -23,55 +21,91 @@ const dirTypes = [
 const DEFAULT_FILE_MODE = parseInt('0644', 8)
 const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 
-function Data (arg1, arg2) {
-  if (!(this instanceof Data)) {
-    return new Data(arg1, arg2)
-  }
-
-  if (arg1 == null) {
-    arg1 = {
+function parseArgs (args) {
+  if (args.length === 0) {
+    return {
       type: 'file'
     }
   }
 
-  let { type, data, blockSizes, mtime, mode } = arg1
-
-  if (typeof arg1 === 'string' || arg1 instanceof String) {
+  if (args.length === 2) {
     // support old-style constructor
-    type = arg1
-    data = arg2
+    return {
+      type: args[0],
+      data: args[1]
+    }
   }
 
-  if (types.indexOf(type) === -1) {
-    throw new Error('Type: ' + type + ' is not valid')
+  if (typeof args[0] === 'string' || args[0] instanceof String) {
+    return {
+      type: args[0]
+    }
   }
 
-  this.type = type
-  this.data = data
-  this.blockSizes = blockSizes || []
+  return args[0]
+}
 
-  this.mtime = mtime || new Date(0)
-  this.mode = mode
+class Data {
+  // decode from protobuf https://github.com/ipfs/specs/blob/master/UNIXFS.md
+  static unmarshal (marshaled) {
+    const decoded = unixfsData.decode(marshaled)
 
-  if (this.mode === undefined && type === 'file') {
-    this.mode = DEFAULT_FILE_MODE
+    return new Data({
+      type: types[decoded.Type],
+      data: decoded.hasData() ? decoded.Data : undefined,
+      blockSizes: decoded.blocksizes,
+      mode: decoded.hasMode() ? decoded.mode : undefined,
+      mtime: decoded.hasMtime() ? new Date(decoded.mtime * 1000) : undefined
+    })
   }
 
-  if (this.mode === undefined && type.includes('directory')) {
-    this.mode = DEFAULT_DIRECTORY_MODE
+  constructor (...args) {
+    const {
+      type,
+      data,
+      blockSizes,
+      hashType,
+      fanout,
+      mtime,
+      mode
+    } = parseArgs(args)
+
+    if (!types.includes(type)) {
+      throw new Error('Type: ' + type + ' is not valid')
+    }
+
+    this.type = type
+    this.data = data
+    this.hashType = hashType
+    this.fanout = fanout
+    this.blockSizes = blockSizes || []
+    this.mtime = mtime || new Date(0)
+    this.mode = mode
+
+    if (this.mode === undefined && type === 'file') {
+      this.mode = DEFAULT_FILE_MODE
+    }
+
+    if (this.mode === undefined && this.isDirectory()) {
+      this.mode = DEFAULT_DIRECTORY_MODE
+    }
   }
 
-  this.addBlockSize = (size) => {
+  isDirectory () {
+    return dirTypes.includes(this.type)
+  }
+
+  addBlockSize (size) {
     this.blockSizes.push(size)
   }
 
-  this.removeBlockSize = (index) => {
+  removeBlockSize (index) {
     this.blockSizes.splice(index, 1)
   }
 
   // data.length + blockSizes
-  this.fileSize = () => {
-    if (dirTypes.indexOf(this.type) >= 0) {
+  fileSize () {
+    if (this.isDirectory()) {
       // dirs don't have file size
       return undefined
     }
@@ -80,14 +114,16 @@ function Data (arg1, arg2) {
     this.blockSizes.forEach((size) => {
       sum += size
     })
+
     if (this.data) {
       sum += this.data.length
     }
+
     return sum
   }
 
   // encode to protobuf
-  this.marshal = () => {
+  marshal () {
     let type
 
     switch (this.type) {
@@ -115,7 +151,7 @@ function Data (arg1, arg2) {
 
     let mode
 
-    if (!isNaN(this.mode)) {
+    if (!isNaN(parseInt(this.mode))) {
       mode = this.mode
 
       if (mode === DEFAULT_FILE_MODE && this.type === 'file') {
@@ -144,23 +180,10 @@ function Data (arg1, arg2) {
       blocksizes: blockSizes,
       hashType: this.hashType,
       fanout: this.fanout,
-      mode: mode,
-      mtime: mtime
+      mode,
+      mtime
     })
   }
 }
 
-// decode from protobuf https://github.com/ipfs/go-ipfs/blob/master/unixfs/format.go#L24
-Data.unmarshal = (marshaled) => {
-  const decoded = unixfsData.decode(marshaled)
-
-  return new Data({
-    type: types[decoded.Type],
-    data: decoded.hasData() ? decoded.Data : undefined,
-    blockSizes: decoded.blocksizes,
-    mode: decoded.hasMode() ? decoded.mode : undefined,
-    mtime: decoded.hasMtime() ? new Date(decoded.mtime * 1000) : undefined
-  })
-}
-
-exports = module.exports = Data
+module.exports = Data

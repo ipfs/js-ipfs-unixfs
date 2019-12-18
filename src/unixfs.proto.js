@@ -24,6 +24,6 @@ message Data {
 }
 
 message Metadata {
-  required string MimeType = 1;
+  optional string MimeType = 1;
 }
 `

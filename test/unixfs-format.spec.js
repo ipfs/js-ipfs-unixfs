@@ -12,7 +12,7 @@ const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const Buffer = require('safe-buffer').Buffer
+const { Buffer } = require('buffer')
 
 describe('unixfs-format', () => {
   it('defaults to file', () => {

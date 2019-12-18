@@ -10,9 +10,9 @@
 ![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
 ![](https://img.shields.io/badge/Node.js-%3E%3D8.0.0-orange.svg?style=flat-square)
 
-> JavaScript implementation of IPFS' unixfs (a Unix FileSystem files representation on top of a MerkleDAG)
+> JavaScript implementation of IPFS' UnixFS (a Unix FileSystem files representation on top of a MerkleDAG)
 
-[The unixfs spec can be found inside the ipfs/specs repository](http://github.com/ipfs/specs)
+The UnixFS spec can be found inside the [ipfs/specs repository](http://github.com/ipfs/specs)
 
 ## Lead Maintainer <!-- omit in toc -->
 
@@ -30,11 +30,12 @@
     - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
     - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
 - [API](#api)
-    - [unixfs Data Structure](#unixfs-data-structure)
+    - [UnixFS Data Structure](#unixfs-data-structure)
     - [create an unixfs Data element](#create-an-unixfs-data-element)
     - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
     - [get total fileSize](#get-total-filesize)
     - [marshal and unmarshal](#marshal-and-unmarshal)
+    - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -49,7 +50,7 @@
 ### Use in Node.js
 
 ```JavaScript
-var Unixfs = require('ipfs-unixfs')
+var UnixFS = require('ipfs-unixfs')
 ```
 
 ### Use in a browser with browserify, webpack or any other bundler
@@ -57,12 +58,12 @@ var Unixfs = require('ipfs-unixfs')
 The code published to npm that gets loaded on require is in fact a ES5 transpiled version with the right shims added. This means that you can require it and use with your favourite bundler without having to adjust asset management process.
 
 ```JavaScript
-var Unixfs = require('ipfs-unixfs')
+var UnixFS = require('ipfs-unixfs')
 ```
 
 ### Use in a browser Using a script tag
 
-Loading this module through a script tag will make the `Unixfs` obj available in the global namespace.
+Loading this module through a script tag will make the `UnixFS` obj available in the global namespace.
 
 ```html
 <script src="https://npmcdn.com/ipfs-unixfs/dist/index.min.js"></script>
@@ -77,7 +78,7 @@ Loading this module through a script tag will make the `Unixfs` obj available in
 #### Create a file composed by several blocks
 
 ```JavaScript
-const data = new Unixfs({ type: 'file' })
+const data = new UnixFS({ type: 'file' })
 data.addBlockSize(256) // add the size of each block
 data.addBlockSize(256)
 // ...
@@ -88,12 +89,12 @@ data.addBlockSize(256)
 Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.
 
 ```JavaScript
-const data = new Unixfs({ type: 'directory' })
+const data = new UnixFS({ type: 'directory' })
 ```
 
 ## API
 
-#### unixfs Data Structure
+#### UnixFS Data Structure
 
 ```protobuf
 syntax = "proto2";
@@ -119,7 +120,7 @@ message Data {
 }
 
 message Metadata {
-  required string MimeType = 1;
+  optional string MimeType = 1;
 }
 ```
 
@@ -131,7 +132,7 @@ const data = new UnixFS([options])
 
 `options` is an optional object argument that might include the following keys:
 
-- type (string, default `file`): The type of UnixFS node.  Can be:
+- type (string, default `file`): The type of UnixFS entry.  Can be:
   - `raw`
   - `directory`
   - `file`
@@ -164,6 +165,16 @@ data.fileSize() // => size in bytes
 ```javascript
 const marshaled = data.marshal()
 const unmarshaled = Unixfs.unmarshal(marshaled)
+```
+
+#### is this UnixFS entry a directory?
+
+```JavaScript
+const dir = new Data({ type: 'directory' })
+dir.isDirectory() // true
+
+const file = new Data({ type: 'file' })
+file.isDirectory() // false
 ```
 
 ## Contribute

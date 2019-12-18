@@ -158,7 +158,7 @@ class Data {
         mode = undefined
       }
 
-      if (mode === DEFAULT_DIRECTORY_MODE && this.type.includes('directory')) {
+      if (mode === DEFAULT_DIRECTORY_MODE && this.isDirectory()) {
         mode = undefined
       }
     }

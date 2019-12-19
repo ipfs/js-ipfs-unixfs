@@ -12,131 +12,159 @@ const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const Buffer = require('safe-buffer').Buffer
+const { Buffer } = require('buffer')
 
 describe('unixfs-format', () => {
+  it('defaults to file', () => {
+    const data = new UnixFS()
+    expect(data.type).to.equal('file')
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
+  })
+
   it('raw', () => {
-    const data = new UnixFS('raw', Buffer.from('bananas'))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const data = new UnixFS({
+      type: 'raw',
+      data: Buffer.from('bananas')
+    })
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
   it('directory', () => {
-    const data = new UnixFS('directory')
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const data = new UnixFS({
+      type: 'directory'
+    })
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
   it('hamt-sharded-directory', () => {
-    const data = new UnixFS('hamt-sharded-directory')
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const data = new UnixFS({
+      type: 'hamt-sharded-directory'
+    })
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
   it('file', () => {
-    const data = new UnixFS('file', Buffer.from('batata'))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const data = new UnixFS({
+      type: 'file',
+      data: Buffer.from('batata')
+    })
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
   it('file add blocksize', () => {
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.addBlockSize(256)
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
   it('file add and remove blocksize', () => {
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.addBlockSize(256)
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
-    unmarshalled.removeBlockSize(0)
-    expect(data.blockSizes).to.not.deep.equal(unmarshalled.blockSizes)
-  })
-
-  it('default mode for files', () => {
-    const data = new UnixFS('file')
-    expect(data.mode).to.equal(parseInt('0644', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0644', 8))
-  })
-
-  it('default mode for directories', () => {
-    const data = new UnixFS('directory')
-    expect(data.mode).to.equal(parseInt('0755', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
-  })
-
-  it('default mode for hamt-sharded-directories', () => {
-    const data = new UnixFS('hamt-sharded-directory')
-    expect(data.mode).to.equal(parseInt('0755', 8))
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(parseInt('0755', 8))
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
+    unmarshaled.removeBlockSize(0)
+    expect(data.blockSizes).to.not.deep.equal(unmarshaled.blockSizes)
   })
 
   it('mode', () => {
     const mode = parseInt('0555', 8)
-    const data = new UnixFS('file')
+    const data = new UnixFS({
+      type: 'file'
+    })
     data.mode = mode
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mode).to.equal(mode)
+
+    expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
+  })
+
+  it('sets mode to 0', () => {
+    const mode = 0
+    const data = new UnixFS({
+      type: 'file'
+    })
+    data.mode = mode
+
+    expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', mode)
   })
 
   it('mtime', () => {
-    const mtime = parseInt(Date.now() / 1000)
-    const data = new UnixFS('file')
-    data.mtime = mtime
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(unmarshalled.mtime).to.equal(mtime)
+    const mtime = new Date()
+    const data = new UnixFS({
+      type: 'file',
+      mtime
+    })
+
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(unmarshaled.mtime).to.deep.equal(new Date(Math.round(mtime.getTime() / 1000) * 1000))
+  })
+
+  it('sets mtime to 0', () => {
+    const mtime = new Date(0)
+    const data = new UnixFS({
+      type: 'file',
+      mtime
+    })
+    expect(UnixFS.unmarshal(data.marshal())).to.have.deep.property('mtime', new Date(Math.round(mtime.getTime() / 1000) * 1000))
   })
 
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
   it.skip('metadata', () => {})
 
   it('symlink', () => {
-    const data = new UnixFS('symlink')
-    const marshalled = data.marshal()
-    const unmarshalled = UnixFS.unmarshal(marshalled)
-    expect(data.type).to.equal(unmarshalled.type)
-    expect(data.data).to.deep.equal(unmarshalled.data)
-    expect(data.blockSizes).to.deep.equal(unmarshalled.blockSizes)
-    expect(data.fileSize()).to.deep.equal(unmarshalled.fileSize())
+    const data = new UnixFS({
+      type: 'symlink'
+    })
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(data.type).to.equal(unmarshaled.type)
+    expect(data.data).to.deep.equal(unmarshaled.data)
+    expect(data.blockSizes).to.deep.equal(unmarshaled.blockSizes)
+    expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
   it('wrong type', (done) => {
     let data
     try {
-      data = new UnixFS('bananas')
+      data = new UnixFS({
+        type: 'bananas'
+      })
     } catch (err) {
       expect(err).to.exist()
       expect(data).to.not.exist()
@@ -146,42 +174,44 @@ describe('unixfs-format', () => {
 
   describe('interop', () => {
     it('raw', () => {
-      const unmarshalled = UnixFS.unmarshal(raw)
-      expect(unmarshalled.data).to.eql(Buffer.from('Hello UnixFS\n'))
-      expect(unmarshalled.type).to.equal('file')
-      expect(unmarshalled.marshal()).to.deep.equal(raw)
+      const unmarshaled = UnixFS.unmarshal(raw)
+      expect(unmarshaled.data).to.eql(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshaled.type).to.equal('file')
+      expect(unmarshaled.marshal()).to.deep.equal(raw)
     })
 
     it('directory', () => {
-      const unmarshalled = UnixFS.unmarshal(directory)
-      expect(unmarshalled.data).to.deep.equal(undefined)
-      expect(unmarshalled.type).to.equal('directory')
-      expect(unmarshalled.marshal()).to.deep.equal(directory)
+      const unmarshaled = UnixFS.unmarshal(directory)
+      expect(unmarshaled.data).to.deep.equal(undefined)
+      expect(unmarshaled.type).to.equal('directory')
+      expect(unmarshaled.marshal()).to.deep.equal(directory)
     })
 
     it('file', () => {
-      const unmarshalled = UnixFS.unmarshal(file)
-      expect(unmarshalled.data).to.deep.equal(Buffer.from('Hello UnixFS\n'))
-      expect(unmarshalled.type).to.equal('file')
-      expect(unmarshalled.marshal()).to.deep.equal(file)
+      const unmarshaled = UnixFS.unmarshal(file)
+      expect(unmarshaled.data).to.deep.equal(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshaled.type).to.equal('file')
+      expect(unmarshaled.marshal()).to.deep.equal(file)
     })
 
     it.skip('metadata', () => {
     })
 
     it('symlink', () => {
-      const unmarshalled = UnixFS.unmarshal(symlink)
-      expect(unmarshalled.data).to.deep.equal(Buffer.from('file.txt'))
-      expect(unmarshalled.type).to.equal('symlink')
+      const unmarshaled = UnixFS.unmarshal(symlink)
+      expect(unmarshaled.data).to.deep.equal(Buffer.from('file.txt'))
+      expect(unmarshaled.type).to.equal('symlink')
       // TODO: waiting on https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182440079
-      // expect(unmarshalled.marshal()).to.deep.equal(symlink)
+      // expect(unmarshaled.marshal()).to.deep.equal(symlink)
     })
   })
 
   it('empty', () => {
-    const data = new UnixFS('file')
-    const marshalled = data.marshal()
+    const data = new UnixFS({
+      type: 'file'
+    })
+    const marshaled = data.marshal()
 
-    expect(marshalled).to.deep.equal(Buffer.from([0x08, 0x02, 0x18, 0x00]))
+    expect(marshaled).to.deep.equal(Buffer.from([0x08, 0x02, 0x18, 0x00]))
   })
 })

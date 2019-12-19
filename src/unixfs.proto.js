@@ -1,6 +1,9 @@
 'use strict'
 
-module.exports = `message Data {
+module.exports = `
+syntax = "proto2";
+
+message Data {
   enum DataType {
     Raw = 0;
     Directory = 1;
@@ -22,4 +25,5 @@ module.exports = `message Data {
 
 message Metadata {
   optional string MimeType = 1;
-}`
+}
+`

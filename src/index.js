@@ -80,7 +80,8 @@ class Data {
     this.fanout = fanout
     this.blockSizes = blockSizes || []
     this.mtime = mtime || new Date(0)
-    this.mode = mode
+    this.mode = mode || mode === 0 ? (mode & 0xFFF) : undefined
+    this._originalMode = mode
 
     if (this.mode === undefined && type === 'file') {
       this.mode = DEFAULT_FILE_MODE
@@ -151,8 +152,8 @@ class Data {
 
     let mode
 
-    if (!isNaN(parseInt(this.mode))) {
-      mode = this.mode
+    if (this.mode || this.mode === 0) {
+      mode = (this._originalMode & 0xFFFFF000) | (this.mode & 0xFFF)
 
       if (mode === DEFAULT_FILE_MODE && this.type === 'file') {
         mode = undefined

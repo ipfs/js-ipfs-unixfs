@@ -13,6 +13,8 @@ const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
 const { Buffer } = require('buffer')
+const protons = require('protons')
+const unixfsData = protons(require('../src/unixfs.proto')).Data
 
 describe('unixfs-format', () => {
   it('defaults to file', () => {
@@ -143,6 +145,20 @@ describe('unixfs-format', () => {
       mtime
     })
     expect(UnixFS.unmarshal(data.marshal())).to.have.deep.property('mtime', new Date(Math.round(mtime.getTime() / 1000) * 1000))
+  })
+
+  it('does not overwrite unknown mode bits', () => {
+    const mode = 0xFFFFFFF // larger than currently defined mode bits
+    const buf = unixfsData.encode({
+      Type: 0,
+      mode
+    })
+
+    const unmarshaled = UnixFS.unmarshal(buf)
+    const marshaled = unmarshaled.marshal()
+
+    const entry = unixfsData.decode(marshaled)
+    expect(entry).to.have.property('mode', mode)
   })
 
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526

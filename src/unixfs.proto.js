@@ -20,7 +20,12 @@ message Data {
   optional uint64 hashType = 5;
   optional uint64 fanout = 6;
   optional uint32 mode = 7;
-  optional int64 mtime = 8;
+  optional TimeSpec mtime = 8;
+}
+
+message TimeSpec {
+  required int64 EpochSeconds = 1;
+  optional uint32 EpochNanoseconds = 2;
 }
 
 message Metadata {

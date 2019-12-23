@@ -142,7 +142,7 @@ const data = new UnixFS([options])
 - data (Buffer): The optional data field for this node
 - blockSizes (Array, default: `[]`): If this is a `file` node that is made up of multiple blocks, `blockSizes` is a list numbers that represent the size of the file chunks stored in each child node. It is used to calculate the total file size.
 - mode (Number, default `0644` for files, `0755` for directories/hamt-sharded-directories) file mode
-- mtime (Date, default `0`): The modification time of this node
+- mtime (Date, { secs, nsecs }, { EpochSeconds, EpochNanoseconds }, [ secs, nsecs ], default { secs: 0 }): The modification time of this node
 
 #### add and remove a block size to the block size list
 

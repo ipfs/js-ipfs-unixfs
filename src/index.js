@@ -3,6 +3,7 @@
 const protons = require('protons')
 const pb = protons(require('./unixfs.proto'))
 const unixfsData = pb.Data
+const errcode = require('err-code')
 
 const types = [
   'raw',
@@ -45,6 +46,73 @@ function parseArgs (args) {
   return args[0]
 }
 
+function parseMtime (mtime) {
+  if (mtime == null) {
+    return undefined
+  }
+
+  // Javascript Date
+  if (mtime instanceof Date) {
+    const ms = mtime.getTime()
+    const secs = Math.floor(ms / 1000)
+
+    return {
+      secs: secs,
+      nsecs: (ms - (secs * 1000)) * 1000
+    }
+  }
+
+  // { secs, nsecs }
+  if (Object.prototype.hasOwnProperty.call(mtime, 'secs')) {
+    return {
+      secs: mtime.secs,
+      nsecs: mtime.nsecs
+    }
+  }
+
+  // UnixFS TimeSpec
+  if (Object.prototype.hasOwnProperty.call(mtime, 'EpochSeconds')) {
+    return {
+      secs: mtime.EpochSeconds,
+      nsecs: mtime.EpochNanoseconds
+    }
+  }
+
+  // process.hrtime()
+  if (Array.isArray(mtime)) {
+    return {
+      secs: mtime[0],
+      nsecs: mtime[1]
+    }
+  }
+  /*
+  TODO: https://github.com/ipfs/aegir/issues/487
+
+  // process.hrtime.bigint()
+  if (typeof mtime === 'bigint') {
+    const secs = mtime / BigInt(1e9)
+    const nsecs = mtime - (secs * BigInt(1e9))
+
+    return {
+      secs: parseInt(secs),
+      nsecs: parseInt(nsecs)
+    }
+  }
+  */
+}
+
+function parseMode (mode) {
+  if (mode == null) {
+    return undefined
+  }
+
+  if (typeof mode === 'string' || mode instanceof String) {
+    mode = parseInt(mode, 8)
+  }
+
+  return mode & 0xFFF
+}
+
 class Data {
   // decode from protobuf https://github.com/ipfs/specs/blob/master/UNIXFS.md
   static unmarshal (marshaled) {
@@ -55,7 +123,7 @@ class Data {
       data: decoded.hasData() ? decoded.Data : undefined,
       blockSizes: decoded.blocksizes,
       mode: decoded.hasMode() ? decoded.mode : undefined,
-      mtime: decoded.hasMtime() ? new Date(decoded.mtime * 1000) : undefined
+      mtime: decoded.hasMtime() ? decoded.mtime : undefined
     })
   }
 
@@ -71,7 +139,7 @@ class Data {
     } = parseArgs(args)
 
     if (!types.includes(type)) {
-      throw new Error('Type: ' + type + ' is not valid')
+      throw errcode(new Error('Type: ' + type + ' is not valid'), 'ERR_INVALID_TYPE')
     }
 
     this.type = type
@@ -79,9 +147,13 @@ class Data {
     this.hashType = hashType
     this.fanout = fanout
     this.blockSizes = blockSizes || []
-    this.mtime = mtime || new Date(0)
-    this.mode = mode || mode === 0 ? (mode & 0xFFF) : undefined
     this._originalMode = mode
+
+    const parsedMode = parseMode(mode)
+
+    if (parsedMode !== undefined) {
+      this.mode = parsedMode
+    }
 
     if (this.mode === undefined && type === 'file') {
       this.mode = DEFAULT_FILE_MODE
@@ -89,6 +161,14 @@ class Data {
 
     if (this.mode === undefined && this.isDirectory()) {
       this.mode = DEFAULT_DIRECTORY_MODE
+    }
+
+    const parsedMtime = parseMtime(mtime)
+
+    if (parsedMtime) {
+      this.mtime = parsedMtime
+    } else {
+      this.mtime = { secs: 0, nsecs: 0 }
     }
   }
 
@@ -135,7 +215,7 @@ class Data {
       case 'symlink': type = unixfsData.DataType.Symlink; break
       case 'hamt-sharded-directory': type = unixfsData.DataType.HAMTShard; break
       default:
-        throw new Error(`Unkown type: "${this.type}"`)
+        throw errcode(new Error('Type: ' + type + ' is not valid'), 'ERR_INVALID_TYPE')
     }
 
     let data = this.data
@@ -152,8 +232,8 @@ class Data {
 
     let mode
 
-    if (this.mode || this.mode === 0) {
-      mode = (this._originalMode & 0xFFFFF000) | (this.mode & 0xFFF)
+    if (this.mode != null) {
+      mode = (this._originalMode & 0xFFFFF000) | parseMode(this.mode)
 
       if (mode === DEFAULT_FILE_MODE && this.type === 'file') {
         mode = undefined
@@ -166,11 +246,18 @@ class Data {
 
     let mtime
 
-    if (this.mtime) {
-      mtime = Math.round(this.mtime.getTime() / 1000)
+    if (this.mtime != null) {
+      const parsed = parseMtime(this.mtime)
 
-      if (mtime === 0) {
-        mtime = undefined
+      if (parsed) {
+        mtime = {
+          EpochSeconds: parsed.secs,
+          EpochNanoseconds: parsed.nsecs
+        }
+
+        if (parsed.secs === 0 && !parsed.nsecs) {
+          mtime = undefined
+        }
       }
     }
 

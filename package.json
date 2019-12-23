@@ -17,7 +17,7 @@
     "release": "aegir release",
     "release-minor": "aegir release --type minor",
     "release-major": "aegir release --type major",
-    "coverage": "aegir coverage"
+    "coverage": "nyc -s aegir test -t node && nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
@@ -38,9 +38,11 @@
   "devDependencies": {
     "aegir": "^20.4.1",
     "chai": "^4.2.0",
-    "dirty-chai": "^2.0.1"
+    "dirty-chai": "^2.0.1",
+    "nyc": "^15.0.0"
   },
   "dependencies": {
+    "err-code": "^2.0.0",
     "protons": "^1.1.0"
   },
   "contributors": [

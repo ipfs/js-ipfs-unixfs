@@ -25,7 +25,7 @@ message Data {
 
 message TimeSpec {
   required int64 EpochSeconds = 1;
-  optional uint32 EpochNanoseconds = 2;
+  optional fixed32 EpochNanoseconds = 2;
 }
 
 message Metadata {

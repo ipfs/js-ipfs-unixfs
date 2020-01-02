@@ -51,20 +51,9 @@ function parseMtime (mtime) {
     return undefined
   }
 
-  // Javascript Date
-  if (mtime instanceof Date) {
-    const ms = mtime.getTime()
-    const secs = Math.floor(ms / 1000)
-
-    return {
-      secs: secs,
-      nsecs: (ms - (secs * 1000)) * 1000
-    }
-  }
-
   // { secs, nsecs }
   if (Object.prototype.hasOwnProperty.call(mtime, 'secs')) {
-    return {
+    mtime = {
       secs: mtime.secs,
       nsecs: mtime.nsecs
     }
@@ -72,7 +61,7 @@ function parseMtime (mtime) {
 
   // UnixFS TimeSpec
   if (Object.prototype.hasOwnProperty.call(mtime, 'EpochSeconds')) {
-    return {
+    mtime = {
       secs: mtime.EpochSeconds,
       nsecs: mtime.EpochNanoseconds
     }
@@ -80,11 +69,23 @@ function parseMtime (mtime) {
 
   // process.hrtime()
   if (Array.isArray(mtime)) {
-    return {
+    mtime = {
       secs: mtime[0],
       nsecs: mtime[1]
     }
   }
+
+  // Javascript Date
+  if (mtime instanceof Date) {
+    const ms = mtime.getTime()
+    const secs = Math.floor(ms / 1000)
+
+    mtime = {
+      secs: secs,
+      nsecs: (ms - (secs * 1000)) * 1000
+    }
+  }
+
   /*
   TODO: https://github.com/ipfs/aegir/issues/487
 
@@ -93,12 +94,22 @@ function parseMtime (mtime) {
     const secs = mtime / BigInt(1e9)
     const nsecs = mtime - (secs * BigInt(1e9))
 
-    return {
+    mtime = {
       secs: parseInt(secs),
       nsecs: parseInt(nsecs)
     }
   }
   */
+
+  if (!Object.prototype.hasOwnProperty.call(mtime, 'secs')) {
+    return undefined
+  }
+
+  if (mtime.nsecs < 0 || mtime.nsecs > 999999999) {
+    throw errcode(new Error('mtime-nsecs must be within the range [0,999999999]'), 'ERR_INVALID_MTIME_NSECS')
+  }
+
+  return mtime
 }
 
 function parseMode (mode) {
@@ -253,6 +264,10 @@ class Data {
         mtime = {
           EpochSeconds: parsed.secs,
           EpochNanoseconds: parsed.nsecs
+        }
+
+        if (mtime.EpochNanoseconds === 0) {
+          delete mtime.EpochNanoseconds
         }
 
         if (parsed.secs === 0 && !parsed.nsecs) {

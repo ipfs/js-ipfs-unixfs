@@ -1,3 +1,8 @@
+<a name="0.40.0"></a>
+# [0.40.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.39.0...v0.40.0) (2020-01-08)
+
+
+
 <a name="0.39.0"></a>
 # [0.39.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.38.0...v0.39.0) (2019-11-18)
 

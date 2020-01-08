@@ -1,7 +1,27 @@
 'use strict'
 
 const Bucket = require('hamt-sharding/src/bucket')
-const DirSharded = require('ipfs-unixfs-importer/src/dir-sharded')
+const multihashing = require('multihashing-async')
+
+// FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
+const hashFn = async function (value) {
+  const hash = await multihashing(Buffer.from(value, 'utf8'), 'murmur3-128')
+
+  // Multihashing inserts preamble of 2 bytes. Remove it.
+  // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
+  // implementation only uses the first 64, so we must do the same
+  // for parity..
+  const justHash = hash.slice(2, 10)
+  const length = justHash.length
+  const result = Buffer.alloc(length)
+  // TODO: invert buffer because that's how Go impl does it
+  for (let i = 0; i < length; i++) {
+    result[length - i - 1] = justHash[i]
+  }
+
+  return result
+}
+hashFn.code = 0x22 // TODO: get this from multihashing-async?
 
 const addLinksToHamtBucket = (links, bucket, rootBucket) => {
   return Promise.all(
@@ -10,7 +30,7 @@ const addLinksToHamtBucket = (links, bucket, rootBucket) => {
         const pos = parseInt(link.Name, 16)
 
         return bucket._putObjectAt(pos, new Bucket({
-          hashFn: DirSharded.hashFn
+          hashFn
         }, bucket, pos))
       }
 
@@ -46,7 +66,7 @@ const findShardCid = async (node, name, ipld, context) => {
   if (!context) {
     context = {
       rootBucket: new Bucket({
-        hashFn: DirSharded.hashFn
+        hashFn
       }),
       hamtDepth: 1
     }

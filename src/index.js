@@ -60,10 +60,10 @@ function parseMtime (mtime) {
   }
 
   // UnixFS TimeSpec
-  if (Object.prototype.hasOwnProperty.call(mtime, 'EpochSeconds')) {
+  if (Object.prototype.hasOwnProperty.call(mtime, 'Seconds')) {
     mtime = {
-      secs: mtime.EpochSeconds,
-      nsecs: mtime.EpochNanoseconds
+      secs: mtime.Seconds,
+      nsecs: mtime.FractionalNanoseconds
     }
   }
 
@@ -178,8 +178,6 @@ class Data {
 
     if (parsedMtime) {
       this.mtime = parsedMtime
-    } else {
-      this.mtime = { secs: 0, nsecs: 0 }
     }
   }
 
@@ -262,16 +260,12 @@ class Data {
 
       if (parsed) {
         mtime = {
-          EpochSeconds: parsed.secs,
-          EpochNanoseconds: parsed.nsecs
+          Seconds: parsed.secs,
+          FractionalNanoseconds: parsed.nsecs
         }
 
-        if (mtime.EpochNanoseconds === 0) {
-          delete mtime.EpochNanoseconds
-        }
-
-        if (parsed.secs === 0 && !parsed.nsecs) {
-          mtime = undefined
+        if (mtime.FractionalNanoseconds === 0) {
+          delete mtime.FractionalNanoseconds
         }
       }
     }

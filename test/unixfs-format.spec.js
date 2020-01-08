@@ -204,7 +204,7 @@ describe('unixfs-format', () => {
 
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', { secs: 0, nsecs: 0 })
+    expect(unmarshaled).to.not.have.property('mtime')
   })
 
   it('mtime as date', () => {
@@ -292,7 +292,7 @@ describe('unixfs-format', () => {
 
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', { secs: 0, nsecs: 0 })
+    expect(unmarshaled).to.not.have.property('mtime')
   })
 
   it('ignores invalid mtime set outside of constructor', () => {
@@ -303,10 +303,10 @@ describe('unixfs-format', () => {
 
     const marshaled = entry.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', { secs: 0, nsecs: 0 })
+    expect(unmarshaled).to.not.have.property('mtime')
   })
 
-  it('survies null mtime', () => {
+  it('survives null mtime', () => {
     const entry = new UnixFS({
       type: 'file'
     })
@@ -314,7 +314,7 @@ describe('unixfs-format', () => {
 
     const marshaled = entry.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', { secs: 0, nsecs: 0 })
+    expect(unmarshaled).to.not.have.property('mtime')
   })
 
   it('does not overwrite unknown mode bits', () => {

@@ -33,15 +33,12 @@ async function * importBuffer (file, source, ipld, options) {
         opts.codec = 'raw'
         opts.cidVersion = 1
       } else {
-        unixfs = new UnixFS(options.leafType, buffer)
-
-        if (file.mtime) {
-          unixfs.mtime = file.mtime
-        }
-
-        if (file.mode) {
-          unixfs.mode = file.mode
-        }
+        unixfs = new UnixFS({
+          type: options.leafType,
+          data: buffer,
+          mtime: file.mtime,
+          mode: file.mode
+        })
 
         node = new DAGNode(unixfs.marshal())
       }
@@ -96,15 +93,11 @@ const reduce = (file, ipld, options) => {
     }
 
     // create a parent node and add all the leaves
-    const f = new UnixFS('file')
-
-    if (file.mtime) {
-      f.mtime = file.mtime
-    }
-
-    if (file.mode) {
-      f.mode = file.mode
-    }
+    const f = new UnixFS({
+      type: 'file',
+      mtime: file.mtime,
+      mode: file.mode
+    })
 
     const links = leaves
       .filter(leaf => {

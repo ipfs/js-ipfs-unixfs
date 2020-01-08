@@ -29,7 +29,6 @@ const defaultOptions = {
   wrapWithDirectory: false,
   pin: true,
   recursive: false,
-  ignore: null, // []
   hidden: false,
   preload: true
 }

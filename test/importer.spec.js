@@ -29,6 +29,16 @@ function stringifyMh (files) {
   })
 }
 
+function dateToTimespec (date) {
+  const ms = date.getTime()
+  const secs = Math.floor(ms / 1000)
+
+  return {
+    secs,
+    nsecs: (ms - (secs * 1000)) * 1000
+  }
+}
+
 const baseFiles = {
   '200Bytes.txt': {
     cid: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
@@ -681,7 +691,7 @@ strategies.forEach((strategy) => {
       const options = {
         rawLeaves: true
       }
-      const now = parseInt(Date.now() / 1000)
+      const now = new Date()
 
       for await (const file of importer([{
         path: '1.2MiB.txt',
@@ -690,14 +700,14 @@ strategies.forEach((strategy) => {
       }], ipld, options)) {
         const node = await exporter(file.cid, ipld)
 
-        expect(node.unixfs.mtime).to.equal(now)
+        expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
       }
     })
 
     it('supports passing mtime for directories', async () => {
       this.timeout(60 * 1000)
 
-      const now = parseInt(Date.now() / 1000)
+      const now = new Date()
 
       const entries = await all(importer([{
         path: '/foo',
@@ -705,14 +715,14 @@ strategies.forEach((strategy) => {
       }], ipld))
 
       const node = await exporter(entries[0].cid, ipld)
-      expect(node.unixfs.mtime).to.equal(now)
+      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
     })
 
     it('supports passing metadata for wrapping directories', async () => {
       this.timeout(60 * 1000)
 
-      const now = parseInt(Date.now() / 1000)
-      const perms = parseInt('0777', 8)
+      const now = new Date()
+      const perms = 0o0777
 
       const entries = await all(importer([{
         path: '/foo',
@@ -730,15 +740,15 @@ strategies.forEach((strategy) => {
         expect.fail('no directory found')
       }
 
-      expect(node.unixfs.mtime).to.equal(now)
-      expect(node.unixfs.mode).to.equal(perms)
+      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
     it('supports passing metadata for intermediate directories', async () => {
       this.timeout(60 * 1000)
 
-      const now = parseInt(Date.now() / 1000)
-      const perms = parseInt('0777', 8)
+      const now = new Date()
+      const perms = 0o0777
 
       const entries = await all(importer([{
         path: '/foo/bar',
@@ -756,15 +766,15 @@ strategies.forEach((strategy) => {
         expect.fail('no directory found')
       }
 
-      expect(node.unixfs.mtime).to.equal(now)
-      expect(node.unixfs.mode).to.equal(perms)
+      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
     it('supports passing metadata for out of order intermediate directories', async () => {
       this.timeout(60 * 1000)
 
-      const now = parseInt(Date.now() / 1000)
-      const perms = parseInt('0777', 8)
+      const now = new Date()
+      const perms = 0o0777
 
       const entries = await all(importer([{
         path: '/foo/bar/qux.txt',
@@ -787,14 +797,14 @@ strategies.forEach((strategy) => {
         expect.fail('no directory found')
       }
 
-      expect(node.unixfs.mtime).to.equal(now)
-      expect(node.unixfs.mode).to.equal(perms)
+      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
     it('supports passing mtime for hamt-sharded-directories', async () => {
       this.timeout(60 * 1000)
 
-      const now = parseInt(Date.now() / 1000)
+      const now = new Date()
 
       const entries = await all(importer([{
         path: '/foo',
@@ -818,7 +828,7 @@ strategies.forEach((strategy) => {
         expect.fail('no hamt-sharded-directory found')
       }
 
-      expect(node.unixfs.mtime).to.equal(now)
+      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
     })
 
     it('supports passing mode', async () => {
@@ -827,7 +837,7 @@ strategies.forEach((strategy) => {
       const options = {
         rawLeaves: true
       }
-      const mode = parseInt('0111', 8)
+      const mode = 0o0111
 
       for await (const file of importer([{
         path: '1.2MiB.txt',
@@ -836,14 +846,14 @@ strategies.forEach((strategy) => {
       }], ipld, options)) {
         const node = await exporter(file.cid, ipld)
 
-        expect(node.unixfs.mode).to.equal(mode)
+        expect(node).to.have.nested.property('unixfs.mode', mode)
       }
     })
 
     it('supports passing mode for directories', async () => {
       this.timeout(60 * 1000)
 
-      const mode = parseInt('0111', 8)
+      const mode = 0o0111
 
       const entries = await all(importer([{
         path: '/foo',
@@ -851,14 +861,14 @@ strategies.forEach((strategy) => {
       }], ipld))
 
       const node = await exporter(entries[0].cid, ipld)
-      expect(node.unixfs.mode).to.equal(mode)
+      expect(node).to.have.nested.property('unixfs.mode', mode)
     })
 
     it('supports passing different modes for different files', async () => {
       this.timeout(60 * 1000)
 
-      const mode1 = parseInt('0111', 8)
-      const mode2 = parseInt('0222', 8)
+      const mode1 = 0o0111
+      const mode2 = 0o0222
 
       const entries = await all(importer([{
         path: '/foo/file1.txt',
@@ -871,16 +881,16 @@ strategies.forEach((strategy) => {
       }], ipld))
 
       const node1 = await exporter(entries[0].cid, ipld)
-      expect(node1.unixfs.mode).to.equal(mode1)
+      expect(node1).to.have.nested.property('unixfs.mode', mode1)
 
       const node2 = await exporter(entries[1].cid, ipld)
-      expect(node2.unixfs.mode).to.equal(mode2)
+      expect(node2).to.have.nested.property('unixfs.mode', mode2)
     })
 
     it('supports deeply nested files do not inherit custom metadata', async () => {
       this.timeout(60 * 1000)
 
-      const mode = parseInt('0111', 8)
+      const mode = 0o0111
 
       const entries = await all(importer([{
         path: '/foo/file1.txt',
@@ -892,13 +902,13 @@ strategies.forEach((strategy) => {
       }], ipld))
 
       const node1 = await exporter(entries[0].cid, ipld)
-      expect(node1.unixfs.mode).to.equal(mode)
+      expect(node1).to.have.nested.property('unixfs.mode', mode)
 
       const node2 = await exporter(entries[1].cid, ipld)
-      expect(node2.unixfs.mode).to.not.equal(mode)
+      expect(node2).to.have.nested.property('unixfs.mode').that.does.not.equal(mode)
     })
 
-    it('files and directories get default metadata if not specified', async () => {
+    it('files and directories get default mode if not specified', async () => {
       this.timeout(60 * 1000)
 
       const entries = await all(importer([{
@@ -907,12 +917,10 @@ strategies.forEach((strategy) => {
       }], ipld))
 
       const node1 = await exporter(entries[0].cid, ipld)
-      expect(node1.unixfs.mode).to.equal(parseInt('0644', 8))
-      expect(node1.unixfs.mtime).to.be.undefined()
+      expect(node1).to.have.nested.property('unixfs.mode', 0o0644)
 
       const node2 = await exporter(entries[1].cid, ipld)
-      expect(node2.unixfs.mode).to.equal(parseInt('0755', 8))
-      expect(node2.unixfs.mtime).to.be.undefined()
+      expect(node2).to.have.nested.property('unixfs.mode', 0o0755)
     })
   })
 })

@@ -7,15 +7,11 @@ const {
 } = require('ipld-dag-pb')
 
 const dirBuilder = async (item, ipld, options) => {
-  const unixfs = new UnixFS('directory')
-
-  if (item.mtime) {
-    unixfs.mtime = item.mtime
-  }
-
-  if (item.mode) {
-    unixfs.mode = item.mode
-  }
+  const unixfs = new UnixFS({
+    type: 'directory',
+    mtime: item.mtime,
+    mode: item.mode
+  })
 
   const node = new DAGNode(unixfs.marshal(), [])
   const cid = await persist(node, ipld, options)

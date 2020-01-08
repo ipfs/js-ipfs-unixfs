@@ -141,17 +141,14 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
   // go-ipfs uses little endian, that's why we have to
   // reverse the bit field before storing it
   const data = Buffer.from(children.bitField().reverse())
-  const dir = new UnixFS('hamt-sharded-directory', data)
-  dir.fanout = bucket.tableSize()
-  dir.hashType = options.hamtHashFn.code
-
-  if (shardRoot && shardRoot.mtime) {
-    dir.mtime = shardRoot.mtime
-  }
-
-  if (shardRoot && shardRoot.mode) {
-    dir.mode = shardRoot.mode
-  }
+  const dir = new UnixFS({
+    type: 'hamt-sharded-directory',
+    data,
+    fanout: bucket.tableSize(),
+    hashType: options.hamtHashFn.code,
+    mtime: shardRoot && shardRoot.mtime,
+    mode: shardRoot && shardRoot.mode
+  })
 
   const node = new DAGNode(dir.marshal(), links)
   const cid = await persist(node, ipld, options)

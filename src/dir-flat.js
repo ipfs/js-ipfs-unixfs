@@ -68,15 +68,11 @@ class DirFlat extends Dir {
       links.push(new DAGLink(children[i], child.node.length || child.node.size, child.cid))
     }
 
-    const unixfs = new UnixFS('directory')
-
-    if (this.mtime) {
-      unixfs.mtime = this.mtime
-    }
-
-    if (this.mode) {
-      unixfs.mode = this.mode
-    }
+    const unixfs = new UnixFS({
+      type: 'directory',
+      mtime: this.mtime,
+      mode: this.mode
+    })
 
     const node = new DAGNode(unixfs.marshal(), links)
     const cid = await persist(node, ipld, this.options)

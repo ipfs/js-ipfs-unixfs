@@ -36,6 +36,7 @@ The UnixFS spec can be found inside the [ipfs/specs repository](http://github.co
     - [get total fileSize](#get-total-filesize)
     - [marshal and unmarshal](#marshal-and-unmarshal)
     - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
+    - [has an mtime been set?](#has-an-mtime-been-set)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -116,7 +117,12 @@ message Data {
   optional uint64 hashType = 5;
   optional uint64 fanout = 6;
   optional uint32 mode = 7;
-  optional int64 mtime = 8;
+  optional UnixTime mtime = 8;
+}
+
+message UnixTime {
+  required int64 Seconds = 1;
+  optional fixed32 FractionalNanoseconds = 2;
 }
 
 message Metadata {
@@ -142,7 +148,7 @@ const data = new UnixFS([options])
 - data (Buffer): The optional data field for this node
 - blockSizes (Array, default: `[]`): If this is a `file` node that is made up of multiple blocks, `blockSizes` is a list numbers that represent the size of the file chunks stored in each child node. It is used to calculate the total file size.
 - mode (Number, default `0644` for files, `0755` for directories/hamt-sharded-directories) file mode
-- mtime (Date, { secs, nsecs }, { EpochSeconds, EpochNanoseconds }, [ secs, nsecs ], default { secs: 0 }): The modification time of this node
+- mtime (Date, { secs, nsecs }, { Seconds, FractionalNanoseconds }, [ secs, nsecs ], default { secs: 0 }): The modification time of this node
 
 #### add and remove a block size to the block size list
 
@@ -175,6 +181,20 @@ dir.isDirectory() // true
 
 const file = new Data({ type: 'file' })
 file.isDirectory() // false
+```
+
+#### has an mtime been set?
+
+If no modification time has been set, no `mtime` property will be present on the `Data` instance:
+
+```JavaScript
+const file = new Data({ type: 'file' })
+file.mtime // undefined
+
+Object.prototype.hasOwnProperty.call(file, 'mtime') // false
+
+const dir = new Data({ type: 'dir', mtime: new Date() })
+dir.mtime // { secs: Number, nsecs: Number }
 ```
 
 ## Contribute

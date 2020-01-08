@@ -1,3 +1,25 @@
+# [0.3.0](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.2.0...v0.3.0) (2020-01-08)
+
+
+### Bug Fixes
+
+* address PR comments, refactor to modern class ([45b0b30](https://github.com/ipfs/js-ipfs-unixfs/commit/45b0b30427ed7471a9df681c72528a54243534b5))
+* allow mtime and mode to be optional ([00e5ea0](https://github.com/ipfs/js-ipfs-unixfs/commit/00e5ea0567b4a3441b0b908b252de3eeac099805))
+* mask file mode ([#39](https://github.com/ipfs/js-ipfs-unixfs/issues/39)) ([09fd4ed](https://github.com/ipfs/js-ipfs-unixfs/commit/09fd4edfd01c1744052f8db1c36f9641e865507b))
+* remove boolean trap constructor and update readme ([9517501](https://github.com/ipfs/js-ipfs-unixfs/commit/9517501c325887fa80db8deca6ee8cb967473314))
+* unsaved file buffer ([04ea7a1](https://github.com/ipfs/js-ipfs-unixfs/commit/04ea7a1fc61b0b6ce5035d65253675e2b4908b33))
+* update protons to latest version ([e232acf](https://github.com/ipfs/js-ipfs-unixfs/commit/e232acf8f1f2c45c6eae791468c56c844f185d82))
+* use correct field index ([397931e](https://github.com/ipfs/js-ipfs-unixfs/commit/397931ee0bd0e28055c51f006234788b2e2b6d57))
+* values are required, containing types are not ([3a86a0b](https://github.com/ipfs/js-ipfs-unixfs/commit/3a86a0b5b2801b7429c88b986c96f92c89baf694))
+
+
+### Features
+
+* return mtime as Date object ([a6c4208](https://github.com/ipfs/js-ipfs-unixfs/commit/a6c4208566632b6e718b0bd3b9a9999cab0e3dc2))
+* store time as timespec ([#40](https://github.com/ipfs/js-ipfs-unixfs/issues/40)) ([8adc245](https://github.com/ipfs/js-ipfs-unixfs/commit/8adc2458747e81cb15703c83cd29fa82c635ec8c))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/v0.1.16...v0.2.0) (2019-11-18)
 

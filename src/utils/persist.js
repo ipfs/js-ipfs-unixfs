@@ -9,6 +9,10 @@ const persist = (node, ipld, options) => {
     options.codec = 'raw'
   }
 
+  if (!options.codec) {
+    options.codec = 'dag-pb'
+  }
+
   if (isNaN(options.hashAlg)) {
     options.hashAlg = mh.names[options.hashAlg]
   }

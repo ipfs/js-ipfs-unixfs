@@ -1,3 +1,13 @@
+<a name="0.43.1"></a>
+## [0.43.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.43.0...v0.43.1) (2020-01-09)
+
+
+### Bug Fixes
+
+* specify default codec ([4b79619](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/4b79619))
+
+
+
 <a name="0.43.0"></a>
 # [0.43.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.42.0...v0.43.0) (2020-01-08)
 

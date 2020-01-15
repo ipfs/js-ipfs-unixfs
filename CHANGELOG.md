@@ -1,3 +1,13 @@
+<a name="0.44.0"></a>
+# [0.44.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.43.1...v0.44.0) (2020-01-15)
+
+
+### Features
+
+* allow overriding of internal functions ([#48](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/48)) ([0bff5f2](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/0bff5f2))
+
+
+
 <a name="0.43.1"></a>
 ## [0.43.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.43.0...v0.43.1) (2020-01-09)
 

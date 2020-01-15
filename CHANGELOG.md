@@ -1,3 +1,12 @@
+# [0.41.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.40.0...v0.41.0) (2020-01-15)
+
+
+### Features
+
+* support exporting nodes encoded with the identity hash ([#27](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues/27)) ([4a02ee7](https://github.com/ipfs/js-ipfs-unixfs-exporter/commit/4a02ee7d7095c6761012f31ad2faddcbd9a6d272))
+
+
+
 <a name="0.40.0"></a>
 # [0.40.0](https://github.com/ipfs/js-ipfs-unixfs-exporter/compare/v0.39.0...v0.40.0) (2020-01-08)
 

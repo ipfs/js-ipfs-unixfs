@@ -49,7 +49,6 @@
     "ipld-in-memory": "^3.0.0",
     "ipfs-unixfs-importer": "^0.42.0",
     "multicodec": "^1.0.0",
-    "multihashes": "^0.4.14",
     "nyc": "^15.0.0",
     "sinon": "^8.0.4"
   },

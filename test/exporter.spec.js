@@ -12,7 +12,7 @@ const {
   DAGNode,
   DAGLink
 } = require('ipld-dag-pb')
-const mh = require('multihashes')
+const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
 const exporter = require('../src')
 const importer = require('ipfs-unixfs-importer')
@@ -38,7 +38,10 @@ describe('exporter', () => {
     options.content = options.content || Buffer.from([0x01, 0x02, 0x03])
     options.links = options.links || []
 
-    const file = new UnixFS(options.type, options.content)
+    const file = new UnixFS({
+      type: options.type,
+      data: options.content
+    })
 
     const node = new DAGNode(file.marshal(), options.links)
     const cid = await ipld.put(node, mc.DAG_PB, {
@@ -190,7 +193,10 @@ describe('exporter', () => {
 
   it('exports a small file with links', async () => {
     const content = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    const chunk1 = new UnixFS('raw', content.slice(0, 5))
+    const chunk1 = new UnixFS({
+      type: 'raw',
+      data: content.slice(0, 5)
+    })
     const chunkNode1 = new DAGNode(chunk1.marshal())
     const chunkCid1 = await ipld.put(chunkNode1, mc.DAG_PB, {
       cidVersion: 0,
@@ -204,7 +210,9 @@ describe('exporter', () => {
       hashAlg: mh.names['sha2-256']
     })
 
-    const file = new UnixFS('file')
+    const file = new UnixFS({
+      type: 'file'
+    })
     file.addBlockSize(5)
     file.addBlockSize(5)
 
@@ -830,7 +838,9 @@ describe('exporter', () => {
       foo: 'bar'
     }, mc.DAG_CBOR)
 
-    const file = new UnixFS('file')
+    const file = new UnixFS({
+      type: 'file'
+    })
     file.addBlockSize(100)
 
     const cid = await ipld.put(new DAGNode(file.marshal(), [
@@ -890,5 +900,57 @@ describe('exporter', () => {
     expect(exported[4].depth).to.equal(1)
     expect(exported[4].name).to.equal('qux.txt')
     expect(exported[4].path).to.equal(`${dirCid}/qux.txt`)
+  })
+
+  it('exports a CID encoded with the identity hash', async () => {
+    const data = Buffer.from('hello world')
+    const hash = mh.encode(data, 'identity')
+    const cid = new CID(1, 'identity', hash)
+
+    const exported = await exporter(cid, ipld)
+    const result = Buffer.concat(await all(exported.content()))
+
+    expect(result).to.deep.equal(data)
+    expect(result.toString('utf8')).to.equal('hello world')
+  })
+
+  it('exports a CID encoded with the identity hash with an offset', async () => {
+    const data = Buffer.from('hello world')
+    const hash = mh.encode(data, 'identity')
+    const cid = new CID(1, 'identity', hash)
+
+    const exported = await exporter(cid, ipld)
+    const result = Buffer.concat(await all(exported.content({
+      offset: 1
+    })))
+
+    expect(result.toString('utf8')).to.equal('ello world')
+  })
+
+  it('exports a CID encoded with the identity hash with a length', async () => {
+    const data = Buffer.from('hello world')
+    const hash = mh.encode(data, 'identity')
+    const cid = new CID(1, 'identity', hash)
+
+    const exported = await exporter(cid, ipld)
+    const result = Buffer.concat(await all(exported.content({
+      length: 1
+    })))
+
+    expect(result.toString('utf8')).to.equal('h')
+  })
+
+  it('exports a CID encoded with the identity hash with an offset and a length', async () => {
+    const data = Buffer.from('hello world')
+    const hash = mh.encode(data, 'identity')
+    const cid = new CID(1, 'identity', hash)
+
+    const exported = await exporter(cid, ipld)
+    const result = Buffer.concat(await all(exported.content({
+      offset: 3,
+      length: 1
+    })))
+
+    expect(result.toString('utf8')).to.equal('l')
   })
 })

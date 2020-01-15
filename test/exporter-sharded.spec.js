@@ -7,7 +7,7 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
-const mh = require('multihashes')
+const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
 const all = require('async-iterator-all')
 const last = require('async-iterator-last')
@@ -184,7 +184,7 @@ describe('exporter sharded', function () {
   it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
     const dirCid = await createShard(15)
 
-    const node = new DAGNode(new UnixFS('directory').marshal(), [
+    const node = new DAGNode(new UnixFS({ type: 'directory' }).marshal(), [
       new DAGLink('shard', 5, dirCid)
     ])
     const nodeCid = await ipld.put(node, mc.DAG_PB, {
@@ -192,7 +192,7 @@ describe('exporter sharded', function () {
       hashAlg: mh.names['sha2-256']
     })
 
-    const shardNode = new DAGNode(new UnixFS('hamt-sharded-directory').marshal(), [
+    const shardNode = new DAGNode(new UnixFS({ type: 'hamt-sharded-directory' }).marshal(), [
       new DAGLink('75normal-dir', 5, nodeCid)
     ])
     const shardNodeCid = await ipld.put(shardNode, mc.DAG_PB, {

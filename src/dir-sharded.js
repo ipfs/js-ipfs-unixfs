@@ -107,7 +107,7 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
         shard = subShard
       }
 
-      links.push(new DAGLink(labelPrefix, shard.node.size, shard.cid))
+      links.push(new DAGLink(labelPrefix, shard.size, shard.cid))
     } else if (typeof child.value.flush === 'function') {
       const dir = child.value
       let flushedDir
@@ -119,7 +119,7 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
       }
 
       const label = labelPrefix + child.key
-      links.push(new DAGLink(label, flushedDir.node.size, flushedDir.cid))
+      links.push(new DAGLink(label, flushedDir.size, flushedDir.cid))
     } else {
       const value = child.value
 
@@ -155,8 +155,8 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
 
   yield {
     cid,
-    node,
     unixfs: dir,
-    path
+    path,
+    size: node.size
   }
 }

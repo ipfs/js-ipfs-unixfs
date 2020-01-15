@@ -924,3 +924,64 @@ strategies.forEach((strategy) => {
     })
   })
 })
+
+describe('configuration', () => {
+  it('alllows configuring with custom dag and tree builder', async () => {
+    let builtTree = false
+    const ipld = 'ipld'
+    const entries = await all(importer([{
+      path: 'path',
+      content: 'content'
+    }], ipld, {
+      dagBuilder: async function * (source, ipld, opts) { // eslint-disable-line require-await
+        yield function () {
+          return Promise.resolve({
+            cid: 'cid',
+            path: 'path',
+            unixfs: 'unixfs'
+          })
+        }
+      },
+      treeBuilder: async function * (source, ipld, opts) { // eslint-disable-line require-await
+        builtTree = true
+        yield * source
+      }
+    }))
+
+    expect(entries).to.have.lengthOf(1)
+    expect(entries).to.have.nested.property('[0].cid', 'cid')
+    expect(entries).to.have.nested.property('[0].path', 'path')
+    expect(entries).to.have.nested.property('[0].unixfs', 'unixfs')
+
+    expect(builtTree).to.be.true()
+  })
+
+  it('alllows configuring with custom chunker', async () => {
+    let validated = false
+    let chunked = false
+    const ipld = {
+      put: () => 'cid'
+    }
+    const entries = await all(importer([{
+      path: 'path',
+      content: 'content'
+    }], ipld, {
+      chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
+        validated = true
+        yield * source
+      },
+      chunker: async function * (source, opts) { // eslint-disable-line require-await
+        chunked = true
+        yield * source
+      }
+    }))
+
+    expect(entries).to.have.lengthOf(1)
+    expect(entries).to.have.nested.property('[0].cid', 'cid')
+    expect(entries).to.have.nested.property('[0].path', 'path')
+    expect(entries).to.have.nested.property('[0].unixfs')
+
+    expect(validated).to.be.true()
+    expect(chunked).to.be.true()
+  })
+})

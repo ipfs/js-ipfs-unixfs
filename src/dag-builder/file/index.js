@@ -16,49 +16,18 @@ const dagBuilders = {
   trickle: require('./trickle')
 }
 
-async function * importBuffer (file, source, ipld, options) {
-  for await (const buffer of source) {
-    yield async () => {
-      options.progress(buffer.length)
-      let node
-      let unixfs
-
-      const opts = {
-        ...options
-      }
-
-      if (options.rawLeaves) {
-        node = buffer
-
-        opts.codec = 'raw'
-        opts.cidVersion = 1
-      } else {
-        unixfs = new UnixFS({
-          type: options.leafType,
-          data: buffer,
-          mtime: file.mtime,
-          mode: file.mode
-        })
-
-        node = new DAGNode(unixfs.marshal())
-      }
-
-      const cid = await persist(node, ipld, opts)
-
-      return {
-        cid: cid,
-        unixfs,
-        node
-      }
-    }
-  }
-}
-
 async function * buildFileBatch (file, source, ipld, options) {
   let count = -1
   let previous
+  let bufferImporter
 
-  for await (const entry of parallelBatch(importBuffer(file, source, ipld, options), options.blockWriteConcurrency)) {
+  if (typeof options.bufferImporter === 'function') {
+    bufferImporter = options.bufferImporter
+  } else {
+    bufferImporter = require('./buffer-importer')
+  }
+
+  for await (const entry of parallelBatch(bufferImporter(file, source, ipld, options), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -86,9 +55,8 @@ const reduce = (file, ipld, options) => {
       return {
         cid: leaf.cid,
         path: file.path,
-        name: (file.path || '').split('/').pop(),
         unixfs: leaf.unixfs,
-        node: leaf.node
+        size: leaf.size
       }
     }
 
@@ -101,7 +69,7 @@ const reduce = (file, ipld, options) => {
 
     const links = leaves
       .filter(leaf => {
-        if (leaf.cid.codec === 'raw' && leaf.node.length) {
+        if (leaf.cid.codec === 'raw' && leaf.size) {
           return true
         }
 
@@ -114,9 +82,9 @@ const reduce = (file, ipld, options) => {
       .map((leaf) => {
         if (leaf.cid.codec === 'raw') {
           // node is a leaf buffer
-          f.addBlockSize(leaf.node.length)
+          f.addBlockSize(leaf.size)
 
-          return new DAGLink(leaf.name, leaf.node.length, leaf.cid)
+          return new DAGLink(leaf.name, leaf.size, leaf.cid)
         }
 
         if (!leaf.unixfs.data) {
@@ -127,7 +95,7 @@ const reduce = (file, ipld, options) => {
           f.addBlockSize(leaf.unixfs.data.length)
         }
 
-        return new DAGLink(leaf.name, leaf.node.size, leaf.cid)
+        return new DAGLink(leaf.name, leaf.size, leaf.cid)
       })
 
     const node = new DAGNode(f.marshal(), links)
@@ -137,7 +105,6 @@ const reduce = (file, ipld, options) => {
       cid,
       path: file.path,
       unixfs: f,
-      node,
       size: node.size
     }
   }

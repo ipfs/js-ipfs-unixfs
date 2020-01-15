@@ -1,7 +1,5 @@
 'use strict'
 
-const dagBuilder = require('./dag-builder')
-const treeBuilder = require('./tree-builder')
 const parallelBatch = require('it-parallel-batch')
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
 
@@ -30,7 +28,9 @@ const defaultOptions = {
   pin: true,
   recursive: false,
   hidden: false,
-  preload: true
+  preload: true,
+  chunkValidator: null,
+  importBuffer: null
 }
 
 module.exports = async function * (source, ipld, options = {}) {
@@ -56,6 +56,22 @@ module.exports = async function * (source, ipld, options = {}) {
 
   if (options.format) {
     opts.codec = options.format
+  }
+
+  let dagBuilder
+
+  if (typeof options.dagBuilder === 'function') {
+    dagBuilder = options.dagBuilder
+  } else {
+    dagBuilder = require('./dag-builder')
+  }
+
+  let treeBuilder
+
+  if (typeof options.treeBuilder === 'function') {
+    treeBuilder = options.treeBuilder
+  } else {
+    treeBuilder = require('./tree-builder')
   }
 
   for await (const entry of treeBuilder(parallelBatch(dagBuilder(source, ipld, opts), opts.fileImportConcurrency), ipld, opts)) {

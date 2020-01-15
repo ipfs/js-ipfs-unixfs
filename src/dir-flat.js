@@ -65,7 +65,7 @@ class DirFlat extends Dir {
         }
       }
 
-      links.push(new DAGLink(children[i], child.node.length || child.node.size, child.cid))
+      links.push(new DAGLink(children[i], child.size, child.cid))
     }
 
     const unixfs = new UnixFS({
@@ -84,7 +84,7 @@ class DirFlat extends Dir {
       cid,
       unixfs,
       path,
-      node
+      size: node.size
     }
   }
 }

@@ -21,7 +21,7 @@ const dirBuilder = async (item, ipld, options) => {
     cid,
     path,
     unixfs,
-    node
+    size: node.size
   }
 }
 

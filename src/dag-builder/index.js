@@ -2,8 +2,6 @@
 
 const dirBuilder = require('./dir')
 const fileBuilder = require('./file')
-const createChunker = require('../chunker')
-const validateChunks = require('./validate-chunks')
 
 async function * dagBuilder (source, ipld, options) {
   for await (const entry of source) {
@@ -30,10 +28,26 @@ async function * dagBuilder (source, ipld, options) {
         }
       }
 
-      const chunker = createChunker(options.chunker, validateChunks(source), options)
+      let chunker
+
+      if (typeof options.chunker === 'function') {
+        chunker = options.chunker
+      } else if (options.chunker === 'rabin') {
+        chunker = require('../chunker/rabin')
+      } else {
+        chunker = require('../chunker/fixed-size')
+      }
+
+      let chunkValidator
+
+      if (typeof options.chunkValidator === 'function') {
+        chunkValidator = options.chunkValidator
+      } else {
+        chunkValidator = require('./validate-chunks')
+      }
 
       // item is a file
-      yield () => fileBuilder(entry, chunker, ipld, options)
+      yield () => fileBuilder(entry, chunker(chunkValidator(source, options), options), ipld, options)
     } else {
       // item is a directory
       yield () => dirBuilder(entry, ipld, options)

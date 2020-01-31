@@ -1,6 +1,6 @@
 'use strict'
 
-const BufferList = require('bl')
+const BufferList = require('bl/BufferList')
 
 module.exports = async function * fixedSizeChunker (source, options) {
   let bl = new BufferList()

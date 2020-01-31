@@ -1,6 +1,6 @@
 'use strict'
 
-const BufferList = require('bl')
+const BufferList = require('bl/BufferList')
 const { create } = require('rabin-wasm')
 const errcode = require('err-code')
 

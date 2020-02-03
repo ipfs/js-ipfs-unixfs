@@ -1,3 +1,13 @@
+<a name="0.44.1"></a>
+## [0.44.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.44.0...v0.44.1) (2020-02-03)
+
+
+### Performance Improvements
+
+* small bl ([#52](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/52)) ([3d461ce](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/3d461ce))
+
+
+
 <a name="0.44.0"></a>
 # [0.44.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.43.1...v0.44.0) (2020-01-15)
 

@@ -1,3 +1,21 @@
+<a name="0.45.0"></a>
+# [0.45.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.44.1...v0.45.0) (2020-02-04)
+
+
+### Bug Fixes
+
+* only output unixfs things ([#49](https://github.com/ipfs/js-ipfs-unixfs-importer/issues/49)) ([8ecdcf2](https://github.com/ipfs/js-ipfs-unixfs-importer/commit/8ecdcf2))
+
+
+### BREAKING CHANGES
+
+* If your data is below the chunk size, and you have `rawLeaves` and
+`reduceSingleLeafToSelf` set to true, you'll get a CID that resolves
+to a bona fide UnixFS file back with metadata and all that good
+stuff instead of a `dag-raw` node.
+
+
+
 <a name="0.44.1"></a>
 ## [0.44.1](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.44.0...v0.44.1) (2020-02-03)
 

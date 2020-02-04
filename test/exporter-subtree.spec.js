@@ -9,7 +9,7 @@ const inMemory = require('ipld-in-memory')
 const importer = require('ipfs-unixfs-importer')
 const mc = require('multicodec')
 const all = require('async-iterator-all')
-const last = require('async-iterator-last')
+const last = require('it-last')
 const randomBytes = require('async-iterator-buffer-stream')
 
 const ONE_MEG = Math.pow(1024, 2)

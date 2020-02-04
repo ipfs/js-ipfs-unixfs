@@ -17,7 +17,7 @@ const mc = require('multicodec')
 const exporter = require('../src')
 const importer = require('ipfs-unixfs-importer')
 const all = require('async-iterator-all')
-const last = require('async-iterator-last')
+const last = require('it-last')
 const first = require('async-iterator-first')
 const randomBytes = require('async-iterator-buffer-stream')
 

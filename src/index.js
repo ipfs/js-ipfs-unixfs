@@ -3,7 +3,7 @@
 const errCode = require('err-code')
 const CID = require('cids')
 const resolve = require('./resolvers')
-const last = require('async-iterator-last')
+const last = require('it-last')
 
 const toPathComponents = (path = '') => {
   // split on / unless escaped with \

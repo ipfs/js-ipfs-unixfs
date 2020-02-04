@@ -69,5 +69,5 @@ describe('custom chunker', function () {
       cid: await inmem.put(Buffer.from('hello world'), mc.RAW)
     }
   }
-  it('works with single part', fromPartsTest(single, 11))
+  it('works with single part', fromPartsTest(single, 19))
 })

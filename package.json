@@ -48,7 +48,6 @@
     "ipld-in-memory": "^3.0.0",
     "it-buffer-stream": "^1.0.0",
     "it-last": "^1.0.0",
-    "multihashes": "^0.4.14",
     "nyc": "^15.0.0",
     "sinon": "^8.0.4"
   },

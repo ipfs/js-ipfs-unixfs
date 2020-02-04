@@ -1,6 +1,6 @@
 'use strict'
 
-const mh = require('multihashes')
+const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
 
 const persist = (node, ipld, options) => {

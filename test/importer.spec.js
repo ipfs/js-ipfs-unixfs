@@ -260,7 +260,7 @@ strategies.forEach((strategy) => {
       type: 'directory'
     },
     '200Bytes.txt with raw leaves': extend({}, baseFiles['200Bytes.txt'], {
-      cid: 'zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q',
+      cid: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
       size: 200
     })
   }, strategyOverrides[strategy])

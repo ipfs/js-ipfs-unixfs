@@ -4,7 +4,7 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const mh = require('multihashes')
+const mh = require('multihashing-async').multihash
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')

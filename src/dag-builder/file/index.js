@@ -9,6 +9,7 @@ const {
 } = require('ipld-dag-pb')
 const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
+const mc = require('multicodec')
 
 const dagBuilders = {
   flat: require('./flat'),
@@ -51,6 +52,23 @@ const reduce = (file, ipld, options) => {
   return async function (leaves) {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
+
+      if (leaf.cid.codec === 'raw') {
+        // only one leaf node which is a buffer
+        const buffer = await ipld.get(leaf.cid)
+
+        leaf.unixfs = new UnixFS({
+          type: 'file',
+          mtime: file.mtime,
+          mode: file.mode,
+          data: buffer
+        })
+
+        const node = new DAGNode(leaf.unixfs.marshal())
+
+        leaf.cid = await ipld.put(node, mc.DAG_PB, options)
+        leaf.size = node.size
+      }
 
       return {
         cid: leaf.cid,

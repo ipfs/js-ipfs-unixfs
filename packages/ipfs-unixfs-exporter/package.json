@@ -1,0 +1,86 @@
+{
+  "name": "ipfs-unixfs-exporter",
+  "version": "0.41.1",
+  "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
+  "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
+  "main": "src/index.js",
+  "browser": {
+    "fs": false
+  },
+  "scripts": {
+    "test": "aegir test",
+    "test:node": "aegir test -t node",
+    "test:browser": "aegir test -t browser",
+    "test:webworker": "aegir test -t webworker",
+    "build": "aegir build",
+    "lint": "aegir lint",
+    "release": "aegir release",
+    "release-minor": "aegir release --type minor",
+    "release-major": "aegir release --type major",
+    "coverage": "nyc -s npm run test:node && nyc report --reporter=html",
+    "dep-check": "aegir dep-check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs-exporter.git"
+  },
+  "keywords": [
+    "IPFS"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ipfs/js-ipfs-unixfs-exporter/issues"
+  },
+  "engines": {
+    "node": ">=8.0.0",
+    "npm": ">=3.0.0"
+  },
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs-exporter#readme",
+  "devDependencies": {
+    "aegir": "^20.0.0",
+    "async-iterator-all": "^1.0.0",
+    "async-iterator-buffer-stream": "^1.0.0",
+    "async-iterator-first": "^1.0.0",
+    "chai": "^4.2.0",
+    "detect-node": "^2.0.4",
+    "dirty-chai": "^2.0.1",
+    "ipld": "^0.25.0",
+    "ipld-dag-pb": "^0.18.0",
+    "ipld-in-memory": "^3.0.0",
+    "ipfs-unixfs-importer": "^0.44.0",
+    "multicodec": "^1.0.0",
+    "nyc": "^15.0.0",
+    "sinon": "^8.0.4"
+  },
+  "dependencies": {
+    "cids": "^0.7.1",
+    "err-code": "^2.0.0",
+    "hamt-sharding": "^1.0.0",
+    "ipfs-unixfs": "^0.3.0",
+    "it-last": "^1.0.1",
+    "multihashing-async": "^0.8.0"
+  },
+  "contributors": [
+    "Alan Shaw <alan.shaw@protocol.ai>",
+    "Alan Shaw <alan@tableflip.io>",
+    "Arpit Agarwal <atvanguard@users.noreply.github.com>",
+    "Bernard Mordan <bernard@tableflip.io>",
+    "Dan Ordille <dordille@gmail.com>",
+    "David Dias <daviddias.p@gmail.com>",
+    "Diogo Silva <fsdiogo@gmail.com>",
+    "Francisco Baio Dias <xicombd@gmail.com>",
+    "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
+    "Greenkeeper <support@greenkeeper.io>",
+    "Marcin Rataj <lidel@lidel.org>",
+    "Pedro Teixeira <i@pgte.me>",
+    "Richard Littauer <richard.littauer@gmail.com>",
+    "Richard Schneider <makaretu@gmail.com>",
+    "Stephen Whitmore <stephen.whitmore@gmail.com>",
+    "Volker Mische <volker.mische@gmail.com>",
+    "achingbrain <alex@achingbrain.net>",
+    "greenkeeper[bot] <greenkeeper[bot]@users.noreply.github.com>",
+    "jbenet <juan@benet.ai>",
+    "nginnever <ginneversource@gmail.com>",
+    "ᴠɪᴄᴛᴏʀ ʙᴊᴇʟᴋʜᴏʟᴍ <victorbjelkholm@gmail.com>"
+  ]
+}

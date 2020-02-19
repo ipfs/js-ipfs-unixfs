@@ -15,10 +15,10 @@ os:
   - windows
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; which git ; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; git --version ; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; ls -l /c/PROGRA~1/Git/mingw64/libexec/git-core ; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then which git ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then git --version ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ls -l /c/PROGRA~1/Git/mingw64/libexec/git-core ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH ; fi
 
 script: npx nyc -s npm run test:node -- --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov

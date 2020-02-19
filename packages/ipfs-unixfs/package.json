@@ -14,7 +14,7 @@
     "test:webworker": "aegir test -t webworker",
     "build": "aegir build",
     "lint": "aegir lint",
-    "prepublishOnly": "aegir release --test=false --lint=false --bump=false --publish=false",
+    "prepublishOnly": "aegir release --test=false --lint=false --bump=false",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
     "depcheck": "aegir dep-check"
   },

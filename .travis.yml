@@ -45,13 +45,13 @@ jobs:
       name: firefox
       addons:
         firefox: latest
-      script: npm run test:browser -- --browsers FirefoxHeadless
+      script: npm run test:browser -- -- -- --browsers FirefoxHeadless
 
     - stage: test
       name: firefox webworker
       addons:
         firefox: latest
-      script: npm run test:webworker -- --browsers FirefoxHeadless
+      script: npm run test:webworker -- -- -- --browsers FirefoxHeadless
 
 notifications:
   email: false

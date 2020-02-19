@@ -19,6 +19,10 @@ after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codeco
 
 jobs:
   include:
+    - os: windows
+      before_install:
+        - export "PATH=/c/Program\ Files/Git/usr/bin:/c/Program\ Files/Git/mingw64/libexec/git-core:$PATH"
+
     - stage: check
       script:
         - npx aegir commitlint --travis

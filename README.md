@@ -1,4 +1,4 @@
-# ipfs-unixfs JavaScript Implementation <!-- omit in toc -->
+# ipfs-unixfs <!-- omit in toc -->
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
@@ -7,12 +7,10 @@
 [![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
 [![Deps](https://david-dm.org/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-unixfs)
 [![Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
-![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
-![](https://img.shields.io/badge/Node.js-%3E%3D8.0.0-orange.svg?style=flat-square)
 
 > JavaScript implementation of IPFS' UnixFS (a Unix FileSystem files representation on top of a MerkleDAG)
 
-The UnixFS spec can be found inside the [ipfs/specs repository](http://github.com/ipfs/specs)
+The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
 
 ## Lead Maintainer <!-- omit in toc -->
 

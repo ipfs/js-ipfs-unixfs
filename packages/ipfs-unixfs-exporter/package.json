@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs-exporter#readme",
   "devDependencies": {
-    "aegir": "^20.0.0",
+    "aegir": "^21.0.2",
     "async-iterator-all": "^1.0.0",
     "async-iterator-buffer-stream": "^1.0.0",
     "async-iterator-first": "^1.0.0",
@@ -51,7 +51,7 @@
     "sinon": "^8.0.4"
   },
   "dependencies": {
-    "cids": "^0.7.1",
+    "cids": "^0.7.3",
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^0.3.0",

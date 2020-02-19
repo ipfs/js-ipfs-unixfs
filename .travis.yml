@@ -44,7 +44,7 @@ jobs:
       script: npm run test:browser -- --browsers FirefoxHeadless
 
     - stage: test
-      name: firefox
+      name: firefox webworker
       addons:
         firefox: latest
       script: npm run test:webworker -- --browsers FirefoxHeadless

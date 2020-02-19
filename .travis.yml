@@ -21,6 +21,8 @@ jobs:
   include:
     - os: windows
       before_install:
+        - git --version
+        - ls -l /c/PROGRA~1/Git/mingw64/libexec/git-core
         - export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH
 
     - stage: check

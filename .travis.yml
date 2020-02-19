@@ -13,18 +13,17 @@ os:
   - linux
   - osx
   - windows
+    before_install:
+      - which git
+      - git --version
+      - ls -l /c/PROGRA~1/Git/mingw64/libexec/git-core
+      - export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH
 
 script: npx nyc -s npm run test:node -- --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
 jobs:
   include:
-    - os: windows
-      before_install:
-        - git --version
-        - ls -l /c/PROGRA~1/Git/mingw64/libexec/git-core
-        - export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH
-
     - stage: check
       script:
         - npx aegir commitlint --travis

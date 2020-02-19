@@ -1,0 +1,5 @@
+node_modules
+*.lcov
+.nyc_output
+*.log
+package-lock.json

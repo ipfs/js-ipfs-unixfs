@@ -6,7 +6,8 @@ stages:
   - cov
 
 node_js:
-  - '10'
+  - '12'
+  - '13'
 
 os:
   - linux
@@ -21,20 +22,32 @@ jobs:
     - stage: check
       script:
         - npx aegir commitlint --travis
-        - npx aegir dep-check
+        - npm run depcheck
         - npm run lint
 
     - stage: test
       name: chrome
       addons:
         chrome: stable
-      script: npx aegir test -t browser
+      script: npm run test:browser
+
+    - stage: test
+      name: chrome webworker
+      addons:
+        chrome: stable
+      script: npm run test:webworker
 
     - stage: test
       name: firefox
       addons:
         firefox: latest
-      script: npx aegir test -t browser -- --browsers FirefoxHeadless
+      script: npm run test:browser -- --browsers FirefoxHeadless
+
+    - stage: test
+      name: firefox
+      addons:
+        firefox: latest
+      script: npm run test:webworker -- --browsers FirefoxHeadless
 
 notifications:
   email: false

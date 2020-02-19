@@ -14,11 +14,9 @@
     "test:webworker": "aegir test -t webworker",
     "build": "aegir build",
     "lint": "aegir lint",
-    "release": "aegir release",
-    "release-minor": "aegir release --type minor",
-    "release-major": "aegir release --type major",
+    "prepublishOnly": "aegir release --test=false --lint=false --bump=false --publish=false",
     "coverage": "nyc -s npm run test:node && nyc report --reporter=html",
-    "dep-check": "aegir dep-check"
+    "depcheck": "aegir dep-check"
   },
   "repository": {
     "type": "git",

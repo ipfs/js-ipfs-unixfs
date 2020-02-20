@@ -58,6 +58,7 @@ jobs:
       name: release rc
       script:
         - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ../.npmrc
+        - npm whoami
         - npm run release:rc -- --yes
 
 notifications:

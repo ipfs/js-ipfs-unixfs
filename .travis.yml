@@ -56,7 +56,9 @@ jobs:
 
     - stage: release
       name: release rc
-      script: npm run release:rc -- --yes
+      script:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > ../.npmrc
+        - npm run release:rc -- --yes
 
 notifications:
   email: false

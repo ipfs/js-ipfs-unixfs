@@ -3,3 +3,4 @@ node_modules
 .nyc_output
 *.log
 package-lock.json
+.npmrc

@@ -17,31 +17,42 @@ The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/s
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Install](#install)
-  - [npm](#npm)
-  - [Use in Node.js](#use-in-nodejs)
-  - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify-webpack-or-any-other-bundler)
-  - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
-- [Usage](#usage)
-  - [Examples](#examples)
-    - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
-    - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
-- [API](#api)
-    - [UnixFS Data Structure](#unixfs-data-structure)
-    - [create an unixfs Data element](#create-an-unixfs-data-element)
-    - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
-    - [get total fileSize](#get-total-filesize)
-    - [marshal and unmarshal](#marshal-and-unmarshal)
-    - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
-    - [has an mtime been set?](#has-an-mtime-been-set)
+- [Structure](#structure)
+- [Development](#development)
+  - [Publishing new versions](#publishing-new-versions)
+  - [Publishing release candidates](#publishing-release-candidates)
 - [Contribute](#contribute)
 - [License](#license)
 
 ## Structure
 
+This project is broken into several modules, their purposes are:
+
 * `/packages/ipfs-unixfs` Serialization/deserialization of UnixFS objects to protocol buffers
 * `/packages/ipfs-unixfs-importer` Builds DAGs from files and directories
 * `/packages/ipfs-unixfs-exporter` Exports DAGs
+
+## Development
+
+1. Clone this repo
+2. Run `npm install`
+
+This will install lerna and bootstrap the various packages, dedpuing and hoisting dependencies into the root folder.
+
+If later you wish to remove all the `node_modules`/`dist` folders and start again, run `npm reset && npm install` from the root.
+
+See the scripts section of the root [`package.json`](./package.json) for more commands.
+
+### Publishing new versions
+
+1. Ensure you have a `GH_TOKEN` env var containing a GitHub [Personal Access Token](https://github.com/settings/tokens) with `public_repo` permissions
+2. From the root of this repo run `npm run release` and follow the on screen prompts.  It will use [conventional commits](https://www.conventionalcommits.org) to work out the new package version
+
+### Publishing release candidates
+
+To publish a release candidate use `npm run release:rc`.  This will result in version numbers similar to `0.4.4-rc.0+8d4b747` published under the npm tag `next`.
+
+To update an rc, run `npm run release:rc` again.
 
 ## Contribute
 

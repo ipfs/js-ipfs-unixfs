@@ -10,6 +10,11 @@
     },
     "run": {
       "stream": true
+    },
+    "publish": {
+      "message": "chore: publish",
+      "conventionalCommits": true,
+      "createRelease": "github"
     }
   }
 }

@@ -4,6 +4,7 @@ stages:
   - check
   - test
   - cov
+  - release
 
 node_js:
   - '12'
@@ -52,6 +53,10 @@ jobs:
       addons:
         firefox: latest
       script: npm run test:webworker -- -- -- --browsers FirefoxHeadless
+
+    - stage: release
+      name: release rc
+      script: npm run release:rc -- --yes
 
 notifications:
   email: false

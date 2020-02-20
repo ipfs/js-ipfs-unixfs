@@ -13,8 +13,8 @@
     "test:browser": "aegir test -t browser",
     "test:webworker": "aegir test -t webworker",
     "build": "aegir build",
+    "clean": "rm -rf ./dist",
     "lint": "aegir lint",
-    "prepublishOnly": "aegir release --test=false --lint=false --bump=false",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
     "depcheck": "aegir dep-check"
   },
@@ -30,12 +30,12 @@
     "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
   },
   "engines": {
-    "node": ">=6.0.0",
-    "npm": ">=3.0.0"
+    "node": ">=10.0.0",
+    "npm": ">=4.0.0"
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^21.0.2",
+    "aegir": "^21.3.0",
     "chai": "^4.2.0",
     "dirty-chai": "^2.0.1",
     "nyc": "^15.0.0"
@@ -43,17 +43,5 @@
   "dependencies": {
     "err-code": "^2.0.0",
     "protons": "^1.1.0"
-  },
-  "contributors": [
-    "David Dias <daviddias.p@gmail.com>",
-    "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
-    "JGAntunes <j.goncalo.antunes@gmail.com>",
-    "Marcin Rataj <lidel@lidel.org>",
-    "Mithgol <getgit@mithgol.ru>",
-    "Pedro Teixeira <i@pgte.me>",
-    "Richard Littauer <richard.littauer@gmail.com>",
-    "Richard Schneider <makaretu@gmail.com>",
-    "Victor Bjelkholm <victorbjelkholm@gmail.com>",
-    "achingbrain <alex@achingbrain.net>"
-  ]
+  }
 }

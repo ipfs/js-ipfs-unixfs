@@ -3,15 +3,10 @@
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
 [![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
-[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-[![Build Status](https://flat.badgen.net/travis/ipfs/js-ipfs-unixfs-exporter)](https://travis-ci.com/ipfs/js-ipfs-unixfs-exporter)
-[![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs-exporter/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs-exporter)
-[![Dependency Status](https://david-dm.org/ipfs/js-ipfs-unixfs-exporter.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-unixfs-exporter)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
-![](https://img.shields.io/badge/npm-%3E%3D3.0.0-orange.svg?style=flat-square)
-![](https://img.shields.io/badge/Node.js-%3E%3D8.0.0-orange.svg?style=flat-square)
+[![Build Status](https://flat.badgen.net/travis/ipfs/js-ipfs-unixfs)](https://travis-ci.com/ipfs/js-ipfs-unixfs)
+[![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
 
-> JavaScript implementation of the exporter used by IPFS to handle Files
+> Exports UnixFS and other DAGs from IPFS
 
 ## Lead Maintainer
 
@@ -30,7 +25,7 @@
       - [UnixFS V1 entries](#unixfs-v1-entries)
       - [Raw entries](#raw-entries)
       - [CBOR entries](#cbor-entries)
-      - [`entry.content({ offset, length })`](#entrycontent-offset-length)
+      - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
     - [`exporter.path(cid, ipld)`](#exporterpathcid-ipld)
     - [`exporter.recursive(cid, ipld)`](#exporterrecursivecid-ipld)
   - [Contribute](#contribute)

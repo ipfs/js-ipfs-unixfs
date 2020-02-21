@@ -61,6 +61,8 @@ jobs:
       script: npm run test:webworker -- -- -- --browsers FirefoxHeadless
 
     - stage: release
+      # only run on changes to master
+      if: branch = master AND type = push AND fork = false
       name: release rc
       script:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc

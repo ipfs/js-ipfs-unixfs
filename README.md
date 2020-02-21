@@ -37,9 +37,9 @@ This project is broken into several modules, their purposes are:
 1. Clone this repo
 2. Run `npm install`
 
-This will install lerna and bootstrap the various packages, dedpuing and hoisting dependencies into the root folder.
+This will install [lerna](https://www.npmjs.com/package/lerna) and bootstrap the various packages, dedpuing and hoisting dependencies into the root folder.
 
-If later you wish to remove all the `node_modules`/`dist` folders and start again, run `npm reset && npm install` from the root.
+If later you wish to remove all the `node_modules`/`dist` folders and start again, run `npm run reset && npm install` from the root.
 
 See the scripts section of the root [`package.json`](./package.json) for more commands.
 

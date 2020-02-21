@@ -28,9 +28,9 @@ The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/s
 
 This project is broken into several modules, their purposes are:
 
-* `/packages/ipfs-unixfs` Serialization/deserialization of UnixFS objects to protocol buffers
-* `/packages/ipfs-unixfs-importer` Builds DAGs from files and directories
-* `/packages/ipfs-unixfs-exporter` Exports DAGs
+* [`/packages/ipfs-unixfs`](./packages/ipfs-unixfs) Serialization/deserialization of UnixFS objects to protocol buffers
+* [`/packages/ipfs-unixfs-importer`](./packages/ipfs-unixfs-importer) Builds DAGs from files and directories
+* [`/packages/ipfs-unixfs-exporter`](./packages/ipfs-unixfs-exporter) Exports DAGs
 
 ## Development
 

@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# 1.0.0 (2020-02-21)
+
+**Note:** Version bump only for package ipfs-unixfs-importer
+
+
+
+
+
 <a name="0.45.0"></a>
 # [0.45.0](https://github.com/ipfs/js-ipfs-unixfs-importer/compare/v0.44.1...v0.45.0) (2020-02-04)
 
@@ -923,6 +936,3 @@ stuff instead of a `dag-raw` node.
 
 <a name="0.1.0"></a>
 # 0.1.0 (2016-02-12)
-
-
-

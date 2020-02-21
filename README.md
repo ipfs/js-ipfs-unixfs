@@ -20,7 +20,7 @@ The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/s
 - [Structure](#structure)
 - [Development](#development)
   - [Publishing new versions](#publishing-new-versions)
-  - [Publishing release candidates](#publishing-release-candidates)
+  - [Using prerelease versions](#using-prerelease-versions)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -48,11 +48,11 @@ See the scripts section of the root [`package.json`](./package.json) for more co
 1. Ensure you have a `GH_TOKEN` env var containing a GitHub [Personal Access Token](https://github.com/settings/tokens) with `public_repo` permissions
 2. From the root of this repo run `npm run release` and follow the on screen prompts.  It will use [conventional commits](https://www.conventionalcommits.org) to work out the new package version
 
-### Publishing release candidates
+### Using prerelease versions
 
-To publish a release candidate use `npm run release:rc`.  This will result in version numbers similar to `0.4.4-rc.0+8d4b747` published under the npm tag `next`.
+Any changed packages from each successful build of master are published to npm as canary builds under the npm tag `next`.
 
-To update an rc, run `npm run release:rc` again.
+Canary builds only consider changes to packages in the last built commit so changes to the root config files should not result in new prereleases being published to npm.
 
 ## Contribute
 

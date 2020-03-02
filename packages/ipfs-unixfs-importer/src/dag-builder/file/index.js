@@ -53,8 +53,9 @@ const reduce = (file, ipld, options) => {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (leaf.cid.codec === 'raw') {
-        // only one leaf node which is a buffer
+      if (leaf.cid.codec === 'raw' && (file.mtime !== undefined || file.mode !== undefined)) {
+        // only one leaf node which is a buffer - we have metadata so convert it into a
+        // UnixFS entry otherwise we'll have nowhere to store the metadata
         const buffer = await ipld.get(leaf.cid)
 
         leaf.unixfs = new UnixFS({

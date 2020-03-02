@@ -140,12 +140,22 @@ const strategyOverrides = {
       size: 2669627,
       type: 'directory'
     },
-    '200Bytes.txt with raw leaves': {
+    '200Bytes.txt with raw leaves': extend({}, baseFiles['200Bytes.txt'], {
       cid: 'QmagyRwMfYhczYNv5SvcJc8xxXjZQBTTHS2jEqNMva2mYT',
-      size: 200,
-      path: '200Bytes.txt',
-      type: 'file'
-    },
+      size: 200
+    }),
+    '200Bytes.txt with raw leaves and mode': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmRYYSoRkL9bh5gzbgHndWjt81TYnM4W7MjzTp8WWioLGB',
+      size: 200
+    }),
+    '200Bytes.txt with raw leaves and mtime': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmQ1QHqXqgxJ4qjJZouRdYG7pdS6yzdhSAq7dYAu9bN6h4',
+      size: 200
+    }),
+    '200Bytes.txt with raw leaves and metadata': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmWUpftnvHN1Ey5iGoaWwMUZPnViXeJctDSUkcvunkahFo',
+      size: 200
+    }),
     'foo/bar': {
       cid: 'QmTGMxKPzSGNBDp6jhTwnZxGW6w1S9ciyycRJ4b2qcQaHK',
       size: 0,
@@ -260,7 +270,18 @@ strategies.forEach((strategy) => {
       type: 'directory'
     },
     '200Bytes.txt with raw leaves': extend({}, baseFiles['200Bytes.txt'], {
-      cid: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
+      cid: 'zb2rhXrz1gkCv8p4nUDZRohY6MzBE9C3HVTVDP72g6Du3SD9Q'
+    }),
+    '200Bytes.txt with raw leaves and mode': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmWXbKV9BKJqd8x1NUw1myH987bURrn9Rna3rszYJgQwtX',
+      size: 200
+    }),
+    '200Bytes.txt with raw leaves and mtime': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmYfLToWgeJwrFFKideGNaS1zkmrow1a9o862sUL43NapC',
+      size: 200
+    }),
+    '200Bytes.txt with raw leaves and metadata': extend({}, baseFiles['200Bytes.txt'], {
+      cid: 'QmVfHowk2oKuWFyVwSRt8H1dQ3v272jyWSwhfQnTtWNmfw',
       size: 200
     })
   }, strategyOverrides[strategy])
@@ -440,6 +461,58 @@ strategies.forEach((strategy) => {
 
       expectFiles(files, [
         '200Bytes.txt with raw leaves'
+      ])
+    })
+
+    it('small file (smaller than a chunk) with raw leaves and mode', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile,
+        mode: 0o123
+      }], ipld, {
+        ...options,
+        rawLeaves: true
+      }))
+
+      expectFiles(files, [
+        '200Bytes.txt with raw leaves and mode'
+      ])
+    })
+
+    it('small file (smaller than a chunk) with raw leaves and mtime', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile,
+        mtime: {
+          secs: 10,
+          nsecs: 0
+        }
+      }], ipld, {
+        ...options,
+        rawLeaves: true
+      }))
+
+      expectFiles(files, [
+        '200Bytes.txt with raw leaves and mtime'
+      ])
+    })
+
+    it('small file (smaller than a chunk) with raw leaves and metadata', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile,
+        mode: 0o123,
+        mtime: {
+          secs: 10,
+          nsecs: 0
+        }
+      }], ipld, {
+        ...options,
+        rawLeaves: true
+      }))
+
+      expectFiles(files, [
+        '200Bytes.txt with raw leaves and metadata'
       ])
     })
 

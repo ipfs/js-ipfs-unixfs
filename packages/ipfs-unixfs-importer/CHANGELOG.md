@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@1.0.0...ipfs-unixfs-importer@1.0.1) (2020-03-03)
+
+
+### Bug Fixes
+
+* only ignore raw-leaves when file is small and metadata is present ([#44](https://github.com/ipfs/js-ipfs-unixfs/issues/44)) ([19bb45f](https://github.com/ipfs/js-ipfs-unixfs/commit/19bb45fd816d1e789e5715dfbb1988562708e76a))
+
+
+
+
+
 # 1.0.0 (2020-02-21)
 
 **Note:** Version bump only for package ipfs-unixfs-importer

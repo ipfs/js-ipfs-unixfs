@@ -62,6 +62,6 @@
     "merge-options": "^2.0.0",
     "multicodec": "^1.0.0",
     "multihashing-async": "^0.8.0",
-    "rabin-wasm": "~0.0.8"
+    "rabin-wasm": "^0.1.1"
   }
 }

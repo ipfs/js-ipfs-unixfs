@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@1.0.1...ipfs-unixfs-importer@1.0.2) (2020-03-09)
+
+
+### Bug Fixes
+
+* bump rabin-wasm ([#46](https://github.com/ipfs/js-ipfs-unixfs/issues/46)) ([07e160e](https://github.com/ipfs/js-ipfs-unixfs/commit/07e160eef53bc4868195cdbdfcea04f5f06131d0))
+
+
+
+
+
 ## [1.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@1.0.0...ipfs-unixfs-importer@1.0.1) (2020-03-03)
 
 

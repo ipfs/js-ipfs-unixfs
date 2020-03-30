@@ -44,7 +44,7 @@ const cidAndRest = (path) => {
   throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
 }
 
-const walkPath = async function * (path, ipld) {
+const walkPath = async function * (path, ipld, options) {
   let {
     cid,
     toResolve
@@ -54,7 +54,7 @@ const walkPath = async function * (path, ipld) {
   const startingDepth = toResolve.length
 
   while (true) {
-    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, ipld)
+    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, ipld, options)
 
     if (!result.entry && !result.next) {
       throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
@@ -76,27 +76,27 @@ const walkPath = async function * (path, ipld) {
   }
 }
 
-const exporter = (path, ipld) => {
-  return last(walkPath(path, ipld))
+const exporter = (path, ipld, options) => {
+  return last(walkPath(path, ipld, options))
 }
 
-const recursive = async function * (path, ipld) {
-  const node = await exporter(path, ipld)
+const recursive = async function * (path, ipld, options) {
+  const node = await exporter(path, ipld, options)
 
   yield node
 
   if (node.unixfs && node.unixfs.type.includes('dir')) {
-    for await (const child of recurse(node)) {
+    for await (const child of recurse(node, options)) {
       yield child
     }
   }
 
-  async function * recurse (node) {
-    for await (const file of node.content()) {
+  async function * recurse (node, options) {
+    for await (const file of node.content(options)) {
       yield file
 
       if (file.unixfs.type.includes('dir')) {
-        for await (const subFile of recurse(file)) {
+        for await (const subFile of recurse(file, options)) {
           yield subFile
         }
       }

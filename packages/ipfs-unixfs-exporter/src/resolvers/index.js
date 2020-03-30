@@ -9,14 +9,14 @@ const resolvers = {
   identity: require('./identity')
 }
 
-const resolve = (cid, name, path, toResolve, depth, ipld) => {
+const resolve = (cid, name, path, toResolve, depth, ipld, options) => {
   const resolver = resolvers[cid.codec]
 
   if (!resolver) {
     throw errCode(new Error(`No resolver for codec ${cid.codec}`), 'ERR_NO_RESOLVER')
   }
 
-  return resolver(cid, name, path, toResolve, resolve, depth, ipld)
+  return resolver(cid, name, path, toResolve, resolve, depth, ipld, options)
 }
 
 module.exports = resolve

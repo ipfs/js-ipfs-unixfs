@@ -5,7 +5,7 @@ const validateOffsetAndLength = require('../../../utils/validate-offset-and-leng
 const UnixFS = require('ipfs-unixfs')
 const errCode = require('err-code')
 
-async function * emitBytes (ipld, node, start, end, streamPosition = 0) {
+async function * emitBytes (ipld, node, start, end, streamPosition = 0, options) {
   // a `raw` node
   if (Buffer.isBuffer(node)) {
     const buf = extractDataFromBlock(node, streamPosition, start, end)
@@ -50,9 +50,9 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0) {
     if ((start >= childStart && start < childEnd) || // child has offset byte
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
-      const child = await ipld.get(childLink.Hash)
+      const child = await ipld.get(childLink.Hash, options)
 
-      for await (const buf of emitBytes(ipld, child, start, end, streamPosition)) {
+      for await (const buf of emitBytes(ipld, child, start, end, streamPosition, options)) {
         streamPosition += buf.length
 
         yield buf
@@ -76,7 +76,7 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
     const start = offset
     const end = offset + length
 
-    return emitBytes(ipld, node, start, end)
+    return emitBytes(ipld, node, start, end, 0, options)
   }
 }
 

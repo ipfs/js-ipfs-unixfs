@@ -35,11 +35,13 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
+    "abort-controller": "^3.0.0",
     "aegir": "^21.3.0",
     "async-iterator-all": "^1.0.0",
     "async-iterator-buffer-stream": "^1.0.0",
     "async-iterator-first": "^1.0.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-importer": "^1.0.2",

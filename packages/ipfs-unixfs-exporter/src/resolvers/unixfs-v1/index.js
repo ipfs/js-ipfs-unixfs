@@ -19,8 +19,8 @@ const contentExporters = {
   symlink: (cid, node, unixfs, path, resolve, depth, ipld) => {}
 }
 
-const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld) => {
-  const node = await ipld.get(cid)
+const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
+  const node = await ipld.get(cid, options)
   let unixfs
   let next
 
@@ -71,7 +71,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld) 
       path,
       cid,
       node,
-      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, ipld),
+      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, ipld, options),
       unixfs,
       depth
     },

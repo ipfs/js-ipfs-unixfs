@@ -42,6 +42,7 @@
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-exporter": "^1.0.3",
+    "ipfs-unixfs": "^1.0.1",
     "ipld": "^0.25.0",
     "ipld-in-memory": "^3.0.0",
     "it-buffer-stream": "^1.0.0",
@@ -53,7 +54,6 @@
     "bl": "^4.0.0",
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
-    "ipfs-unixfs": "^1.0.1",
     "ipld-dag-pb": "^0.18.0",
     "it-all": "^1.0.1",
     "it-batch": "^1.0.3",
@@ -63,5 +63,8 @@
     "multicodec": "^1.0.0",
     "multihashing-async": "^0.8.0",
     "rabin-wasm": "^0.1.1"
+  },
+  "peerDependencies": {
+    "ipfs-unixfs": "^1.0.1"
   }
 }

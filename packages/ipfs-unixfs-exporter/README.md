@@ -34,7 +34,7 @@
 ## Install
 
 ```
-> npm install ipfs-unixfs-exporter
+> npm install ipfs-unixfs-exporter ipfs-unixfs
 ```
 
 ## Usage

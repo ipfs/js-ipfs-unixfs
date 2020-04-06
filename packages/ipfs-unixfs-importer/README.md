@@ -26,7 +26,7 @@
 ## Install
 
 ```
-> npm install ipfs-unixfs-importer
+> npm install ipfs-unixfs-importer ipfs-unixfs
 ```
 
 ## Usage

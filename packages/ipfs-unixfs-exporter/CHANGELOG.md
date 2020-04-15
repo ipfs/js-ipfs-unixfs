@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@1.0.3...ipfs-unixfs-exporter@1.1.0) (2020-04-15)
+
+
+### Features
+
+* support aborting exports ([#47](https://github.com/ipfs/js-ipfs-unixfs/issues/47)) ([7685e44](https://github.com/ipfs/js-ipfs-unixfs/commit/7685e44ce47b6599d427bf177053fb9e16c43bce))
+
+
+
+
+
 ## [1.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@1.0.2...ipfs-unixfs-exporter@1.0.3) (2020-03-30)
 
 **Note:** Version bump only for package ipfs-unixfs-exporter

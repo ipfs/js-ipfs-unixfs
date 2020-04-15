@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -44,7 +44,7 @@
     "chai-as-promised": "^7.1.1",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
-    "ipfs-unixfs-importer": "^1.0.3",
+    "ipfs-unixfs-importer": "^1.0.4",
     "ipld": "^0.25.0",
     "ipld-dag-pb": "^0.18.0",
     "ipld-in-memory": "^3.0.0",

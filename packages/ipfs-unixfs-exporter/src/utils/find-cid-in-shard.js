@@ -62,7 +62,7 @@ const toBucketPath = (position) => {
   return path.reverse()
 }
 
-const findShardCid = async (node, name, ipld, context) => {
+const findShardCid = async (node, name, ipld, context, options) => {
   if (!context) {
     context = {
       rootBucket: new Bucket({
@@ -113,9 +113,9 @@ const findShardCid = async (node, name, ipld, context) => {
 
   context.hamtDepth++
 
-  node = await ipld.get(link.Hash)
+  node = await ipld.get(link.Hash, options)
 
-  return findShardCid(node, name, ipld, context)
+  return findShardCid(node, name, ipld, context, options)
 }
 
 module.exports = findShardCid

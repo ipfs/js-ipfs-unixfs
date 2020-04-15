@@ -3,6 +3,7 @@
 
 const chai = require('chai')
 chai.use(require('dirty-chai'))
+chai.use(require('chai-as-promised'))
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
@@ -20,6 +21,7 @@ const all = require('async-iterator-all')
 const last = require('it-last')
 const first = require('async-iterator-first')
 const randomBytes = require('async-iterator-buffer-stream')
+const AbortController = require('abort-controller')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -952,5 +954,36 @@ describe('exporter', () => {
     })))
 
     expect(result.toString('utf8')).to.equal('l')
+  })
+
+  it('aborts a request', async () => {
+    const abortController = new AbortController()
+
+    // data should not be in IPLD
+    const data = Buffer.from(`hello world '${Math.random()}`)
+    const hash = mh.encode(data, 'sha2-256')
+    const cid = new CID(1, 'dag-pb', hash)
+    const message = `User aborted ${Math.random()}`
+
+    setTimeout(() => {
+      abortController.abort()
+    }, 100)
+
+    // regular test IPLD is offline-only, we need to mimic what happens when
+    // we try to get a block from the network
+    const ipld = {
+      get: (cid, options) => {
+        // promise will never resolve, so reject it when the abort signal is sent
+        return new Promise((resolve, reject) => {
+          options.signal.addEventListener('abort', () => {
+            reject(new Error(message))
+          })
+        })
+      }
+    }
+
+    await expect(exporter(cid, ipld, {
+      signal: abortController.signal
+    })).to.eventually.be.rejectedWith(message)
   })
 })

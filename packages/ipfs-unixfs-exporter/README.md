@@ -21,7 +21,7 @@
   - [Usage](#usage)
     - [Example](#example)
       - [API](#api)
-    - [`exporter(cid, ipld)`](#exportercid-ipld)
+    - [`exporter(cid, ipld, options)`](#exportercid-ipld-options)
       - [UnixFS V1 entries](#unixfs-v1-entries)
       - [Raw entries](#raw-entries)
       - [CBOR entries](#cbor-entries)
@@ -85,11 +85,15 @@ console.info(content) // 0, 1, 2, 3
 const exporter = require('ipfs-unixfs-exporter')
 ```
 
-### `exporter(cid, ipld)`
+### `exporter(cid, ipld, options)`
 
-Uses the given [js-ipld instance][] to fetch an IPFS node by it's CID.
+Uses the given [ipld](https://github.com/ipld/js-ipld) instance to fetch an IPFS node by it's CID.
 
 Returns a Promise which resolves to an `entry`.
+
+`options` is an optional object argument that might include the following keys:
+
+- `signal` ([AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)): Used to cancel any network requests that are initiated as a result of this export
 
 #### UnixFS V1 entries
 

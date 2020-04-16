@@ -9,6 +9,7 @@ const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const mc = require('multicodec')
+const blockApi = require('./helpers/block')
 
 // eslint bug https://github.com/eslint/eslint/issues/12459
 // eslint-disable-next-line require-await
@@ -19,11 +20,12 @@ const iter = async function * () {
 
 describe('custom chunker', function () {
   let inmem
+  let block
 
   const fromPartsTest = (iter, size) => async () => {
     for await (const part of importer([{
       content: iter()
-    }], inmem, {
+    }], block, {
       chunkValidator: source => source,
       chunker: source => source,
       bufferImporter: async function * (file, source, ipld, options) {
@@ -38,12 +40,13 @@ describe('custom chunker', function () {
 
   before(async () => {
     inmem = await inMemory(IPLD)
+    block = blockApi(inmem)
   })
 
   it('keeps custom chunking', async () => {
     const chunker = source => source
     const content = iter()
-    for await (const part of importer([{ path: 'test', content }], inmem, {
+    for await (const part of importer([{ path: 'test', content }], block, {
       chunker
     })) {
       expect(part.size).to.equal(116)

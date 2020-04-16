@@ -140,6 +140,8 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
 - `blockWriteConcurrency` (positive integer, defaults to 10) How many blocks to hash and write to the block store concurrently. For small numbers of large files this should be high (e.g. 50).
 - `fileImportConcurrency` (number, defaults to 50) How many files to import concurrently. For large numbers of small files this should be high (e.g. 50).
+- `pin` (boolean, defaults to `false`) Whether to pin each block as it is created
+- `preload` (boolean, defaults to `false`) Whether to preload each block as it is created
 
 ## Overriding internals
 

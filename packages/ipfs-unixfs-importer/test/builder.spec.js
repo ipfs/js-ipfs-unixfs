@@ -10,15 +10,18 @@ const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
 const first = require('it-first')
+const blockApi = require('./helpers/block')
 
 describe('builder', () => {
   let ipld
+  let block
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
-  const testMultihashes = Object.keys(mh.names).slice(1, 40)
+  const testMultihashes = Object.keys(mh.names).slice(1, 10)
   const opts = {
     strategy: 'flat',
     chunker: 'fixed',
@@ -43,7 +46,7 @@ describe('builder', () => {
         content: Buffer.from(content)
       }
 
-      const imported = await (await first(builder([inputFile], ipld, options)))()
+      const imported = await (await first(builder([inputFile], block, options)))()
 
       expect(imported).to.exist()
 
@@ -74,7 +77,7 @@ describe('builder', () => {
         content: Buffer.alloc(262144 + 5).fill(1)
       }
 
-      const imported = await (await first(builder([inputFile], ipld, options)))()
+      const imported = await (await first(builder([inputFile], block, options)))()
 
       expect(imported).to.exist()
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
@@ -94,7 +97,7 @@ describe('builder', () => {
         content: null
       }
 
-      const imported = await (await first(builder([Object.assign({}, inputFile)], ipld, options)))()
+      const imported = await (await first(builder([Object.assign({}, inputFile)], block, options)))()
 
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
 

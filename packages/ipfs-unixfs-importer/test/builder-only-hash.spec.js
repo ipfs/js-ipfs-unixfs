@@ -8,19 +8,22 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const builder = require('../src/dag-builder')
 const all = require('it-all')
+const blockApi = require('./helpers/block')
 
 describe('builder: onlyHash', () => {
   let ipld
+  let block
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('will only chunk and hash if passed an "onlyHash" option', async () => {
     const nodes = await all(builder([{
       path: 'foo.txt',
       content: Buffer.from([0, 1, 2, 3, 4])
-    }], ipld, {
+    }], block, {
       onlyHash: true,
       chunker: 'fixed',
       strategy: 'balanced',

@@ -46,6 +46,7 @@
     "ipld-in-memory": "^3.0.0",
     "it-buffer-stream": "^1.0.0",
     "it-last": "^1.0.1",
+    "multicodec": "^1.0.0",
     "nyc": "^15.0.0",
     "sinon": "^9.0.1"
   },
@@ -60,7 +61,6 @@
     "it-first": "^1.0.1",
     "it-parallel-batch": "^1.0.3",
     "merge-options": "^2.0.0",
-    "multicodec": "^1.0.0",
     "multihashing-async": "^0.8.0",
     "rabin-wasm": "^0.1.1"
   }

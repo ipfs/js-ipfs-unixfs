@@ -11,12 +11,15 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const last = require('it-last')
+const blockApi = require('./helpers/block')
 
 describe('builder: directory sharding', () => {
   let ipld
+  let block
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   describe('basic dirbuilder', () => {
@@ -25,7 +28,7 @@ describe('builder: directory sharding', () => {
       const nodes = await all(importer([{
         path: 'a/b',
         content
-      }], ipld, {
+      }], block, {
         shardSplitThreshold: Infinity // never shard
       }))
 
@@ -46,7 +49,7 @@ describe('builder: directory sharding', () => {
       const nodes = await all(importer([{
         path: 'a/b',
         content: Buffer.from('i have the best bytes')
-      }], ipld, {
+      }], block, {
         shardSplitThreshold: 0 // always shard
       }))
 
@@ -64,7 +67,7 @@ describe('builder: directory sharding', () => {
       const nodes = await all(importer([{
         path: 'a/b',
         content: Buffer.from(content)
-      }], ipld, {
+      }], block, {
         shardSplitThreshold: Infinity // never shard
       }))
 
@@ -92,7 +95,7 @@ describe('builder: directory sharding', () => {
       const nodes = await all(importer([{
         path: 'a/b',
         content: Buffer.from(content)
-      }], ipld, {
+      }], block, {
         shardSplitThreshold: 0 // always shard
       }))
 
@@ -133,7 +136,7 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const nodes = await all(importer(source, ipld))
+      const nodes = await all(importer(source, block))
 
       expect(nodes.length).to.equal(maxDirs + 1)
       const last = nodes[nodes.length - 1]
@@ -152,7 +155,7 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const nodes = await all(importer(source, ipld))
+      const nodes = await all(importer(source, block))
 
       expect(nodes.length).to.equal(maxDirs + 1) // files plus the containing directory
 
@@ -204,7 +207,7 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const node = await last(importer(source, ipld))
+      const node = await last(importer(source, block))
       expect(node.path).to.equal('big')
 
       rootHash = node.cid

@@ -51,7 +51,7 @@ async function addToTree (elem, tree, options) {
   return tree
 }
 
-async function * treeBuilder (source, ipld, options) {
+async function * treeBuilder (source, block, options) {
   let tree = new DirFlat({
     root: true,
     dir: true,
@@ -94,7 +94,7 @@ async function * treeBuilder (source, ipld, options) {
     return
   }
 
-  yield * tree.flush(tree.path, ipld)
+  yield * tree.flush(tree.path, block)
 }
 
 module.exports = treeBuilder

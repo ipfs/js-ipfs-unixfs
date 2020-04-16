@@ -1,33 +1,36 @@
 'use strict'
 
-const mh = require('multihashing-async').multihash
-const mc = require('multicodec')
+const mh = require('multihashing-async')
+const CID = require('cids')
 
-const persist = (node, ipld, options) => {
-  if (!options.codec && node.length) {
-    options.cidVersion = 1
-    options.codec = 'raw'
-  }
-
+const persist = async (buffer, block, options) => {
   if (!options.codec) {
     options.codec = 'dag-pb'
   }
 
-  if (isNaN(options.hashAlg)) {
-    options.hashAlg = mh.names[options.hashAlg]
+  if (!options.cidVersion) {
+    options.cidVersion = 0
   }
 
-  if (options.hashAlg !== mh.names['sha2-256']) {
+  if (!options.hashAlg) {
+    options.hashAlg = 'sha2-256'
+  }
+
+  if (options.hashAlg !== 'sha2-256') {
     options.cidVersion = 1
   }
 
-  if (options.format) {
-    options.codec = options.format
+  const multihash = await mh(buffer, options.hashAlg)
+  const cid = new CID(options.cidVersion, options.codec, multihash)
+
+  if (!options.onlyHash) {
+    await block.put(buffer, {
+      ...options,
+      cid
+    })
   }
 
-  const format = mc[options.codec.toUpperCase().replace(/-/g, '_')]
-
-  return ipld.put(node, format, options)
+  return cid
 }
 
 module.exports = persist

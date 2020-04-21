@@ -1,5 +1,6 @@
 'use strict'
 
+const { Buffer } = require('buffer')
 const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 const UnixFS = require('ipfs-unixfs')

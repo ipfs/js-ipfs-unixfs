@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const { Buffer } = require('buffer')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -8,10 +9,10 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const importer = require('ipfs-unixfs-importer')
 const mc = require('multicodec')
-const all = require('async-iterator-all')
+const all = require('it-all')
 const last = require('it-last')
-const randomBytes = require('async-iterator-buffer-stream')
 const blockApi = require('./helpers/block')
+const randomBytes = require('it-buffer-stream')
 
 const ONE_MEG = Math.pow(1024, 2)
 

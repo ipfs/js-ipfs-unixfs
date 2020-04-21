@@ -1,5 +1,6 @@
 'use strict'
 
+const { Buffer } = require('buffer')
 const errCode = require('err-code')
 const CID = require('cids')
 const resolve = require('./resolvers')

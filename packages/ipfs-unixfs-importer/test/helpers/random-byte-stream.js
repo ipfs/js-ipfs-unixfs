@@ -1,5 +1,6 @@
 'use strict'
 
+const { Buffer } = require('buffer')
 module.exports = function * randomByteStream (seed) {
   while (true) {
     const r = Math.floor(random(seed) * 256)

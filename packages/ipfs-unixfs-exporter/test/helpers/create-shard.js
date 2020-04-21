@@ -1,5 +1,6 @@
 'use strict'
 
+const { Buffer } = require('buffer')
 const importer = require('ipfs-unixfs-importer')
 
 const SHARD_SPLIT_THRESHOLD = 10

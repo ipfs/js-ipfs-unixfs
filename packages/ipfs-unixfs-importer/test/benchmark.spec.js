@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const { Buffer } = require('buffer')
 const importer = require('../src')
 
 const IPLD = require('ipld')

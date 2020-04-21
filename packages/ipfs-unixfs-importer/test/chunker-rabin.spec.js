@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const { Buffer } = require('buffer')
 const chunker = require('../src/chunker/rabin')
 const chai = require('chai')
 chai.use(require('dirty-chai'))

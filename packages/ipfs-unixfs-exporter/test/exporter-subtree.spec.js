@@ -11,6 +11,7 @@ const mc = require('multicodec')
 const all = require('async-iterator-all')
 const last = require('it-last')
 const randomBytes = require('async-iterator-buffer-stream')
+const blockApi = require('./helpers/block')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -18,9 +19,11 @@ const exporter = require('./../src')
 
 describe('exporter subtree', () => {
   let ipld
+  let block
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('exports a file 2 levels down', async () => {
@@ -32,7 +35,7 @@ describe('exporter subtree', () => {
     }, {
       path: './level-1/200Bytes.txt',
       content
-    }], ipld))
+    }], block))
 
     const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`, ipld)
 
@@ -54,7 +57,7 @@ describe('exporter subtree', () => {
       content
     }, {
       path: './level-1/level-2'
-    }], ipld))
+    }], block))
 
     const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1`, ipld)
     const files = await all(exported.content())
@@ -74,7 +77,7 @@ describe('exporter subtree', () => {
     const imported = await last(importer([{
       path: '/derp/200Bytes.txt',
       content: randomBytes(ONE_MEG)
-    }], ipld))
+    }], block))
 
     try {
       await exporter(`${imported.cid.toBaseEncodedString()}/doesnotexist`, ipld)
@@ -89,7 +92,7 @@ describe('exporter subtree', () => {
     const imported = await last(importer([{
       path: './level-1/200Bytes.txt',
       content
-    }], ipld, {
+    }], block, {
       wrapWithDirectory: true
     }))
 
@@ -122,7 +125,7 @@ describe('exporter subtree', () => {
     }, {
       path: './level-1/level-2/200Bytes.txt',
       content
-    }], ipld))
+    }], block))
 
     const exported = await all(exporter.path(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld))
 

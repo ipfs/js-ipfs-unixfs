@@ -10,6 +10,7 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 const first = require('it-first')
+const blockApi = require('./helpers/block')
 
 const strategies = [
   'flat',
@@ -30,9 +31,11 @@ strategies.forEach(strategy => {
 
   describe('go-ipfs interop using importer:' + strategy, () => {
     let ipld
+    let block
 
     before(async () => {
       ipld = await inMemory(IPLD)
+      block = blockApi(ipld)
     })
 
     it('yields the same tree as go-ipfs', async function () {
@@ -43,7 +46,7 @@ strategies.forEach(strategy => {
         content: randomByteStream(45900000, 7382)
       }]
 
-      const file = await first(importer(source, ipld, options))
+      const file = await first(importer(source, block, options))
 
       expect(file.cid.toBaseEncodedString()).to.be.equal(expectedHashes[strategy])
     })

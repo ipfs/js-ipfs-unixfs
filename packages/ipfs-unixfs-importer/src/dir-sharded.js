@@ -76,8 +76,8 @@ class DirSharded extends Dir {
     }
   }
 
-  async * flush (path, ipld) {
-    for await (const entry of flush(path, this._bucket, ipld, this, this.options)) {
+  async * flush (path, block) {
+    for await (const entry of flush(path, this._bucket, block, this, this.options)) {
       yield entry
     }
   }
@@ -87,9 +87,10 @@ module.exports = DirSharded
 
 module.exports.hashFn = hashFn
 
-async function * flush (path, bucket, ipld, shardRoot, options) {
+async function * flush (path, bucket, block, shardRoot, options) {
   const children = bucket._children
   const links = []
+  let childrenSize = 0
 
   for (let i = 0; i < children.length; i++) {
     const child = children.get(i)
@@ -103,16 +104,17 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
     if (Bucket.isBucket(child)) {
       let shard
 
-      for await (const subShard of await flush('', child, ipld, null, options)) {
+      for await (const subShard of await flush('', child, block, null, options)) {
         shard = subShard
       }
 
       links.push(new DAGLink(labelPrefix, shard.size, shard.cid))
+      childrenSize += shard.size
     } else if (typeof child.value.flush === 'function') {
       const dir = child.value
       let flushedDir
 
-      for await (const entry of dir.flush(dir.path, ipld)) {
+      for await (const entry of dir.flush(dir.path, block)) {
         flushedDir = entry
 
         yield flushedDir
@@ -120,21 +122,20 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
 
       const label = labelPrefix + child.key
       links.push(new DAGLink(label, flushedDir.size, flushedDir.cid))
+
+      childrenSize += flushedDir.size
     } else {
       const value = child.value
 
-      if (!value.node) {
-        if (value.cid) {
-          value.node = await ipld.get(value.cid)
-        } else {
-          continue
-        }
+      if (!value.cid) {
+        continue
       }
 
       const label = labelPrefix + child.key
-      const size = value.node.length || value.node.size || value.node.Size
+      const size = value.size
 
       links.push(new DAGLink(label, size, value.cid))
+      childrenSize += size
     }
   }
 
@@ -151,12 +152,14 @@ async function * flush (path, bucket, ipld, shardRoot, options) {
   })
 
   const node = new DAGNode(dir.marshal(), links)
-  const cid = await persist(node, ipld, options)
+  const buffer = node.serialize()
+  const cid = await persist(buffer, block, options)
+  const size = buffer.length + childrenSize
 
   yield {
     cid,
     unixfs: dir,
     path,
-    size: node.size
+    size
   }
 }

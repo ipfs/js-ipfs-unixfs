@@ -19,6 +19,7 @@ const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.tx
 const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Bytes.txt')
 const all = require('it-all')
 const first = require('it-first')
+const blockApi = require('./helpers/block')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -177,11 +178,11 @@ const strategyOverrides = {
   }
 }
 
-const checkLeafNodeTypes = async (ipld, options, expected) => {
+const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   const file = await first(importer([{
     path: 'foo',
     content: Buffer.alloc(262144 + 5).fill(1)
-  }], ipld, options))
+  }], block, options))
 
   const node = await ipld.get(file.cid)
   const meta = UnixFs.unmarshal(node.Data)
@@ -199,11 +200,11 @@ const checkLeafNodeTypes = async (ipld, options, expected) => {
   })
 }
 
-const checkNodeLinks = async (ipld, options, expected) => {
+const checkNodeLinks = async (block, ipld, options, expected) => {
   for await (const file of importer([{
     path: 'foo',
     content: Buffer.alloc(100).fill(1)
-  }], ipld, options)) {
+  }], block, options)) {
     const node = await ipld.get(file.cid)
     const meta = UnixFs.unmarshal(node.Data)
 
@@ -312,12 +313,14 @@ strategies.forEach((strategy) => {
     this.timeout(30 * 1000)
 
     let ipld
+    let block
     const options = {
       strategy: strategy
     }
 
     before(async () => {
       ipld = await inMemory(IPLD)
+      block = blockApi(ipld)
     })
 
     it('fails on bad content', async () => {
@@ -325,7 +328,7 @@ strategies.forEach((strategy) => {
         await all(importer([{
           path: '200Bytes.txt',
           content: 7
-        }], ipld, options))
+        }], block, options))
         throw new Error('No error was thrown')
       } catch (err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
@@ -341,7 +344,7 @@ strategies.forEach((strategy) => {
               yield 7
             }
           }
-        }], ipld, options))
+        }], block, options))
         throw new Error('No error was thrown')
       } catch (err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
@@ -358,7 +361,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: 'emptyfile',
         content: Buffer.alloc(0)
-      }], ipld, options))
+      }], block, options))
 
       expect(files.length).to.eql(1)
 
@@ -374,7 +377,7 @@ strategies.forEach((strategy) => {
         }, {
           path: 'boop/200Bytes.txt',
           content: bigFile
-        }], ipld, options))
+        }], block, options))
 
         throw new Error('No error was thrown')
       } catch (err) {
@@ -387,7 +390,7 @@ strategies.forEach((strategy) => {
       const res = await all(importer([{
         path: '200Bytes.txt',
         content
-      }], ipld, options))
+      }], block, options))
 
       const file = await exporter(res[0].cid, ipld)
       const fileContent = await all(file.content())
@@ -400,7 +403,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: filePath,
         content: smallFile
-      }], ipld, options))
+      }], block, options))
 
       expect(files.length).to.equal(1)
       expect(files[0].path).to.equal(filePath)
@@ -411,7 +414,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: filePath,
         content: smallFile
-      }], ipld, options))
+      }], block, options))
 
       expect(files.length).to.equal(1)
       expect(files[0].path).to.equal(filePath)
@@ -421,7 +424,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: '200Bytes.txt',
         content: smallFile
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         '200Bytes.txt'
@@ -432,7 +435,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: '200Bytes.txt',
         content: Array.from(smallFile)
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         '200Bytes.txt'
@@ -443,7 +446,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: 'small.txt',
         content: 'this is a file\n'
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         'small.txt'
@@ -454,7 +457,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: '200Bytes.txt',
         content: smallFile
-      }], ipld, {
+      }], block, {
         ...options,
         rawLeaves: true
       }))
@@ -469,7 +472,7 @@ strategies.forEach((strategy) => {
         path: '200Bytes.txt',
         content: smallFile,
         mode: 0o123
-      }], ipld, {
+      }], block, {
         ...options,
         rawLeaves: true
       }))
@@ -487,7 +490,7 @@ strategies.forEach((strategy) => {
           secs: 10,
           nsecs: 0
         }
-      }], ipld, {
+      }], block, {
         ...options,
         rawLeaves: true
       }))
@@ -506,7 +509,7 @@ strategies.forEach((strategy) => {
           secs: 10,
           nsecs: 0
         }
-      }], ipld, {
+      }], block, {
         ...options,
         rawLeaves: true
       }))
@@ -520,7 +523,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: 'foo/bar/200Bytes.txt',
         content: smallFile
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         'foo/bar/200Bytes.txt',
@@ -535,7 +538,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: '1.2MiB.txt',
         content: bigFile
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         '1.2MiB.txt'
@@ -548,7 +551,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: 'foo-big/1.2MiB.txt',
         content: bigFile
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         'foo-big/1.2MiB.txt',
@@ -559,7 +562,7 @@ strategies.forEach((strategy) => {
     it('empty directory', async () => {
       const files = await all(importer([{
         path: 'empty-dir'
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         'empty-dir'
@@ -573,7 +576,7 @@ strategies.forEach((strategy) => {
       }, {
         path: 'pim/1.2MiB.txt',
         content: bigFile
-      }], ipld, options))
+      }], block, options))
 
       expectFiles(files, [
         'pim/200Bytes.txt',
@@ -592,7 +595,7 @@ strategies.forEach((strategy) => {
       }, {
         path: 'pam/1.2MiB.txt',
         content: bigFile
-      }], ipld, options))
+      }], block, options))
 
       const result = stringifyMh(files)
 
@@ -625,7 +628,7 @@ strategies.forEach((strategy) => {
       const files = await all(importer([{
         path: content + '.txt',
         content: Buffer.from(content)
-      }], ipld, {
+      }], block, {
         onlyHash: true
       }))
 
@@ -652,7 +655,7 @@ strategies.forEach((strategy) => {
       await all(importer([{
         path: '1.2MiB.txt',
         content: bigFile
-      }], ipld, options))
+      }], block, options))
 
       expect(options.progress.called).to.equal(true)
       expect(options.progress.args[0][0]).to.equal(maxChunkSize)
@@ -688,7 +691,7 @@ strategies.forEach((strategy) => {
       }
 
       // Pass a copy of inputFiles, since the importer mutates them
-      const files = await all(importer(inputFiles.map(f => Object.assign({}, f)), ipld, options))
+      const files = await all(importer(inputFiles.map(f => Object.assign({}, f)), block, options))
 
       const file = files[0]
       expect(file).to.exist()
@@ -717,25 +720,25 @@ strategies.forEach((strategy) => {
     })
 
     it('imports file with raw leaf nodes when specified', () => {
-      return checkLeafNodeTypes(ipld, {
+      return checkLeafNodeTypes(block, ipld, {
         leafType: 'raw'
       }, 'raw')
     })
 
     it('imports file with file leaf nodes when specified', () => {
-      return checkLeafNodeTypes(ipld, {
+      return checkLeafNodeTypes(block, ipld, {
         leafType: 'file'
       }, 'file')
     })
 
     it('reduces file to single node when specified', () => {
-      return checkNodeLinks(ipld, {
+      return checkNodeLinks(block, ipld, {
         reduceSingleLeafToSelf: true
       }, 0)
     })
 
     it('does not reduce file to single node when overidden by options', () => {
-      return checkNodeLinks(ipld, {
+      return checkNodeLinks(block, ipld, {
         reduceSingleLeafToSelf: false
       }, 1)
     })
@@ -750,7 +753,7 @@ strategies.forEach((strategy) => {
       for await (const file of importer([{
         path: '1.2MiB.txt',
         content: bigFile
-      }], ipld, options)) {
+      }], block, options)) {
         for await (const { cid } of collectLeafCids(file.cid, ipld)) {
           expect(cid.codec).to.be('raw')
           expect(cid.version).to.be(1)
@@ -770,7 +773,7 @@ strategies.forEach((strategy) => {
         path: '1.2MiB.txt',
         content: bigFile,
         mtime: now
-      }], ipld, options)) {
+      }], block, options)) {
         const node = await exporter(file.cid, ipld)
 
         expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
@@ -785,7 +788,7 @@ strategies.forEach((strategy) => {
       const entries = await all(importer([{
         path: '/foo',
         mtime: now
-      }], ipld))
+      }], block))
 
       const node = await exporter(entries[0].cid, ipld)
       expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
@@ -804,7 +807,7 @@ strategies.forEach((strategy) => {
       }, {
         path: '/foo/bar.txt',
         content: bigFile
-      }], ipld))
+      }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
@@ -830,7 +833,7 @@ strategies.forEach((strategy) => {
       }, {
         path: '/foo/bar/baz.txt',
         content: bigFile
-      }], ipld))
+      }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
@@ -861,7 +864,7 @@ strategies.forEach((strategy) => {
       }, {
         path: '/foo/bar/baz.txt',
         content: bigFile
-      }], ipld))
+      }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.unixfs.type === 'directory' && node.name === 'bar').pop()
@@ -890,7 +893,7 @@ strategies.forEach((strategy) => {
         content: bigFile
       }, {
         path: '/foo/qux'
-      }], ipld, {
+      }], block, {
         shardSplitThreshold: 0
       }))
 
@@ -916,7 +919,7 @@ strategies.forEach((strategy) => {
         path: '1.2MiB.txt',
         content: bigFile,
         mode
-      }], ipld, options)) {
+      }], block, options)) {
         const node = await exporter(file.cid, ipld)
 
         expect(node).to.have.nested.property('unixfs.mode', mode)
@@ -931,7 +934,7 @@ strategies.forEach((strategy) => {
       const entries = await all(importer([{
         path: '/foo',
         mode
-      }], ipld))
+      }], block))
 
       const node = await exporter(entries[0].cid, ipld)
       expect(node).to.have.nested.property('unixfs.mode', mode)
@@ -951,7 +954,7 @@ strategies.forEach((strategy) => {
         path: '/foo/file2.txt',
         content: bigFile,
         mode: mode2
-      }], ipld))
+      }], block))
 
       const node1 = await exporter(entries[0].cid, ipld)
       expect(node1).to.have.nested.property('unixfs.mode', mode1)
@@ -972,7 +975,7 @@ strategies.forEach((strategy) => {
       }, {
         path: '/foo/bar/baz/file2.txt',
         content: bigFile
-      }], ipld))
+      }], block))
 
       const node1 = await exporter(entries[0].cid, ipld)
       expect(node1).to.have.nested.property('unixfs.mode', mode)
@@ -987,7 +990,7 @@ strategies.forEach((strategy) => {
       const entries = await all(importer([{
         path: '/foo/file1.txt',
         content: bigFile
-      }], ipld))
+      }], block))
 
       const node1 = await exporter(entries[0].cid, ipld)
       expect(node1).to.have.nested.property('unixfs.mode', 0o0644)
@@ -1001,12 +1004,12 @@ strategies.forEach((strategy) => {
 describe('configuration', () => {
   it('alllows configuring with custom dag and tree builder', async () => {
     let builtTree = false
-    const ipld = 'ipld'
+    const block = 'block'
     const entries = await all(importer([{
       path: 'path',
       content: 'content'
-    }], ipld, {
-      dagBuilder: async function * (source, ipld, opts) { // eslint-disable-line require-await
+    }], block, {
+      dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         yield function () {
           return Promise.resolve({
             cid: 'cid',
@@ -1015,7 +1018,7 @@ describe('configuration', () => {
           })
         }
       },
-      treeBuilder: async function * (source, ipld, opts) { // eslint-disable-line require-await
+      treeBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         builtTree = true
         yield * source
       }
@@ -1032,13 +1035,13 @@ describe('configuration', () => {
   it('alllows configuring with custom chunker', async () => {
     let validated = false
     let chunked = false
-    const ipld = {
-      put: () => 'cid'
+    const block = {
+      put: () => {}
     }
     const entries = await all(importer([{
       path: 'path',
       content: 'content'
-    }], ipld, {
+    }], block, {
       chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
         validated = true
         yield * source
@@ -1050,7 +1053,6 @@ describe('configuration', () => {
     }))
 
     expect(entries).to.have.lengthOf(1)
-    expect(entries).to.have.nested.property('[0].cid', 'cid')
     expect(entries).to.have.nested.property('[0].path', 'path')
     expect(entries).to.have.nested.property('[0].unixfs')
 

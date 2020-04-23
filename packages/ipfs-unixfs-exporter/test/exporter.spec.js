@@ -22,11 +22,13 @@ const last = require('it-last')
 const first = require('async-iterator-first')
 const randomBytes = require('async-iterator-buffer-stream')
 const AbortController = require('abort-controller')
+const blockApi = require('./helpers/block')
 
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter', () => {
   let ipld
+  let block
   let bigFile
   let smallFile
 
@@ -58,7 +60,7 @@ describe('exporter', () => {
     const result = await all(importer([{
       path,
       content: file
-    }], ipld, {
+    }], block, {
       strategy,
       rawLeaves,
       chunkerOptions: {
@@ -123,6 +125,7 @@ describe('exporter', () => {
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('ensure hash inputs are sanitized', async () => {
@@ -148,7 +151,7 @@ describe('exporter', () => {
     const files = await all(importer([{
       path: filePath,
       content: smallFile
-    }], ipld))
+    }], block))
 
     const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
     const file = await exporter(path, ipld)
@@ -164,7 +167,7 @@ describe('exporter', () => {
     const files = await all(importer([{
       path: filePath,
       content: smallFile
-    }], ipld))
+    }], block))
 
     const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
     const file = await exporter(path, ipld)
@@ -333,7 +336,7 @@ describe('exporter', () => {
       content: randomBytes(ONE_MEG)
     }, {
       path: './level-1/level-2'
-    }], ipld))
+    }], block))
     const dir = await exporter(importedDir.cid, ipld)
     const files = await all(dir.content())
 
@@ -371,7 +374,7 @@ describe('exporter', () => {
       path: './dir-another'
     }, {
       path: './level-1'
-    }], ipld))
+    }], block))
 
     const dir = await exporter(importedDir.cid, ipld)
     const files = await all(dir.content())
@@ -516,7 +519,7 @@ describe('exporter', () => {
     const imported = await first(importer([{
       path: '1.2MiB.txt',
       content: bigFile
-    }], ipld, {
+    }], block, {
       rawLeaves: true
     }))
 
@@ -529,7 +532,7 @@ describe('exporter', () => {
   it('returns an empty stream for dir', async () => {
     const imported = await first(importer([{
       path: 'empty'
-    }], ipld))
+    }], block))
     const dir = await exporter(imported.cid, ipld)
     const files = await all(dir.content())
     expect(files.length).to.equal(0)
@@ -755,7 +758,7 @@ describe('exporter', () => {
     const imported = await first(importer([{
       path: '200Bytes.txt',
       content: bigFile
-    }], ipld, {
+    }], block, {
       rawLeaves: true
     }))
 
@@ -771,7 +774,7 @@ describe('exporter', () => {
     const imported = await first(importer([{
       path: '200Bytes.txt',
       content: smallFile
-    }], ipld, {
+    }], block, {
       rawLeaves: true
     }))
 
@@ -862,7 +865,7 @@ describe('exporter', () => {
     const imported = await all(importer([{
       path: '/foo/bar/baz.txt',
       content: Buffer.from('hello world')
-    }], ipld))
+    }], block))
 
     const exported = await exporter(imported[0].cid, ipld)
 
@@ -879,7 +882,7 @@ describe('exporter', () => {
     }, {
       path: '/foo/bar/quux.txt',
       content: Buffer.from('hello world')
-    }], ipld))
+    }], block))
 
     const exported = await all(exporter.recursive(dir.cid, ipld))
     const dirCid = dir.cid.toBaseEncodedString()

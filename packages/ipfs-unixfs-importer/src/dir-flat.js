@@ -50,7 +50,7 @@ class DirFlat extends Dir {
     }
   }
 
-  async * flush (path, ipld) {
+  async * flush (path, block) {
     const children = Object.keys(this._children)
     const links = []
 
@@ -58,7 +58,7 @@ class DirFlat extends Dir {
       let child = this._children[children[i]]
 
       if (typeof child.flush === 'function') {
-        for await (const entry of child.flush(child.path, ipld)) {
+        for await (const entry of child.flush(child.path, block)) {
           child = entry
 
           yield child
@@ -75,16 +75,18 @@ class DirFlat extends Dir {
     })
 
     const node = new DAGNode(unixfs.marshal(), links)
-    const cid = await persist(node, ipld, this.options)
+    const buffer = node.serialize()
+    const cid = await persist(buffer, block, this.options)
+    const size = buffer.length + node.Links.reduce((acc, curr) => acc + curr.Tsize, 0)
 
     this.cid = cid
-    this.size = node.size
+    this.size = size
 
     yield {
       cid,
       unixfs,
       path,
-      size: node.size
+      size
     }
   }
 }

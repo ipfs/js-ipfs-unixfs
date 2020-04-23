@@ -25,15 +25,15 @@ const defaultOptions = {
   maxChildrenPerNode: 174,
   layerRepeat: 4,
   wrapWithDirectory: false,
-  pin: true,
+  pin: false,
   recursive: false,
   hidden: false,
-  preload: true,
+  preload: false,
   chunkValidator: null,
   importBuffer: null
 }
 
-module.exports = async function * (source, ipld, options = {}) {
+module.exports = async function * (source, block, options = {}) {
   const opts = mergeOptions(defaultOptions, options)
 
   if (options.cidVersion > 0 && options.rawLeaves === undefined) {
@@ -74,7 +74,7 @@ module.exports = async function * (source, ipld, options = {}) {
     treeBuilder = require('./tree-builder')
   }
 
-  for await (const entry of treeBuilder(parallelBatch(dagBuilder(source, ipld, opts), opts.fileImportConcurrency), ipld, opts)) {
+  for await (const entry of treeBuilder(parallelBatch(dagBuilder(source, block, opts), opts.fileImportConcurrency), block, opts)) {
     yield {
       cid: entry.cid,
       path: entry.path,

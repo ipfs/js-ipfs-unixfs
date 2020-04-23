@@ -6,22 +6,17 @@ const {
   DAGNode
 } = require('ipld-dag-pb')
 
-async function * bufferImporter (file, source, ipld, options) {
-  for await (const buffer of source) {
+async function * bufferImporter (file, source, block, options) {
+  for await (let buffer of source) {
     yield async () => {
       options.progress(buffer.length)
-      let node
       let unixfs
-      let size
 
       const opts = {
         ...options
       }
 
       if (options.rawLeaves) {
-        node = buffer
-        size = buffer.length
-
         opts.codec = 'raw'
         opts.cidVersion = 1
       } else {
@@ -32,16 +27,13 @@ async function * bufferImporter (file, source, ipld, options) {
           mode: file.mode
         })
 
-        node = new DAGNode(unixfs.marshal())
-        size = node.size
+        buffer = new DAGNode(unixfs.marshal()).serialize()
       }
 
-      const cid = await persist(node, ipld, opts)
-
       return {
-        cid: cid,
+        cid: await persist(buffer, block, opts),
         unixfs,
-        size
+        size: buffer.length
       }
     }
   }

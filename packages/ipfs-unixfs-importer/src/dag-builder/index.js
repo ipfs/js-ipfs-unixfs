@@ -3,7 +3,7 @@
 const dirBuilder = require('./dir')
 const fileBuilder = require('./file')
 
-async function * dagBuilder (source, ipld, options) {
+async function * dagBuilder (source, block, options) {
   for await (const entry of source) {
     if (entry.path) {
       if (entry.path.substring(0, 2) === './') {
@@ -47,10 +47,10 @@ async function * dagBuilder (source, ipld, options) {
       }
 
       // item is a file
-      yield () => fileBuilder(entry, chunker(chunkValidator(source, options), options), ipld, options)
+      yield () => fileBuilder(entry, chunker(chunkValidator(source, options), options), block, options)
     } else {
       // item is a directory
-      yield () => dirBuilder(entry, ipld, options)
+      yield () => dirBuilder(entry, block, options)
     }
   }
 }

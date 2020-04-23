@@ -9,13 +9,16 @@ const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
+const blockApi = require('./helpers/block')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
   let ipld
+  let block
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('imports', async function () {
@@ -35,7 +38,7 @@ describe('import and export: directory', () => {
       content: Buffer.from('cream')
     }]
 
-    const files = await all(importer(source, ipld))
+    const files = await all(importer(source, block))
 
     expect(files.map(normalizeNode).sort(byPath)).to.be.eql([{
       path: 'a/b/h',

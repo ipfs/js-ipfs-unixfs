@@ -18,6 +18,7 @@ const {
   DAGLink,
   DAGNode
 } = require('ipld-dag-pb')
+const blockApi = require('./helpers/block')
 
 const SHARD_SPLIT_THRESHOLD = 10
 
@@ -25,6 +26,7 @@ describe('exporter sharded', function () {
   this.timeout(30000)
 
   let ipld
+  let block
 
   const createShard = (numFiles) => {
     return createShardWithFileNames(numFiles, (index) => `file-${index}`)
@@ -40,7 +42,7 @@ describe('exporter sharded', function () {
   }
 
   const createShardWithFiles = async (files) => {
-    return (await last(importer(files, ipld, {
+    return (await last(importer(files, block, {
       shardSplitThreshold: SHARD_SPLIT_THRESHOLD,
       wrapWithDirectory: true
     }))).cid
@@ -48,6 +50,7 @@ describe('exporter sharded', function () {
 
   before(async () => {
     ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('exports a sharded directory', async () => {
@@ -62,7 +65,7 @@ describe('exporter sharded', function () {
     const imported = await all(importer(Object.keys(files).map(path => ({
       path,
       content: files[path].content
-    })), ipld, {
+    })), block, {
       wrapWithDirectory: true,
       shardSplitThreshold: SHARD_SPLIT_THRESHOLD
     }))

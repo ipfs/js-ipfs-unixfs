@@ -9,7 +9,7 @@ const {
 } = require('ipld-dag-pb')
 const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
-const mc = require('multicodec')
+const mh = require('multihashing-async').multihash
 
 const dagBuilders = {
   flat: require('./flat'),
@@ -17,7 +17,7 @@ const dagBuilders = {
   trickle: require('./trickle')
 }
 
-async function * buildFileBatch (file, source, ipld, options) {
+async function * buildFileBatch (file, source, block, options) {
   let count = -1
   let previous
   let bufferImporter
@@ -28,7 +28,7 @@ async function * buildFileBatch (file, source, ipld, options) {
     bufferImporter = require('./buffer-importer')
   }
 
-  for await (const entry of parallelBatch(bufferImporter(file, source, ipld, options), options.blockWriteConcurrency)) {
+  for await (const entry of parallelBatch(bufferImporter(file, source, block, options), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -48,7 +48,7 @@ async function * buildFileBatch (file, source, ipld, options) {
   }
 }
 
-const reduce = (file, ipld, options) => {
+const reduce = (file, block, options) => {
   return async function (leaves) {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
@@ -56,7 +56,7 @@ const reduce = (file, ipld, options) => {
       if (leaf.cid.codec === 'raw' && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        const buffer = await ipld.get(leaf.cid)
+        let { data: buffer } = await block.get(leaf.cid, options)
 
         leaf.unixfs = new UnixFS({
           type: 'file',
@@ -65,10 +65,16 @@ const reduce = (file, ipld, options) => {
           data: buffer
         })
 
-        const node = new DAGNode(leaf.unixfs.marshal())
+        const multihash = mh.decode(leaf.cid.multihash)
+        buffer = new DAGNode(leaf.unixfs.marshal()).serialize()
 
-        leaf.cid = await ipld.put(node, mc.DAG_PB, options)
-        leaf.size = node.size
+        leaf.cid = await persist(buffer, block, {
+          ...options,
+          codec: 'dag-pb',
+          hashAlg: multihash.name,
+          cidVersion: options.cidVersion
+        })
+        leaf.size = buffer.length
       }
 
       return {
@@ -118,25 +124,26 @@ const reduce = (file, ipld, options) => {
       })
 
     const node = new DAGNode(f.marshal(), links)
-    const cid = await persist(node, ipld, options)
+    const buffer = node.serialize()
+    const cid = await persist(buffer, block, options)
 
     return {
       cid,
       path: file.path,
       unixfs: f,
-      size: node.size
+      size: buffer.length + node.Links.reduce((acc, curr) => acc + curr.Tsize, 0)
     }
   }
 }
 
-const fileBuilder = async (file, source, ipld, options) => {
+const fileBuilder = async (file, source, block, options) => {
   const dagBuilder = dagBuilders[options.strategy]
 
   if (!dagBuilder) {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')
   }
 
-  const roots = await all(dagBuilder(buildFileBatch(file, source, ipld, options), reduce(file, ipld, options), options))
+  const roots = await all(dagBuilder(buildFileBatch(file, source, block, options), reduce(file, block, options), options))
 
   if (roots.length > 1) {
     throw errCode(new Error('expected a maximum of 1 roots and got ' + roots.length), 'ETOOMANYROOTS')

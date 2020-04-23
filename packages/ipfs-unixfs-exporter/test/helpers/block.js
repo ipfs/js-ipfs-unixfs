@@ -6,7 +6,7 @@ const mh = require('multihashing-async').multihash
 
 module.exports = (ipld) => {
   // make ipld behave like the block api, some tests need to pull
-  // data from ipld so can't use use a simple hash
+  // data from ipld so can't use a simple in-memory cid->block map
   return {
     put: async (buf, { cid }) => {
       const multihash = mh.decode(cid.multihash)

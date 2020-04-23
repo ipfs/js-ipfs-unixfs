@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@1.1.0...ipfs-unixfs-exporter@2.0.0) (2020-04-23)
+
+
+### Code Refactoring
+
+* use the block API from ipfs instead of ipld internals ([#51](https://github.com/ipfs/js-ipfs-unixfs/issues/51)) ([cfecf39](https://github.com/ipfs/js-ipfs-unixfs/commit/cfecf390ae2747d2b6c55f4ebd039791f7162fec))
+
+
+### BREAKING CHANGES
+
+* The importer takes a pin argument (previously undocumented) - it used
+to default to true but since this switches to use the block API the
+default has changed to false, as the typical usage pattern is to pin
+the root block of a DAG recursively instead of every block that makes
+up the DAG.
+
+
+
+
+
 # [1.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@1.0.3...ipfs-unixfs-exporter@1.1.0) (2020-04-15)
 
 

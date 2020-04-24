@@ -44,7 +44,7 @@
     "ipfs-unixfs-importer": "^2.0.0",
     "ipld": "^0.25.0",
     "ipld-dag-pb": "^0.18.0",
-    "ipld-in-memory": "^3.0.3",
+    "ipld-in-memory": "^4.0.0",
     "it-all": "^1.0.1",
     "it-buffer-stream": "^1.0.2",
     "it-first": "^1.0.1",

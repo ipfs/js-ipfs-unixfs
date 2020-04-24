@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@2.0.0...ipfs-unixfs-exporter@2.0.1) (2020-04-24)
+
+
+### Bug Fixes
+
+* remove node globals ([#52](https://github.com/ipfs/js-ipfs-unixfs/issues/52)) ([5414412](https://github.com/ipfs/js-ipfs-unixfs/commit/5414412b6b228d7922a10210825c9b85b0362af6))
+
+
+
+
+
 # [2.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@1.1.0...ipfs-unixfs-exporter@2.0.0) (2020-04-23)
 
 

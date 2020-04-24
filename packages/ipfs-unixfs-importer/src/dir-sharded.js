@@ -4,6 +4,7 @@ const {
   DAGLink,
   DAGNode
 } = require('ipld-dag-pb')
+const { Buffer } = require('buffer')
 const UnixFS = require('ipfs-unixfs')
 const multihashing = require('multihashing-async')
 const Dir = require('./dir')

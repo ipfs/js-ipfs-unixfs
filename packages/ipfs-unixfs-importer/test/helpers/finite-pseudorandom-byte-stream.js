@@ -1,5 +1,5 @@
 'use strict'
-
+const { Buffer } = require('buffer')
 const REPEATABLE_CHUNK_SIZE = 300000
 
 module.exports = function * (maxSize, seed) {

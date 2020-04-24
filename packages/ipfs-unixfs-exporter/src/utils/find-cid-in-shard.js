@@ -1,5 +1,6 @@
 'use strict'
 
+const { Buffer } = require('buffer')
 const Bucket = require('hamt-sharding/src/bucket')
 const multihashing = require('multihashing-async')
 

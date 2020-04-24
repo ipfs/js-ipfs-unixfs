@@ -1,4 +1,5 @@
 'use strict'
+const { Buffer } = require('buffer')
 
 module.exports = function extractDataFromBlock (block, blockStart, requestedStart, requestedEnd) {
   const blockLength = block.length

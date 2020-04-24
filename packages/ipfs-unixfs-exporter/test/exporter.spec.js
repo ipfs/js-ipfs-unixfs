@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const { Buffer } = require('buffer')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 chai.use(require('chai-as-promised'))
@@ -17,10 +18,10 @@ const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
 const exporter = require('../src')
 const importer = require('ipfs-unixfs-importer')
-const all = require('async-iterator-all')
+const all = require('it-all')
 const last = require('it-last')
-const first = require('async-iterator-first')
-const randomBytes = require('async-iterator-buffer-stream')
+const first = require('it-first')
+const randomBytes = require('it-buffer-stream')
 const AbortController = require('abort-controller')
 const blockApi = require('./helpers/block')
 

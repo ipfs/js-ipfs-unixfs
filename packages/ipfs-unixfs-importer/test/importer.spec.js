@@ -3,8 +3,8 @@
 
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
-
-const extend = require('deep-extend')
+const { Buffer } = require('buffer')
+const extend = require('merge-options')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -287,7 +287,7 @@ strategies.forEach((strategy) => {
     })
   }, strategyOverrides[strategy])
 
-  const expected = extend({}, defaultResults, strategies[strategy])
+  const expected = extend({}, defaultResults)
 
   const expectFiles = (actualFiles, expectedFiles) => {
     expect(actualFiles.length).to.equal(expectedFiles.length)

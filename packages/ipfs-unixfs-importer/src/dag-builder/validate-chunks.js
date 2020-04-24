@@ -1,6 +1,7 @@
 'use strict'
 
 const errCode = require('err-code')
+const { Buffer } = require('buffer')
 
 // make sure the content only emits buffer-a-likes
 async function * validateChunks (source) {

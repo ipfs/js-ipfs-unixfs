@@ -1,5 +1,7 @@
 'use strict'
 
+const { Buffer } = require('buffer')
+
 module.exports = function (cid, ipld) {
   async function * traverse (cid) {
     const node = await ipld.get(cid)

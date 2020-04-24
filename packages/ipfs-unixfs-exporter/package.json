@@ -42,7 +42,7 @@
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-importer": "^2.0.0",
-    "ipld": "^0.25.0",
+    "ipld": "^0.26.1",
     "ipld-dag-pb": "^0.18.0",
     "ipld-in-memory": "^4.0.0",
     "it-all": "^1.0.1",

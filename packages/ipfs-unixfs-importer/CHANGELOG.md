@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@2.0.1...ipfs-unixfs-importer@2.0.2) (2020-06-04)
+
+
+### Bug Fixes
+
+* ignore high mode bits passed to constructor ([65a040d](https://github.com/ipfs/js-ipfs-unixfs/commit/65a040dadd68ca5cb6697c8fd15922f505833a19))
+
+
+
+
+
 ## [2.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@2.0.0...ipfs-unixfs-importer@2.0.1) (2020-04-24)
 
 

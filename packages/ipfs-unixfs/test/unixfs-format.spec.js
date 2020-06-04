@@ -331,6 +331,67 @@ describe('unixfs-format', () => {
     expect(entry).to.have.property('mode', mode)
   })
 
+  it('omits default file mode from protobuf', () => {
+    const entry = new UnixFS({
+      type: 'file',
+      mode: 0o644
+    })
+
+    const marshaled = entry.marshal()
+
+    const protobuf = unixfsData.decode(marshaled)
+    expect(protobuf.hasMode()).to.be.false()
+  })
+
+  it('omits default directory mode from protobuf', () => {
+    const entry = new UnixFS({
+      type: 'directory',
+      mode: 0o755
+    })
+
+    const marshaled = entry.marshal()
+
+    const protobuf = unixfsData.decode(marshaled)
+    expect(protobuf.hasMode()).to.be.false()
+  })
+
+  it('respects high bits in mode read from buffer', () => {
+    const mode = 0o0100644 // similar to output from fs.stat
+    const buf = unixfsData.encode({
+      Type: unixfsData.DataType.File,
+      mode
+    })
+
+    const entry = UnixFS.unmarshal(buf)
+
+    // should have truncated mode to bits in the version of the spec this module supports
+    expect(entry).to.have.property('mode', 0o644)
+
+    const marshaled = entry.marshal()
+
+    const protobuf = unixfsData.decode(marshaled)
+    expect(protobuf).to.have.property('mode', mode)
+  })
+
+  it('ignores high bits in mode passed to constructor', () => {
+    const mode = 0o0100644 // similar to output from fs.stat
+    const entry = new UnixFS({
+      type: 'file',
+      mode
+    })
+
+    // should have truncated mode to bits in the version of the spec this module supports
+    expect(entry).to.have.property('mode', 0o644)
+
+    const marshaled = entry.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+
+    expect(unmarshaled).to.have.property('mode', 0o644)
+
+    const protobuf = unixfsData.decode(marshaled)
+    expect(protobuf.hasMode()).to.be.false()
+  })
+
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
   it('metadata', () => {
     const entry = new UnixFS({

@@ -129,13 +129,18 @@ class Data {
   static unmarshal (marshaled) {
     const decoded = unixfsData.decode(marshaled)
 
-    return new Data({
+    const data = new Data({
       type: types[decoded.Type],
       data: decoded.hasData() ? decoded.Data : undefined,
       blockSizes: decoded.blocksizes,
       mode: decoded.hasMode() ? decoded.mode : undefined,
       mtime: decoded.hasMtime() ? decoded.mtime : undefined
     })
+
+    // make sure we honor the original mode
+    data._originalMode = decoded.hasMode() ? decoded.mode : undefined
+
+    return data
   }
 
   constructor (...args) {
@@ -158,7 +163,6 @@ class Data {
     this.hashType = hashType
     this.fanout = fanout
     this.blockSizes = blockSizes || []
-    this._originalMode = mode
 
     const parsedMode = parseMode(mode)
 

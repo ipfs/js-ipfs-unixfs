@@ -43,7 +43,7 @@
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-importer": "^2.0.1",
     "ipld": "^0.26.1",
-    "ipld-dag-pb": "^0.18.5",
+    "ipld-dag-pb": "^0.19.0",
     "ipld-in-memory": "^4.0.0",
     "it-all": "^1.0.1",
     "it-buffer-stream": "^1.0.2",

@@ -1,6 +1,5 @@
 'use strict'
 
-const { Buffer } = require('buffer')
 const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 const UnixFS = require('ipfs-unixfs')
@@ -8,7 +7,7 @@ const errCode = require('err-code')
 
 async function * emitBytes (ipld, node, start, end, streamPosition = 0, options) {
   // a `raw` node
-  if (Buffer.isBuffer(node)) {
+  if (node instanceof Uint8Array) {
     const buf = extractDataFromBlock(node, streamPosition, start, end)
 
     if (buf.length) {

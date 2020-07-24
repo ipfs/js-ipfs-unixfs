@@ -50,7 +50,7 @@ const files = []
 
 for await (const file of importer([{
   path: '/foo/bar.txt',
-  content: Buffer.from(0, 1, 2, 3)
+  content: new Uint8Array([0, 1, 2, 3])
 }], ipld)) {
   files.push(file)
 }
@@ -74,7 +74,7 @@ for await (const buf of entry.content({
   bytes.push(buf)
 }
 
-const content = Buffer.concat(bytes)
+const content = new Uint8Array(bytes)
 
 console.info(content) // 0, 1, 2, 3
 ```
@@ -185,7 +185,7 @@ for await (const chunk of entry.content({
 }
 
 // `data` contains the first 5 bytes of the file
-const data = Buffer.concat(bufs)
+const data = new Uint8Array(bufs)
 ```
 
 If `entry` is a directory or hamt shard, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.

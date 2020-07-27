@@ -1,7 +1,7 @@
 'use strict'
 
 const errCode = require('err-code')
-const TextEncoder = require('ipfs-utils/src/text-encoder')
+const utf8Encoder = require('../utils/utf8-encoder')
 
 // make sure the content only emits buffer-a-likes
 async function * validateChunks (source) {
@@ -11,7 +11,7 @@ async function * validateChunks (source) {
     }
 
     if (typeof content === 'string' || content instanceof String) {
-      yield new TextEncoder('utf-8').encode(content)
+      yield utf8Encoder.encode(content)
     } else if (Array.isArray(content)) {
       yield Uint8Array.from(content)
     } else {

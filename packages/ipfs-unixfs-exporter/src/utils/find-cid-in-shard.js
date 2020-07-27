@@ -3,10 +3,11 @@
 const Bucket = require('hamt-sharding/src/bucket')
 const multihashing = require('multihashing-async')
 const TextEncoder = require('ipfs-utils/src/text-encoder')
+const UTF8_ENCODER = new TextEncoder('utf8')
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
 const hashFn = async function (value) {
-  const buf = new TextEncoder('utf8').encode(value)
+  const buf = UTF8_ENCODER.encode(value)
   const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.

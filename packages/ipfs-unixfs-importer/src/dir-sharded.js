@@ -10,10 +10,10 @@ const Dir = require('./dir')
 const persist = require('./utils/persist')
 const Bucket = require('hamt-sharding')
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
-const TextEncoder = require('ipfs-utils/src/text-encoder')
+const utf8Encoder = require('./utils/utf8-encoder')
 
 const hashFn = async function (value) {
-  const buf = new TextEncoder('utf-8').encode(value)
+  const buf = utf8Encoder.encode(value)
   const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.
@@ -143,7 +143,7 @@ async function * flush (path, bucket, block, shardRoot, options) {
 
   // go-ipfs uses little endian, that's why we have to
   // reverse the bit field before storing it
-  const data = new Uint8Array(children.bitField().reverse())
+  const data = Uint8Array.from(children.bitField().reverse())
   const dir = new UnixFS({
     type: 'hamt-sharded-directory',
     data,

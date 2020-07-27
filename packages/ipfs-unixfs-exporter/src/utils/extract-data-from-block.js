@@ -7,7 +7,7 @@ module.exports = function extractDataFromBlock (block, blockStart, requestedStar
   if (requestedStart >= blockEnd || requestedEnd < blockStart) {
     // If we are looking for a byte range that is starts after the start of the block,
     // return an empty block.  This can happen when internal nodes contain data
-    return Uint8Array.from([])
+    return new Uint8Array(0)
   }
 
   if (requestedEnd >= blockStart && requestedEnd < blockEnd) {

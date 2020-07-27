@@ -69,11 +69,8 @@ const size = entry.unixfs.fileSize()
 const bytes = new Uint8Array(size)
 let offset = 0
 
-for await (const buf of entry.content({
-  offset: 0, // optional offset
-  length: 4 // optional length
-})) {
-  bytes.push(buf)
+for await (const buf of entry.content()) {
+  bytes.set(buf, offset)
   offset += chunk.length
 }
 
@@ -176,13 +173,13 @@ There is no `content` function for a `CBOR` node.
 When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
 
 ```javascript
-const size = entry.unixfs.fileSize()
-const data = new Uint8Array(size)
+const length = 5
+const data = new Uint8Array(length)
 let offset = 0
 
 for await (const chunk of entry.content({
   offset: 0,
-  length: 5
+  length
 })) {
   data.set(chunk, offset)
   offset += chunk.length

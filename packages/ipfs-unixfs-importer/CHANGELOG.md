@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@2.0.1...ipfs-unixfs-importer@3.0.0) (2020-07-28)
+
+
+### Bug Fixes
+
+* ignore high mode bits passed to constructor ([#53](https://github.com/ipfs/js-ipfs-unixfs/issues/53)) ([8e8d83d](https://github.com/ipfs/js-ipfs-unixfs/commit/8e8d83d757276be7e1cb2581abd4b562cb8209e2))
+
+
+### chore
+
+* remove node buffers from runtime code ([#66](https://github.com/ipfs/js-ipfs-unixfs/issues/66)) ([db60a42](https://github.com/ipfs/js-ipfs-unixfs/commit/db60a4232e600e73227e6ab8964be083eada389a))
+* upgrade to dag-pb that supports Uint8Array ([#65](https://github.com/ipfs/js-ipfs-unixfs/issues/65)) ([b8b2ee3](https://github.com/ipfs/js-ipfs-unixfs/commit/b8b2ee324f17c4bb8a7931761aee02d1635b6ca2))
+
+
+### BREAKING CHANGES
+
+* does not convert input to node Buffers any more, uses Uint8Arrays instead
+* dag-pb Links property now returns DAGLink objects
+
+
+
+
+
 ## [2.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@2.0.0...ipfs-unixfs-importer@2.0.1) (2020-04-24)
 
 

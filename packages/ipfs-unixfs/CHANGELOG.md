@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@1.0.2...ipfs-unixfs@2.0.0) (2020-07-28)
+
+
+### Bug Fixes
+
+* ignore high mode bits passed to constructor ([#53](https://github.com/ipfs/js-ipfs-unixfs/issues/53)) ([8e8d83d](https://github.com/ipfs/js-ipfs-unixfs/commit/8e8d83d757276be7e1cb2581abd4b562cb8209e2))
+
+
+### chore
+
+* remove node buffers from runtime code ([#66](https://github.com/ipfs/js-ipfs-unixfs/issues/66)) ([db60a42](https://github.com/ipfs/js-ipfs-unixfs/commit/db60a4232e600e73227e6ab8964be083eada389a))
+
+
+### BREAKING CHANGES
+
+* does not convert input to node Buffers any more, uses Uint8Arrays instead
+
+
+
+
+
 ## [1.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@1.0.1...ipfs-unixfs@1.0.2) (2020-04-24)
 
 

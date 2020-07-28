@@ -1,6 +1,5 @@
 'use strict'
 
-const { Buffer } = require('buffer')
 const errCode = require('err-code')
 const CID = require('cids')
 const resolve = require('./resolvers')
@@ -15,7 +14,7 @@ const toPathComponents = (path = '') => {
 }
 
 const cidAndRest = (path) => {
-  if (Buffer.isBuffer(path)) {
+  if (path instanceof Uint8Array) {
     return {
       cid: new CID(path),
       toResolve: []

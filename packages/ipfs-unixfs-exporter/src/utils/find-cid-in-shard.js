@@ -1,12 +1,14 @@
 'use strict'
 
-const { Buffer } = require('buffer')
 const Bucket = require('hamt-sharding/src/bucket')
 const multihashing = require('multihashing-async')
+const TextEncoder = require('ipfs-utils/src/text-encoder')
+const UTF8_ENCODER = new TextEncoder('utf8')
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
 const hashFn = async function (value) {
-  const hash = await multihashing(Buffer.from(value, 'utf8'), 'murmur3-128')
+  const buf = UTF8_ENCODER.encode(value)
+  const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.
   // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
@@ -14,7 +16,7 @@ const hashFn = async function (value) {
   // for parity..
   const justHash = hash.slice(2, 10)
   const length = justHash.length
-  const result = Buffer.alloc(length)
+  const result = new Uint8Array(length)
   // TODO: invert buffer because that's how Go impl does it
   for (let i = 0; i < length; i++) {
     result[length - i - 1] = justHash[i]

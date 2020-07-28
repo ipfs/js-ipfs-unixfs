@@ -1,5 +1,4 @@
 'use strict'
-const { Buffer } = require('buffer')
 
 module.exports = function extractDataFromBlock (block, blockStart, requestedStart, requestedEnd) {
   const blockLength = block.length
@@ -8,7 +7,7 @@ module.exports = function extractDataFromBlock (block, blockStart, requestedStar
   if (requestedStart >= blockEnd || requestedEnd < blockStart) {
     // If we are looking for a byte range that is starts after the start of the block,
     // return an empty block.  This can happen when internal nodes contain data
-    return Buffer.alloc(0)
+    return new Uint8Array(0)
   }
 
   if (requestedEnd >= blockStart && requestedEnd < blockEnd) {

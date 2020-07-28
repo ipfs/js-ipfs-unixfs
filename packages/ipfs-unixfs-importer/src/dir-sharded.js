@@ -4,16 +4,17 @@ const {
   DAGLink,
   DAGNode
 } = require('ipld-dag-pb')
-const { Buffer } = require('buffer')
 const UnixFS = require('ipfs-unixfs')
 const multihashing = require('multihashing-async')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 const Bucket = require('hamt-sharding')
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
+const utf8Encoder = require('./utils/utf8-encoder')
 
 const hashFn = async function (value) {
-  const hash = await multihashing(Buffer.from(value, 'utf8'), 'murmur3-128')
+  const buf = utf8Encoder.encode(value)
+  const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.
   // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
@@ -21,7 +22,7 @@ const hashFn = async function (value) {
   // for parity..
   const justHash = hash.slice(2, 10)
   const length = justHash.length
-  const result = Buffer.alloc(length)
+  const result = new Uint8Array(length)
   // TODO: invert buffer because that's how Go impl does it
   for (let i = 0; i < length; i++) {
     result[length - i - 1] = justHash[i]
@@ -142,7 +143,7 @@ async function * flush (path, bucket, block, shardRoot, options) {
 
   // go-ipfs uses little endian, that's why we have to
   // reverse the bit field before storing it
-  const data = Buffer.from(children.bitField().reverse())
+  const data = Uint8Array.from(children.bitField().reverse())
   const dir = new UnixFS({
     type: 'hamt-sharded-directory',
     data,

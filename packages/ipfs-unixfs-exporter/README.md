@@ -50,7 +50,7 @@ const files = []
 
 for await (const file of importer([{
   path: '/foo/bar.txt',
-  content: Buffer.from(0, 1, 2, 3)
+  content: new Uint8Array([0, 1, 2, 3])
 }], ipld)) {
   files.push(file)
 }
@@ -65,18 +65,16 @@ console.info(entry.name) // bar.txt
 console.info(entry.unixfs.fileSize()) // 4
 
 // stream content from unixfs node
-const bytes = []
+const size = entry.unixfs.fileSize()
+const bytes = new Uint8Array(size)
+let offset = 0
 
-for await (const buf of entry.content({
-  offset: 0, // optional offset
-  length: 4 // optional length
-})) {
-  bytes.push(buf)
+for await (const buf of entry.content()) {
+  bytes.set(buf, offset)
+  offset += chunk.length
 }
 
-const content = Buffer.concat(bytes)
-
-console.info(content) // 0, 1, 2, 3
+console.info(bytes) // 0, 1, 2, 3
 ```
 
 #### API
@@ -175,17 +173,20 @@ There is no `content` function for a `CBOR` node.
 When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
 
 ```javascript
-const bufs = []
+const length = 5
+const data = new Uint8Array(length)
+let offset = 0
 
 for await (const chunk of entry.content({
   offset: 0,
-  length: 5
+  length
 })) {
-  bufs.push(chunk)
+  data.set(chunk, offset)
+  offset += chunk.length
 }
 
 // `data` contains the first 5 bytes of the file
-const data = Buffer.concat(bufs)
+return data
 ```
 
 If `entry` is a directory or hamt shard, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.

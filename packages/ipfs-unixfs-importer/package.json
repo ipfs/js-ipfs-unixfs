@@ -63,7 +63,7 @@
     "it-first": "^1.0.1",
     "it-parallel-batch": "^1.0.3",
     "merge-options": "^2.0.0",
-    "multihashing-async": "^1.0.0",
+    "multihashing-async": "^2.0.0",
     "rabin-wasm": "^0.1.1"
   }
 }

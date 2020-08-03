@@ -60,6 +60,6 @@
     "ipfs-unixfs": "^2.0.1",
     "ipfs-utils": "^2.3.1",
     "it-last": "^1.0.1",
-    "multihashing-async": "^1.0.0"
+    "multihashing-async": "^2.0.0"
   }
 }

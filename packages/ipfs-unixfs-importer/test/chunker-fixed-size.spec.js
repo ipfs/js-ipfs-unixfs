@@ -2,9 +2,7 @@
 'use strict'
 
 const chunker = require('../src/chunker/fixed-size')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const isNode = require('detect-node')
 const all = require('it-all')
 const loadFixture = require('aegir/fixtures')

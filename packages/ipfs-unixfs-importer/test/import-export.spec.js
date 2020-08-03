@@ -2,9 +2,7 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const loadFixture = require('aegir/fixtures')

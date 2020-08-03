@@ -4,9 +4,7 @@
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 const extend = require('merge-options')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const spy = require('sinon/lib/sinon/spy')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')

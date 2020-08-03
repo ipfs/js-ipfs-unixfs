@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-chai.use(require('chai-as-promised'))
+const { expect } = require('aegir/utils/chai')
 const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')

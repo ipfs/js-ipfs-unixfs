@@ -37,10 +37,7 @@
   "devDependencies": {
     "abort-controller": "^3.0.0",
     "aegir": "^25.0.0",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
     "detect-node": "^2.0.4",
-    "dirty-chai": "^2.0.1",
     "ipfs-unixfs-importer": "^3.0.1",
     "ipld": "^0.26.1",
     "ipld-dag-pb": "ipld/js-ipld-dag-pb#fix/replace-node-buffers-with-unit8arrays",

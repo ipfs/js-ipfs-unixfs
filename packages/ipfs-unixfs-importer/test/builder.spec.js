@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const mh = require('multihashing-async').multihash
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')

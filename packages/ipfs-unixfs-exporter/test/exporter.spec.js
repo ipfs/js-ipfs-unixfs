@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 chai.use(require('chai-as-promised'))
@@ -24,6 +23,9 @@ const first = require('it-first')
 const randomBytes = require('it-buffer-stream')
 const AbortController = require('abort-controller')
 const blockApi = require('./helpers/block')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -34,13 +36,13 @@ describe('exporter', () => {
   let smallFile
 
   before(async () => {
-    bigFile = Buffer.concat(await all(randomBytes(ONE_MEG * 1.2)))
-    smallFile = Buffer.concat(await all(randomBytes(200)))
+    bigFile = uint8ArrayConcat(await all(randomBytes(ONE_MEG * 1.2)))
+    smallFile = uint8ArrayConcat(await all(randomBytes(200)))
   })
 
   async function dagPut (options = {}) {
     options.type = options.type || 'file'
-    options.content = options.content || Buffer.from([0x01, 0x02, 0x03])
+    options.content = options.content || Uint8Array.from([0x01, 0x02, 0x03])
     options.links = options.links || []
 
     const file = new UnixFS({
@@ -76,14 +78,14 @@ describe('exporter', () => {
     const cid = await addTestFile({ file, strategy, path, maxChunkSize, rawLeaves })
     const entry = await exporter(cid, ipld)
 
-    return Buffer.concat(await all(entry.content({
+    return uint8ArrayConcat(await all(entry.content({
       offset, length
     })))
   }
 
   async function checkBytesThatSpanBlocks (strategy) {
     const bytesInABlock = 262144
-    const bytes = Buffer.alloc(bytesInABlock + 100, 0)
+    const bytes = new Uint8Array(bytesInABlock + 100)
 
     bytes[bytesInABlock - 1] = 1
     bytes[bytesInABlock] = 2
@@ -96,11 +98,11 @@ describe('exporter', () => {
       strategy
     })
 
-    expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
+    expect(data).to.deep.equal(Uint8Array.from([1, 2, 3]))
   }
 
   async function createAndPersistNode (ipld, type, data, children) {
-    const file = new UnixFS(type, data ? Buffer.from(data) : undefined)
+    const file = new UnixFS(type, data ? Uint8Array.from(data) : undefined)
     const links = []
 
     for (let i = 0; i < children.length; i++) {
@@ -141,7 +143,7 @@ describe('exporter', () => {
     expect(file).to.have.property('cid')
     expect(file).to.have.property('path', result.cid.toBaseEncodedString())
 
-    const data = Buffer.concat(await all(file.content()))
+    const data = uint8ArrayConcat(await all(file.content()))
     expect(data).to.deep.equal(unmarsh.data)
   })
 
@@ -182,14 +184,14 @@ describe('exporter', () => {
     const length = 5
 
     const result = await dagPut({
-      content: Buffer.concat(await all(randomBytes(100)))
+      content: uint8ArrayConcat(await all(randomBytes(100)))
     })
 
     const node = await ipld.get(result.cid)
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     const file = await exporter(result.cid, ipld)
-    const data = Buffer.concat(await all(file.content({
+    const data = uint8ArrayConcat(await all(file.content({
       offset,
       length
     })))
@@ -198,7 +200,7 @@ describe('exporter', () => {
   })
 
   it('exports a small file with links', async () => {
-    const content = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    const content = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     const chunk1 = new UnixFS({
       type: 'raw',
       data: content.slice(0, 5)
@@ -232,7 +234,7 @@ describe('exporter', () => {
     })
 
     const exported = await exporter(fileCid, ipld)
-    const data = Buffer.concat(await all(exported.content()))
+    const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(content)
   })
 
@@ -242,14 +244,14 @@ describe('exporter', () => {
 
     const chunk = await dagPut({ content: randomBytes(100) })
     const result = await dagPut({
-      content: Buffer.concat(await all(randomBytes(100))),
+      content: uint8ArrayConcat(await all(randomBytes(100))),
       links: [
         new DAGLink('', chunk.node.size, chunk.cid)
       ]
     })
 
     const file = await exporter(result.cid, ipld)
-    const data = Buffer.concat(await all(file.content({
+    const data = uint8ArrayConcat(await all(file.content({
       offset,
       length
     })))
@@ -275,7 +277,7 @@ describe('exporter', () => {
 
     const offset = 0
     const length = 5
-    const bytes = Buffer.concat(await all(randomBytes(ONE_MEG * 6)))
+    const bytes = uint8ArrayConcat(await all(randomBytes(ONE_MEG * 6)))
 
     const cid = await addTestFile({
       file: bytes
@@ -284,7 +286,7 @@ describe('exporter', () => {
     const file = await exporter(cid, ipld)
     expect(file).to.have.property('path', cid.toBaseEncodedString())
 
-    const data = Buffer.concat(await all(file.content({
+    const data = uint8ArrayConcat(await all(file.content({
       offset,
       length
     })))
@@ -295,7 +297,7 @@ describe('exporter', () => {
   it('exports the right chunks of files when offsets are specified', async function () {
     this.timeout(30 * 1000)
     const offset = 3
-    const data = Buffer.alloc(300 * 1024)
+    const data = new Uint8Array(300 * 1024)
 
     const fileWithNoOffset = await addAndReadTestFile({
       file: data,
@@ -323,7 +325,7 @@ describe('exporter', () => {
       length: 0
     })
 
-    expect(data).to.eql(Buffer.alloc(0))
+    expect(data).to.eql(new Uint8Array(0))
   })
 
   it('exports a directory', async () => {
@@ -456,7 +458,7 @@ describe('exporter', () => {
       length
     })
 
-    expect(data).to.eql(Buffer.alloc(0))
+    expect(data).to.eql(new Uint8Array(0))
   })
 
   it('errors when exporting a chunk of a small file imported with raw leaves and negative length', async function () {
@@ -525,7 +527,7 @@ describe('exporter', () => {
     }))
 
     const file = await exporter(imported.cid, ipld)
-    const data = Buffer.concat(await all(file.content()))
+    const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(bigFile)
   })
@@ -541,17 +543,17 @@ describe('exporter', () => {
 
   it('reads bytes with an offset', async () => {
     const data = await addAndReadTestFile({
-      file: Buffer.from([0, 1, 2, 3]),
+      file: Uint8Array.from([0, 1, 2, 3]),
       offset: 1
     })
 
-    expect(data).to.deep.equal(Buffer.from([1, 2, 3]))
+    expect(data).to.deep.equal(Uint8Array.from([1, 2, 3]))
   })
 
   it('errors when reading bytes with a negative offset', async () => {
     try {
       await addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3]),
+        file: Uint8Array.from([0, 1, 2, 3]),
         offset: -1
       })
       throw new Error('Should not have got this far')
@@ -563,17 +565,17 @@ describe('exporter', () => {
 
   it('reads bytes with an offset and a length', async () => {
     const data = await addAndReadTestFile({
-      file: Buffer.from([0, 1, 2, 3]),
+      file: Uint8Array.from([0, 1, 2, 3]),
       offset: 0,
       length: 1
     })
 
-    expect(data).to.deep.equal(Buffer.from([0]))
+    expect(data).to.deep.equal(Uint8Array.from([0]))
   })
 
   it('reads returns an empty buffer when offset is equal to the file size', async () => {
     const data = await addAndReadTestFile({
-      file: Buffer.from([0, 1, 2, 3]),
+      file: Uint8Array.from([0, 1, 2, 3]),
       offset: 4
     })
 
@@ -582,7 +584,7 @@ describe('exporter', () => {
 
   it('reads returns an empty buffer when length is zero', async () => {
     const data = await addAndReadTestFile({
-      file: Buffer.from([0, 1, 2, 3]),
+      file: Uint8Array.from([0, 1, 2, 3]),
       length: 0
     })
 
@@ -592,7 +594,7 @@ describe('exporter', () => {
   it('errors when reading bytes with a negative length', async () => {
     try {
       await addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3, 4]),
+        file: Uint8Array.from([0, 1, 2, 3, 4]),
         offset: 2,
         length: -1
       })
@@ -605,7 +607,7 @@ describe('exporter', () => {
   it('errors when reading bytes that start after the file ends', async () => {
     try {
       await addAndReadTestFile({
-        file: Buffer.from([0, 1, 2, 3, 4]),
+        file: Uint8Array.from([0, 1, 2, 3, 4]),
         offset: 200
       })
     } catch (err) {
@@ -616,12 +618,12 @@ describe('exporter', () => {
 
   it('reads bytes with an offset and a length', async () => {
     const data = await addAndReadTestFile({
-      file: Buffer.from([0, 1, 2, 3, 4]),
+      file: Uint8Array.from([0, 1, 2, 3, 4]),
       offset: 1,
       length: 4
     })
 
-    expect(data).to.deep.equal(Buffer.from([1, 2, 3, 4]))
+    expect(data).to.deep.equal(Uint8Array.from([1, 2, 3, 4]))
   })
 
   it('reads files that are split across lots of nodes', async function () {
@@ -651,7 +653,7 @@ describe('exporter', () => {
     const file = await exporter(cid, ipld)
 
     while (offset < bigFile.length) {
-      const result = Buffer.concat(await all(file.content({
+      const result = uint8ArrayConcat(await all(file.content({
         offset,
         length: chunkSize
       })))
@@ -660,7 +662,7 @@ describe('exporter', () => {
       offset += result.length
     }
 
-    const buffer = Buffer.concat(results)
+    const buffer = uint8ArrayConcat(results)
 
     expect(buffer).to.deep.equal(bigFile)
   })
@@ -695,9 +697,9 @@ describe('exporter', () => {
     ])
 
     const file = await exporter(node.cid, ipld)
-    const data = Buffer.concat(await all(file.content()))
+    const data = uint8ArrayConcat(await all(file.content()))
 
-    expect(data).to.deep.equal(Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
+    expect(data).to.deep.equal(Uint8Array.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
   })
 
   it('exports file with data on some internal and leaf nodes', async () => {
@@ -729,10 +731,10 @@ describe('exporter', () => {
     ])
 
     const file = await exporter(node.cid, ipld)
-    const data = Buffer.concat(await all(file.content()))
+    const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(
-      Buffer.from([
+      Uint8Array.from([
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
       ])
@@ -746,11 +748,11 @@ describe('exporter', () => {
     ])
 
     const file = await exporter(node.cid, ipld)
-    const data = Buffer.concat(await all(file.content({
+    const data = uint8ArrayConcat(await all(file.content({
       offset: 4
     })))
 
-    expect(data).to.deep.equal(Buffer.from([0x04, 0x05, 0x06, 0x07]))
+    expect(data).to.deep.equal(Uint8Array.from([0x04, 0x05, 0x06, 0x07]))
   })
 
   it('exports file with data on leaf nodes without emitting empty buffers', async function () {
@@ -782,7 +784,7 @@ describe('exporter', () => {
     const file = await exporter(imported.cid, ipld)
     expect(CID.isCID(file.cid)).to.be.true()
 
-    const data = Buffer.concat(await all(file.content()))
+    const data = uint8ArrayConcat(await all(file.content()))
     expect(data).to.deep.equal(smallFile)
   })
 
@@ -820,7 +822,7 @@ describe('exporter', () => {
   })
 
   it('errors if we try to export links from inside a raw node', async () => {
-    const cid = await ipld.put(Buffer.from([0, 1, 2, 3, 4]), mc.RAW)
+    const cid = await ipld.put(Uint8Array.from([0, 1, 2, 3, 4]), mc.RAW)
 
     try {
       await exporter(`${cid.toBaseEncodedString()}/lol`, ipld)
@@ -830,7 +832,7 @@ describe('exporter', () => {
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
-    const cid = await ipld.put(new DAGNode(Buffer.from([0, 1, 2, 3, 4])), mc.DAG_PB)
+    const cid = await ipld.put(new DAGNode(Uint8Array.from([0, 1, 2, 3, 4])), mc.DAG_PB)
 
     try {
       await exporter(cid, ipld)
@@ -865,7 +867,7 @@ describe('exporter', () => {
   it('exports a node with depth', async () => {
     const imported = await all(importer([{
       path: '/foo/bar/baz.txt',
-      content: Buffer.from('hello world')
+      content: uint8ArrayFromString('hello world')
     }], block))
 
     const exported = await exporter(imported[0].cid, ipld)
@@ -876,13 +878,13 @@ describe('exporter', () => {
   it('exports a node recursively with depth', async () => {
     const dir = await last(importer([{
       path: '/foo/bar/baz.txt',
-      content: Buffer.from('hello world')
+      content: uint8ArrayFromString('hello world')
     }, {
       path: '/foo/qux.txt',
-      content: Buffer.from('hello world')
+      content: uint8ArrayFromString('hello world')
     }, {
       path: '/foo/bar/quux.txt',
-      content: Buffer.from('hello world')
+      content: uint8ArrayFromString('hello world')
     }], block))
 
     const exported = await all(exporter.recursive(dir.cid, ipld))
@@ -909,62 +911,62 @@ describe('exporter', () => {
   })
 
   it('exports a CID encoded with the identity hash', async () => {
-    const data = Buffer.from('hello world')
+    const data = uint8ArrayFromString('hello world')
     const hash = mh.encode(data, 'identity')
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
-    const result = Buffer.concat(await all(exported.content()))
+    const result = uint8ArrayConcat(await all(exported.content()))
 
     expect(result).to.deep.equal(data)
-    expect(result.toString('utf8')).to.equal('hello world')
+    expect(uint8ArrayToString(result)).to.equal('hello world')
   })
 
   it('exports a CID encoded with the identity hash with an offset', async () => {
-    const data = Buffer.from('hello world')
+    const data = uint8ArrayFromString('hello world')
     const hash = mh.encode(data, 'identity')
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
-    const result = Buffer.concat(await all(exported.content({
+    const result = uint8ArrayConcat(await all(exported.content({
       offset: 1
     })))
 
-    expect(result.toString('utf8')).to.equal('ello world')
+    expect(uint8ArrayToString(result)).to.equal('ello world')
   })
 
   it('exports a CID encoded with the identity hash with a length', async () => {
-    const data = Buffer.from('hello world')
+    const data = uint8ArrayFromString('hello world')
     const hash = mh.encode(data, 'identity')
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
-    const result = Buffer.concat(await all(exported.content({
+    const result = uint8ArrayConcat(await all(exported.content({
       length: 1
     })))
 
-    expect(result.toString('utf8')).to.equal('h')
+    expect(uint8ArrayToString(result)).to.equal('h')
   })
 
   it('exports a CID encoded with the identity hash with an offset and a length', async () => {
-    const data = Buffer.from('hello world')
+    const data = uint8ArrayFromString('hello world')
     const hash = mh.encode(data, 'identity')
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
-    const result = Buffer.concat(await all(exported.content({
+    const result = uint8ArrayConcat(await all(exported.content({
       offset: 3,
       length: 1
     })))
 
-    expect(result.toString('utf8')).to.equal('l')
+    expect(uint8ArrayToString(result)).to.equal('l')
   })
 
   it('aborts a request', async () => {
     const abortController = new AbortController()
 
     // data should not be in IPLD
-    const data = Buffer.from(`hello world '${Math.random()}`)
+    const data = uint8ArrayFromString(`hello world '${Math.random()}`)
     const hash = mh.encode(data, 'sha2-256')
     const cid = new CID(1, 'dag-pb', hash)
     const message = `User aborted ${Math.random()}`

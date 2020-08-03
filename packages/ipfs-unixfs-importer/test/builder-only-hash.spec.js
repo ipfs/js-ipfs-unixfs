@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -23,7 +22,7 @@ describe('builder: onlyHash', () => {
   it('will only chunk and hash if passed an "onlyHash" option', async () => {
     const nodes = await all(builder([{
       path: 'foo.txt',
-      content: Buffer.from([0, 1, 2, 3, 4])
+      content: Uint8Array.from([0, 1, 2, 3, 4])
     }], block, {
       onlyHash: true,
       chunker: 'fixed',

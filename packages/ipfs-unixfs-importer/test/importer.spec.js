@@ -3,7 +3,6 @@
 
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
-const { Buffer } = require('buffer')
 const extend = require('merge-options')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
@@ -20,6 +19,8 @@ const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Byte
 const all = require('it-all')
 const first = require('it-first')
 const blockApi = require('./helpers/block')
+const uint8ArrayConcat = require('uint8arrays/concat')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -181,7 +182,7 @@ const strategyOverrides = {
 const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   const file = await first(importer([{
     path: 'foo',
-    content: Buffer.alloc(262144 + 5).fill(1)
+    content: new Uint8Array(262144 + 5).fill(1)
   }], block, options))
 
   const node = await ipld.get(file.cid)
@@ -203,7 +204,7 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
 const checkNodeLinks = async (block, ipld, options, expected) => {
   for await (const file of importer([{
     path: 'foo',
-    content: Buffer.alloc(100).fill(1)
+    content: new Uint8Array(100).fill(1)
   }], block, options)) {
     const node = await ipld.get(file.cid)
     const meta = UnixFs.unmarshal(node.Data)
@@ -360,7 +361,7 @@ strategies.forEach((strategy) => {
     it('doesn\'t yield anything on empty file', async () => {
       const files = await all(importer([{
         path: 'emptyfile',
-        content: Buffer.alloc(0)
+        content: new Uint8Array(0)
       }], block, options))
 
       expect(files.length).to.eql(1)
@@ -627,7 +628,7 @@ strategies.forEach((strategy) => {
       const content = String(Math.random() + Date.now())
       const files = await all(importer([{
         path: content + '.txt',
-        content: Buffer.from(content)
+        content: uint8ArrayFromString(content)
       }], block, {
         onlyHash: true
       }))
@@ -667,7 +668,7 @@ strategies.forEach((strategy) => {
         path = path[path.length - 1] === '/' ? path : path + '/'
         return {
           path: path + name + '.txt',
-          content: Buffer.alloc(size).fill(1)
+          content: new Uint8Array(size).fill(1)
         }
       }
 
@@ -715,7 +716,7 @@ strategies.forEach((strategy) => {
           chunks.push(chunk)
         }
 
-        expect(Buffer.concat(chunks)).to.deep.equal(inputFile.content)
+        expect(uint8ArrayConcat(chunks)).to.deep.equal(inputFile.content)
       }
     })
 
@@ -1032,7 +1033,7 @@ describe('configuration', () => {
     expect(builtTree).to.be.true()
   })
 
-  it('alllows configuring with custom chunker', async () => {
+  it('allows configuring with custom chunker', async () => {
     let validated = false
     let chunked = false
     const block = {
@@ -1040,7 +1041,7 @@ describe('configuration', () => {
     }
     const entries = await all(importer([{
       path: 'path',
-      content: 'content'
+      content: uint8ArrayFromString('content')
     }], block, {
       chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
         validated = true

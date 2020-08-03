@@ -12,13 +12,13 @@ const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const { Buffer } = require('buffer')
 const protons = require('protons')
 const unixfsData = protons(require('../src/unixfs.proto')).Data
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 describe('unixfs-format', () => {
   it('old style constructor', () => {
-    const buf = Buffer.from('hello world')
+    const buf = uint8ArrayFromString('hello world')
     const entry = new UnixFS('file', buf)
 
     expect(entry.type).to.equal('file')
@@ -45,7 +45,7 @@ describe('unixfs-format', () => {
   it('raw', () => {
     const data = new UnixFS({
       type: 'raw',
-      data: Buffer.from('bananas')
+      data: uint8ArrayFromString('bananas')
     })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
@@ -82,7 +82,7 @@ describe('unixfs-format', () => {
   it('file', () => {
     const data = new UnixFS({
       type: 'file',
-      data: Buffer.from('batata')
+      data: uint8ArrayFromString('batata')
     })
     const marshaled = data.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
@@ -453,7 +453,7 @@ describe('unixfs-format', () => {
   describe('interop', () => {
     it('raw', () => {
       const unmarshaled = UnixFS.unmarshal(raw)
-      expect(unmarshaled.data).to.eql(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshaled.data).to.eql(uint8ArrayFromString('Hello UnixFS\n'))
       expect(unmarshaled.type).to.equal('file')
       expect(unmarshaled.marshal()).to.deep.equal(raw)
     })
@@ -467,7 +467,7 @@ describe('unixfs-format', () => {
 
     it('file', () => {
       const unmarshaled = UnixFS.unmarshal(file)
-      expect(unmarshaled.data).to.deep.equal(Buffer.from('Hello UnixFS\n'))
+      expect(unmarshaled.data).to.deep.equal(uint8ArrayFromString('Hello UnixFS\n'))
       expect(unmarshaled.type).to.equal('file')
       expect(unmarshaled.marshal()).to.deep.equal(file)
     })
@@ -477,7 +477,7 @@ describe('unixfs-format', () => {
 
     it('symlink', () => {
       const unmarshaled = UnixFS.unmarshal(symlink)
-      expect(unmarshaled.data).to.deep.equal(Buffer.from('file.txt'))
+      expect(unmarshaled.data).to.deep.equal(uint8ArrayFromString('file.txt'))
       expect(unmarshaled.type).to.equal('symlink')
       // TODO: waiting on https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182440079
       // expect(unmarshaled.marshal()).to.deep.equal(symlink)
@@ -490,6 +490,6 @@ describe('unixfs-format', () => {
     })
     const marshaled = data.marshal()
 
-    expect(marshaled).to.deep.equal(Buffer.from([0x08, 0x02, 0x18, 0x00]))
+    expect(marshaled).to.deep.equal(Uint8Array.from([0x08, 0x02, 0x18, 0x00]))
   })
 })

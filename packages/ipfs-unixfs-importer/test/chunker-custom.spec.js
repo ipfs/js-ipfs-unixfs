@@ -2,7 +2,6 @@
 'use strict'
 
 const importer = require('../src')
-const { Buffer } = require('buffer')
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
@@ -10,12 +9,13 @@ const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const mc = require('multicodec')
 const blockApi = require('./helpers/block')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 // eslint bug https://github.com/eslint/eslint/issues/12459
 // eslint-disable-next-line require-await
 const iter = async function * () {
-  yield Buffer.from('one')
-  yield Buffer.from('two')
+  yield uint8ArrayFromString('one')
+  yield uint8ArrayFromString('two')
 }
 
 describe('custom chunker', function () {
@@ -57,11 +57,11 @@ describe('custom chunker', function () {
   const multi = async function * () {
     yield {
       size: 11,
-      cid: await inmem.put(Buffer.from('hello world'), mc.RAW)
+      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
     }
     yield {
       size: 11,
-      cid: await inmem.put(Buffer.from('hello world'), mc.RAW)
+      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
     }
   }
   it('works with multiple parts', fromPartsTest(multi, 120))
@@ -69,7 +69,7 @@ describe('custom chunker', function () {
   const single = async function * () {
     yield {
       size: 11,
-      cid: await inmem.put(Buffer.from('hello world'), mc.RAW)
+      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
     }
   }
   it('works with single part', fromPartsTest(single, 11))

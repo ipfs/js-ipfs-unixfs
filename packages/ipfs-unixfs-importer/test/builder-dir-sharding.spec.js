@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 
@@ -13,6 +12,9 @@ const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const last = require('it-last')
 const blockApi = require('./helpers/block')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 describe('builder: directory sharding', () => {
   let ipld
@@ -25,7 +27,7 @@ describe('builder: directory sharding', () => {
 
   describe('basic dirbuilder', () => {
     it('yields a non-sharded dir', async () => {
-      const content = Buffer.from('i have the best bytes')
+      const content = uint8ArrayFromString('i have the best bytes')
       const nodes = await all(importer([{
         path: 'a/b',
         content
@@ -43,13 +45,13 @@ describe('builder: directory sharding', () => {
 
       const fileNode = await exporter(nodes[0].cid, ipld)
       expect(fileNode.unixfs.type).to.equal('file')
-      expect(Buffer.concat(await all(fileNode.content()))).to.deep.equal(content)
+      expect(uint8ArrayConcat(await all(fileNode.content()))).to.deep.equal(content)
     })
 
     it('yields a sharded dir', async () => {
       const nodes = await all(importer([{
         path: 'a/b',
-        content: Buffer.from('i have the best bytes')
+        content: uint8ArrayFromString('i have the best bytes')
       }], block, {
         shardSplitThreshold: 0 // always shard
       }))
@@ -67,7 +69,7 @@ describe('builder: directory sharding', () => {
       const content = 'i have the best bytes'
       const nodes = await all(importer([{
         path: 'a/b',
-        content: Buffer.from(content)
+        content: uint8ArrayFromString(content)
       }], block, {
         shardSplitThreshold: Infinity // never shard
       }))
@@ -86,16 +88,16 @@ describe('builder: directory sharding', () => {
       expect(files[0].path).to.be.eql(expectedHash + '/b')
       expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
 
-      const fileContent = Buffer.concat(await all(files[0].content()))
+      const fileContent = uint8ArrayConcat(await all(files[0].content()))
 
-      expect(fileContent.toString()).to.equal(content)
+      expect(uint8ArrayToString(fileContent)).to.equal(content)
     })
 
     it('exporting sharded hash results in the correct files', async () => {
       const content = 'i have the best bytes'
       const nodes = await all(importer([{
         path: 'a/b',
-        content: Buffer.from(content)
+        content: uint8ArrayFromString(content)
       }], block, {
         shardSplitThreshold: 0 // always shard
       }))
@@ -114,9 +116,9 @@ describe('builder: directory sharding', () => {
       expect(files[0].path).to.be.eql(expectedHash + '/b')
       expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
 
-      const fileContent = Buffer.concat(await all(files[0].content()))
+      const fileContent = uint8ArrayConcat(await all(files[0].content()))
 
-      expect(fileContent.toString()).to.equal(content)
+      expect(uint8ArrayToString(fileContent)).to.equal(content)
     })
   })
 
@@ -131,7 +133,7 @@ describe('builder: directory sharding', () => {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
-              content: Buffer.from(i.toString())
+              content: uint8ArrayFromString(i.toString())
             }
           }
         }
@@ -150,7 +152,7 @@ describe('builder: directory sharding', () => {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
-              content: Buffer.from(i.toString())
+              content: uint8ArrayFromString(i.toString())
             }
           }
         }
@@ -163,8 +165,8 @@ describe('builder: directory sharding', () => {
       const dir = await exporter(nodes[nodes.length - 1].cid, ipld)
 
       for await (const entry of dir.content()) {
-        const content = Buffer.concat(await all(entry.content()))
-        expect(content.toString()).to.equal(parseInt(entry.name, 10).toString())
+        const content = uint8ArrayConcat(await all(entry.content()))
+        expect(uint8ArrayToString(content)).to.equal(parseInt(entry.name, 10).toString())
       }
     })
   })
@@ -194,7 +196,7 @@ describe('builder: directory sharding', () => {
 
             yield {
               path: dir.concat(i.toString().padStart(4, '0')).join('/'),
-              content: Buffer.from(i.toString())
+              content: uint8ArrayFromString(i.toString())
             }
 
             pending--
@@ -220,8 +222,8 @@ describe('builder: directory sharding', () => {
       const verifyContent = async (node) => {
         if (node.unixfs.type === 'file') {
           const bufs = await all(node.content())
-          const content = Buffer.concat(bufs)
-          expect(content.toString()).to.equal(parseInt(node.name, 10).toString())
+          const content = uint8ArrayConcat(bufs)
+          expect(uint8ArrayToString(content)).to.equal(parseInt(node.name, 10).toString())
         } else {
           for await (const entry of node.content()) {
             await verifyContent(entry)
@@ -236,7 +238,7 @@ describe('builder: directory sharding', () => {
       const collectContent = async (node, entries = {}) => {
         if (node.unixfs.type === 'file') {
           entries[node.path] = {
-            content: Buffer.concat(await all(node.content())).toString()
+            content: uint8ArrayToString(uint8ArrayConcat(await all(node.content())))
           }
         } else {
           entries[node.path] = node
@@ -291,8 +293,8 @@ describe('builder: directory sharding', () => {
       const node = await exporter(exportHash, ipld)
       expect(node.path).to.equal(exportHash)
 
-      const content = Buffer.concat(await all(node.content()))
-      expect(content.toString()).to.equal('2000')
+      const content = uint8ArrayConcat(await all(node.content()))
+      expect(uint8ArrayToString(content)).to.equal('2000')
     })
   })
 })

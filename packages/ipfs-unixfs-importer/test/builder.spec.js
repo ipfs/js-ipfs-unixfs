@@ -1,10 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const mh = require('multihashing-async').multihash
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
@@ -12,6 +9,7 @@ const UnixFS = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
 const first = require('it-first')
 const blockApi = require('./helpers/block')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 describe('builder', () => {
   let ipld
@@ -44,7 +42,7 @@ describe('builder', () => {
       const content = String(Math.random() + Date.now())
       const inputFile = {
         path: content + '.txt',
-        content: Buffer.from(content)
+        content: uint8ArrayFromString(content)
       }
 
       const imported = await (await first(builder([inputFile], block, options)))()
@@ -75,7 +73,7 @@ describe('builder', () => {
       const inputFile = {
         path: content + '.txt',
         // Bigger than maxChunkSize
-        content: Buffer.alloc(262144 + 5).fill(1)
+        content: new Uint8Array(262144 + 5).fill(1)
       }
 
       const imported = await (await first(builder([inputFile], block, options)))()

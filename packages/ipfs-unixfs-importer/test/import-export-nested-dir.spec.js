@@ -1,16 +1,16 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const importer = require('../src')
 const exporter = require('ipfs-unixfs-exporter')
 const blockApi = require('./helpers/block')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
@@ -27,16 +27,16 @@ describe('import and export: directory', () => {
 
     const source = [{
       path: 'a/b/c/d/e',
-      content: Buffer.from('banana')
+      content: uint8ArrayFromString('banana')
     }, {
       path: 'a/b/c/d/f',
-      content: Buffer.from('strawberry')
+      content: uint8ArrayFromString('strawberry')
     }, {
       path: 'a/b/g',
-      content: Buffer.from('ice')
+      content: uint8ArrayFromString('ice')
     }, {
       path: 'a/b/h',
-      content: Buffer.from('cream')
+      content: uint8ArrayFromString('cream')
     }]
 
     const files = await all(importer(source, block))
@@ -97,7 +97,7 @@ async function recursiveExport (node, path, entries = []) {
     } else {
       entries.push({
         path: `${path}/${entry.name}`,
-        content: Buffer.concat(await all(entry.content())).toString()
+        content: uint8ArrayToString(uint8ArrayConcat(await all(entry.content())))
       })
     }
   }

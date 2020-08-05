@@ -1,14 +1,13 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
 const chunker = require('../src/chunker/rabin')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const loadFixture = require('aegir/fixtures')
 const isNode = require('detect-node')
 const all = require('it-all')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt')
 
@@ -22,13 +21,13 @@ describe('chunker: rabin', function () {
   }
 
   it('chunks non flat buffers', async () => {
-    const b1 = Buffer.alloc(2 * 256)
-    const b2 = Buffer.alloc(1 * 256)
-    const b3 = Buffer.alloc(5 * 256)
+    const b1 = new Uint8Array(2 * 256)
+    const b2 = new Uint8Array(1 * 256)
+    const b3 = new Uint8Array(5 * 256)
 
-    b1.fill('a')
-    b2.fill('b')
-    b3.fill('c')
+    b1.fill('a'.charCodeAt(0))
+    b2.fill('b'.charCodeAt(0))
+    b3.fill('c'.charCodeAt(0))
 
     const chunks = await all(chunker([b1, b2, b3], {
       ...defaultOptions,
@@ -51,8 +50,8 @@ describe('chunker: rabin', function () {
   })
 
   it('uses default min and max chunk size when only avgChunkSize is specified', async () => {
-    const b1 = Buffer.alloc(10 * 256)
-    b1.fill('a')
+    const b1 = new Uint8Array(10 * 256)
+    b1.fill('a'.charCodeAt(0))
 
     const chunks = await all(chunker([b1], {
       ...defaultOptions,
@@ -69,7 +68,7 @@ describe('chunker: rabin', function () {
 
   it('256 KiB avg chunks of non scalar filesize', async () => {
     const KiB256 = 262144
-    const file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
     const opts = {
       ...defaultOptions,
       minChunkSize: KiB256 / 3,
@@ -115,7 +114,7 @@ describe('chunker: rabin', function () {
   })
 
   it('uses the min chunk size when max and avg are too small', async () => {
-    const file = Buffer.concat([rawFile, Buffer.from('hello')])
+    const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
     const opts = {
       ...defaultOptions,
       minChunkSize: 100,

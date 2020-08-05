@@ -1,10 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
@@ -20,6 +17,7 @@ const {
   DAGNode
 } = require('ipld-dag-pb')
 const blockApi = require('./helpers/block')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 const SHARD_SPLIT_THRESHOLD = 10
 
@@ -36,7 +34,7 @@ describe('exporter sharded', function () {
   const createShardWithFileNames = (numFiles, fileName) => {
     const files = new Array(numFiles).fill(0).map((_, index) => ({
       path: fileName(index),
-      content: Buffer.from([0, 1, 2, 3, 4, index])
+      content: Uint8Array.from([0, 1, 2, 3, 4, index])
     }))
 
     return createShardWithFiles(files)
@@ -59,7 +57,7 @@ describe('exporter sharded', function () {
 
     for (let i = 0; i < (SHARD_SPLIT_THRESHOLD + 1); i++) {
       files[`file-${Math.random()}.txt`] = {
-        content: Buffer.concat(await all(randomBytes(100)))
+        content: uint8ArrayConcat(await all(randomBytes(100)))
       }
     }
 
@@ -92,7 +90,7 @@ describe('exporter sharded', function () {
 
     for (let i = 0; i < dirFiles.length; i++) {
       const dirFile = dirFiles[i]
-      const data = Buffer.concat(await all(dirFile.content()))
+      const data = uint8ArrayConcat(await all(dirFile.content()))
 
       // validate the CID
       expect(files[dirFile.name].cid.equals(dirFile.cid)).to.be.true()

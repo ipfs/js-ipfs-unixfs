@@ -1,7 +1,7 @@
 'use strict'
 
 const errCode = require('err-code')
-const utf8Encoder = require('../utils/utf8-encoder')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 // make sure the content only emits buffer-a-likes
 async function * validateChunks (source) {
@@ -11,7 +11,7 @@ async function * validateChunks (source) {
     }
 
     if (typeof content === 'string' || content instanceof String) {
-      yield utf8Encoder.encode(content)
+      yield uint8ArrayFromString(content)
     } else if (Array.isArray(content)) {
       yield Uint8Array.from(content)
     } else {

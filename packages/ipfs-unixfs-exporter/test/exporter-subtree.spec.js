@@ -1,10 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const importer = require('ipfs-unixfs-importer')
@@ -13,6 +10,7 @@ const all = require('it-all')
 const last = require('it-last')
 const blockApi = require('./helpers/block')
 const randomBytes = require('it-buffer-stream')
+const uint8ArrayConcat = require('uint8arrays/concat')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -28,7 +26,7 @@ describe('exporter subtree', () => {
   })
 
   it('exports a file 2 levels down', async () => {
-    const content = Buffer.concat(await all(randomBytes(ONE_MEG)))
+    const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
 
     const imported = await last(importer([{
       path: './200Bytes.txt',
@@ -44,12 +42,12 @@ describe('exporter subtree', () => {
     expect(exported.name).to.equal('200Bytes.txt')
     expect(exported.path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`)
 
-    const data = Buffer.concat(await all(exported.content()))
+    const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(content)
   })
 
   it('exports a directory 1 level down', async () => {
-    const content = Buffer.concat(await all(randomBytes(ONE_MEG)))
+    const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
     const imported = await last(importer([{
       path: './200Bytes.txt',
       content: randomBytes(ONE_MEG)
@@ -70,7 +68,7 @@ describe('exporter subtree', () => {
     expect(files[1].name).to.equal('level-2')
     expect(files[1].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/level-2`)
 
-    const data = Buffer.concat(await all(files[0].content()))
+    const data = uint8ArrayConcat(await all(files[0].content()))
     expect(data).to.deep.equal(content)
   })
 
@@ -88,7 +86,7 @@ describe('exporter subtree', () => {
   })
 
   it('exports starting from non-protobuf node', async () => {
-    const content = Buffer.concat(await all(randomBytes(ONE_MEG)))
+    const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
 
     const imported = await last(importer([{
       path: './level-1/200Bytes.txt',
@@ -108,12 +106,12 @@ describe('exporter subtree', () => {
     expect(exported.name).to.equal('200Bytes.txt')
     expect(exported.path).to.equal(`${cborNodeCid.toBaseEncodedString()}/a/file/level-1/200Bytes.txt`)
 
-    const data = Buffer.concat(await all(exported.content()))
+    const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(content)
   })
 
   it('uses .path to export all components of a path', async () => {
-    const content = Buffer.concat(await all(randomBytes(ONE_MEG)))
+    const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
 
     const imported = await last(importer([{
       path: './200Bytes.txt',

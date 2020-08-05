@@ -36,12 +36,11 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "aegir": "^25.0.0",
-    "chai": "^4.2.0",
-    "dirty-chai": "^2.0.1",
-    "nyc": "^15.0.0"
+    "nyc": "^15.0.0",
+    "uint8arrays": "^1.0.0"
   },
   "dependencies": {
     "err-code": "^2.0.0",
-    "protons": "^1.2.0"
+    "protons": "^2.0.0"
   }
 }

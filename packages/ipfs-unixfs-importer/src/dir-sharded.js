@@ -10,10 +10,10 @@ const Dir = require('./dir')
 const persist = require('./utils/persist')
 const Bucket = require('hamt-sharding')
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
-const utf8Encoder = require('./utils/utf8-encoder')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 const hashFn = async function (value) {
-  const buf = utf8Encoder.encode(value)
+  const buf = uint8ArrayFromString(value)
   const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.

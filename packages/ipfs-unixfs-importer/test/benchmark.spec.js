@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Buffer } = require('buffer')
 const importer = require('../src')
 
 const IPLD = require('ipld')
@@ -55,7 +54,7 @@ describe.skip('benchmark', function () {
         }
       }
 
-      const buf = Buffer.alloc(CHUNK_SIZE).fill(0)
+      const buf = new Uint8Array(CHUNK_SIZE).fill(0)
 
       await all(importer([{
         path: '200Bytes.txt',

@@ -38,7 +38,7 @@
     "aegir": "^25.0.0",
     "buffer": "^5.6.0",
     "chai": "^4.2.0",
-    "cids": "^0.8.0",
+    "cids": "^1.0.0",
     "detect-node": "^2.0.4",
     "dirty-chai": "^2.0.1",
     "ipfs-unixfs-exporter": "^3.0.1",

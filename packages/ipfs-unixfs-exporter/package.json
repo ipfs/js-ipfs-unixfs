@@ -54,7 +54,7 @@
     "sinon": "^9.0.1"
   },
   "dependencies": {
-    "cids": "^0.8.0",
+    "cids": "^1.0.0",
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^2.0.1",

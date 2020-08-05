@@ -41,6 +41,6 @@
   },
   "dependencies": {
     "err-code": "^2.0.0",
-    "protons": "ipfs/protons#fix/replace-node-buffers-with-uint8arrays"
+    "protons": "^2.0.0"
   }
 }

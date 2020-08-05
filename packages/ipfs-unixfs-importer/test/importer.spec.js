@@ -19,6 +19,7 @@ const first = require('it-first')
 const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -392,9 +393,9 @@ strategies.forEach((strategy) => {
       }], block, options))
 
       const file = await exporter(res[0].cid, ipld)
-      const fileContent = await all(file.content())
+      const fileContent = await first(file.content())
 
-      expect(fileContent.toString()).to.equal(content)
+      expect(uint8ArrayToString(fileContent)).to.equal(content)
     })
 
     it('small file with an escaped slash in the title', async () => {

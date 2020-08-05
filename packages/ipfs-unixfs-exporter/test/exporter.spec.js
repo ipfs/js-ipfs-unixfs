@@ -2,7 +2,6 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-const expect = chai.expect
 const IPLD = require('ipld')
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')

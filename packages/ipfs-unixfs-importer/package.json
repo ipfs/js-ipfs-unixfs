@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^25.0.0",
+    "aegir": "^26.0.0",
     "cids": "^1.0.0",
     "detect-node": "^2.0.4",
     "ipfs-unixfs-exporter": "^3.0.2",
@@ -43,7 +43,6 @@
     "ipld-in-memory": "^6.0.0",
     "it-buffer-stream": "^1.0.2",
     "it-last": "^1.0.1",
-    "merge-options": "^2.0.0",
     "multicodec": "^2.0.0",
     "nyc": "^15.0.0",
     "sinon": "^9.0.1"
@@ -53,15 +52,15 @@
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^2.0.2",
-    "ipfs-utils": "^2.3.1",
+    "ipfs-utils": "^3.0.0",
     "ipld-dag-pb": "^0.20.0",
     "it-all": "^1.0.1",
     "it-batch": "^1.0.3",
     "it-first": "^1.0.1",
     "it-parallel-batch": "^1.0.3",
-    "merge-options": "^2.0.0",
+    "merge-options": "^3.0.1",
     "multihashing-async": "^2.0.0",
     "rabin-wasm": "^0.1.1",
-    "uint8arrays": "^1.0.0"
+    "uint8arrays": "^1.1.0"
   }
 }

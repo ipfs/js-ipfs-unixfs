@@ -36,7 +36,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "abort-controller": "^3.0.0",
-    "aegir": "^25.0.0",
+    "aegir": "^26.0.0",
     "detect-node": "^2.0.4",
     "ipfs-unixfs-importer": "^3.0.2",
     "ipld": "^0.27.0",
@@ -55,7 +55,7 @@
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^2.0.2",
-    "ipfs-utils": "^2.3.1",
+    "ipfs-utils": "^3.0.0",
     "it-last": "^1.0.1",
     "multihashing-async": "^2.0.0"
   }

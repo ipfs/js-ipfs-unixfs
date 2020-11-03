@@ -27,6 +27,12 @@ strategies.forEach(strategy => {
     strategy: strategy
   }
 
+  if (strategy === 'trickle') {
+    // replicate go-ipfs behaviour
+    options.leafType = 'raw'
+    options.reduceSingleLeafToSelf = false
+  }
+
   describe('go-ipfs interop using importer:' + strategy, () => {
     let ipld
     let block

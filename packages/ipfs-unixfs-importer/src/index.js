@@ -36,28 +36,6 @@ const defaultOptions = {
 module.exports = async function * (source, block, options = {}) {
   const opts = mergeOptions(defaultOptions, options)
 
-  if (options.cidVersion > 0 && options.rawLeaves === undefined) {
-    // if the cid version is 1 or above, use raw leaves as this is
-    // what go does.
-    opts.rawLeaves = true
-  }
-
-  if (options.hashAlg !== undefined && options.rawLeaves === undefined) {
-    // if a non-default hash alg has been specified, use raw leaves as this is
-    // what go does.
-    opts.rawLeaves = true
-  }
-
-  // go-ifps trickle dag defaults to unixfs raw leaves, balanced dag defaults to file leaves
-  if (options.strategy === 'trickle') {
-    opts.leafType = 'raw'
-    opts.reduceSingleLeafToSelf = false
-  }
-
-  if (options.format) {
-    opts.codec = options.format
-  }
-
   let dagBuilder
 
   if (typeof options.dagBuilder === 'function') {

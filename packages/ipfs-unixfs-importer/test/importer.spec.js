@@ -319,6 +319,12 @@ strategies.forEach((strategy) => {
       strategy: strategy
     }
 
+    if (strategy === 'trickle') {
+      // replicate go-ipfs behaviour
+      options.leafType = 'raw'
+      options.reduceSingleLeafToSelf = false
+    }
+
     before(async () => {
       ipld = await inMemory(IPLD)
       block = blockApi(ipld)

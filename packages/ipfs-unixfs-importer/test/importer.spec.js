@@ -20,6 +20,8 @@ const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
+const last = require('it-last')
+const CID = require('cids')
 
 function stringifyMh (files) {
   return files.map((file) => {
@@ -1058,5 +1060,27 @@ describe('configuration', () => {
 
     expect(validated).to.be.true()
     expect(chunked).to.be.true()
+  })
+
+  it('imports the same data with different CID versions and gets the same multihash', async () => {
+    const ipld = await inMemory(IPLD)
+    const block = blockApi(ipld)
+    const buf = uint8ArrayFromString('content')
+
+    const { cid: cidV0 } = await last(importer([{
+      content: buf
+    }], block, {
+      cidVersion: 0,
+      rawLeaves: false
+    }))
+
+    const { cid: cidV1 } = await last(importer([{
+      content: buf
+    }], block, {
+      cidVersion: 1,
+      rawLeaves: false
+    }))
+
+    expect(cidV0.multihash).to.deep.equal(cidV1.multihash)
   })
 })

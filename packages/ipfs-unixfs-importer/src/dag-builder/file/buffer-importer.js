@@ -9,7 +9,7 @@ const {
 async function * bufferImporter (file, source, block, options) {
   for await (let buffer of source) {
     yield async () => {
-      options.progress(buffer.length)
+      options.progress(buffer.length, file.path)
       let unixfs
 
       const opts = {

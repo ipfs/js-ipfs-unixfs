@@ -646,6 +646,7 @@ strategies.forEach((strategy) => {
 
     it('will call an optional progress function', async () => {
       const maxChunkSize = 2048
+      const path = '1.2MiB.txt'
 
       const options = {
         progress: spy(),
@@ -653,12 +654,12 @@ strategies.forEach((strategy) => {
       }
 
       await all(importer([{
-        path: '1.2MiB.txt',
+        path,
         content: bigFile
       }], block, options))
 
       expect(options.progress.called).to.equal(true)
-      expect(options.progress.args[0][0]).to.equal(maxChunkSize)
+      expect(options.progress.args[0]).to.deep.equal([maxChunkSize, path])
     })
 
     it('will import files with CID version 1', async () => {

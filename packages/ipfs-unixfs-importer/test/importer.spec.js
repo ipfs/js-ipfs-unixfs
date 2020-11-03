@@ -21,7 +21,6 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const last = require('it-last')
-const CID = require('cids')
 
 function stringifyMh (files) {
   return files.map((file) => {

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@3.1.0...ipfs-unixfs-importer@4.0.0) (2020-11-06)
+
+
+### Bug Fixes
+
+* just do what the user asked ([#90](https://github.com/ipfs/js-ipfs-unixfs/issues/90)) ([7392a95](https://github.com/ipfs/js-ipfs-unixfs/commit/7392a9589dee23a94512a2384bcbbd2d6ff67225))
+
+
+### BREAKING CHANGES
+
+* We previously did things like set rawLeaves to true based on the CID version, now we do not.
+
+
+
+
+
 # [3.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@3.0.4...ipfs-unixfs-importer@3.1.0) (2020-11-04)
 
 

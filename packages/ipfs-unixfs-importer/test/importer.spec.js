@@ -376,20 +376,16 @@ strategies.forEach((strategy) => {
       expect(files[0].cid.toBaseEncodedString()).to.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
     })
 
-    it('fails on more than one root', async () => {
-      try {
-        await all(importer([{
-          path: 'beep/200Bytes.txt',
-          content: smallFile
-        }, {
-          path: 'boop/200Bytes.txt',
-          content: bigFile
-        }], block, options))
+    it('supports more than one root', async () => {
+      const files = await all(importer([{
+        path: '200Bytes.txt',
+        content: smallFile
+      }, {
+        path: '200Bytes.txt',
+        content: bigFile
+      }], block, options))
 
-        throw new Error('No error was thrown')
-      } catch (err) {
-        expect(err.code).to.equal('ERR_MORE_THAN_ONE_ROOT')
-      }
+      expect(files).to.have.lengthOf(2)
     })
 
     it('accepts strings as content', async () => {

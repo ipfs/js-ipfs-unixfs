@@ -4,8 +4,6 @@ const DirFlat = require('./dir-flat')
 const flatToShard = require('./flat-to-shard')
 const Dir = require('./dir')
 const toPathComponents = require('./utils/to-path-components')
-const errCode = require('err-code')
-const first = require('it-first')
 
 async function addToTree (elem, tree, options) {
   const pathElems = toPathComponents(elem.path || '')
@@ -51,6 +49,18 @@ async function addToTree (elem, tree, options) {
   return tree
 }
 
+async function * flushAndYield (tree, block) {
+  if (!(tree instanceof Dir)) {
+    if (tree && tree.unixfs && tree.unixfs.isDirectory()) {
+      yield tree
+    }
+
+    return
+  }
+
+  yield * tree.flush(tree.path, block)
+}
+
 async function * treeBuilder (source, block, options) {
   let tree = new DirFlat({
     root: true,
@@ -72,29 +82,17 @@ async function * treeBuilder (source, block, options) {
     }
   }
 
-  if (!options.wrapWithDirectory) {
-    if (tree.childCount() > 1) {
-      throw errCode(new Error('detected more than one root'), 'ERR_MORE_THAN_ONE_ROOT')
+  if (options.wrapWithDirectory) {
+    yield * flushAndYield(tree, block)
+  } else {
+    for await (const unwrapped of tree.eachChildSeries()) {
+      if (!unwrapped) {
+        continue
+      }
+
+      yield * flushAndYield(unwrapped.child, block)
     }
-
-    const unwrapped = await first(tree.eachChildSeries())
-
-    if (!unwrapped) {
-      return
-    }
-
-    tree = unwrapped.child
   }
-
-  if (!(tree instanceof Dir)) {
-    if (tree && tree.unixfs && tree.unixfs.isDirectory()) {
-      yield tree
-    }
-
-    return
-  }
-
-  yield * tree.flush(tree.path, block)
 }
 
 module.exports = treeBuilder

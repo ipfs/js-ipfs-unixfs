@@ -40,7 +40,7 @@
     "detect-node": "^2.0.4",
     "ipfs-unixfs-exporter": "^3.0.6",
     "ipld": "^0.28.0",
-    "ipld-in-memory": "^6.0.0",
+    "ipld-in-memory": "^7.0.0",
     "it-buffer-stream": "^1.0.2",
     "it-last": "^1.0.1",
     "multicodec": "^2.0.0",

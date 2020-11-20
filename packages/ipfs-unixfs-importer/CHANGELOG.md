@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@4.0.0...ipfs-unixfs-importer@5.0.0) (2020-11-20)
+
+
+### Features
+
+* support multiple roots ([#93](https://github.com/ipfs/js-ipfs-unixfs/issues/93)) ([f97f60a](https://github.com/ipfs/js-ipfs-unixfs/commit/f97f60ad68ffbe46d007bcdca282ccf1489e1f12))
+
+
+### BREAKING CHANGES
+
+* Importing files that would result in multiple roots no longer throws an error
+
+
+
+
+
 # [4.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@3.1.0...ipfs-unixfs-importer@4.0.0) (2020-11-06)
 
 

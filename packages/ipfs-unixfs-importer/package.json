@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^28.1.0",
+    "aegir": "^29.1.0",
     "cids": "^1.0.0",
     "detect-node": "^2.0.4",
     "ipfs-unixfs-exporter": "^3.0.7",

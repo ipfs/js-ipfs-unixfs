@@ -61,6 +61,6 @@
     "merge-options": "^3.0.3",
     "multihashing-async": "^2.0.0",
     "rabin-wasm": "^0.1.1",
-    "uint8arrays": "^1.1.0"
+    "uint8arrays": "^2.0.5"
   }
 }

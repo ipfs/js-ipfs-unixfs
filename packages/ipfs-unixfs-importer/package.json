@@ -52,7 +52,7 @@
     "err-code": "^2.0.0",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^2.0.4",
-    "ipfs-utils": "^5.0.0",
+    "ipfs-utils": "^6.0.0",
     "ipld-dag-pb": "^0.20.0",
     "it-all": "^1.0.1",
     "it-batch": "^1.0.3",

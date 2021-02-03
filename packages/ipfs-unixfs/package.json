@@ -40,7 +40,7 @@
     "uint8arrays": "^1.1.0"
   },
   "dependencies": {
-    "err-code": "^2.0.0",
+    "err-code": "^3.0.0",
     "protons": "^2.0.0"
   }
 }

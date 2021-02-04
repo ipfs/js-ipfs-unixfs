@@ -48,7 +48,7 @@
     "multicodec": "^2.0.0",
     "nyc": "^15.0.0",
     "sinon": "^9.0.1",
-    "uint8arrays": "^1.1.0"
+    "uint8arrays": "^2.1.0"
   },
   "dependencies": {
     "cids": "^1.0.0",

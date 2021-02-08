@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "cids": "^1.0.0",
-    "err-code": "^2.0.0",
+    "err-code": "^3.0.1",
     "hamt-sharding": "^1.0.0",
     "ipfs-unixfs": "^2.0.4",
     "ipfs-utils": "^5.0.0",

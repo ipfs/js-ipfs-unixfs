@@ -1,16 +1,23 @@
 'use strict'
 
-const Bucket = require('hamt-sharding/src/bucket')
+const { Bucket, createHAMT } = require('hamt-sharding')
 const multihashing = require('multihashing-async')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+
+/**
+ * @typedef {import('../').ExporterOptions} ExporterOptions
+ * @typedef {import('../').IPLDResolver} IPLDResolver
+ * @typedef {import('cids')} CID
+ */
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
-const hashFn = async function (value) {
-  const buf = uint8ArrayFromString(value)
+/**
+ * @param {Uint8Array} buf
+ */
+const hashFn = async function (buf) {
   const hash = await multihashing(buf, 'murmur3-128')
 
   // Multihashing inserts preamble of 2 bytes. Remove it.
-  // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
+  // Also, murmur3 outputs 128 bit but, accidentally, IPFS Go's
   // implementation only uses the first 64, so we must do the same
   // for parity..
   const justHash = hash.slice(2, 10)
@@ -23,8 +30,12 @@ const hashFn = async function (value) {
 
   return result
 }
-hashFn.code = 0x22 // TODO: get this from multihashing-async?
 
+/**
+ * @param {import('ipld-dag-pb').DAGLink[]} links
+ * @param {Bucket<boolean>} bucket
+ * @param {Bucket<boolean>} rootBucket
+ */
 const addLinksToHamtBucket = (links, bucket, rootBucket) => {
   return Promise.all(
     links.map(link => {
@@ -32,7 +43,8 @@ const addLinksToHamtBucket = (links, bucket, rootBucket) => {
         const pos = parseInt(link.Name, 16)
 
         return bucket._putObjectAt(pos, new Bucket({
-          hashFn
+          hash: rootBucket._options.hash,
+          bits: rootBucket._options.bits
         }, bucket, pos))
       }
 
@@ -41,14 +53,20 @@ const addLinksToHamtBucket = (links, bucket, rootBucket) => {
   )
 }
 
+/**
+ * @param {number} position
+ */
 const toPrefix = (position) => {
   return position
-    .toString('16')
+    .toString(16)
     .toUpperCase()
     .padStart(2, '0')
     .substring(0, 2)
 }
 
+/**
+ * @param {import('hamt-sharding').Bucket.BucketPosition<boolean>} position
+ */
 const toBucketPath = (position) => {
   let bucket = position.bucket
   const path = []
@@ -64,16 +82,30 @@ const toBucketPath = (position) => {
   return path.reverse()
 }
 
+/**
+ * @typedef {object} ShardTraversalContext
+ * @property {number} hamtDepth
+ * @property {Bucket<boolean>} rootBucket
+ * @property {Bucket<boolean>} lastBucket
+ *
+ * @param {import('ipld-dag-pb').DAGNode} node
+ * @param {string} name
+ * @param {IPLDResolver} ipld
+ * @param {ShardTraversalContext} [context]
+ * @param {ExporterOptions} [options]
+ * @returns {Promise<CID|null>}
+ */
 const findShardCid = async (node, name, ipld, context, options) => {
   if (!context) {
-    context = {
-      rootBucket: new Bucket({
-        hashFn
-      }),
-      hamtDepth: 1
-    }
+    const rootBucket = createHAMT({
+      hashFn
+    })
 
-    context.lastBucket = context.rootBucket
+    context = {
+      rootBucket,
+      hamtDepth: 1,
+      lastBucket: rootBucket
+    }
   }
 
   await addLinksToHamtBucket(node.Links, context.lastBucket, context.rootBucket)
@@ -82,7 +114,7 @@ const findShardCid = async (node, name, ipld, context, options) => {
   let prefix = toPrefix(position.pos)
   const bucketPath = toBucketPath(position)
 
-  if (bucketPath.length > (context.hamtDepth)) {
+  if (bucketPath.length > context.hamtDepth) {
     context.lastBucket = bucketPath[context.hamtDepth]
 
     prefix = toPrefix(context.lastBucket._posAtParent)
@@ -94,12 +126,12 @@ const findShardCid = async (node, name, ipld, context, options) => {
 
     if (entryPrefix !== prefix) {
       // not the entry or subshard we're looking for
-      return
+      return false
     }
 
     if (entryName && entryName !== name) {
       // not the entry we're looking for
-      return
+      return false
     }
 
     return true

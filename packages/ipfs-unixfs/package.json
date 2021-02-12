@@ -8,15 +8,13 @@
     "fs": false
   },
   "scripts": {
-    "test": "aegir test -t node -t browser -t webworker",
-    "test:node": "aegir test -t node",
-    "test:browser": "aegir test -t browser",
-    "test:webworker": "aegir test -t webworker",
-    "build": "aegir build",
+    "prepare": "pbjs ./src/unixfs.proto -t json -o ./src/unixfs.json && aegir build --no-bundle",
+    "prepublishOnly": "aegir build --no-bundle",
+    "test": "aegir test",
     "clean": "rm -rf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check"
+    "depcheck": "aegir dep-check -i mkdirp -i protobufjs -i @types/mocha -i nyc"
   },
   "repository": {
     "type": "git",
@@ -35,12 +33,22 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^29.2.2",
+    "@types/mocha": "^8.2.0",
+    "aegir": "^30.3.0",
+    "mkdirp": "^1.0.4",
     "nyc": "^15.0.0",
-    "uint8arrays": "^1.1.0"
+    "uint8arrays": "^2.0.5"
   },
   "dependencies": {
-    "err-code": "^2.0.0",
-    "protons": "^2.0.0"
+    "err-code": "^3.0.0",
+    "protobufjs": "^6.10.2"
+  },
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "eslintConfig": {
+    "extends": "ipfs"
   }
 }

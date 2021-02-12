@@ -4,7 +4,11 @@
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/trickle')
 const all = require('it-all')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
+/**
+ * @param {number} max
+ */
 const createValues = (max) => {
   const output = []
 
@@ -15,6 +19,9 @@ const createValues = (max) => {
   return output
 }
 
+/**
+ * @param {*} leaves
+ */
 function reduce (leaves) {
   if (leaves.length > 1) {
     return { children: leaves }
@@ -30,12 +37,14 @@ const options = {
 
 describe('builder: trickle', () => {
   it('reduces one value into itself', async () => {
-    const result = await all(builder([1], reduce, options))
+    // @ts-ignore
+    const result = await all(builder(asAsyncIterable([1]), reduce, options))
 
     expect(result).to.deep.equal([1])
   })
 
   it('reduces 3 values into parent', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(3), reduce, options))
 
     expect(result).to.deep.equal([{
@@ -48,6 +57,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 6 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(6), reduce, options))
 
     expect(result).to.deep.equal([{
@@ -67,6 +77,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 9 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(9), reduce, options))
 
     expect(result).to.deep.equal([{
@@ -93,6 +104,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 12 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(12), reduce, options))
 
     expect(result).to.deep.equal([{
@@ -126,6 +138,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 21 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(21), reduce, options))
 
     expect(result).to.deep.equal([{
@@ -180,6 +193,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 68 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(68), reduce, options))
 
     expect(result).to.deep.equal([
@@ -347,6 +361,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 93 values correctly', async () => {
+    // @ts-ignore
     const result = await all(builder(createValues(93), reduce, options))
 
     expect(result).to.deep.equal([

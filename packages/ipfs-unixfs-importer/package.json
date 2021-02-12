@@ -8,15 +8,12 @@
     "fs": false
   },
   "scripts": {
+    "prepare": "aegir build --no-bundle",
     "test": "aegir test",
-    "test:node": "aegir test -t node",
-    "test:browser": "aegir test -t browser",
-    "test:webworker": "aegir test -t webworker",
-    "build": "aegir build",
     "clean": "rm -rf ./dist",
     "lint": "aegir lint",
-    "coverage": "nyc -s npm run test:node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check"
+    "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
+    "depcheck": "aegir dep-check -i @types/mocha -i nyc"
   },
   "repository": {
     "type": "git",
@@ -35,25 +32,21 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "aegir": "^29.2.2",
-    "cids": "^1.0.0",
-    "detect-node": "^2.0.4",
-    "ipfs-unixfs-exporter": "^3.0.7",
+    "@types/mocha": "^8.2.0",
+    "aegir": "^30.3.0",
     "ipld": "^0.28.0",
     "ipld-in-memory": "^7.0.0",
-    "it-buffer-stream": "^1.0.2",
-    "it-last": "^1.0.1",
+    "it-buffer-stream": "^2.0.0",
     "multicodec": "^2.0.0",
-    "nyc": "^15.0.0",
-    "sinon": "^9.0.1"
+    "nyc": "^15.0.0"
   },
   "dependencies": {
     "bl": "^4.0.0",
-    "err-code": "^2.0.0",
-    "hamt-sharding": "^1.0.0",
+    "cids": "^1.1.5",
+    "err-code": "^3.0.0",
+    "hamt-sharding": "ipfs-shipyard/js-hamt-sharding#feat/add-types",
     "ipfs-unixfs": "^2.0.4",
-    "ipfs-utils": "^5.0.0",
-    "ipld-dag-pb": "^0.20.0",
+    "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
     "it-all": "^1.0.1",
     "it-batch": "^1.0.3",
     "it-first": "^1.0.1",
@@ -61,6 +54,14 @@
     "merge-options": "^3.0.3",
     "multihashing-async": "^2.0.0",
     "rabin-wasm": "^0.1.1",
-    "uint8arrays": "^1.1.0"
+    "uint8arrays": "^2.0.5"
+  },
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "eslintConfig": {
+    "extends": "ipfs"
   }
 }

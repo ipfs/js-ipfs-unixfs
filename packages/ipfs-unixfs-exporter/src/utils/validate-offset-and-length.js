@@ -2,6 +2,11 @@
 
 const errCode = require('err-code')
 
+/**
+ * @param {number} size
+ * @param {number} [offset]
+ * @param {number} [length]
+ */
 const validateOffsetAndLength = (size, offset, length) => {
   if (!offset) {
     offset = 0

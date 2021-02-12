@@ -5,14 +5,20 @@ const importer = require('ipfs-unixfs-importer')
 const exporter = require('../src')
 const extend = require('merge-options')
 const { expect } = require('aegir/utils/chai')
-const spy = require('sinon/lib/sinon/spy')
+const sinon = require('sinon')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const UnixFs = require('ipfs-unixfs')
 const collectLeafCids = require('./helpers/collect-leaf-cids')
+// @ts-ignore
 const loadFixture = require('aegir/fixtures')
+// @ts-ignore
 const isNode = require('detect-node')
+/** @type {Uint8Array} */
 const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
+/** @type {Uint8Array} */
 const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Bytes.txt')
 const all = require('it-all')
 const first = require('it-first')
@@ -21,7 +27,17 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const last = require('it-last')
+const CID = require('cids')
 
+/**
+ * @typedef {import('../src').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-unixfs-importer').BlockAPI} BlockAPI
+ * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
+ */
+
+/**
+ * @param {{ path?: string, cid: CID, unixfs?: UnixFs }[]} files
+ */
 function stringifyMh (files) {
   return files.map((file) => {
     return {
@@ -31,6 +47,9 @@ function stringifyMh (files) {
   })
 }
 
+/**
+ * @param {Date} date
+ */
 function dateToTimespec (date) {
   const ms = date.getTime()
   const secs = Math.floor(ms / 1000)
@@ -179,12 +198,23 @@ const strategyOverrides = {
   }
 }
 
+/**
+ * @param {BlockAPI} block
+ * @param {IPLDResolver} ipld
+ * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
+ * @param {*} expected
+ */
 const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   const file = await first(importer([{
     path: 'foo',
     content: new Uint8Array(262144 + 5).fill(1)
   }], block, options))
 
+  if (!file) {
+    throw new Error('Nothing imported')
+  }
+
+  /** @type {DAGNode} */
   const node = await ipld.get(file.cid)
   const meta = UnixFs.unmarshal(node.Data)
 
@@ -201,6 +231,12 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   })
 }
 
+/**
+ * @param {BlockAPI} block
+ * @param {IPLDResolver} ipld
+ * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
+ * @param {*} expected
+ */
 const checkNodeLinks = async (block, ipld, options, expected) => {
   for await (const file of importer([{
     path: 'foo',
@@ -215,6 +251,7 @@ const checkNodeLinks = async (block, ipld, options, expected) => {
 }
 
 strategies.forEach((strategy) => {
+  // @ts-ignore
   const baseFiles = strategyBaseFiles[strategy]
   const defaultResults = extend({}, baseFiles, {
     'foo/bar/200Bytes.txt': extend({}, baseFiles['200Bytes.txt'], {
@@ -286,10 +323,15 @@ strategies.forEach((strategy) => {
       cid: 'QmVfHowk2oKuWFyVwSRt8H1dQ3v272jyWSwhfQnTtWNmfw',
       size: 200
     })
+  // @ts-ignore
   }, strategyOverrides[strategy])
 
   const expected = extend({}, defaultResults)
 
+  /**
+   * @param {*} actualFiles
+   * @param {*} expectedFiles
+   */
   const expectFiles = (actualFiles, expectedFiles) => {
     expect(actualFiles.length).to.equal(expectedFiles.length)
 
@@ -313,9 +355,13 @@ strategies.forEach((strategy) => {
   describe('importer: ' + strategy, function () {
     this.timeout(30 * 1000)
 
+    /** @type {IPLDResolver} */
     let ipld
+    /** @type {BlockAPI} */
     let block
+    /** @type {import('ipfs-unixfs-importer').UserImporterOptions} */
     const options = {
+      // @ts-ignore
       strategy: strategy
     }
 
@@ -332,6 +378,7 @@ strategies.forEach((strategy) => {
 
     it('fails on bad content', async () => {
       try {
+        // @ts-expect-error bad content
         await all(importer([{
           path: '200Bytes.txt',
           content: 7
@@ -344,6 +391,7 @@ strategies.forEach((strategy) => {
 
     it('fails on an iterator that yields bad content', async () => {
       try {
+        // @ts-expect-error bad content
         await all(importer([{
           path: '200Bytes.txt',
           content: {
@@ -359,7 +407,7 @@ strategies.forEach((strategy) => {
     })
 
     it('doesn\'t yield anything on empty source', async () => {
-      const files = await all(importer([], ipld, options))
+      const files = await all(importer([], block, options))
 
       expect(files).to.be.empty()
     })
@@ -396,9 +444,12 @@ strategies.forEach((strategy) => {
       }], block, options))
 
       const file = await exporter(res[0].cid, ipld)
-      const fileContent = await first(file.content())
 
-      expect(uint8ArrayToString(fileContent)).to.equal(content)
+      if (file.type !== 'file') {
+        throw new Error('Unexpected type')
+      }
+
+      expect(uint8ArrayToString(uint8ArrayConcat(await all(file.content())))).to.equal(content)
     })
 
     it('small file with an escaped slash in the title', async () => {
@@ -437,7 +488,7 @@ strategies.forEach((strategy) => {
     it('small file as array (smaller than a chunk)', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: Array.from(smallFile)
+        content: Uint8Array.from(smallFile)
       }], block, options))
 
       expectFiles(files, [
@@ -606,7 +657,14 @@ strategies.forEach((strategy) => {
 
       result.forEach(eachFile)
 
+      /**
+       * @param {{ path?: string, cid: string, unixfs?: UnixFs }} file
+       */
       function eachFile (file) {
+        if (!file.unixfs) {
+          throw new Error('file was not UnixFS')
+        }
+
         if (file.path === 'pam/pum/200Bytes.txt') {
           expect(file.cid).to.equal(expected['200Bytes.txt'].cid)
           expect(file.unixfs.fileSize()).to.equal(expected['200Bytes.txt'].size)
@@ -652,7 +710,7 @@ strategies.forEach((strategy) => {
       const path = '1.2MiB.txt'
 
       const options = {
-        progress: spy(),
+        progress: sinon.spy(),
         maxChunkSize
       }
 
@@ -666,6 +724,10 @@ strategies.forEach((strategy) => {
     })
 
     it('will import files with CID version 1', async () => {
+      /**
+       * @param {string} path
+       * @param {number} size
+       */
       const createInputFile = (path, size) => {
         const name = String(Math.random() + Date.now())
         path = path[path.length - 1] === '/' ? path : path + '/'
@@ -676,35 +738,44 @@ strategies.forEach((strategy) => {
       }
 
       const inputFiles = [
-        createInputFile('/foo', 10),
-        createInputFile('/foo', 60),
-        createInputFile('/foo/bar', 78),
-        createInputFile('/foo/baz', 200),
+        createInputFile('foo', 10),
+        createInputFile('foo', 60),
+        createInputFile('foo/bar', 78),
+        createInputFile('foo/baz', 200),
         // Bigger than maxChunkSize
-        createInputFile('/foo', 262144 + 45),
-        createInputFile('/foo/bar', 262144 + 134),
-        createInputFile('/foo/bar', 262144 + 79),
-        createInputFile('/foo/bar', 262144 + 876),
-        createInputFile('/foo/bar', 262144 + 21)
+        createInputFile('foo', 262144 + 45),
+        createInputFile('foo/bar', 262144 + 134),
+        createInputFile('foo/bar', 262144 + 79),
+        createInputFile('foo/bar', 262144 + 876),
+        createInputFile('foo/bar', 262144 + 21)
       ]
 
+      /** @type {import('ipfs-unixfs-importer').UserImporterOptions} */
       const options = {
         cidVersion: 1,
         // Ensures we use DirSharded for the data below
         shardSplitThreshold: 3
       }
 
-      // Pass a copy of inputFiles, since the importer mutates them
-      const files = await all(importer(inputFiles.map(f => Object.assign({}, f)), block, options))
+      const files = await all(importer(inputFiles, block, options))
 
       const file = files[0]
       expect(file).to.exist()
 
-      for (let i = 0; i < file.length; i++) {
+      for (let i = 0; i < files.length; i++) {
         const file = files[i]
+
+        if (file.unixfs?.isDirectory()) {
+          // ignore directories
+          continue
+        }
 
         const cid = file.cid.toV1()
         const inputFile = inputFiles.find(f => f.path === file.path)
+
+        if (!inputFile) {
+          throw new Error('Could not find input file with path ' + file.path)
+        }
 
         // Just check the intermediate directory can be retrieved
         if (!inputFile) {
@@ -713,13 +784,12 @@ strategies.forEach((strategy) => {
 
         // Check the imported content is correct
         const node = await exporter(cid, ipld)
-        const chunks = []
 
-        for await (const chunk of node.content()) {
-          chunks.push(chunk)
+        if (node.type !== 'file') {
+          throw new Error('Unexpected type')
         }
 
-        expect(uint8ArrayConcat(chunks)).to.deep.equal(inputFile.content)
+        expect(uint8ArrayConcat(await all(node.content()))).to.deep.equal(inputFile.content)
       }
     })
 
@@ -759,8 +829,8 @@ strategies.forEach((strategy) => {
         content: bigFile
       }], block, options)) {
         for await (const { cid } of collectLeafCids(file.cid, ipld)) {
-          expect(cid.codec).to.be('raw')
-          expect(cid.version).to.be(1)
+          expect(cid).to.have.property('codec', 'raw')
+          expect(cid).to.have.property('version', 1)
         }
       }
     })
@@ -780,7 +850,7 @@ strategies.forEach((strategy) => {
       }], block, options)) {
         const node = await exporter(file.cid, ipld)
 
-        expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+        expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
       }
     })
 
@@ -795,7 +865,7 @@ strategies.forEach((strategy) => {
       }], block))
 
       const node = await exporter(entries[0].cid, ipld)
-      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
     })
 
     it('supports passing metadata for wrapping directories', async () => {
@@ -814,13 +884,13 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
-      const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
+      const node = nodes.filter(node => node.type === 'directory').pop()
 
       if (!node) {
         expect.fail('no directory found')
       }
 
-      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
       expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
@@ -840,13 +910,13 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
-      const node = nodes.filter(node => node.unixfs.type === 'directory').pop()
+      const node = nodes.filter(node => node.type === 'directory').pop()
 
       if (!node) {
         expect.fail('no directory found')
       }
 
-      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
       expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
@@ -871,13 +941,13 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
-      const node = nodes.filter(node => node.unixfs.type === 'directory' && node.name === 'bar').pop()
+      const node = nodes.filter(node => node.type === 'directory' && node.name === 'bar').pop()
 
       if (!node) {
         expect.fail('no directory found')
       }
 
-      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
       expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
@@ -902,13 +972,13 @@ strategies.forEach((strategy) => {
       }))
 
       const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
-      const node = nodes.filter(node => node.unixfs.type === 'hamt-sharded-directory').pop()
+      const node = nodes.filter(node => node.type === 'directory' && node.unixfs.type === 'hamt-sharded-directory').pop()
 
       if (!node) {
         expect.fail('no hamt-sharded-directory found')
       }
 
-      expect(node).to.have.nested.deep.property('unixfs.mtime', dateToTimespec(now))
+      expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
     })
 
     it('supports passing mode', async () => {
@@ -1006,9 +1076,21 @@ strategies.forEach((strategy) => {
 })
 
 describe('configuration', () => {
+  /** @type {IPLDResolver} */
+  let ipld
+  /** @type {BlockAPI} */
+  let block
+
+  before(async () => {
+    ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
+  })
+
   it('alllows configuring with custom dag and tree builder', async () => {
     let builtTree = false
-    const block = 'block'
+    const cid = new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
+    const unixfs = new UnixFs({ type: 'directory' })
+
     const entries = await all(importer([{
       path: 'path',
       content: 'content'
@@ -1016,9 +1098,10 @@ describe('configuration', () => {
       dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         yield function () {
           return Promise.resolve({
-            cid: 'cid',
+            cid,
             path: 'path',
-            unixfs: 'unixfs'
+            unixfs,
+            size: 0
           })
         }
       },
@@ -1029,9 +1112,9 @@ describe('configuration', () => {
     }))
 
     expect(entries).to.have.lengthOf(1)
-    expect(entries).to.have.nested.property('[0].cid', 'cid')
+    expect(entries).to.have.deep.nested.property('[0].cid', cid)
     expect(entries).to.have.nested.property('[0].path', 'path')
-    expect(entries).to.have.nested.property('[0].unixfs', 'unixfs')
+    expect(entries).to.have.deep.nested.property('[0].unixfs', unixfs)
 
     expect(builtTree).to.be.true()
   })
@@ -1039,16 +1122,20 @@ describe('configuration', () => {
   it('allows configuring with custom chunker', async () => {
     let validated = false
     let chunked = false
-    const block = {
-      put: () => {}
-    }
     const entries = await all(importer([{
       path: 'path',
       content: uint8ArrayFromString('content')
     }], block, {
       chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
         validated = true
-        yield * source
+
+        for await (const str of source) {
+          if (typeof str === 'string') {
+            yield uint8ArrayFromString(str)
+          } else {
+            yield Uint8Array.from(str)
+          }
+        }
       },
       chunker: async function * (source, opts) { // eslint-disable-line require-await
         chunked = true
@@ -1065,23 +1152,33 @@ describe('configuration', () => {
   })
 
   it('imports the same data with different CID versions and gets the same multihash', async () => {
-    const ipld = await inMemory(IPLD)
-    const block = blockApi(ipld)
     const buf = uint8ArrayFromString('content')
 
-    const { cid: cidV0 } = await last(importer([{
+    const result = await last(importer([{
       content: buf
     }], block, {
       cidVersion: 0,
       rawLeaves: false
     }))
 
-    const { cid: cidV1 } = await last(importer([{
+    if (!result) {
+      throw new Error('Nothing imported')
+    }
+
+    const { cid: cidV0 } = result
+
+    const result2 = await last(importer([{
       content: buf
     }], block, {
       cidVersion: 1,
       rawLeaves: false
     }))
+
+    if (!result2) {
+      throw new Error('Nothing imported')
+    }
+
+    const { cid: cidV1 } = result2
 
     expect(cidV0.multihash).to.deep.equal(cidV1.multihash)
   })

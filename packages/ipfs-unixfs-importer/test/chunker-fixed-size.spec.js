@@ -7,6 +7,8 @@ const all = require('it-all')
 const rawFile = new Uint8Array(Math.pow(2, 20))
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const defaultOptions = require('../src/options')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('chunker: fixed size', function () {
   this.timeout(30000)
@@ -16,11 +18,12 @@ describe('chunker: fixed size', function () {
     const b2 = new Uint8Array(1 * 256)
     const b3 = new Uint8Array(5 * 256)
 
-    b1.fill('a')
-    b2.fill('b')
-    b3.fill('c')
+    b1.fill('a'.charCodeAt(0))
+    b2.fill('b'.charCodeAt(0))
+    b3.fill('c'.charCodeAt(0))
 
-    const chunks = await all(chunker([b1, b2, b3], {
+    const chunks = await all(chunker(asAsyncIterable([b1, b2, b3]), {
+      ...defaultOptions(),
       maxChunkSize: 256
     }))
 
@@ -37,7 +40,8 @@ describe('chunker: fixed size', function () {
     for (let i = 0; i < (256 * 12); i++) {
       input.push(buf)
     }
-    const chunks = await all(chunker(input, {
+    const chunks = await all(chunker(asAsyncIterable(input), {
+      ...defaultOptions(),
       maxChunkSize: 256
     }))
 
@@ -49,7 +53,8 @@ describe('chunker: fixed size', function () {
 
   it('256 KiB chunks', async () => {
     const KiB256 = 262144
-    const chunks = await all(chunker([rawFile], {
+    const chunks = await all(chunker(asAsyncIterable([rawFile]), {
+      ...defaultOptions(),
       maxChunkSize: KiB256
     }))
 
@@ -63,7 +68,8 @@ describe('chunker: fixed size', function () {
     const KiB256 = 262144
     const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
 
-    const chunks = await all(chunker([file], {
+    const chunks = await all(chunker(asAsyncIterable([file]), {
+      ...defaultOptions(),
       maxChunkSize: KiB256
     }))
 

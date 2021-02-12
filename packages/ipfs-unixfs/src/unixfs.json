@@ -1,0 +1,78 @@
+{
+  "nested": {
+    "Data": {
+      "fields": {
+        "Type": {
+          "rule": "required",
+          "type": "DataType",
+          "id": 1
+        },
+        "Data": {
+          "type": "bytes",
+          "id": 2
+        },
+        "filesize": {
+          "type": "uint64",
+          "id": 3
+        },
+        "blocksizes": {
+          "rule": "repeated",
+          "type": "uint64",
+          "id": 4,
+          "options": {
+            "packed": false
+          }
+        },
+        "hashType": {
+          "type": "uint64",
+          "id": 5
+        },
+        "fanout": {
+          "type": "uint64",
+          "id": 6
+        },
+        "mode": {
+          "type": "uint32",
+          "id": 7
+        },
+        "mtime": {
+          "type": "UnixTime",
+          "id": 8
+        }
+      },
+      "nested": {
+        "DataType": {
+          "values": {
+            "Raw": 0,
+            "Directory": 1,
+            "File": 2,
+            "Metadata": 3,
+            "Symlink": 4,
+            "HAMTShard": 5
+          }
+        }
+      }
+    },
+    "UnixTime": {
+      "fields": {
+        "Seconds": {
+          "rule": "required",
+          "type": "int64",
+          "id": 1
+        },
+        "FractionalNanoseconds": {
+          "type": "fixed32",
+          "id": 2
+        }
+      }
+    },
+    "Metadata": {
+      "fields": {
+        "MimeType": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    }
+  }
+}

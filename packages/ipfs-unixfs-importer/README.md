@@ -152,9 +152,9 @@ Several aspects of the importer are overridable by specifying functions as part 
   - It should yield `Buffer` objects constructed from the `source` or throw an `Error`
 - `chunker` (function): Optional function that supports the signature `async function * (source, options)` where `source` is an async generator and `options` is an options object
   - It should yield `Buffer` objects.
-- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, source, ipld, options)`
+- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, ipld, options)`
   - This function should read `Buffer`s from `source` and persist them using `ipld.put` or similar
-  - `entry` is the `{ path, content }` entry, `source` is an async generator that yields Buffers
+  - `entry` is the `{ path, content }` entry, where `entry.content` is an async generator that yields Buffers
   - It should yield functions that return a Promise that resolves to an object with the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
   - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `blockWriteConcurrency` option (default: 10)
 - `dagBuilder` (function): Optional function that supports the signature `async function * (source, ipld, options)`

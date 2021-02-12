@@ -11,13 +11,32 @@ const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
 const mh = require('multihashing-async').multihash
 
+/**
+ * @typedef {import('cids')} CID
+ * @typedef {import('../../').File} File
+ * @typedef {import('../../').BlockAPI} BlockAPI
+ * @typedef {import('../../').ImporterOptions} ImporterOptions
+ * @typedef {import('../../').PartialImportResult} PartialImportResult
+ *
+ * @typedef {(leaves: PartialImportResult[]) => Promise<PartialImportResult>} Reducer
+ * @typedef {(source: AsyncIterable<PartialImportResult>, reducer: Reducer, options: ImporterOptions) => AsyncIterable<PartialImportResult>} DAGBuilder
+ */
+
+/**
+ * @type {{ [key: string]: DAGBuilder}}
+ */
 const dagBuilders = {
   flat: require('./flat'),
   balanced: require('./balanced'),
   trickle: require('./trickle')
 }
 
-async function * buildFileBatch (file, source, block, options) {
+/**
+ * @param {File} file
+ * @param {BlockAPI} block
+ * @param {ImporterOptions} options
+ */
+async function * buildFileBatch (file, block, options) {
   let count = -1
   let previous
   let bufferImporter
@@ -28,13 +47,13 @@ async function * buildFileBatch (file, source, block, options) {
     bufferImporter = require('./buffer-importer')
   }
 
-  for await (const entry of parallelBatch(bufferImporter(file, source, block, options), options.blockWriteConcurrency)) {
+  for await (const entry of parallelBatch(bufferImporter(file, block, options), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
       previous = entry
       continue
-    } else if (count === 1) {
+    } else if (count === 1 && previous) {
       yield previous
       previous = null
     }
@@ -48,8 +67,16 @@ async function * buildFileBatch (file, source, block, options) {
   }
 }
 
+/**
+ * @param {File} file
+ * @param {BlockAPI} block
+ * @param {ImporterOptions} options
+ */
 const reduce = (file, block, options) => {
-  return async function (leaves) {
+  /**
+   * @type {Reducer}
+   */
+  async function reducer (leaves) {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
@@ -98,29 +125,29 @@ const reduce = (file, block, options) => {
           return true
         }
 
-        if (!leaf.unixfs.data && leaf.unixfs.fileSize()) {
+        if (leaf.unixfs && !leaf.unixfs.data && leaf.unixfs.fileSize()) {
           return true
         }
 
-        return Boolean(leaf.unixfs.data.length)
+        return Boolean(leaf.unixfs && leaf.unixfs.data && leaf.unixfs.data.length)
       })
       .map((leaf) => {
         if (leaf.cid.codec === 'raw') {
           // node is a leaf buffer
           f.addBlockSize(leaf.size)
 
-          return new DAGLink(leaf.name, leaf.size, leaf.cid)
+          return new DAGLink('', leaf.size, leaf.cid)
         }
 
-        if (!leaf.unixfs.data) {
+        if (!leaf.unixfs || !leaf.unixfs.data) {
           // node is an intermediate node
-          f.addBlockSize(leaf.unixfs.fileSize())
+          f.addBlockSize((leaf.unixfs && leaf.unixfs.fileSize()) || 0)
         } else {
           // node is a unixfs 'file' leaf node
           f.addBlockSize(leaf.unixfs.data.length)
         }
 
-        return new DAGLink(leaf.name, leaf.size, leaf.cid)
+        return new DAGLink('', leaf.size, leaf.cid)
       })
 
     const node = new DAGNode(f.marshal(), links)
@@ -134,16 +161,21 @@ const reduce = (file, block, options) => {
       size: buffer.length + node.Links.reduce((acc, curr) => acc + curr.Tsize, 0)
     }
   }
+
+  return reducer
 }
 
-const fileBuilder = async (file, source, block, options) => {
+/**
+ * @type {import('../').UnixFSV1DagBuilder<File>}
+ */
+const fileBuilder = async (file, block, options) => {
   const dagBuilder = dagBuilders[options.strategy]
 
   if (!dagBuilder) {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')
   }
 
-  const roots = await all(dagBuilder(buildFileBatch(file, source, block, options), reduce(file, block, options), options))
+  const roots = await all(dagBuilder(buildFileBatch(file, block, options), reduce(file, block, options), options))
 
   if (roots.length > 1) {
     throw errCode(new Error('expected a maximum of 1 roots and got ' + roots.length), 'ETOOMANYROOTS')

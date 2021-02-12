@@ -3,6 +3,9 @@
 const CID = require('cids')
 const errCode = require('err-code')
 
+/**
+ * @type {import('./').Resolver}
+ */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   const node = await ipld.get(cid, options)
   let subObject = node
@@ -19,6 +22,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       if (CID.isCID(subObject[prop])) {
         return {
           entry: {
+            type: 'object',
             name,
             path,
             cid,
@@ -43,6 +47,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
 
   return {
     entry: {
+      type: 'object',
       name,
       path,
       cid,

@@ -1,12 +1,24 @@
 'use strict'
 
+// @ts-ignore
 const BufferList = require('bl/BufferList')
+// @ts-ignore
 const { create } = require('rabin-wasm')
 const errcode = require('err-code')
 
-module.exports = async function * rabinChunker (source, options) {
-  const rabin = jsRabin()
+/**
+ * @typedef {object} RabinOptions
+ * @property {number} min
+ * @property {number} max
+ * @property {number} bits
+ * @property {number} window
+ * @property {number} polynomial
+ */
 
+/**
+ * @type {import('./').Chunker}
+ */
+module.exports = async function * rabinChunker (source, options) {
   let min, max, avg
 
   if (options.minChunkSize && options.maxChunkSize && options.avgChunkSize) {
@@ -47,27 +59,29 @@ module.exports = async function * rabinChunker (source, options) {
   }
 }
 
-const jsRabin = () => {
-  return async function * (source, options) {
-    const r = await create(options.bits, options.min, options.max, options.window)
-    const buffers = new BufferList()
+/**
+ * @param {AsyncIterable<Uint8Array>} source
+ * @param {RabinOptions} options
+ */
+async function * rabin (source, options) {
+  const r = await create(options.bits, options.min, options.max, options.window)
+  const buffers = new BufferList()
 
-    for await (const chunk of source) {
-      buffers.append(chunk)
+  for await (const chunk of source) {
+    buffers.append(chunk)
 
-      const sizes = r.fingerprint(chunk)
+    const sizes = r.fingerprint(chunk)
 
-      for (let i = 0; i < sizes.length; i++) {
-        var size = sizes[i]
-        var buf = buffers.slice(0, size)
-        buffers.consume(size)
+    for (let i = 0; i < sizes.length; i++) {
+      const size = sizes[i]
+      const buf = buffers.slice(0, size)
+      buffers.consume(size)
 
-        yield buf
-      }
+      yield buf
     }
+  }
 
-    if (buffers.length) {
-      yield buffers.slice(0)
-    }
+  if (buffers.length) {
+    yield buffers.slice(0)
   }
 }

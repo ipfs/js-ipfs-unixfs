@@ -2,7 +2,9 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const importer = require('ipfs-unixfs-importer')
@@ -14,7 +16,9 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
+  /** @type {import('../src').IPLDResolver} */
   let ipld
+  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
 
   before(async () => {
@@ -90,11 +94,21 @@ describe('import and export: directory', () => {
   })
 })
 
+/**
+ *
+ * @param {import('../src').UnixFSEntry} node
+ * @param {string} path
+ * @param {{ path: string, content: string }[]} entries
+ */
 async function recursiveExport (node, path, entries = []) {
+  if (node.type !== 'directory') {
+    throw new Error('Can only recursively export directories')
+  }
+
   for await (const entry of node.content()) {
-    if (entry.unixfs.type === 'directory') {
+    if (entry.type === 'directory') {
       await recursiveExport(entry, `${path}/${entry.name}`, entries)
-    } else {
+    } else if (entry.type === 'file') {
       entries.push({
         path: `${path}/${entry.name}`,
         content: uint8ArrayToString(uint8ArrayConcat(await all(entry.content())))
@@ -105,13 +119,20 @@ async function recursiveExport (node, path, entries = []) {
   return entries
 }
 
+/**
+ * @param {{ path?: string, cid: import('cids') }} node
+ */
 function normalizeNode (node) {
   return {
-    path: node.path,
+    path: node.path || '',
     multihash: node.cid.toBaseEncodedString()
   }
 }
 
+/**
+ * @param {{ path: string }} a
+ * @param {{ path: string }} b
+ */
 function byPath (a, b) {
   if (a.path > b.path) return -1
   if (a.path < b.path) return 1

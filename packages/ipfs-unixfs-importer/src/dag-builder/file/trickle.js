@@ -2,15 +2,34 @@
 
 const batch = require('it-batch')
 
+/**
+ * @typedef {import('cids')} CID
+ * @typedef {import('../..').ImporterOptions} ImporterOptions
+ * @typedef {import('../..').PartialImportResult} PartialImportResult
+ * @typedef {import('.').Reducer} Reducer
+ * @typedef {import('ipfs-unixfs')} UnixFS
+ */
+
+/**
+ * @type {import('./').DAGBuilder}
+ */
 module.exports = function * trickleReduceToRoot (source, reduce, options) {
   yield trickleStream(source, reduce, options)
 }
 
+/**
+ * @param {AsyncIterable<PartialImportResult> | Iterable<PartialImportResult>} source
+ * @param {Reducer} reduce
+ * @param {ImporterOptions} options
+ * @returns {Promise<PartialImportResult>}
+ */
 async function trickleStream (source, reduce, options) {
-  let root
+  const root = new Root(options.layerRepeat)
   let iteration = 0
   let maxDepth = 1
-  let subTree = root = new Root(options.layerRepeat)
+
+  /** @type {SubTree} */
+  let subTree = root
 
   for await (const layer of batch(source, options.maxChildrenPerNode)) {
     if (subTree.isFull()) {
@@ -37,13 +56,32 @@ async function trickleStream (source, reduce, options) {
   return root.reduce(reduce)
 }
 
+/**
+ * @typedef {object} TrickleDagNode
+ * @property {PartialImportResult[]} children
+ * @property {number} depth
+ * @property {number} maxDepth
+ * @property {number} maxChildren
+ * @property {PartialImportResult[]} [data]
+ * @property {TrickleDagNode} [parent]
+ * @property {CID} [cid]
+ * @property {number} [size]
+ * @property {UnixFS} [unixfs]
+ */
+
 class SubTree {
-  constructor (maxDepth, layerRepeat, iteration) {
+  /**
+   * @param {number} maxDepth
+   * @param {number} layerRepeat
+   * @param {number} [iteration=0]
+   */
+  constructor (maxDepth, layerRepeat, iteration = 0) {
     this.maxDepth = maxDepth
     this.layerRepeat = layerRepeat
     this.currentDepth = 1
     this.iteration = iteration
 
+    /** @type {TrickleDagNode} */
     this.root = this.node = this.parent = {
       children: [],
       depth: this.currentDepth,
@@ -76,6 +114,9 @@ class SubTree {
     return true
   }
 
+  /**
+   * @param {TrickleDagNode} parent
+   */
   _addNextNodeToParent (parent) {
     this.parent = parent
 
@@ -88,34 +129,55 @@ class SubTree {
       maxChildren: Math.floor(parent.children.length / this.layerRepeat) * this.layerRepeat
     }
 
+    // @ts-ignore
     parent.children.push(nextNode)
 
     this.currentDepth = nextNode.depth
     this.node = nextNode
   }
 
+  /**
+   *
+   * @param {PartialImportResult[]} layer
+   */
   append (layer) {
     this.node.data = layer
   }
 
+  /**
+   * @param {Reducer} reduce
+   */
   reduce (reduce) {
     return this._reduce(this.root, reduce)
   }
 
+  /**
+   * @param {TrickleDagNode} node
+   * @param {Reducer} reduce
+   * @returns {Promise<PartialImportResult>}
+   */
   async _reduce (node, reduce) {
+    /** @type {PartialImportResult[]} */
     let children = []
 
     if (node.children.length) {
       children = await Promise.all(
         node.children
+          // @ts-ignore
           .filter(child => child.data)
+          // @ts-ignore
           .map(child => this._reduce(child, reduce))
       )
     }
 
-    return reduce(node.data.concat(children))
+    return reduce((node.data || []).concat(children))
   }
 
+  /**
+   * @param {TrickleDagNode} node
+   * @param {number} depth
+   * @returns {TrickleDagNode | undefined}
+   */
   _findParent (node, depth) {
     const parent = node.parent
 
@@ -133,6 +195,9 @@ class SubTree {
 }
 
 class Root extends SubTree {
+  /**
+   * @param {number} layerRepeat
+   */
   constructor (layerRepeat) {
     super(0, layerRepeat)
 
@@ -140,11 +205,17 @@ class Root extends SubTree {
     this.currentDepth = 1
   }
 
+  /**
+   * @param {PartialImportResult} child
+   */
   addChild (child) {
     this.root.children.push(child)
   }
 
+  /**
+   * @param {Reducer} reduce
+   */
   reduce (reduce) {
-    return reduce(this.root.data.concat(this.root.children))
+    return reduce((this.root.data || []).concat(this.root.children))
   }
 }

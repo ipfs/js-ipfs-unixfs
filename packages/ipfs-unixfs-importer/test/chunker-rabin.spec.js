@@ -6,17 +6,13 @@ const { expect } = require('aegir/utils/chai')
 const all = require('it-all')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
+const defaultOptions = require('../src/options')
 
 const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)
 
 describe('chunker: rabin', function () {
   this.timeout(30000)
-
-  const defaultOptions = {
-    avgChunkSize: 262144,
-    window: 64,
-    polynomial: 17437180132763653
-  }
 
   it('chunks non flat buffers', async () => {
     const b1 = new Uint8Array(2 * 256)
@@ -27,8 +23,8 @@ describe('chunker: rabin', function () {
     b2.fill('b'.charCodeAt(0))
     b3.fill('c'.charCodeAt(0))
 
-    const chunks = await all(chunker([b1, b2, b3], {
-      ...defaultOptions,
+    const chunks = await all(chunker(asAsyncIterable([b1, b2, b3]), {
+      ...defaultOptions(),
       minChunkSize: 48,
       avgChunkSize: 96,
       maxChunkSize: 192
@@ -51,8 +47,8 @@ describe('chunker: rabin', function () {
     const b1 = new Uint8Array(10 * 256)
     b1.fill('a'.charCodeAt(0))
 
-    const chunks = await all(chunker([b1], {
-      ...defaultOptions,
+    const chunks = await all(chunker(asAsyncIterable([b1]), {
+      ...defaultOptions(),
       maxChunkSize: 262144,
       minChunkSize: 18,
       avgChunkSize: 256
@@ -68,13 +64,13 @@ describe('chunker: rabin', function () {
     const KiB256 = 262144
     const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
     const opts = {
-      ...defaultOptions,
+      ...defaultOptions(),
       minChunkSize: Math.round(KiB256 / 3),
       avgChunkSize: KiB256,
       maxChunkSize: Math.round(KiB256 + (KiB256 / 2))
     }
 
-    const chunks = await all(chunker([file], opts))
+    const chunks = await all(chunker(asAsyncIterable([file]), opts))
 
     chunks.forEach((chunk) => {
       expect(chunk).to.have.length.gte(opts.minChunkSize)
@@ -84,13 +80,13 @@ describe('chunker: rabin', function () {
 
   it('throws when min chunk size is too small', async () => {
     const opts = {
-      ...defaultOptions,
+      ...defaultOptions(),
       minChunkSize: 1,
       maxChunkSize: 100
     }
 
     try {
-      await all(chunker([], opts))
+      await all(chunker(asAsyncIterable([]), opts))
       throw new Error('Should have thrown')
     } catch (err) {
       expect(err.code).to.equal('ERR_INVALID_MIN_CHUNK_SIZE')
@@ -99,12 +95,13 @@ describe('chunker: rabin', function () {
 
   it('throws when avg chunk size is not specified', async () => {
     const opts = {
-      ...defaultOptions,
+      ...defaultOptions(),
       avgChunkSize: undefined
     }
 
     try {
-      await all(chunker([], opts))
+      // @ts-expect-error invalid opts
+      await all(chunker(asAsyncIterable([]), opts))
       throw new Error('Should have thrown')
     } catch (err) {
       expect(err.code).to.equal('ERR_INVALID_AVG_CHUNK_SIZE')
@@ -114,13 +111,13 @@ describe('chunker: rabin', function () {
   it('uses the min chunk size when max and avg are too small', async () => {
     const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
     const opts = {
-      ...defaultOptions,
+      ...defaultOptions(),
       minChunkSize: 100,
       maxChunkSize: 5,
       avgChunkSize: 5
     }
 
-    const chunks = await all(chunker([file], opts))
+    const chunks = await all(chunker(asAsyncIterable([file]), opts))
 
     chunks.forEach((chunk, index) => {
       if (index === chunks.length - 1) {

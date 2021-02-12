@@ -1,0 +1,22 @@
+{
+  "extends": "aegir/src/config/tsconfig.aegir.json",
+  "compilerOptions": {
+      "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "test"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../ipfs-unixfs"
+    },
+    {
+      "path": "../ipfs-unixfs-importer"
+    }
+  ]
+}

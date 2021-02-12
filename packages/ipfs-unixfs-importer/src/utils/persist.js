@@ -3,6 +3,11 @@
 const mh = require('multihashing-async')
 const CID = require('cids')
 
+/**
+ * @param {Uint8Array} buffer
+ * @param {import('../').BlockAPI} block
+ * @param {import('../').ImporterOptions} options
+ */
 const persist = async (buffer, block, options) => {
   if (!options.codec) {
     options.codec = 'dag-pb'
@@ -25,7 +30,8 @@ const persist = async (buffer, block, options) => {
 
   if (!options.onlyHash) {
     await block.put(buffer, {
-      ...options,
+      pin: options.pin,
+      preload: options.preload,
       cid
     })
   }

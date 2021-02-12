@@ -1,6 +1,13 @@
 'use strict'
 
+/**
+ * @param {import('cids')} cid
+ * @param {import('../../src').IPLDResolver} ipld
+ */
 module.exports = function (cid, ipld) {
+  /**
+   * @param {import('cids')} cid
+   */
   async function * traverse (cid) {
     const node = await ipld.get(cid)
 
@@ -13,7 +20,12 @@ module.exports = function (cid, ipld) {
       return
     }
 
-    node.Links.forEach(link => traverse(link.Hash))
+    node.Links.forEach(
+      /**
+       * @param {import('ipld-dag-pb').DAGLink} link
+       */
+      link => traverse(link.Hash)
+    )
   }
 
   return traverse(cid)

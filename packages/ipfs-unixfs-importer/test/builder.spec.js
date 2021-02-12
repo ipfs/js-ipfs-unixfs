@@ -3,16 +3,21 @@
 
 const { expect } = require('aegir/utils/chai')
 const mh = require('multihashing-async').multihash
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
 const first = require('it-first')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
+const defaultOptions = require('../src/options')
 
 describe('builder', () => {
+  /** @type {import('./helpers/block').IPLDResolver} */
   let ipld
+  /** @type {import('../src').BlockAPI} */
   let block
 
   before(async () => {
@@ -21,31 +26,27 @@ describe('builder', () => {
   })
 
   const testMultihashes = Object.keys(mh.names).slice(1, 10)
-  const opts = {
-    strategy: 'flat',
-    chunker: 'fixed',
-    leafType: 'file',
-    reduceSingleLeafToSelf: true,
-    format: 'dag-pb',
-    hashAlg: 'sha2-256',
-    progress: () => {},
-    maxChunkSize: 262144
-  }
 
   it('allows multihash hash algorithm to be specified', async () => {
     for (let i = 0; i < testMultihashes.length; i++) {
       const hashAlg = testMultihashes[i]
-      const options = {
-        ...opts,
-        hashAlg
-      }
       const content = String(Math.random() + Date.now())
       const inputFile = {
         path: content + '.txt',
         content: uint8ArrayFromString(content)
       }
 
-      const imported = await (await first(builder([inputFile], block, options)))()
+      const result = await first(builder([inputFile], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hashAlg
+      }))
+
+      if (!result) {
+        throw new Error('Nothing built')
+      }
+
+      const imported = await result()
 
       expect(imported).to.exist()
 
@@ -65,10 +66,6 @@ describe('builder', () => {
 
     for (let i = 0; i < testMultihashes.length; i++) {
       const hashAlg = testMultihashes[i]
-      const options = {
-        ...opts,
-        hashAlg
-      }
       const content = String(Math.random() + Date.now())
       const inputFile = {
         path: content + '.txt',
@@ -76,7 +73,17 @@ describe('builder', () => {
         content: new Uint8Array(262144 + 5).fill(1)
       }
 
-      const imported = await (await first(builder([inputFile], block, options)))()
+      const result = await first(builder([inputFile], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hashAlg
+      }))
+
+      if (!result) {
+        throw new Error('Nothing built')
+      }
+
+      const imported = await result()
 
       expect(imported).to.exist()
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
@@ -86,17 +93,21 @@ describe('builder', () => {
   it('allows multihash hash algorithm to be specified for a directory', async () => {
     for (let i = 0; i < testMultihashes.length; i++) {
       const hashAlg = testMultihashes[i]
-
-      const options = {
-        ...opts,
-        hashAlg
-      }
       const inputFile = {
-        path: `${String(Math.random() + Date.now())}-dir`,
-        content: null
+        path: `${String(Math.random() + Date.now())}-dir`
       }
 
-      const imported = await (await first(builder([Object.assign({}, inputFile)], block, options)))()
+      const result = await first(builder([{ ...inputFile }], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hashAlg
+      }))
+
+      if (!result) {
+        return new Error('Nothing built')
+      }
+
+      const imported = await result()
 
       expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
 

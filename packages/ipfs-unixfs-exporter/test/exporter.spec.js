@@ -2,7 +2,9 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const UnixFS = require('ipfs-unixfs')
 const CID = require('cids')
@@ -18,7 +20,7 @@ const all = require('it-all')
 const last = require('it-last')
 const first = require('it-first')
 const randomBytes = require('it-buffer-stream')
-const AbortController = require('abort-controller')
+const { AbortController } = require('native-abort-controller')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
@@ -27,9 +29,13 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter', () => {
+  /** @type {import('../src').IPLDResolver} */
   let ipld
+  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
+  /** @type {Uint8Array} */
   let bigFile
+  /** @type {Uint8Array} */
   let smallFile
 
   before(async () => {
@@ -37,6 +43,12 @@ describe('exporter', () => {
     smallFile = uint8ArrayConcat(await all(randomBytes(200)))
   })
 
+  /**
+   * @param {object} [options]
+   * @param {string} [options.type='file']
+   * @param {Uint8Array} [options.content]
+   * @param {DAGLink[]} [options.links=[]]
+   */
   async function dagPut (options = {}) {
     options.type = options.type || 'file'
     options.content = options.content || Uint8Array.from([0x01, 0x02, 0x03])
@@ -56,6 +68,14 @@ describe('exporter', () => {
     return { file: file, node: node, cid: cid }
   }
 
+  /**
+   * @param {object} options
+   * @param {Uint8Array} options.file
+   * @param {'balanced' | 'flat' | 'trickle'} [options.strategy='balanced']
+   * @param {string} [options.path='/foo']
+   * @param {number} [options.maxChunkSize]
+   * @param {boolean} [options.rawLeaves]
+   */
   async function addTestFile ({ file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }) {
     const result = await all(importer([{
       path,
@@ -63,23 +83,38 @@ describe('exporter', () => {
     }], block, {
       strategy,
       rawLeaves,
-      chunkerOptions: {
-        maxChunkSize
-      }
+      maxChunkSize
     }))
 
     return result[0].cid
   }
 
+  /**
+   * @param {object} options
+   * @param {Uint8Array} options.file
+   * @param {number} [options.offset]
+   * @param {number} [options.length]
+   * @param {'balanced' | 'flat' | 'trickle'} [options.strategy='balanced']
+   * @param {string} [options.path='/foo']
+   * @param {number} [options.maxChunkSize]
+   * @param {boolean} [options.rawLeaves]
+   */
   async function addAndReadTestFile ({ file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }) {
     const cid = await addTestFile({ file, strategy, path, maxChunkSize, rawLeaves })
     const entry = await exporter(cid, ipld)
+
+    if (entry.type !== 'file' && entry.type !== 'raw') {
+      throw new Error('Unexpected type')
+    }
 
     return uint8ArrayConcat(await all(entry.content({
       offset, length
     })))
   }
 
+  /**
+   * @param {'balanced' | 'flat' | 'trickle'} strategy
+   */
   async function checkBytesThatSpanBlocks (strategy) {
     const bytesInABlock = 262144
     const bytes = new Uint8Array(bytesInABlock + 100)
@@ -98,8 +133,14 @@ describe('exporter', () => {
     expect(data).to.deep.equal(Uint8Array.from([1, 2, 3]))
   }
 
+  /**
+   * @param {import('../src').IPLDResolver} ipld
+   * @param {'file' | 'directory' | 'raw'} type
+   * @param {Uint8Array | ArrayLike<number> | undefined} data
+   * @param {{ node: DAGNode, cid: CID }[]} children
+   */
   async function createAndPersistNode (ipld, type, data, children) {
-    const file = new UnixFS(type, data ? Uint8Array.from(data) : undefined)
+    const file = new UnixFS({ type, data: data ? Uint8Array.from(data) : undefined })
     const links = []
 
     for (let i = 0; i < children.length; i++) {
@@ -139,6 +180,10 @@ describe('exporter', () => {
 
     expect(file).to.have.property('cid')
     expect(file).to.have.property('path', result.cid.toBaseEncodedString())
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
 
     const data = uint8ArrayConcat(await all(file.content()))
     expect(data).to.deep.equal(unmarsh.data)
@@ -187,7 +232,16 @@ describe('exporter', () => {
     const node = await ipld.get(result.cid)
     const unmarsh = UnixFS.unmarshal(node.Data)
 
+    if (!unmarsh.data) {
+      throw new Error('Unexpected data')
+    }
+
     const file = await exporter(result.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content({
       offset,
       length
@@ -208,7 +262,7 @@ describe('exporter', () => {
       hashAlg: mh.names['sha2-256']
     })
 
-    const chunk2 = new UnixFS('raw', content.slice(5))
+    const chunk2 = new UnixFS({ type: 'raw', data: content.slice(5) })
     const chunkNode2 = new DAGNode(chunk2.marshal())
     const chunkCid2 = await ipld.put(chunkNode2, mc.DAG_PB, {
       cidVersion: 0,
@@ -231,6 +285,11 @@ describe('exporter', () => {
     })
 
     const exported = await exporter(fileCid, ipld)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(content)
   })
@@ -239,7 +298,7 @@ describe('exporter', () => {
     const offset = 0
     const length = 5
 
-    const chunk = await dagPut({ content: randomBytes(100) })
+    const chunk = await dagPut({ content: uint8ArrayConcat(await all(randomBytes(100))) })
     const result = await dagPut({
       content: uint8ArrayConcat(await all(randomBytes(100))),
       links: [
@@ -247,7 +306,16 @@ describe('exporter', () => {
       ]
     })
 
+    if (!result.file.data) {
+      throw new Error('Expected data')
+    }
+
     const file = await exporter(result.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content({
       offset,
       length
@@ -260,10 +328,14 @@ describe('exporter', () => {
     this.timeout(30 * 1000)
 
     const cid = await addTestFile({
-      file: randomBytes(ONE_MEG * 6)
+      file: uint8ArrayConcat(await all(randomBytes(ONE_MEG * 6)))
     })
 
     const file = await exporter(cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
 
     expect(file).to.have.property('path', cid.toBaseEncodedString())
     expect(file.unixfs.fileSize()).to.equal(ONE_MEG * 6)
@@ -282,6 +354,10 @@ describe('exporter', () => {
 
     const file = await exporter(cid, ipld)
     expect(file).to.have.property('path', cid.toBaseEncodedString())
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
 
     const data = uint8ArrayConcat(await all(file.content({
       offset,
@@ -337,7 +413,17 @@ describe('exporter', () => {
     }, {
       path: './level-1/level-2'
     }], block))
+
+    if (!importedDir) {
+      throw new Error('Nothing imported')
+    }
+
     const dir = await exporter(importedDir.cid, ipld)
+
+    if (dir.type !== 'directory') {
+      throw new Error('Unexpected type')
+    }
+
     const files = await all(dir.content())
 
     files.forEach(file => expect(file).to.have.property('cid'))
@@ -351,14 +437,14 @@ describe('exporter', () => {
     ])
 
     files
-      .filter(file => file.unixfs.type === 'dir')
+      .filter(file => file.type === 'directory' && file.unixfs.type === 'dir')
       .forEach(dir => {
         expect(dir).to.has.property('size', 0)
       })
 
     expect(
       files
-        .map(file => file.unixfs.type === 'file')
+        .map(file => file.type === 'file' && file.unixfs.type === 'file')
     ).to.deep.equal([
       true,
       false,
@@ -376,7 +462,16 @@ describe('exporter', () => {
       path: './level-1'
     }], block))
 
+    if (!importedDir) {
+      throw new Error('Nothing imported')
+    }
+
     const dir = await exporter(importedDir.cid, ipld)
+
+    if (dir.type !== 'directory') {
+      throw new Error('Unexpected type')
+    }
+
     const files = await all(dir.content())
 
     files.forEach(file => expect(file).to.have.property('cid'))
@@ -391,7 +486,7 @@ describe('exporter', () => {
 
     expect(
       files
-        .map(file => file.unixfs.type === 'file')
+        .map(file => file.type === 'file' && file.unixfs.type === 'file')
     ).to.deep.equal([
       true,
       false,
@@ -523,7 +618,16 @@ describe('exporter', () => {
       rawLeaves: true
     }))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const file = await exporter(imported.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(bigFile)
@@ -533,7 +637,17 @@ describe('exporter', () => {
     const imported = await first(importer([{
       path: 'empty'
     }], block))
+
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const dir = await exporter(imported.cid, ipld)
+
+    if (dir.type !== 'directory') {
+      throw new Error('Unexpected type')
+    }
+
     const files = await all(dir.content())
     expect(files.length).to.equal(0)
   })
@@ -649,6 +763,10 @@ describe('exporter', () => {
     })
     const file = await exporter(cid, ipld)
 
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     while (offset < bigFile.length) {
       const result = uint8ArrayConcat(await all(file.content({
         offset,
@@ -694,6 +812,11 @@ describe('exporter', () => {
     ])
 
     const file = await exporter(node.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(Uint8Array.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
@@ -718,16 +841,21 @@ describe('exporter', () => {
 
     const internalNodes = await Promise.all([
       createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]]),
-      createAndPersistNode(ipld, 'raw', null, [leaves[2]])
+      createAndPersistNode(ipld, 'raw', undefined, [leaves[2]])
     ])
 
-    const node = await createAndPersistNode(ipld, 'file', null, [
+    const node = await createAndPersistNode(ipld, 'file', undefined, [
       leaves[0],
       internalNodes[0],
       internalNodes[1]
     ])
 
     const file = await exporter(node.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(
@@ -745,6 +873,11 @@ describe('exporter', () => {
     ])
 
     const file = await exporter(node.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const data = uint8ArrayConcat(await all(file.content({
       offset: 4
     })))
@@ -762,7 +895,16 @@ describe('exporter', () => {
       rawLeaves: true
     }))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const file = await exporter(imported.cid, ipld)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const buffers = await all(file.content())
 
     buffers.forEach(buffer => {
@@ -778,8 +920,16 @@ describe('exporter', () => {
       rawLeaves: true
     }))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const file = await exporter(imported.cid, ipld)
     expect(CID.isCID(file.cid)).to.be.true()
+
+    if (file.type !== 'raw') {
+      throw new Error('Unexpected type')
+    }
 
     const data = uint8ArrayConcat(await all(file.content()))
     expect(data).to.deep.equal(smallFile)
@@ -804,6 +954,10 @@ describe('exporter', () => {
 
     const cborNodeCid = await ipld.put(node, mc.DAG_CBOR)
     const exported = await exporter(`${cborNodeCid.toBaseEncodedString()}`, ipld)
+
+    if (exported.type !== 'object') {
+      throw new Error('Unexpected type')
+    }
 
     expect(exported.node).to.deep.equal(node)
   })
@@ -854,6 +1008,10 @@ describe('exporter', () => {
 
     const exported = await exporter(cid, ipld)
 
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     try {
       await all(exported.content())
     } catch (err) {
@@ -884,6 +1042,10 @@ describe('exporter', () => {
       content: uint8ArrayFromString('hello world')
     }], block))
 
+    if (!dir) {
+      throw new Error('Nothing imported')
+    }
+
     const exported = await all(exporter.recursive(dir.cid, ipld))
     const dirCid = dir.cid.toBaseEncodedString()
 
@@ -913,6 +1075,11 @@ describe('exporter', () => {
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const result = uint8ArrayConcat(await all(exported.content()))
 
     expect(result).to.deep.equal(data)
@@ -925,6 +1092,11 @@ describe('exporter', () => {
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const result = uint8ArrayConcat(await all(exported.content({
       offset: 1
     })))
@@ -938,6 +1110,11 @@ describe('exporter', () => {
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const result = uint8ArrayConcat(await all(exported.content({
       length: 1
     })))
@@ -951,6 +1128,11 @@ describe('exporter', () => {
     const cid = new CID(1, 'identity', hash)
 
     const exported = await exporter(cid, ipld)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
     const result = uint8ArrayConcat(await all(exported.content({
       offset: 3,
       length: 1
@@ -975,6 +1157,11 @@ describe('exporter', () => {
     // regular test IPLD is offline-only, we need to mimic what happens when
     // we try to get a block from the network
     const ipld = {
+      /**
+       *
+       * @param {CID} cid
+       * @param {{ signal: AbortSignal }} options
+       */
       get: (cid, options) => {
         // promise will never resolve, so reject it when the abort signal is sent
         return new Promise((resolve, reject) => {
@@ -985,6 +1172,7 @@ describe('exporter', () => {
       }
     }
 
+    // @ts-ignore ipld implementation incomplete
     await expect(exporter(cid, ipld, {
       signal: abortController.signal
     })).to.eventually.be.rejectedWith(message)

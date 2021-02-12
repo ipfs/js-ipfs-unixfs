@@ -5,6 +5,60 @@ const CID = require('cids')
 const resolve = require('./resolvers')
 const last = require('it-last')
 
+/**
+ * @typedef {import('ipfs-unixfs')} UnixFS
+ * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
+ *
+ * @typedef {object} UnixFSFile
+ * @property {'file'} type
+ * @property {string} name
+ * @property {string} path
+ * @property {CID} cid
+ * @property {number} depth
+ * @property {UnixFS} unixfs
+ * @property {DAGNode} node
+ * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
+ *
+ * @typedef {object} UnixFSDirectory
+ * @property {'directory'} type
+ * @property {string} name
+ * @property {string} path
+ * @property {CID} cid
+ * @property {number} depth
+ * @property {UnixFS} unixfs
+ * @property {DAGNode} node
+ * @property {(options?: ExporterOptions) => AsyncIterable<UnixFSEntry>} content
+ *
+ * @typedef {object} ObjectNode
+ * @property {'object'} type
+ * @property {string} name
+ * @property {string} path
+ * @property {CID} cid
+ * @property {number} depth
+ * @property {any} node
+ *
+ * @typedef {object} RawNode
+ * @property {'raw'} type
+ * @property {string} name
+ * @property {string} path
+ * @property {CID} cid
+ * @property {number} depth
+ * @property {Uint8Array} node
+ * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
+ *
+ * @typedef {UnixFSFile | UnixFSDirectory | ObjectNode | RawNode} UnixFSEntry
+ */
+
+/**
+ * @typedef {object} IPLDResolver
+ * @property {(cid: CID, options?: any) => Promise<any>} get
+ * @property {(node: any, codec: number, options?: any) => Promise<CID>} put
+ *
+ * @typedef {object} ExporterOptions
+ * @property {number} [offset=0]
+ * @property {number} [length]
+ */
+
 const toPathComponents = (path = '') => {
   // split on / unless escaped with \
   return (path
@@ -13,6 +67,9 @@ const toPathComponents = (path = '') => {
     .filter(Boolean)
 }
 
+/**
+ * @param {string|Uint8Array|CID} path
+ */
 const cidAndRest = (path) => {
   if (path instanceof Uint8Array) {
     return {
@@ -44,7 +101,12 @@ const cidAndRest = (path) => {
   throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
 }
 
-const walkPath = async function * (path, ipld, options) {
+/**
+ * @param {string | CID} path
+ * @param {IPLDResolver} ipld
+ * @param {ExporterOptions} [options]
+ */
+const walkPath = async function * (path, ipld, options = {}) {
   let {
     cid,
     toResolve
@@ -76,34 +138,62 @@ const walkPath = async function * (path, ipld, options) {
   }
 }
 
-const exporter = (path, ipld, options) => {
-  return last(walkPath(path, ipld, options))
+/**
+ * @param {string | CID} path
+ * @param {IPLDResolver} ipld
+ * @param {ExporterOptions} [options]
+ */
+const exporter = async (path, ipld, options = {}) => {
+  const result = await last(walkPath(path, ipld, options))
+
+  if (!result) {
+    throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
+  }
+
+  return result
 }
 
-const recursive = async function * (path, ipld, options) {
+/**
+ * @param {string | CID} path
+ * @param {IPLDResolver} ipld
+ * @param {ExporterOptions} [options]
+ */
+const recursive = async function * (path, ipld, options = {}) {
   const node = await exporter(path, ipld, options)
+
+  if (!node) {
+    return
+  }
 
   yield node
 
-  if (node.unixfs && node.unixfs.type.includes('dir')) {
+  if (node.type === 'directory') {
     for await (const child of recurse(node, options)) {
       yield child
     }
   }
 
+  /**
+   * @param {UnixFSDirectory} node
+   * @param {ExporterOptions} options
+   * @returns {AsyncGenerator<UnixFSEntry, void, any>}
+   */
   async function * recurse (node, options) {
     for await (const file of node.content(options)) {
       yield file
 
-      if (file.unixfs.type.includes('dir')) {
-        for await (const subFile of recurse(file, options)) {
-          yield subFile
-        }
+      if (file instanceof Uint8Array) {
+        continue
+      }
+
+      if (file.type === 'directory') {
+        yield * recurse(file, options)
       }
     }
   }
 }
 
+exporter.path = walkPath
+exporter.recursive = recursive
+
 module.exports = exporter
-module.exports.path = walkPath
-module.exports.recursive = recursive

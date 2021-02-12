@@ -3,32 +3,50 @@
 
 const importer = require('../src')
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const mc = require('multicodec')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
+const UnixFS = require('ipfs-unixfs')
 
-// eslint bug https://github.com/eslint/eslint/issues/12459
-// eslint-disable-next-line require-await
 const iter = async function * () {
   yield uint8ArrayFromString('one')
   yield uint8ArrayFromString('two')
 }
 
 describe('custom chunker', function () {
-  let inmem
+  /** @type {import('./helpers/block').IPLDResolver} */
+  let ipld
+  /** @type {import('../src').BlockAPI} */
   let block
 
-  const fromPartsTest = (iter, size) => async () => {
+  /**
+   * @param {AsyncIterable<Uint8Array>} content
+   * @param {number} size
+   */
+  const fromPartsTest = (content, size) => async () => {
+    /**
+     * @param {Uint8Array} buf
+     */
+    const put = async (buf) => {
+      const cid = await ipld.put(buf, mc.RAW)
+      return {
+        cid,
+        size: buf.length,
+        unixfs: new UnixFS()
+      }
+    }
+
     for await (const part of importer([{
-      content: iter()
+      content
     }], block, {
-      chunkValidator: source => source,
       chunker: source => source,
-      bufferImporter: async function * (file, source, ipld, options) {
-        for await (const item of source) {
-          yield () => Promise.resolve(item)
+      bufferImporter: async function * (file, block, options) {
+        for await (const item of file.content) {
+          yield async () => put(item)
         }
       }
     })) {
@@ -37,38 +55,28 @@ describe('custom chunker', function () {
   }
 
   before(async () => {
-    inmem = await inMemory(IPLD)
-    block = blockApi(inmem)
+    ipld = await inMemory(IPLD)
+    block = blockApi(ipld)
   })
 
   it('keeps custom chunking', async () => {
-    const chunker = source => source
     const content = iter()
     for await (const part of importer([{ path: 'test', content }], block, {
-      chunker
+      chunker: source => source
     })) {
       expect(part.size).to.equal(116)
     }
   })
 
-  // eslint bug https://github.com/eslint/eslint/issues/12459
   const multi = async function * () {
-    yield {
-      size: 11,
-      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
-    }
-    yield {
-      size: 11,
-      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
-    }
+    yield uint8ArrayFromString('hello world')
+    yield uint8ArrayFromString('hello world')
   }
-  it('works with multiple parts', fromPartsTest(multi, 120))
+  it('works with multiple parts', fromPartsTest(multi(), 120))
 
   const single = async function * () {
-    yield {
-      size: 11,
-      cid: await inmem.put(uint8ArrayFromString('hello world'), mc.RAW)
-    }
+    yield uint8ArrayFromString('hello world')
   }
-  it('works with single part', fromPartsTest(single, 11))
+
+  it('works with single part', fromPartsTest(single(), 11))
 })

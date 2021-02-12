@@ -6,8 +6,19 @@ const {
   DAGNode
 } = require('ipld-dag-pb')
 
-async function * bufferImporter (file, source, block, options) {
-  for await (let buffer of source) {
+/**
+ * @typedef {import('../../').BlockAPI} BlockAPI
+ * @typedef {import('../../').ImporterOptions} ImporterOptions
+ * @typedef {import('../../').File} File
+ * @typedef {import('../../').PartialImportResult} PartialImportResult
+ * @typedef {(file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<PartialImportResult>>} BufferImporter
+ */
+
+/**
+ * @type {BufferImporter}
+ */
+async function * bufferImporter (file, block, options) {
+  for await (let buffer of file.content) {
     yield async () => {
       options.progress(buffer.length, file.path)
       let unixfs

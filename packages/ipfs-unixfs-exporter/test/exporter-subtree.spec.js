@@ -2,10 +2,11 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const importer = require('ipfs-unixfs-importer')
-const mc = require('multicodec')
 const all = require('it-all')
 const last = require('it-last')
 const blockApi = require('./helpers/block')
@@ -17,7 +18,9 @@ const ONE_MEG = Math.pow(1024, 2)
 const exporter = require('./../src')
 
 describe('exporter subtree', () => {
+  /** @type {import('../src').IPLDResolver} */
   let ipld
+  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
 
   before(async () => {
@@ -36,11 +39,19 @@ describe('exporter subtree', () => {
       content
     }], block))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`, ipld)
 
     expect(exported).to.have.property('cid')
     expect(exported.name).to.equal('200Bytes.txt')
     expect(exported.path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
 
     const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(content)
@@ -58,7 +69,16 @@ describe('exporter subtree', () => {
       path: './level-1/level-2'
     }], block))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1`, ipld)
+
+    if (exported.type !== 'directory') {
+      throw new Error('Unexpected type')
+    }
+
     const files = await all(exported.content())
 
     expect(files.length).to.equal(2)
@@ -67,6 +87,10 @@ describe('exporter subtree', () => {
 
     expect(files[1].name).to.equal('level-2')
     expect(files[1].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/level-2`)
+
+    if (files[0].type !== 'file') {
+      throw new Error('Unexpected type')
+    }
 
     const data = uint8ArrayConcat(await all(files[0].content()))
     expect(data).to.deep.equal(content)
@@ -78,36 +102,15 @@ describe('exporter subtree', () => {
       content: randomBytes(ONE_MEG)
     }], block))
 
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
+
     try {
       await exporter(`${imported.cid.toBaseEncodedString()}/doesnotexist`, ipld)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
-  })
-
-  it('exports starting from non-protobuf node', async () => {
-    const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
-
-    const imported = await last(importer([{
-      path: './level-1/200Bytes.txt',
-      content
-    }], block, {
-      wrapWithDirectory: true
-    }))
-
-    const cborNodeCid = await ipld.put({
-      a: {
-        file: imported.cid
-      }
-    }, mc.DAG_CBOR)
-
-    const exported = await exporter(`${cborNodeCid.toBaseEncodedString()}/a/file/level-1/200Bytes.txt`, ipld)
-
-    expect(exported.name).to.equal('200Bytes.txt')
-    expect(exported.path).to.equal(`${cborNodeCid.toBaseEncodedString()}/a/file/level-1/200Bytes.txt`)
-
-    const data = uint8ArrayConcat(await all(exported.content()))
-    expect(data).to.deep.equal(content)
   })
 
   it('uses .path to export all components of a path', async () => {
@@ -125,6 +128,10 @@ describe('exporter subtree', () => {
       path: './level-1/level-2/200Bytes.txt',
       content
     }], block))
+
+    if (!imported) {
+      throw new Error('Nothing imported')
+    }
 
     const exported = await all(exporter.path(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld))
 

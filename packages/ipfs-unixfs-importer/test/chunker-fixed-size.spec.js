@@ -3,10 +3,8 @@
 
 const chunker = require('../src/chunker/fixed-size')
 const { expect } = require('aegir/utils/chai')
-const isNode = require('detect-node')
 const all = require('it-all')
-const loadFixture = require('aegir/fixtures')
-const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt')
+const rawFile = new Uint8Array(Math.pow(2, 20))
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
 

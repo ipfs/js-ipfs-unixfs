@@ -3,8 +3,10 @@
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
 const {
-  DAGNode
-} = require('ipld-dag-pb')
+  encode,
+  prepare
+// @ts-ignore
+} = require('@ipld/dag-pb')
 
 /**
  * @typedef {import('../../types').BufferImporter} BufferImporter
@@ -38,7 +40,7 @@ async function * bufferImporter (file, block, options) {
           mode: file.mode
         })
 
-        buffer = new DAGNode(unixfs.marshal()).serialize()
+        buffer = encode(prepare({ Data: unixfs.marshal() }))
       }
 
       return {

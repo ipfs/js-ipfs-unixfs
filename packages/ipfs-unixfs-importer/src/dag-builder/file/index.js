@@ -4,9 +4,11 @@ const errCode = require('err-code')
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
 const {
-  DAGNode,
-  DAGLink
-} = require('ipld-dag-pb')
+  encode,
+  prepare
+// @ts-ignore
+} = require('@ipld/dag-pb')
+const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
 const mh = require('multihashing-async').multihash
 
@@ -90,7 +92,7 @@ const reduce = (file, block, options) => {
         })
 
         const multihash = mh.decode(leaf.cid.multihash)
-        buffer = new DAGNode(leaf.unixfs.marshal()).serialize()
+        buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
         leaf.cid = await persist(buffer, block, {
           ...options,
@@ -133,7 +135,11 @@ const reduce = (file, block, options) => {
           // node is a leaf buffer
           f.addBlockSize(leaf.size)
 
-          return new DAGLink('', leaf.size, leaf.cid)
+          return {
+            Name: '',
+            Tsize: leaf.size,
+            Hash: leaf.cid
+          }
         }
 
         if (!leaf.unixfs || !leaf.unixfs.data) {
@@ -144,11 +150,18 @@ const reduce = (file, block, options) => {
           f.addBlockSize(leaf.unixfs.data.length)
         }
 
-        return new DAGLink('', leaf.size, leaf.cid)
+        return {
+          Name: '',
+          Tsize: leaf.size,
+          Hash: leaf.cid
+        }
       })
 
-    const node = new DAGNode(f.marshal(), links)
-    const buffer = node.serialize()
+    const node = {
+      Data: f.marshal(),
+      Links: links
+    }
+    const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, options)
 
     return {

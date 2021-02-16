@@ -3,8 +3,10 @@
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../utils/persist')
 const {
-  DAGNode
-} = require('ipld-dag-pb')
+  encode,
+  prepare
+// @ts-ignore
+} = require('@ipld/dag-pb')
 
 /**
  * @typedef {import('../types').Directory} Directory
@@ -20,7 +22,7 @@ const dirBuilder = async (item, block, options) => {
     mode: item.mode
   })
 
-  const buffer = new DAGNode(unixfs.marshal()).serialize()
+  const buffer = encode(prepare({ Data: unixfs.marshal() }))
   const cid = await persist(buffer, block, options)
   const path = item.path
 

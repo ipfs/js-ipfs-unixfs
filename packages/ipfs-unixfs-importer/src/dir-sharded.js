@@ -1,9 +1,10 @@
 'use strict'
 
 const {
-  DAGLink,
-  DAGNode
-} = require('ipld-dag-pb')
+  encode,
+  prepare
+// @ts-ignore
+} = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
@@ -119,7 +120,11 @@ async function * flush (bucket, block, shardRoot, options) {
         throw new Error('Could not flush sharded directory, no subshard found')
       }
 
-      links.push(new DAGLink(labelPrefix, shard.size, shard.cid))
+      links.push({
+        Name: labelPrefix,
+        Tsize: shard.size,
+        Hash: shard.cid
+      })
       childrenSize += shard.size
     } else if (typeof child.value.flush === 'function') {
       const dir = child.value
@@ -132,7 +137,11 @@ async function * flush (bucket, block, shardRoot, options) {
       }
 
       const label = labelPrefix + child.key
-      links.push(new DAGLink(label, flushedDir.size, flushedDir.cid))
+      links.push({
+        Name: label,
+        Tsize: flushedDir.size,
+        Hash: flushedDir.cid
+      })
 
       childrenSize += flushedDir.size
     } else {
@@ -145,7 +154,11 @@ async function * flush (bucket, block, shardRoot, options) {
       const label = labelPrefix + child.key
       const size = value.size
 
-      links.push(new DAGLink(label, size, value.cid))
+      links.push({
+        Name: label,
+        Tsize: size,
+        Hash: value.cid
+      })
       childrenSize += size
     }
   }
@@ -162,8 +175,11 @@ async function * flush (bucket, block, shardRoot, options) {
     mode: shardRoot && shardRoot.mode
   })
 
-  const node = new DAGNode(dir.marshal(), links)
-  const buffer = node.serialize()
+  const node = {
+    Data: dir.marshal(),
+    Links: links
+  }
+  const buffer = encode(prepare(node))
   const cid = await persist(buffer, block, options)
   const size = buffer.length + childrenSize
 

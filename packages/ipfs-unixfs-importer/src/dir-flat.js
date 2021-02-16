@@ -1,10 +1,11 @@
 'use strict'
 
 const {
-  DAGLink,
-  DAGNode
-} = require('ipld-dag-pb')
-const { UnixFS } = require('ipfs-unixfs')
+  encode,
+  prepare
+// @ts-ignore
+} = require('@ipld/dag-pb')
+const UnixFS = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 
@@ -92,7 +93,11 @@ class DirFlat extends Dir {
       }
 
       if (child.size != null && child.cid) {
-        links.push(new DAGLink(children[i], child.size, child.cid))
+        links.push({
+          Name: children[i],
+          Tsize: child.size,
+          Hash: child.cid
+        })
       }
     }
 
@@ -102,13 +107,13 @@ class DirFlat extends Dir {
       mode: this.mode
     })
 
-    const node = new DAGNode(unixfs.marshal(), links)
-    const buffer = node.serialize()
+    const node = { Data: unixfs.marshal(), Links: links }
+    const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, this.options)
     const size = buffer.length + node.Links.reduce(
       /**
        * @param {number} acc
-       * @param {DAGLink} curr
+       * @param {{ Name: string, Tsize: number, Hash: CID }} curr
        */
       (acc, curr) => acc + curr.Tsize,
       0)

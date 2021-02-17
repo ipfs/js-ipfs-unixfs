@@ -43,7 +43,7 @@
     "ipld-dag-pb": "^0.20.0",
     "ipld-in-memory": "^7.0.0",
     "it-all": "^1.0.1",
-    "it-buffer-stream": "^1.0.2",
+    "it-buffer-stream": "^2.0.0",
     "it-first": "^1.0.1",
     "merge-options": "^3.0.3",
     "multicodec": "^2.0.0",

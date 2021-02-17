@@ -60,6 +60,7 @@ const defaultOptions = {
   recursive: false,
   hidden: false,
   preload: false,
+  timeout: undefined,
   hamtHashFn,
   hamtHashCode: 0x22,
   hamtBucketBits: 8

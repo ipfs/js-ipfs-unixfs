@@ -32,6 +32,7 @@ const persist = async (buffer, block, options) => {
     await block.put(buffer, {
       pin: options.pin,
       preload: options.preload,
+      timeout: options.timeout,
       cid
     })
   }

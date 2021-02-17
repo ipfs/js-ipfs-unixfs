@@ -72,6 +72,7 @@ const defaultOptions = require('./options')
  * @property {boolean} [recursive=false]
  * @property {boolean} [hidden=false]
  * @property {boolean} [preload=false]
+ * @property {string | number} [timeout]
  * @property {(value: Uint8Array) => Promise<Uint8Array>} [hamtHashFn]
  * @property {number} [hamtBucketBits=8]
  * @property {number} [hamtHashCode=0x22]
@@ -106,6 +107,7 @@ const defaultOptions = require('./options')
  * @property {boolean} recursive
  * @property {boolean} hidden
  * @property {boolean} preload
+ * @property {string | number | undefined} timeout
  * @property {(value: Uint8Array) => Promise<Uint8Array>} hamtHashFn
  * @property {number} hamtHashCode
  * @property {number} hamtBucketBits

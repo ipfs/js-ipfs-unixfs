@@ -3,13 +3,11 @@
 
 const chunker = require('../src/chunker/rabin')
 const { expect } = require('aegir/utils/chai')
-const loadFixture = require('aegir/fixtures')
-const isNode = require('detect-node')
 const all = require('it-all')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
 
-const rawFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1MiB.txt')
+const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)
 
 describe('chunker: rabin', function () {
   this.timeout(30000)
@@ -71,9 +69,9 @@ describe('chunker: rabin', function () {
     const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
     const opts = {
       ...defaultOptions,
-      minChunkSize: KiB256 / 3,
+      minChunkSize: Math.round(KiB256 / 3),
       avgChunkSize: KiB256,
-      maxChunkSize: KiB256 + (KiB256 / 2)
+      maxChunkSize: Math.round(KiB256 + (KiB256 / 2))
     }
 
     const chunks = await all(chunker([file], opts))

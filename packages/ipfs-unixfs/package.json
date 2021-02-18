@@ -17,7 +17,7 @@
     "clean": "rm -rf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i mkdirp -i protobufjs -i @types/mocha -i nyc"
+    "depcheck": "aegir dep-check -i mkdirp -i protobufjs -i @types/mocha -i nyc -i npm-run-all"
   },
   "repository": {
     "type": "git",

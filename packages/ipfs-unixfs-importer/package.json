@@ -46,7 +46,7 @@
     "err-code": "^3.0.0",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^2.0.4",
-    "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
+    "ipld-dag-pb": "^0.21.0",
     "it-all": "^1.0.1",
     "it-batch": "^1.0.3",
     "it-first": "^1.0.1",

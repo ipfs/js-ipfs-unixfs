@@ -38,7 +38,7 @@
     "aegir": "^30.3.0",
     "detect-node": "^2.0.4",
     "ipld": "^0.28.0",
-    "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
+    "ipld-dag-pb": "^0.21.0",
     "ipld-in-memory": "^7.0.0",
     "ipfs-unixfs-importer": "^5.0.0",
     "it-all": "^1.0.1",

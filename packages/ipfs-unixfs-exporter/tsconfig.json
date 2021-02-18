@@ -14,9 +14,6 @@
   "references": [
     {
       "path": "../ipfs-unixfs"
-    },
-    {
-      "path": "../ipfs-unixfs-importer"
     }
   ]
 }

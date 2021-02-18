@@ -38,6 +38,7 @@
     "aegir": "^30.3.0",
     "detect-node": "^2.0.4",
     "ipld": "^0.28.0",
+    "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
     "ipld-in-memory": "^7.0.0",
     "ipfs-unixfs-importer": "^5.0.0",
     "it-all": "^1.0.1",
@@ -55,7 +56,6 @@
     "err-code": "^3.0.0",
     "hamt-sharding": "ipfs-shipyard/js-hamt-sharding#feat/add-types",
     "ipfs-unixfs": "^2.0.4",
-    "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
     "it-last": "^1.0.1",
     "multihashing-async": "^2.0.0"
   },

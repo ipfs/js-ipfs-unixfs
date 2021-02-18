@@ -46,7 +46,16 @@ const last = require('it-last')
  * @property {Uint8Array} node
  * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
  *
- * @typedef {UnixFSFile | UnixFSDirectory | ObjectNode | RawNode} UnixFSEntry
+ * @typedef {object} IdentityNode
+ * @property {'identity'} type
+ * @property {string} name
+ * @property {string} path
+ * @property {CID} cid
+ * @property {number} depth
+ * @property {Uint8Array} node
+ * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
+ *
+ * @typedef {UnixFSFile | UnixFSDirectory | ObjectNode | RawNode | IdentityNode} UnixFSEntry
  */
 
 /**

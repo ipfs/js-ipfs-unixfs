@@ -4,10 +4,6 @@ const errCode = require('err-code')
 const extractDataFromBlock = require('../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../utils/validate-offset-and-length')
 const mh = require('multihashing-async').multihash
-const UnixFS = require('ipfs-unixfs')
-const {
-  DAGNode
-} = require('ipld-dag-pb')
 
 /**
  * @typedef {import('../').ExporterOptions} ExporterOptions
@@ -44,14 +40,13 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
 
   return {
     entry: {
-      type: 'file',
+      type: 'identity',
       name,
       path,
       cid,
       content: rawContent(buf.digest),
       depth,
-      unixfs: new UnixFS({ type: 'file', data: buf.digest }),
-      node: new DAGNode(buf.digest)
+      node: buf.digest
     }
   }
 }

@@ -1076,7 +1076,7 @@ describe('exporter', () => {
 
     const exported = await exporter(cid, ipld)
 
-    if (exported.type !== 'file') {
+    if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
     }
 
@@ -1093,7 +1093,7 @@ describe('exporter', () => {
 
     const exported = await exporter(cid, ipld)
 
-    if (exported.type !== 'file') {
+    if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
     }
 
@@ -1111,7 +1111,7 @@ describe('exporter', () => {
 
     const exported = await exporter(cid, ipld)
 
-    if (exported.type !== 'file') {
+    if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
     }
 
@@ -1129,7 +1129,7 @@ describe('exporter', () => {
 
     const exported = await exporter(cid, ipld)
 
-    if (exported.type !== 'file') {
+    if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
     }
 

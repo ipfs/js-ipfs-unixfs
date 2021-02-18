@@ -8,8 +8,11 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "pbjs ./src/unixfs.proto -t json -o ./src/unixfs.json && aegir build --no-bundle",
-    "prepublishOnly": "aegir build --no-bundle",
+    "prepare": "run-s prepare:*",
+    "prepare:proto": "pbjs -t static-module -w commonjs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
+    "prepare:proto:types": "pbts -o src/unixfs.d.ts src/unixfs.js",
+    "prepare:types": "aegir build --no-bundle",
+    "prepare:copy": "cp ./src/*.d.ts ./dist/src",
     "test": "aegir test",
     "clean": "rm -rf ./dist",
     "lint": "aegir lint",
@@ -36,6 +39,7 @@
     "@types/mocha": "^8.2.0",
     "aegir": "^30.3.0",
     "mkdirp": "^1.0.4",
+    "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
     "uint8arrays": "^2.0.5"
   },

@@ -1,16 +1,14 @@
 'use strict'
 
-const protobuf = require('protobufjs/light')
-// @ts-ignore
-const json = require('./unixfs.json')
-const root = protobuf.Root.fromJSON(json)
-const PBData = root.lookupType('Data')
+const {
+  Data: PBData
+} = require('./unixfs')
 const errcode = require('err-code')
 
 /**
  * @typedef {object} Mtime
  * @property {number} secs
- * @property {number} [nsecs]
+ * @property {number | null} [nsecs]
  */
 
 const types = [
@@ -163,7 +161,7 @@ class Data {
    * @param {number[]} [options.blockSizes]
    * @param {number} [options.hashType]
    * @param {number} [options.fanout]
-   * @param {Mtime | Date} [options.mtime]
+   * @param {Mtime | Date | null} [options.mtime]
    * @param {number | string} [options.mode]
    */
   constructor (options = {
@@ -267,15 +265,13 @@ class Data {
   marshal () {
     let type
 
-    const dataType = PBData.lookupEnum('DataType')
-
     switch (this.type) {
-      case 'raw': type = dataType.values.Raw; break
-      case 'directory': type = dataType.values.Directory; break
-      case 'file': type = dataType.values.File; break
-      case 'metadata': type = dataType.values.Metadata; break
-      case 'symlink': type = dataType.values.Symlink; break
-      case 'hamt-sharded-directory': type = dataType.values.HAMTShard; break
+      case 'raw': type = PBData.DataType.Raw; break
+      case 'directory': type = PBData.DataType.Directory; break
+      case 'file': type = PBData.DataType.File; break
+      case 'metadata': type = PBData.DataType.Metadata; break
+      case 'symlink': type = PBData.DataType.Symlink; break
+      case 'hamt-sharded-directory': type = PBData.DataType.HAMTShard; break
       default:
         throw errcode(new Error('Type: ' + type + ' is not valid'), 'ERR_INVALID_TYPE')
     }

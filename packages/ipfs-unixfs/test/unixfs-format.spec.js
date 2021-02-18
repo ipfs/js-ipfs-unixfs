@@ -13,9 +13,9 @@ const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const protobuf = require('protobufjs/light')
-const root = protobuf.Root.fromJSON(require('../src/unixfs.json'))
-const PBData = root.lookupType('Data')
+const {
+  Data: PBData
+} = require('../src/unixfs')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 
 describe('unixfs-format', () => {
@@ -267,7 +267,7 @@ describe('unixfs-format', () => {
   it('respects high bits in mode read from buffer', () => {
     const mode = 0o0100644 // similar to output from fs.stat
     const buf = PBData.encode({
-      Type: PBData.lookupEnum('DataType').values.File,
+      Type: PBData.DataType.File,
       mode
     }).finish()
 

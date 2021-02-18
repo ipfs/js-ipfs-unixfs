@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "3.0.7",
+  "version": "4.0.0",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -37,10 +37,10 @@
     "abort-controller": "^3.0.0",
     "aegir": "^30.3.0",
     "detect-node": "^2.0.4",
+    "ipfs-unixfs-importer": "^6.0.0",
     "ipld": "^0.28.0",
     "ipld-dag-pb": "^0.21.0",
     "ipld-in-memory": "^7.0.0",
-    "ipfs-unixfs-importer": "^5.0.0",
     "it-all": "^1.0.1",
     "it-buffer-stream": "^2.0.0",
     "it-first": "^1.0.1",
@@ -55,7 +55,7 @@
     "cids": "^1.1.5",
     "err-code": "^3.0.0",
     "hamt-sharding": "^2.0.0",
-    "ipfs-unixfs": "^2.0.4",
+    "ipfs-unixfs": "^3.0.0",
     "it-last": "^1.0.1",
     "multihashing-async": "^2.0.0"
   },

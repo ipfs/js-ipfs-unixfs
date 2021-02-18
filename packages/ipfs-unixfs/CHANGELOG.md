@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@2.0.4...ipfs-unixfs@3.0.0) (2021-02-18)
+
+
+### Features
+
+* add types ([#114](https://github.com/ipfs/js-ipfs-unixfs/issues/114)) ([ca26353](https://github.com/ipfs/js-ipfs-unixfs/commit/ca26353081ae192718532d3dbd60779863fe6d53))
+
+
+### BREAKING CHANGES
+
+* types are now included with all unixfs modules
+
+
+
+
+
 ## [2.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@2.0.3...ipfs-unixfs@2.0.4) (2020-11-04)
 
 **Note:** Version bump only for package ipfs-unixfs

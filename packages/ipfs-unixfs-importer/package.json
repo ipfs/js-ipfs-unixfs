@@ -44,7 +44,7 @@
     "bl": "^4.0.0",
     "cids": "^1.1.5",
     "err-code": "^3.0.0",
-    "hamt-sharding": "ipfs-shipyard/js-hamt-sharding#feat/add-types",
+    "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^2.0.4",
     "ipld-dag-pb": "ipld/js-ipld-dag-pb#feat/add-types",
     "it-all": "^1.0.1",

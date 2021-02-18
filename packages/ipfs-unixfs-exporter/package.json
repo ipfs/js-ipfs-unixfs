@@ -54,7 +54,7 @@
   "dependencies": {
     "cids": "^1.1.5",
     "err-code": "^3.0.0",
-    "hamt-sharding": "ipfs-shipyard/js-hamt-sharding#feat/add-types",
+    "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^2.0.4",
     "it-last": "^1.0.1",
     "multihashing-async": "^2.0.0"

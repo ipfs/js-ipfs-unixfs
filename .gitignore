@@ -4,6 +4,7 @@ yarn.lock
 **/*.log
 test/repo-tests*
 **/bundle.js
+package-lock.json
 
 # Logs
 logs

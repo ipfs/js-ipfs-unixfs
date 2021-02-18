@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "JS implementation of the IPFS UnixFS",
   "scripts": {
-    "postinstall": "lerna bootstrap",
-    "reset": "lerna run clean && rm -rf packages/*/node_modules node_modules",
+    "reset": "lerna run clean && rimraf packages/*/node_modules node_modules",
     "test": "lerna run test",
     "coverage": "lerna run coverage",
     "prepare": "lerna run prepare",
@@ -17,6 +16,7 @@
     "update-contributors": "aegir release --lint=false --test=false --bump=false --build=false --changelog=false --commit=false --tag=false --push=false --ghrelease=false --docs=false --publish=false"
   },
   "devDependencies": {
+    "aegir": "^30.3.0",
     "lerna": "^3.22.1"
   },
   "repository": {
@@ -47,5 +47,11 @@
     "Diogo Silva <fsdiogo@gmail.com>",
     "jbenet <juan@benet.ai>",
     "Bernard Mordan <bernard@tableflip.io>"
-  ]
+  ],
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "npm": ">=7.0.0"
+  }
 }

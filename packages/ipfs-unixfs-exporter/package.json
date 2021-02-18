@@ -10,10 +10,10 @@
   "scripts": {
     "prepare": "aegir build --no-bundle",
     "test": "aegir test",
-    "clean": "rm -rf ./dist",
+    "clean": "rimraf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller"
+    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "@types/mocha": "^8.2.0",
+    "@types/mocha": "^8.2.1",
     "@types/sinon": "^9.0.10",
     "abort-controller": "^3.0.0",
     "aegir": "^30.3.0",
@@ -41,23 +41,24 @@
     "ipld": "^0.28.0",
     "ipld-dag-pb": "^0.21.0",
     "ipld-in-memory": "^7.0.0",
-    "it-all": "^1.0.1",
+    "it-all": "^1.0.5",
     "it-buffer-stream": "^2.0.0",
-    "it-first": "^1.0.1",
+    "it-first": "^1.0.6",
     "merge-options": "^3.0.4",
-    "multicodec": "^2.0.0",
+    "multicodec": "^2.1.0",
     "native-abort-controller": "^1.0.3",
     "nyc": "^15.0.0",
-    "sinon": "^9.0.10",
-    "uint8arrays": "^2.0.5"
+    "rimraf": "^3.0.2",
+    "sinon": "^9.2.4",
+    "uint8arrays": "^2.1.2"
   },
   "dependencies": {
     "cids": "^1.1.5",
-    "err-code": "^3.0.0",
+    "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^3.0.0",
-    "it-last": "^1.0.1",
-    "multihashing-async": "^2.0.0"
+    "it-last": "^1.0.5",
+    "multihashing-async": "^2.1.0"
   },
   "types": "dist/src/index.d.ts",
   "files": [

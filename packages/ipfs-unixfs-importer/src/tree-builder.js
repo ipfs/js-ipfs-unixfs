@@ -76,7 +76,7 @@ async function * flushAndYield (tree, block) {
     return
   }
 
-  yield * tree.flush(tree.path, block)
+  yield * tree.flush(block)
 }
 
 /**

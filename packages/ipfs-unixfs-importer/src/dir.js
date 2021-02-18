@@ -64,11 +64,10 @@ class Dir {
   async * eachChildSeries () { }
 
   /**
-   * @param {string} path
    * @param {BlockAPI} block
    * @returns {AsyncIterable<ImportResult>}
    */
-  async * flush (path, block) { }
+  async * flush (block) { }
 }
 
 module.exports = Dir

@@ -5,8 +5,7 @@
   },
   "include": [
     "test",
-    "src",
-    "src/*.json"
+    "src"
   ],
   "exclude": [
     "dist",

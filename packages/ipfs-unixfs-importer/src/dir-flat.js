@@ -73,11 +73,10 @@ class DirFlat extends Dir {
   }
 
   /**
-   * @param {string} path
    * @param {BlockAPI} block
    * @returns {AsyncIterable<ImportResult>}
    */
-  async * flush (path, block) {
+  async * flush (block) {
     const children = Object.keys(this._children)
     const links = []
 
@@ -85,7 +84,7 @@ class DirFlat extends Dir {
       let child = this._children[children[i]]
 
       if (child instanceof Dir) {
-        for await (const entry of child.flush(child.path, block)) {
+        for await (const entry of child.flush(block)) {
           child = entry
 
           yield child
@@ -120,7 +119,7 @@ class DirFlat extends Dir {
     yield {
       cid,
       unixfs,
-      path,
+      path: this.path,
       size
     }
   }

@@ -2,7 +2,48 @@
 
 const dirBuilder = require('./dir')
 const fileBuilder = require('./file')
+const errCode = require('err-code')
 
+/**
+ * @typedef {import('../').BlockAPI} BlockAPI
+ * @typedef {import('../').ImporterOptions} ImporterOptions
+ * @typedef {import('../').ImportResult} ImportResult
+ * @typedef {import('../').PartialImportResult} PartialImportResult
+ * @typedef {import('../').ImportCandidate} ImportCandidate
+ * @typedef {import('../').File} File
+ * @typedef {import('../').Directory} Directory
+ */
+
+/**
+ * @template T
+ * @typedef {(item: T, block: BlockAPI, options: ImporterOptions) => Promise<PartialImportResult>} UnixFSV1DagBuilder
+ */
+
+/**
+ * @typedef {(source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<PartialImportResult>>} DAGBuilder
+ */
+
+/**
+ * @param {any} item
+ * @returns {item is ArrayLike<number>}
+ */
+function isArrayLike (item) {
+  return (
+    Array.isArray(item) ||
+      (Boolean(item) &&
+        typeof item === 'object' &&
+        typeof (item.length) === 'number' &&
+        (item.length === 0 ||
+           (item.length > 0 &&
+           (item.length - 1) in item)
+        )
+      )
+  )
+}
+
+/**
+ * @type {DAGBuilder}
+ */
 async function * dagBuilder (source, block, options) {
   for await (const entry of source) {
     if (entry.path) {
@@ -17,17 +58,24 @@ async function * dagBuilder (source, block, options) {
     }
 
     if (entry.content) {
-      let source = entry.content
+      const source = entry.content
 
-      // wrap in iterator if it is array-like or not an iterator
-      if ((!source[Symbol.asyncIterator] && !source[Symbol.iterator]) || source.length !== undefined) {
-        source = {
-          [Symbol.iterator]: function * () {
-            yield entry.content
-          }
+      /** @type {AsyncIterable<string | Uint8Array | ArrayLike<number>>} */
+      const content = (async function * () {
+        // wrap in iterator if it is a, string, Uint8Array or array-like
+        if (typeof source === 'string' || isArrayLike(source)) {
+          yield source
+          // @ts-ignore
+        } else if (source[Symbol.asyncIterator] || source[Symbol.iterator]) {
+          yield * source
+        } else {
+          throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
         }
-      }
+      }())
 
+      /**
+       * @type {import('../chunker').Chunker}
+       */
       let chunker
 
       if (typeof options.chunker === 'function') {
@@ -38,6 +86,9 @@ async function * dagBuilder (source, block, options) {
         chunker = require('../chunker/fixed-size')
       }
 
+      /**
+       * @type {import('./validate-chunks').ChunkValidator}
+       */
       let chunkValidator
 
       if (typeof options.chunkValidator === 'function') {
@@ -46,11 +97,26 @@ async function * dagBuilder (source, block, options) {
         chunkValidator = require('./validate-chunks')
       }
 
-      // item is a file
-      yield () => fileBuilder(entry, chunker(chunkValidator(source, options), options), block, options)
+      /** @type {File} */
+      const file = {
+        path: entry.path,
+        mtime: entry.mtime,
+        mode: entry.mode,
+        content: chunker(chunkValidator(content, options), options)
+      }
+
+      yield () => fileBuilder(file, block, options)
+    } else if (entry.path) {
+      /** @type {Directory} */
+      const dir = {
+        path: entry.path,
+        mtime: entry.mtime,
+        mode: entry.mode
+      }
+
+      yield () => dirBuilder(dir, block, options)
     } else {
-      // item is a directory
-      yield () => dirBuilder(entry, block, options)
+      throw new Error('Import candidate must have content or path or both')
     }
   }
 }

@@ -1,11 +1,24 @@
 'use strict'
 
 const DirSharded = require('./dir-sharded')
+const DirFlat = require('./dir-flat')
 
+/**
+ * @typedef {import('./dir')} Dir
+ * @typedef {import('./').ImporterOptions} ImporterOptions
+ */
+
+/**
+ * @param {Dir | null} child
+ * @param {Dir} dir
+ * @param {number} threshold
+ * @param {ImporterOptions} options
+ * @returns {Promise<DirSharded>}
+ */
 module.exports = async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
-  if (dir.flat && dir.directChildrenCount() >= threshold) {
+  if (dir instanceof DirFlat && dir.directChildrenCount() >= threshold) {
     newDir = await convertToShard(dir, options)
   }
 
@@ -17,15 +30,24 @@ module.exports = async function flatToShard (child, dir, threshold, options) {
         child.parent = newDir
       }
 
+      if (!newDir.parentKey) {
+        throw new Error('No parent key found')
+      }
+
       await parent.put(newDir.parentKey, newDir)
     }
 
     return flatToShard(newDir, parent, threshold, options)
   }
 
+  // @ts-ignore
   return newDir
 }
 
+/**
+ * @param {DirFlat} oldDir
+ * @param {ImporterOptions} options
+ */
 async function convertToShard (oldDir, options) {
   const newDir = new DirSharded({
     root: oldDir.root,

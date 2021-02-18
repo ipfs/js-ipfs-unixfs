@@ -5,54 +5,47 @@ const {
   DAGNode
 } = require('ipld-dag-pb')
 const UnixFS = require('ipfs-unixfs')
-const multihashing = require('multihashing-async')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
-const Bucket = require('hamt-sharding')
-const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
-const uint8ArrayFromString = require('uint8arrays/from-string')
+const { createHAMT, Bucket } = require('hamt-sharding')
 
-const hashFn = async function (value) {
-  const buf = uint8ArrayFromString(value)
-  const hash = await multihashing(buf, 'murmur3-128')
+/**
+ * @typedef {import('./').ImporterOptions} ImporterOptions
+ * @typedef {import('./').ImportResult} ImportResult
+ * @typedef {import('./').PartialImportResult} PartialImportResult
+ * @typedef {import('./').BlockAPI} BlockAPI
+ */
 
-  // Multihashing inserts preamble of 2 bytes. Remove it.
-  // Also, murmur3 outputs 128 bit but, accidently, IPFS Go's
-  // implementation only uses the first 64, so we must do the same
-  // for parity..
-  const justHash = hash.slice(2, 10)
-  const length = justHash.length
-  const result = new Uint8Array(length)
-  // TODO: invert buffer because that's how Go impl does it
-  for (let i = 0; i < length; i++) {
-    result[length - i - 1] = justHash[i]
-  }
-
-  return result
-}
-hashFn.code = 0x22 // TODO: get this from multihashing-async?
-
-const defaultOptions = {
-  hamtHashFn: hashFn,
-  hamtBucketBits: 8
-}
+/**
+ * @typedef {import('./dir').DirProps} DirProps
+ */
 
 class DirSharded extends Dir {
+  /**
+   * @param {DirProps} props
+   * @param {ImporterOptions} options
+   */
   constructor (props, options) {
-    options = mergeOptions(defaultOptions, options)
-
     super(props, options)
 
-    this._bucket = Bucket({
+    /** @type {Bucket<PartialImportResult | Dir>} */
+    this._bucket = createHAMT({
       hashFn: options.hamtHashFn,
       bits: options.hamtBucketBits
     })
   }
 
+  /**
+   * @param {string} name
+   * @param {PartialImportResult | Dir} value
+   */
   async put (name, value) {
     await this._bucket.put(name, value)
   }
 
+  /**
+   * @param {string} name
+   */
   get (name) {
     return this._bucket.get(name)
   }
@@ -78,18 +71,30 @@ class DirSharded extends Dir {
     }
   }
 
-  async * flush (path, block) {
-    for await (const entry of flush(path, this._bucket, block, this, this.options)) {
-      yield entry
+  /**
+   * @param {BlockAPI} block
+   * @returns {AsyncIterable<ImportResult>}
+   */
+  async * flush (block) {
+    for await (const entry of flush(this._bucket, block, this, this.options)) {
+      yield {
+        ...entry,
+        path: this.path
+      }
     }
   }
 }
 
 module.exports = DirSharded
 
-module.exports.hashFn = hashFn
-
-async function * flush (path, bucket, block, shardRoot, options) {
+/**
+ * @param {Bucket<?>} bucket
+ * @param {BlockAPI} block
+ * @param {*} shardRoot
+ * @param {ImporterOptions} options
+ * @returns {AsyncIterable<ImportResult>}
+ */
+async function * flush (bucket, block, shardRoot, options) {
   const children = bucket._children
   const links = []
   let childrenSize = 0
@@ -103,11 +108,15 @@ async function * flush (path, bucket, block, shardRoot, options) {
 
     const labelPrefix = i.toString(16).toUpperCase().padStart(2, '0')
 
-    if (Bucket.isBucket(child)) {
+    if (child instanceof Bucket) {
       let shard
 
-      for await (const subShard of await flush('', child, block, null, options)) {
+      for await (const subShard of await flush(child, block, null, options)) {
         shard = subShard
+      }
+
+      if (!shard) {
+        throw new Error('Could not flush sharded directory, no subshard found')
       }
 
       links.push(new DAGLink(labelPrefix, shard.size, shard.cid))
@@ -116,7 +125,7 @@ async function * flush (path, bucket, block, shardRoot, options) {
       const dir = child.value
       let flushedDir
 
-      for await (const entry of dir.flush(dir.path, block)) {
+      for await (const entry of dir.flush(block)) {
         flushedDir = entry
 
         yield flushedDir
@@ -148,7 +157,7 @@ async function * flush (path, bucket, block, shardRoot, options) {
     type: 'hamt-sharded-directory',
     data,
     fanout: bucket.tableSize(),
-    hashType: options.hamtHashFn.code,
+    hashType: options.hamtHashCode,
     mtime: shardRoot && shardRoot.mtime,
     mode: shardRoot && shardRoot.mode
   })
@@ -161,7 +170,6 @@ async function * flush (path, bucket, block, shardRoot, options) {
   yield {
     cid,
     unixfs: dir,
-    path,
     size
   }
 }

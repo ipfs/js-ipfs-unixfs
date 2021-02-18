@@ -5,7 +5,9 @@ const importer = require('ipfs-unixfs-importer')
 const exporter = require('../src')
 
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const last = require('it-last')
@@ -14,8 +16,15 @@ const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
 
+/**
+ * @typedef {import('../src').UnixFSEntry} UnixFSEntry
+ * @typedef {import('../src').UnixFSDirectory} UnixFSDirectory
+ */
+
 describe('builder: directory sharding', () => {
+  /** @type {import('../src').IPLDResolver} */
   let ipld
+  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
 
   before(async () => {
@@ -39,10 +48,25 @@ describe('builder: directory sharding', () => {
       expect(nodes[1].path).to.equal('a')
 
       const dirNode = await exporter(nodes[1].cid, ipld)
+
+      if (dirNode.type !== 'directory') {
+        throw new Error('Unexpected type')
+      }
+
       expect(dirNode.unixfs.type).to.equal('directory')
 
       const fileNode = await exporter(nodes[0].cid, ipld)
+
+      if (fileNode.type !== 'file') {
+        throw new Error('Unexpected type')
+      }
+
       expect(fileNode.unixfs.type).to.equal('file')
+
+      if (fileNode.type !== 'file') {
+        throw new Error('Unexpected type')
+      }
+
       expect(uint8ArrayConcat(await all(fileNode.content()))).to.deep.equal(content)
     })
 
@@ -60,6 +84,10 @@ describe('builder: directory sharding', () => {
 
       const node = await exporter(nodes[1].cid, ipld)
 
+      if (node.type !== 'directory') {
+        throw new Error('Unexpected type')
+      }
+
       expect(node.unixfs.type).to.equal('hamt-sharded-directory')
     })
 
@@ -75,9 +103,18 @@ describe('builder: directory sharding', () => {
       const nonShardedHash = nodes[1].cid
 
       const dir = await exporter(nonShardedHash, ipld)
+
+      if (dir.type !== 'directory') {
+        throw new Error('Unexpected type')
+      }
+
       const files = await all(dir.content())
 
       expect(files.length).to.equal(1)
+
+      if (files[0].type !== 'file') {
+        throw new Error('Unexpected type')
+      }
 
       const expectedHash = nonShardedHash.toBaseEncodedString()
 
@@ -103,9 +140,18 @@ describe('builder: directory sharding', () => {
       const shardedHash = nodes[1].cid
 
       const dir = await exporter(shardedHash, ipld)
+
+      if (dir.type !== 'directory') {
+        throw new Error('Unexpected type')
+      }
+
       const files = await all(dir.content())
 
       expect(files.length).to.equal(1)
+
+      if (files[0].type !== 'file') {
+        throw new Error('Unexpected type')
+      }
 
       const expectedHash = shardedHash.toBaseEncodedString()
 
@@ -162,7 +208,15 @@ describe('builder: directory sharding', () => {
 
       const dir = await exporter(nodes[nodes.length - 1].cid, ipld)
 
+      if (dir.type !== 'directory') {
+        throw new Error('Unexpected type')
+      }
+
       for await (const entry of dir.content()) {
+        if (entry.type !== 'file') {
+          throw new Error('Unexpected type')
+        }
+
         const content = uint8ArrayConcat(await all(entry.content()))
         expect(uint8ArrayToString(content)).to.equal(parseInt(entry.name, 10).toString())
       }
@@ -174,6 +228,7 @@ describe('builder: directory sharding', () => {
 
     const maxDirs = 2000
     const maxDepth = 3
+    /** @type {import('cids')} */
     let rootHash
 
     before(async () => {
@@ -209,6 +264,11 @@ describe('builder: directory sharding', () => {
       }
 
       const node = await last(importer(source, block))
+
+      if (!node) {
+        throw new Error('Nothing imported')
+      }
+
       expect(node.path).to.equal('big')
 
       rootHash = node.cid
@@ -217,12 +277,15 @@ describe('builder: directory sharding', () => {
     it('imports a big dir', async () => {
       const dir = await exporter(rootHash, ipld)
 
+      /**
+       * @param {UnixFSEntry} node
+       */
       const verifyContent = async (node) => {
-        if (node.unixfs.type === 'file') {
+        if (node.type === 'file') {
           const bufs = await all(node.content())
           const content = uint8ArrayConcat(bufs)
-          expect(uint8ArrayToString(content)).to.equal(parseInt(node.name, 10).toString())
-        } else {
+          expect(uint8ArrayToString(content)).to.equal(parseInt(node.name || '', 10).toString())
+        } else if (node.type === 'directory') {
           for await (const entry of node.content()) {
             await verifyContent(entry)
           }
@@ -233,12 +296,17 @@ describe('builder: directory sharding', () => {
     })
 
     it('exports a big dir', async () => {
+      /**
+       * @param {UnixFSEntry} node
+       * @param {{ [key: string]: { type: 'file', content: string } | UnixFSDirectory }} entries
+       */
       const collectContent = async (node, entries = {}) => {
-        if (node.unixfs.type === 'file') {
+        if (node.type === 'file') {
           entries[node.path] = {
+            type: 'file',
             content: uint8ArrayToString(uint8ArrayConcat(await all(node.content())))
           }
-        } else {
+        } else if (node.type === 'directory') {
           entries[node.path] = node
 
           for await (const entry of node.content()) {
@@ -249,6 +317,9 @@ describe('builder: directory sharding', () => {
         return entries
       }
 
+      /**
+       * @param {string} path
+       */
       const eachPath = (path) => {
         if (!index) {
           // first dir
@@ -257,6 +328,11 @@ describe('builder: directory sharding', () => {
           }
 
           const entry = entries[path]
+
+          if (entry.type === 'file') {
+            throw new Error('Unexpected type')
+          }
+
           expect(entry).to.exist()
           expect(entry.content).to.not.be.a('string')
         } else {
@@ -290,6 +366,10 @@ describe('builder: directory sharding', () => {
 
       const node = await exporter(exportHash, ipld)
       expect(node.path).to.equal(exportHash)
+
+      if (node.type !== 'file') {
+        throw new Error('Unexpected type')
+      }
 
       const content = uint8ArrayConcat(await all(node.content()))
       expect(uint8ArrayToString(content)).to.equal('2000')

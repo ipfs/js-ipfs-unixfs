@@ -5,6 +5,19 @@ const validateOffsetAndLength = require('../../../utils/validate-offset-and-leng
 const UnixFS = require('ipfs-unixfs')
 const errCode = require('err-code')
 
+/**
+ * @typedef {import('../../../').ExporterOptions} ExporterOptions
+ * @typedef {import('../../../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
+ *
+ * @param {IPLDResolver} ipld
+ * @param {DAGNode} node
+ * @param {number} start
+ * @param {number} end
+ * @param {number} streamPosition
+ * @param {ExporterOptions} options
+ * @returns {AsyncIterable<Uint8Array>}
+ */
 async function * emitBytes (ipld, node, start, end, streamPosition = 0, options) {
   // a `raw` node
   if (node instanceof Uint8Array) {
@@ -28,9 +41,7 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
   }
 
   // might be a unixfs `raw` node or have data on intermediate nodes
-  const nodeHasData = Boolean(file.data && file.data.length)
-
-  if (nodeHasData) {
+  if (file.data && file.data.length) {
     const buf = extractDataFromBlock(file.data, streamPosition, start, end)
 
     if (buf.length) {
@@ -64,9 +75,19 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
   }
 }
 
+/**
+ * @type {import('../').UnixfsV1Resolver}
+ */
 const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
-  return (options = {}) => {
+  /**
+   * @param {ExporterOptions} options
+   */
+  function yieldFileContent (options = {}) {
     const fileSize = unixfs.fileSize()
+
+    if (fileSize === undefined) {
+      throw new Error('File was a directory')
+    }
 
     const {
       offset,
@@ -78,6 +99,8 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
 
     return emitBytes(ipld, node, start, end, 0, options)
   }
+
+  return yieldFileContent
 }
 
 module.exports = fileContent

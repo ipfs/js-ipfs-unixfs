@@ -2,6 +2,9 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
+
+/** @type {(path: string) => Uint8Array} */
+// @ts-ignore
 const loadFixture = require('aegir/fixtures')
 
 const UnixFS = require('../src')
@@ -10,25 +13,12 @@ const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const protons = require('protons')
-const unixfsData = protons(require('../src/unixfs.proto')).Data
+const {
+  Data: PBData
+} = require('../src/unixfs')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 
 describe('unixfs-format', () => {
-  it('old style constructor', () => {
-    const buf = uint8ArrayFromString('hello world')
-    const entry = new UnixFS('file', buf)
-
-    expect(entry.type).to.equal('file')
-    expect(entry.data).to.deep.equal(buf)
-  })
-
-  it('old style constructor with single argument', () => {
-    const entry = new UnixFS('file')
-
-    expect(entry.type).to.equal('file')
-  })
-
   it('defaults to file', () => {
     const data = new UnixFS()
     expect(data.type).to.equal('file')
@@ -175,6 +165,7 @@ describe('unixfs-format', () => {
     const data = new UnixFS({
       type: 'file'
     })
+    // @ts-ignore it's ok, really
     data.mode = '0555'
 
     expect(UnixFS.unmarshal(data.marshal())).to.have.property('mode', parseInt('0555', 8))
@@ -205,53 +196,6 @@ describe('unixfs-format', () => {
     expect(unmarshaled).to.not.have.property('mtime')
   })
 
-  it('mtime as date', () => {
-    const mtime = {
-      secs: 5,
-      nsecs: 0
-    }
-    const data = new UnixFS({
-      type: 'file',
-      mtime: new Date(5000)
-    })
-
-    const marshaled = data.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', mtime)
-  })
-
-  it('mtime as hrtime', () => {
-    const mtime = {
-      secs: 5,
-      nsecs: 0
-    }
-    const data = new UnixFS({
-      type: 'file',
-      mtime: [5, 0]
-    })
-
-    const marshaled = data.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', mtime)
-  })
-  /*
-  TODO: https://github.com/ipfs/aegir/issues/487
-
-  it('mtime as bigint', () => {
-    const mtime = {
-      secs: 5,
-      nsecs: 0
-    }
-    const data = new UnixFS({
-      type: 'file',
-      mtime: BigInt(5 * 1e9)
-    })
-
-    const marshaled = data.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', mtime)
-  })
-  */
   it('sets mtime to 0', () => {
     const mtime = {
       secs: 0,
@@ -267,48 +211,11 @@ describe('unixfs-format', () => {
     expect(unmarshaled).to.have.deep.property('mtime', mtime)
   })
 
-  it('mtime as date set outside constructor', () => {
-    const mtime = {
-      secs: 5,
-      nsecs: 0
-    }
-    const data = new UnixFS({
-      type: 'file'
-    })
-    data.mtime = new Date(5000)
-
-    const marshaled = data.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.have.deep.property('mtime', mtime)
-  })
-
-  it('ignores invalid mtime', () => {
-    const data = new UnixFS({
+  it('survives undefined mtime', () => {
+    const entry = new UnixFS({
       type: 'file',
-      mtime: 'what is this'
+      mtime: undefined
     })
-
-    const marshaled = data.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.not.have.property('mtime')
-  })
-
-  it('ignores invalid mtime set outside of constructor', () => {
-    const entry = new UnixFS({
-      type: 'file'
-    })
-    entry.mtime = 'what is this'
-
-    const marshaled = entry.marshal()
-    const unmarshaled = UnixFS.unmarshal(marshaled)
-    expect(unmarshaled).to.not.have.property('mtime')
-  })
-
-  it('survives null mtime', () => {
-    const entry = new UnixFS({
-      type: 'file'
-    })
-    entry.mtime = null
 
     const marshaled = entry.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
@@ -317,15 +224,15 @@ describe('unixfs-format', () => {
 
   it('does not overwrite unknown mode bits', () => {
     const mode = 0xFFFFFFF // larger than currently defined mode bits
-    const buf = unixfsData.encode({
+    const buf = PBData.encode({
       Type: 0,
       mode
-    })
+    }).finish()
 
     const unmarshaled = UnixFS.unmarshal(buf)
     const marshaled = unmarshaled.marshal()
 
-    const entry = unixfsData.decode(marshaled)
+    const entry = PBData.decode(marshaled)
     expect(entry).to.have.property('mode', mode)
   })
 
@@ -336,9 +243,11 @@ describe('unixfs-format', () => {
     })
 
     const marshaled = entry.marshal()
-
-    const protobuf = unixfsData.decode(marshaled)
-    expect(protobuf.hasMode()).to.be.false()
+    const protobuf = PBData.decode(marshaled)
+    const object = PBData.toObject(protobuf, {
+      defaults: false
+    })
+    expect(object).not.to.have.property('mode')
   })
 
   it('omits default directory mode from protobuf', () => {
@@ -348,17 +257,19 @@ describe('unixfs-format', () => {
     })
 
     const marshaled = entry.marshal()
-
-    const protobuf = unixfsData.decode(marshaled)
-    expect(protobuf.hasMode()).to.be.false()
+    const protobuf = PBData.decode(marshaled)
+    const object = PBData.toObject(protobuf, {
+      defaults: false
+    })
+    expect(object).not.to.have.property('mode')
   })
 
   it('respects high bits in mode read from buffer', () => {
     const mode = 0o0100644 // similar to output from fs.stat
-    const buf = unixfsData.encode({
-      Type: unixfsData.DataType.File,
+    const buf = PBData.encode({
+      Type: PBData.DataType.File,
       mode
-    })
+    }).finish()
 
     const entry = UnixFS.unmarshal(buf)
 
@@ -367,7 +278,7 @@ describe('unixfs-format', () => {
 
     const marshaled = entry.marshal()
 
-    const protobuf = unixfsData.decode(marshaled)
+    const protobuf = PBData.decode(marshaled)
     expect(protobuf).to.have.property('mode', mode)
   })
 
@@ -386,8 +297,11 @@ describe('unixfs-format', () => {
 
     expect(unmarshaled).to.have.property('mode', 0o644)
 
-    const protobuf = unixfsData.decode(marshaled)
-    expect(protobuf.hasMode()).to.be.false()
+    const protobuf = PBData.decode(marshaled)
+    const object = PBData.toObject(protobuf, {
+      defaults: false
+    })
+    expect(object).not.to.have.property('mode')
   })
 
   // figuring out what is this metadata for https://github.com/ipfs/js-ipfs-data-importing/issues/3#issuecomment-182336526
@@ -420,16 +334,6 @@ describe('unixfs-format', () => {
       new UnixFS({
         type: 'bananas'
       })
-    } catch (err) {
-      expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
-      done()
-    }
-  })
-
-  it('invalid type with old style constructor', (done) => {
-    try {
-      // eslint-disable-next-line no-new
-      new UnixFS('bananas')
     } catch (err) {
       expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
       done()

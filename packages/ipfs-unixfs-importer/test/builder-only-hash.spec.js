@@ -2,14 +2,19 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
+// @ts-ignore
 const IPLD = require('ipld')
+// @ts-ignore
 const inMemory = require('ipld-in-memory')
 const builder = require('../src/dag-builder')
 const all = require('it-all')
 const blockApi = require('./helpers/block')
+const defaultOptions = require('../src/options')
 
 describe('builder: onlyHash', () => {
+  /** @type {import('./helpers/block').IPLDResolver} */
   let ipld
+  /** @type {import('../src').BlockAPI} */
   let block
 
   before(async () => {
@@ -22,17 +27,8 @@ describe('builder: onlyHash', () => {
       path: 'foo.txt',
       content: Uint8Array.from([0, 1, 2, 3, 4])
     }], block, {
-      onlyHash: true,
-      chunker: 'fixed',
-      strategy: 'balanced',
-      progress: () => {},
-      leafType: 'file',
-      reduceSingleLeafToSelf: true,
-      format: 'dag-pb',
-      hashAlg: 'sha2-256',
-      wrap: true,
-      maxChunkSize: 1024,
-      maxChildrenPerNode: 254
+      ...defaultOptions({}),
+      onlyHash: true
     }))
 
     expect(nodes.length).to.equal(1)

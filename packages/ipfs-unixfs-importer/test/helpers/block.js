@@ -1,21 +1,39 @@
 'use strict'
 
-const DAG_PB = require('ipld-dag-pb')
+const {
+  DAGNode,
+  util
+} = require('ipld-dag-pb')
 const multicodec = require('multicodec')
 const mh = require('multihashing-async').multihash
 
-module.exports = (ipld) => {
+/**
+ * @typedef {import('cids')} CID
+ * @typedef {object} IPLDResolver
+ * @property {(cid: CID, options?: any) => Promise<any>} get
+ * @property {(node: any, codec: number, options?: any) => Promise<CID>} put
+ */
+
+/**
+ *
+ * @param {IPLDResolver} ipld
+ */
+function createBlockApi (ipld) {
   // make ipld behave like the block api, some tests need to pull
   // data from ipld so can't use a simple in-memory cid->block map
-  return {
+  /** @type {import('../../src').BlockAPI} */
+  const BlockApi = {
     put: async (buf, { cid }) => {
       const multihash = mh.decode(cid.multihash)
 
+      /** @type {any} */
+      let obj = buf
+
       if (cid.codec === 'dag-pb') {
-        buf = DAG_PB.util.deserialize(buf)
+        obj = util.deserialize(buf)
       }
 
-      await ipld.put(buf, cid.codec === 'dag-pb' ? multicodec.DAG_PB : multicodec.RAW, {
+      await ipld.put(obj, cid.codec === 'dag-pb' ? multicodec.DAG_PB : multicodec.RAW, {
         cidVersion: cid.version,
         hashAlg: multihash.code
       })
@@ -23,13 +41,18 @@ module.exports = (ipld) => {
       return { cid, data: buf }
     },
     get: async (cid, options) => {
-      const node = await ipld.get(cid, options)
+      /** @type {Uint8Array} */
+      let buf = await ipld.get(cid, options)
 
-      if (cid.codec === 'dag-pb') {
-        return node.serialize()
+      if (buf instanceof DAGNode) {
+        buf = buf.serialize()
       }
 
-      return { cid, data: node }
+      return { cid, data: buf }
     }
   }
+
+  return BlockApi
 }
+
+module.exports = createBlockApi

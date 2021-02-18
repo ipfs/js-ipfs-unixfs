@@ -6,6 +6,9 @@ branches:
   - master
   - /^release\/.*$/
 
+services:
+  - xvfb
+
 stages:
   - check
   - test
@@ -13,8 +16,8 @@ stages:
   - release
 
 node_js:
-  - '12'
-  - '13'
+  - 'node'
+  - 'lts/*'
 
 os:
   - linux
@@ -25,40 +28,55 @@ before_install:
   # prevents windows error: npm ERR! ... git-sh-setup: file not found
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH ; fi
 
-script: npx nyc -s npm run test:node -- --bail
+script: npx nyc -s npm run test -- -- -- -t node --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
 jobs:
   include:
     - stage: check
+      name: linting
       script:
-        - npx aegir commitlint --travis
-        - npm run depcheck
         - npm run lint
+
+    - stage: check
+      name: dep-check (production deps)
+      script:
+        - npm run depcheck -- $RUN_SINCE -- -- -p
+
+    - stage: check
+      name: dep-check (unused deps)
+      script:
+        - npm run depcheck -- $RUN_SINCE -- -- -- --unused
 
     - stage: test
       name: chrome
       addons:
         chrome: stable
-      script: npm run test:browser
+      script: npm run test -- -- -- -t browser
 
     - stage: test
       name: chrome webworker
       addons:
         chrome: stable
-      script: npm run test:webworker
+      script: npm run test -- -- -- -t webworker
 
     - stage: test
       name: firefox
       addons:
         firefox: latest
-      script: npm run test:browser -- -- -- --browsers FirefoxHeadless
+      script: npm run test -- -- -- -t browser --browsers FirefoxHeadless
 
     - stage: test
       name: firefox webworker
       addons:
         firefox: latest
-      script: npm run test:webworker -- -- -- --browsers FirefoxHeadless
+      script: npm run test -- -- -- -t webworker --browsers FirefoxHeadless
+
+    - stage: test
+      name: electron main
+      addons:
+        firefox: latest
+      script: npm run test -- -- -- -t electron-main
 
     - stage: release
       # only run on changes to master

@@ -22,7 +22,7 @@
     - [Example](#example)
       - [API](#api)
     - [`exporter(cid, ipld, options)`](#exportercid-ipld-options)
-      - [UnixFS V1 entries](#unixfs-v1-entries)
+      - [UnixFSEntry](#unixfsentry)
       - [Raw entries](#raw-entries)
       - [CBOR entries](#cbor-entries)
       - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
@@ -87,41 +87,39 @@ const exporter = require('ipfs-unixfs-exporter')
 
 Uses the given [ipld](https://github.com/ipld/js-ipld) instance to fetch an IPFS node by it's CID.
 
-Returns a Promise which resolves to an `entry`.
+Returns a Promise which resolves to a `UnixFSEntry`.
 
 `options` is an optional object argument that might include the following keys:
 
 - `signal` ([AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)): Used to cancel any network requests that are initiated as a result of this export
 
-#### UnixFS V1 entries
-
-Entries with a `dag-pb` codec `CID` return UnixFS V1 entries:
+#### UnixFSEntry
 
 ```javascript
 {
+  type: 'file' // or 'directory'
   name: 'foo.txt',
   path: 'Qmbar/foo.txt',
   cid: CID, // see https://github.com/multiformats/js-cid
-  node: DAGNode, // see https://github.com/ipld/js-ipld-dag-pb
   content: function, // returns an async iterator
   unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
 }
 ```
 
-If the entry is a file, `entry.content()` returns an async iterator that yields one or more buffers containing the file content:
+If the entry is a file, `entry.content()` returns an async iterator that yields one or more Uint8Arrays containing the file content:
 
 ```javascript
-if (entry.unixfs.type === 'file') {
+if (entry.type === 'file') {
   for await (const chunk of entry.content()) {
     // chunk is a Buffer
   }
 }
 ```
 
-If the entry is a directory or hamt shard, `entry.content()` returns further `entry` objects:
+If the entry is a directory, `entry.content()` returns further `entry` objects:
 
 ```javascript
-if (entry.unixfs.type.includes('directory')) { // can be 'directory' or 'hamt-sharded-directory'
+if (entry.type === 'directory') {
   for await (const entry of dir.content()) {
     console.info(entry.name)
   }
@@ -167,7 +165,6 @@ Entries with a `dag-cbor` codec `CID` return JavaScript object entries:
 
 There is no `content` function for a `CBOR` node.
 
-
 #### `entry.content({ offset, length })`
 
 When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
@@ -189,7 +186,7 @@ for await (const chunk of entry.content({
 return data
 ```
 
-If `entry` is a directory or hamt shard, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
+If `entry` is a directory, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
 
 ```javascript
 const entries = []

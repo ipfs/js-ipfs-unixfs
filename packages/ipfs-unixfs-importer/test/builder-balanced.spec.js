@@ -4,42 +4,73 @@
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/balanced')
 const all = require('it-all')
+const CID = require('cids')
+const defaultOptions = require('../src/options')
 
-function reduce (leaves) {
+/**
+ * @typedef {import('../src').PartialImportResult} PartialImportResult
+ *
+ * @param {PartialImportResult[]} leaves
+ * @returns {Promise<PartialImportResult>}
+ */
+async function reduce (leaves) {
   if (leaves.length > 1) {
-    return { children: leaves }
+    return {
+      // @ts-ignore
+      children: leaves
+    }
   } else {
     return leaves[0]
   }
 }
 
 const options = {
+  ...defaultOptions(),
   maxChildrenPerNode: 3
 }
 
 describe('builder: balanced', () => {
   it('reduces one value into itself', async () => {
-    const source = [1]
+    const source = [{
+      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      size: 0
+    }]
 
-    const result = await all(builder(source, reduce, options))
+    const result = await all(builder((async function * () {
+      yield * source
+    }()), reduce, options))
 
     expect(result).to.deep.equal(source)
   })
 
   it('reduces 3 values into parent', async () => {
-    const source = [1, 2, 3]
+    const source = [{
+      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      size: 0
+    }, {
+      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      size: 0
+    }, {
+      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      size: 0
+    }]
 
-    const result = await all(builder(source, reduce, options))
+    const result = await all(builder((async function * () {
+      yield * source
+    }()), reduce, options))
 
     expect(result).to.deep.equal([{
-      children: [1, 2, 3]
+      children: source
     }])
   })
 
   it('obeys max children per node', async () => {
     const source = [1, 2, 3, 4]
 
-    const result = await all(builder(source, reduce, options))
+    // @ts-ignore
+    const result = await all(builder((async function * () {
+      yield * source
+    }()), reduce, options))
 
     expect(result).to.deep.equal([{
       children: [{
@@ -53,7 +84,10 @@ describe('builder: balanced', () => {
   it('refolds 2 parent nodes', async () => {
     const source = [1, 2, 3, 4, 5, 6, 7]
 
-    const result = await all(builder(source, reduce, options))
+    // @ts-ignore
+    const result = await all(builder((async function * () {
+      yield * source
+    }()), reduce, options))
 
     expect(result).to.deep.equal([{
       children: [{

@@ -2,6 +2,10 @@
 
 const REPEATABLE_CHUNK_SIZE = 300000
 
+/**
+ * @param {number} maxSize
+ * @param {number} seed
+ */
 module.exports = function * (maxSize, seed) {
   const chunks = Math.ceil(maxSize / REPEATABLE_CHUNK_SIZE)
   let emitted = 0
@@ -18,6 +22,9 @@ module.exports = function * (maxSize, seed) {
   }
 }
 
+/**
+ * @param {number} seed
+ */
 function random (seed) {
   const x = Math.sin(seed) * 10000
   return x - Math.floor(x)

@@ -8,21 +8,43 @@ const UnixFS = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 
+/**
+ * @typedef {import('./').ImporterOptions} ImporterOptions
+ * @typedef {import('./').ImportResult} ImportResult
+ * @typedef {import('./').PartialImportResult} PartialImportResult
+ * @typedef {import('./').BlockAPI} BlockAPI
+ * @typedef {import('./dir').DirProps} DirProps
+ * @typedef {import('cids')} CID
+ */
+
 class DirFlat extends Dir {
+  /**
+   * @param {DirProps} props
+   * @param {ImporterOptions} options
+   */
   constructor (props, options) {
     super(props, options)
+
+    /** @type {{ [key: string]: PartialImportResult | Dir }} */
     this._children = {}
   }
 
-  put (name, value) {
+  /**
+   * @param {string} name
+   * @param {PartialImportResult | Dir} value
+   */
+  async put (name, value) {
     this.cid = undefined
     this.size = undefined
 
     this._children[name] = value
   }
 
+  /**
+   * @param {string} name
+   */
   get (name) {
-    return this._children[name]
+    return Promise.resolve(this._children[name])
   }
 
   childCount () {
@@ -37,7 +59,7 @@ class DirFlat extends Dir {
     return this._children[Object.keys(this._children)[0]]
   }
 
-  * eachChildSeries () {
+  async * eachChildSeries () {
     const keys = Object.keys(this._children)
 
     for (let i = 0; i < keys.length; i++) {
@@ -50,22 +72,28 @@ class DirFlat extends Dir {
     }
   }
 
-  async * flush (path, block) {
+  /**
+   * @param {BlockAPI} block
+   * @returns {AsyncIterable<ImportResult>}
+   */
+  async * flush (block) {
     const children = Object.keys(this._children)
     const links = []
 
     for (let i = 0; i < children.length; i++) {
       let child = this._children[children[i]]
 
-      if (typeof child.flush === 'function') {
-        for await (const entry of child.flush(child.path, block)) {
+      if (child instanceof Dir) {
+        for await (const entry of child.flush(block)) {
           child = entry
 
           yield child
         }
       }
 
-      links.push(new DAGLink(children[i], child.size, child.cid))
+      if (child.size != null && child.cid) {
+        links.push(new DAGLink(children[i], child.size, child.cid))
+      }
     }
 
     const unixfs = new UnixFS({
@@ -77,7 +105,13 @@ class DirFlat extends Dir {
     const node = new DAGNode(unixfs.marshal(), links)
     const buffer = node.serialize()
     const cid = await persist(buffer, block, this.options)
-    const size = buffer.length + node.Links.reduce((acc, curr) => acc + curr.Tsize, 0)
+    const size = buffer.length + node.Links.reduce(
+      /**
+       * @param {number} acc
+       * @param {DAGLink} curr
+       */
+      (acc, curr) => acc + curr.Tsize,
+      0)
 
     this.cid = cid
     this.size = size
@@ -85,7 +119,7 @@ class DirFlat extends Dir {
     yield {
       cid,
       unixfs,
-      path,
+      path: this.path,
       size
     }
   }

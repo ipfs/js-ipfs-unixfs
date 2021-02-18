@@ -5,6 +5,9 @@ const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/flat')
 const all = require('it-all')
 
+/**
+ * @param {*} leaves
+ */
 function reduce (leaves) {
   if (leaves.length > 1) {
     return { children: leaves }
@@ -16,6 +19,7 @@ function reduce (leaves) {
 describe('builder: flat', () => {
   it('reduces one value into itself', async () => {
     const source = [1]
+    // @ts-ignore
     const result = await all(builder(source, reduce))
 
     expect(result).to.be.eql([1])
@@ -23,6 +27,7 @@ describe('builder: flat', () => {
 
   it('reduces 2 values into parent', async () => {
     const source = [1, 2]
+    // @ts-ignore
     const result = await all(builder(source, reduce))
 
     expect(result).to.be.eql([{ children: [1, 2] }])

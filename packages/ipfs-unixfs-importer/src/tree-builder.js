@@ -5,6 +5,19 @@ const flatToShard = require('./flat-to-shard')
 const Dir = require('./dir')
 const toPathComponents = require('./utils/to-path-components')
 
+/**
+ * @typedef {import('./').ImportResult} ImportResult
+ * @typedef {import('./').PartialImportResult} PartialImportResult
+ * @typedef {import('./').ImporterOptions} ImporterOptions
+ * @typedef {import('./').BlockAPI} BlockAPI
+ * @typedef {(source: AsyncIterable<PartialImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
+ */
+
+/**
+ * @param {PartialImportResult} elem
+ * @param {Dir} tree
+ * @param {ImporterOptions} options
+ */
 async function addToTree (elem, tree, options) {
   const pathElems = toPathComponents(elem.path || '')
   const lastIndex = pathElems.length - 1
@@ -18,8 +31,8 @@ async function addToTree (elem, tree, options) {
 
     const last = (i === lastIndex)
     parent.dirty = true
-    parent.cid = null
-    parent.size = null
+    parent.cid = undefined
+    parent.size = undefined
 
     if (last) {
       await parent.put(pathElem, elem)
@@ -29,6 +42,7 @@ async function addToTree (elem, tree, options) {
 
       if (!dir || !(dir instanceof Dir)) {
         dir = new DirFlat({
+          root: false,
           dir: true,
           parent: parent,
           parentKey: pathElem,
@@ -49,6 +63,10 @@ async function addToTree (elem, tree, options) {
   return tree
 }
 
+/**
+ * @param {Dir | PartialImportResult} tree
+ * @param {BlockAPI} block
+ */
 async function * flushAndYield (tree, block) {
   if (!(tree instanceof Dir)) {
     if (tree && tree.unixfs && tree.unixfs.isDirectory()) {
@@ -58,10 +76,14 @@ async function * flushAndYield (tree, block) {
     return
   }
 
-  yield * tree.flush(tree.path, block)
+  yield * tree.flush(block)
 }
 
+/**
+ * @type {TreeBuilder}
+ */
 async function * treeBuilder (source, block, options) {
+  /** @type {Dir} */
   let tree = new DirFlat({
     root: true,
     dir: true,

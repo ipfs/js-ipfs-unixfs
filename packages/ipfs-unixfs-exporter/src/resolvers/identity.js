@@ -5,8 +5,18 @@ const extractDataFromBlock = require('../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../utils/validate-offset-and-length')
 const mh = require('multihashing-async').multihash
 
+/**
+ * @typedef {import('../').ExporterOptions} ExporterOptions
+ */
+
+/**
+ * @param {Uint8Array} node
+ */
 const rawContent = (node) => {
-  return function * (options = {}) {
+  /**
+   * @param {ExporterOptions} options
+   */
+  async function * contentGenerator (options = {}) {
     const {
       offset,
       length
@@ -14,8 +24,13 @@ const rawContent = (node) => {
 
     yield extractDataFromBlock(node, 0, offset, offset + length)
   }
+
+  return contentGenerator
 }
 
+/**
+ * @type {import('./').Resolver}
+ */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid.toBaseEncodedString()}`), 'ERR_NOT_FOUND')
@@ -25,12 +40,13 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
 
   return {
     entry: {
+      type: 'identity',
       name,
       path,
       cid,
-      node: buf,
       content: rawContent(buf.digest),
-      depth
+      depth,
+      node: buf.digest
     }
   }
 }

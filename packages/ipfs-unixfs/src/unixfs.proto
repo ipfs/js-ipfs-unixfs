@@ -1,6 +1,3 @@
-'use strict'
-
-module.exports = `
 syntax = "proto2";
 
 message Data {
@@ -31,4 +28,3 @@ message UnixTime {
 message Metadata {
   optional string MimeType = 1;
 }
-`

@@ -1,7 +1,11 @@
 'use strict'
 
+// @ts-ignore
 const BufferList = require('bl/BufferList')
 
+/**
+ * @type {import('./').Chunker}
+ */
 module.exports = async function * fixedSizeChunker (source, options) {
   let bl = new BufferList()
   let currentLength = 0

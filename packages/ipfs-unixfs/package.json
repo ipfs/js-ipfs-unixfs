@@ -17,7 +17,7 @@
     "clean": "rimraf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i mkdirp -i @types/mocha -i nyc -i npm-run-all -copy"
+    "depcheck": "aegir dep-check -i mkdirp -i @types/mocha -i nyc -i npm-run-all -i copy"
   },
   "repository": {
     "type": "git",

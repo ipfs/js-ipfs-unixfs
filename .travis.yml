@@ -25,7 +25,6 @@ os:
   - windows
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then npm config set loglevel verbose ; fi
   # prevents windows error: npm ERR! ... git-sh-setup: file not found
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH ; fi
   # upgrading npm on travis/windows/node 14 is completely broken

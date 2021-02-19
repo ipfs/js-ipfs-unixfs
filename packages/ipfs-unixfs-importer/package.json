@@ -10,10 +10,10 @@
   "scripts": {
     "prepare": "aegir build --no-bundle",
     "test": "aegir test",
-    "clean": "rm -rf ./dist",
+    "clean": "rimraf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i nyc"
+    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf"
   },
   "repository": {
     "type": "git",
@@ -32,29 +32,30 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "@types/mocha": "^8.2.0",
+    "@types/mocha": "^8.2.1",
     "aegir": "^30.3.0",
     "ipld": "^0.28.0",
     "ipld-in-memory": "^7.0.0",
     "it-buffer-stream": "^2.0.0",
-    "multicodec": "^2.0.0",
-    "nyc": "^15.0.0"
+    "multicodec": "^2.1.0",
+    "nyc": "^15.0.0",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "bl": "^4.0.0",
+    "bl": "^4.1.0",
     "cids": "^1.1.5",
-    "err-code": "^3.0.0",
+    "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^3.0.0",
     "ipld-dag-pb": "^0.21.0",
-    "it-all": "^1.0.1",
-    "it-batch": "^1.0.3",
-    "it-first": "^1.0.1",
-    "it-parallel-batch": "^1.0.3",
-    "merge-options": "^3.0.3",
-    "multihashing-async": "^2.0.0",
-    "rabin-wasm": "^0.1.1",
-    "uint8arrays": "^2.0.5"
+    "it-all": "^1.0.5",
+    "it-batch": "^1.0.8",
+    "it-first": "^1.0.6",
+    "it-parallel-batch": "^1.0.9",
+    "merge-options": "^3.0.4",
+    "multihashing-async": "^2.1.0",
+    "rabin-wasm": "^0.1.4",
+    "uint8arrays": "^2.1.2"
   },
   "types": "dist/src/index.d.ts",
   "files": [

@@ -5,6 +5,7 @@ yarn.lock
 test/repo-tests*
 **/bundle.js
 package-lock.json
+tsconfig-types.aegir.json
 
 # Logs
 logs

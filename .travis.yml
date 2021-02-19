@@ -30,8 +30,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH=/c/PROGRA~1/Git/usr/bin:/c/PROGRA~1/Git/mingw64/libexec/git-core:$PATH ; fi
   # upgrading npm on travis/windows/node 14 is completely broken
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export NODE_INSTALL_DIR=`npm prefix -g` ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then mkdir $NODE_INSTALL_DIR/node_modules ; fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then mv $NODE_INSTALL_DIR/node_modules $NODE_INSTALL_DIR/node_modules_old ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then mkdir $NODE_INSTALL_DIR/node_modules ; fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then rm -f $NODE_INSTALL_DIR/npm $NODE_INSTALL_DIR/npm.cmd $NODE_INSTALL_DIR/npm.ps1 $NODE_INSTALL_DIR/npx $NODE_INSTALL_DIR/npx.cmd $NODE_INSTALL_DIR/npx.ps1 ; fi
   # workspaces require npm 7 or above
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then node $NODE_INSTALL_DIR/node_modules_old/npm/bin/npm-cli.js i -g npm@latest ; fi

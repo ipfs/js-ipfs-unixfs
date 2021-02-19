@@ -5,7 +5,7 @@ const multihashing = require('multihashing-async')
 
 /**
  * @typedef {import('../').ExporterOptions} ExporterOptions
- * @typedef {import('../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('cids')} CID
  */
 
@@ -90,7 +90,7 @@ const toBucketPath = (position) => {
  *
  * @param {import('ipld-dag-pb').DAGNode} node
  * @param {string} name
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {ShardTraversalContext} [context]
  * @param {ExporterOptions} [options]
  * @returns {Promise<CID|null>}

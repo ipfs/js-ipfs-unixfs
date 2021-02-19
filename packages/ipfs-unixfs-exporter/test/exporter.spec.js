@@ -29,7 +29,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter', () => {
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
@@ -134,7 +134,7 @@ describe('exporter', () => {
   }
 
   /**
-   * @param {import('../src').IPLDResolver} ipld
+   * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
    * @param {'file' | 'directory' | 'raw'} type
    * @param {Uint8Array | ArrayLike<number> | undefined} data
    * @param {{ node: DAGNode, cid: CID }[]} children

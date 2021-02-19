@@ -9,14 +9,14 @@ const mh = require('multihashing-async').multihash
 
 /**
  * @typedef {import('cids')} CID
- * @typedef {object} IPLDResolver
+ * @typedef {object} IPLD
  * @property {(cid: CID, options?: any) => Promise<any>} get
  * @property {(node: any, codec: number, options?: any) => Promise<CID>} put
  */
 
 /**
  *
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  */
 function createBlockApi (ipld) {
   // make ipld behave like the block api, some tests need to pull

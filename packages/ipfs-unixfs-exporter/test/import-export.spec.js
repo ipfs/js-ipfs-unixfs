@@ -30,7 +30,7 @@ describe('import and export', function () {
     const importerOptions = { strategy: strategy }
 
     describe('using builder: ' + strategy, () => {
-      /** @type {import('../src').IPLDResolver} */
+      /** @type {import('ipfs-core-types/src/ipld').IPLD} */
       let ipld
       /** @type {import('ipfs-unixfs-importer').BlockAPI} */
       let block

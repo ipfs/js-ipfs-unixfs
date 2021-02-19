@@ -8,6 +8,7 @@ const last = require('it-last')
 /**
  * @typedef {import('ipfs-unixfs')} UnixFS
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  *
  * @typedef {object} UnixFSFile
  * @property {'file'} type
@@ -59,13 +60,11 @@ const last = require('it-last')
  */
 
 /**
- * @typedef {object} IPLDResolver
- * @property {(cid: CID, options?: any) => Promise<any>} get
- * @property {(node: any, codec: number, options?: any) => Promise<CID>} put
- *
  * @typedef {object} ExporterOptions
  * @property {number} [offset=0]
  * @property {number} [length]
+ * @property {AbortSignal} [signal]
+ * @property {number} [timeout]
  */
 
 const toPathComponents = (path = '') => {
@@ -112,7 +111,7 @@ const cidAndRest = (path) => {
 
 /**
  * @param {string | CID} path
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
 const walkPath = async function * (path, ipld, options = {}) {
@@ -149,7 +148,7 @@ const walkPath = async function * (path, ipld, options = {}) {
 
 /**
  * @param {string | CID} path
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
 const exporter = async (path, ipld, options = {}) => {
@@ -164,7 +163,7 @@ const exporter = async (path, ipld, options = {}) => {
 
 /**
  * @param {string | CID} path
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
 const recursive = async function * (path, ipld, options = {}) {

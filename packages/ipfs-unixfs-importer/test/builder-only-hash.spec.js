@@ -12,7 +12,7 @@ const blockApi = require('./helpers/block')
 const defaultOptions = require('../src/options')
 
 describe('builder: onlyHash', () => {
-  /** @type {import('./helpers/block').IPLDResolver} */
+  /** @type {import('./helpers/block').IPLD} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

@@ -30,7 +30,7 @@ const SHARD_SPLIT_THRESHOLD = 10
 describe('exporter sharded', function () {
   this.timeout(30000)
 
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block

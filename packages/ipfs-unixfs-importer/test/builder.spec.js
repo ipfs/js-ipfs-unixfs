@@ -15,7 +15,7 @@ const uint8ArrayFromString = require('uint8arrays/from-string')
 const defaultOptions = require('../src/options')
 
 describe('builder', () => {
-  /** @type {import('./helpers/block').IPLDResolver} */
+  /** @type {import('./helpers/block').IPLD} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

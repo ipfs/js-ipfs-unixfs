@@ -8,7 +8,7 @@ const multicodec = require('multicodec')
 const mh = require('multihashing-async').multihash
 
 /**
- * @param {import('../../src/').IPLDResolver} ipld
+ * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
  */
 function createBlockApi (ipld) {
   // make ipld behave like the block api, some tests need to pull

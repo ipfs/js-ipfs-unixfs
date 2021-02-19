@@ -30,7 +30,7 @@ const last = require('it-last')
 const CID = require('cids')
 
 /**
- * @typedef {import('../src').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('ipfs-unixfs-importer').BlockAPI} BlockAPI
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
  */
@@ -200,7 +200,7 @@ const strategyOverrides = {
 
 /**
  * @param {BlockAPI} block
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
  * @param {*} expected
  */
@@ -233,7 +233,7 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
 
 /**
  * @param {BlockAPI} block
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
  * @param {*} expected
  */
@@ -355,7 +355,7 @@ strategies.forEach((strategy) => {
   describe('importer: ' + strategy, function () {
     this.timeout(30 * 1000)
 
-    /** @type {IPLDResolver} */
+    /** @type {IPLD} */
     let ipld
     /** @type {BlockAPI} */
     let block
@@ -1076,7 +1076,7 @@ strategies.forEach((strategy) => {
 })
 
 describe('configuration', () => {
-  /** @type {IPLDResolver} */
+  /** @type {IPLD} */
   let ipld
   /** @type {BlockAPI} */
   let block

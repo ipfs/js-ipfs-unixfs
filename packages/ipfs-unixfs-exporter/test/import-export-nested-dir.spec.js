@@ -16,7 +16,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block

@@ -18,7 +18,7 @@ const iter = async function * () {
 }
 
 describe('custom chunker', function () {
-  /** @type {import('./helpers/block').IPLDResolver} */
+  /** @type {import('./helpers/block').IPLD} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

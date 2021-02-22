@@ -159,7 +159,8 @@ Entries with a `dag-cbor` codec `CID` return JavaScript object entries:
   name: 'foo.txt',
   path: 'Qmbar/foo.txt',
   cid: CID, // see https://github.com/multiformats/js-cid
-  node: Object, // see https://github.com/ipld/js-ipld-dag-cbor
+  node: Uint8Array,
+  content: function // returns an async iterator that yields a single object - see https://github.com/ipld/js-ipld-dag-cbor
 }
 ```
 

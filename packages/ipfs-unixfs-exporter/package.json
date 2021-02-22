@@ -13,7 +13,7 @@
     "clean": "rimraf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf"
+    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf -i ipfs-core-types"
   },
   "repository": {
     "type": "git",

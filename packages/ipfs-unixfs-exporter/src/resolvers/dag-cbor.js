@@ -7,8 +7,9 @@ const errCode = require('err-code')
  * @type {import('./').Resolver}
  */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
-  const node = await ipld.get(cid, options)
-  let subObject = node
+  const object = await ipld.get(cid, options)
+  const block = await ipld.get(new CID(1, 'raw', cid.multihash))
+  let subObject = object
   let subPath = path
 
   while (toResolve.length) {
@@ -26,8 +27,11 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
             name,
             path,
             cid,
-            node,
-            depth
+            node: block,
+            depth,
+            content: async function * () {
+              yield object
+            }
           },
           next: {
             cid: subObject[prop],
@@ -51,8 +55,11 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       name,
       path,
       cid,
-      node,
-      depth
+      node: block,
+      depth,
+      content: async function * () {
+        yield object
+      }
     }
   }
 }

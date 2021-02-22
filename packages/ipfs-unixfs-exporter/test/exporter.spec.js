@@ -959,7 +959,7 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    expect(exported.node).to.deep.equal(node)
+    return expect(first(exported.content())).to.eventually.deep.equal(node)
   })
 
   it('errors when exporting a node with no resolver', async () => {

@@ -36,7 +36,8 @@ const last = require('it-last')
  * @property {string} path
  * @property {CID} cid
  * @property {number} depth
- * @property {any} node
+ * @property {Uint8Array} node
+ * @property {(options?: ExporterOptions) => AsyncIterable<any>} content
  *
  * @typedef {object} RawNode
  * @property {'raw'} type

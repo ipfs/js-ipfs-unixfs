@@ -7,10 +7,10 @@ const errCode = require('err-code')
 
 /**
  * @typedef {import('../../../').ExporterOptions} ExporterOptions
- * @typedef {import('../../../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
  *
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {DAGNode} node
  * @param {number} start
  * @param {number} end
@@ -61,7 +61,10 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
     if ((start >= childStart && start < childEnd) || // child has offset byte
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
-      const child = await ipld.get(childLink.Hash, options)
+      const child = await ipld.get(childLink.Hash, {
+        signal: options.signal,
+        timeout: options.timeout
+      })
 
       for await (const buf of emitBytes(ipld, child, start, end, streamPosition, options)) {
         streamPosition += buf.length

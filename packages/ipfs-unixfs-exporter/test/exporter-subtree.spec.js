@@ -18,7 +18,7 @@ const ONE_MEG = Math.pow(1024, 2)
 const exporter = require('./../src')
 
 describe('exporter subtree', () => {
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block

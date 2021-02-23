@@ -4,7 +4,7 @@
  * @typedef {import('../../../').ExporterOptions} ExporterOptions
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
  * @typedef {import('../../').Resolve} Resolve
- * @typedef {import('../../../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('../').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
  *
  * @type {import('../').UnixfsV1Resolver}
@@ -26,7 +26,7 @@ const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, ip
  * @param {string} path
  * @param {Resolve} resolve
  * @param {number} depth
- * @param {IPLDResolver} ipld
+ * @param {IPLD} ipld
  * @param {ExporterOptions} options
  *
  * @returns {UnixfsV1DirectoryContent}

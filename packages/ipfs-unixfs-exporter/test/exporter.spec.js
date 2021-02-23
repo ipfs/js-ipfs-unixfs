@@ -29,7 +29,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter', () => {
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block
@@ -134,7 +134,7 @@ describe('exporter', () => {
   }
 
   /**
-   * @param {import('../src').IPLDResolver} ipld
+   * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
    * @param {'file' | 'directory' | 'raw'} type
    * @param {Uint8Array | ArrayLike<number> | undefined} data
    * @param {{ node: DAGNode, cid: CID }[]} children
@@ -959,7 +959,7 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    expect(exported.node).to.deep.equal(node)
+    return expect(first(exported.content())).to.eventually.deep.equal(node)
   })
 
   it('errors when exporting a node with no resolver', async () => {

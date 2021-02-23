@@ -3,7 +3,7 @@
 const errCode = require('err-code')
 
 /**
- * @typedef {import('../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('../').ExporterOptions} ExporterOptions
  * @typedef {import('../').UnixFSEntry} UnixFSEntry
  * @typedef {import('cids')} CID
@@ -23,9 +23,9 @@ const errCode = require('err-code')
 
 /**
  *
- * @typedef {(cid: CID, name: string, path: string, toResolve: string[], depth: number, ipld: IPLDResolver, options: ExporterOptions) => Promise<ResolveResult>} Resolve
+ * @typedef {(cid: CID, name: string, path: string, toResolve: string[], depth: number, ipld: IPLD, options: ExporterOptions) => Promise<ResolveResult>} Resolve
  *
- * @typedef {(cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, ipld: IPLDResolver, options: ExporterOptions) => Promise<ResolveResult>} Resolver
+ * @typedef {(cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, ipld: IPLD, options: ExporterOptions) => Promise<ResolveResult>} Resolver
  *
  * @type {{ [ key: string ]: Resolver }}
  */

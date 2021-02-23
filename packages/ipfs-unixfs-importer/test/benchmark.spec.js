@@ -18,7 +18,7 @@ const CHUNK_SIZE = 65536
 describe.skip('benchmark', function () {
   this.timeout(30 * 1000)
 
-  /** @type {import('./helpers/block').IPLDResolver} */
+  /** @type {import('./helpers/block').IPLD} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

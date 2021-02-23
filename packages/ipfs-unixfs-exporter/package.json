@@ -13,7 +13,7 @@
     "clean": "rimraf ./dist",
     "lint": "aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf"
+    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf -i ipfs-core-types"
   },
   "repository": {
     "type": "git",
@@ -37,6 +37,7 @@
     "abort-controller": "^3.0.0",
     "aegir": "^30.3.0",
     "detect-node": "^2.0.4",
+    "ipfs-core-types": "^0.3.0",
     "ipfs-unixfs-importer": "^6.0.0",
     "ipld": "^0.28.0",
     "ipld-dag-pb": "^0.21.0",

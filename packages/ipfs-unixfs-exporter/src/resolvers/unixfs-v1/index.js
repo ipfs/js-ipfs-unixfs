@@ -6,7 +6,7 @@ const findShardCid = require('../../utils/find-cid-in-shard')
 
 /**
  * @typedef {import('../../').ExporterOptions} ExporterOptions
- * @typedef {import('../../').IPLDResolver} IPLDResolver
+ * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
  * @typedef {import('../').UnixFSEntry} UnixFSEntry
  * @typedef {import('cids')} CID
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
@@ -28,7 +28,7 @@ const findLinkCid = (node, name) => {
  * @typedef {AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>} UnixfsV1DirectoryContent
  *
  * @typedef {UnixfsV1FileContent | UnixfsV1DirectoryContent} UnixfsV1Content
- * @typedef {(cid: CID, node: DAGNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLDResolver) => (options: ExporterOptions) => UnixfsV1Content } UnixfsV1Resolver
+ * @typedef {(cid: CID, node: DAGNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content } UnixfsV1Resolver
  *
  * @type {{ [key: string]: UnixfsV1Resolver }}
  */

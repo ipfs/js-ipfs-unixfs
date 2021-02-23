@@ -22,7 +22,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
  */
 
 describe('builder: directory sharding', () => {
-  /** @type {import('../src').IPLDResolver} */
+  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
   let ipld
   /** @type {import('ipfs-unixfs-importer').BlockAPI} */
   let block

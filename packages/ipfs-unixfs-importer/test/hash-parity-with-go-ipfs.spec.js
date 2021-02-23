@@ -39,7 +39,7 @@ strategies.forEach(strategy => {
   }
 
   describe('go-ipfs interop using importer:' + strategy, () => {
-    /** @type {import('./helpers/block').IPLDResolver} */
+    /** @type {import('./helpers/block').IPLD} */
     let ipld
     /** @type {import('../src').BlockAPI} */
     let block

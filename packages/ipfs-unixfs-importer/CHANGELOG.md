@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@6.0.0...ipfs-unixfs-importer@6.0.1) (2021-02-23)
+
+
+### Bug Fixes
+
+* use ipfs-core-types instead of redefining ipld ([#121](https://github.com/ipfs/js-ipfs-unixfs/issues/121)) ([6cfd51d](https://github.com/ipfs/js-ipfs-unixfs/commit/6cfd51de4f00cf4ee3c6a78c378439b80d0e2c25))
+
+
+
+
+
 # [6.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@5.0.0...ipfs-unixfs-importer@6.0.0) (2021-02-18)
 
 

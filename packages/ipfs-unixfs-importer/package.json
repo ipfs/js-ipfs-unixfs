@@ -10,10 +10,11 @@
   "scripts": {
     "prepare": "aegir build --no-bundle",
     "test": "aegir test",
+    "build": "aegir build",
     "clean": "rimraf ./dist",
-    "lint": "aegir lint",
+    "lint": "aegir ts --check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf"
+    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf -i copy"
   },
   "repository": {
     "type": "git",
@@ -33,11 +34,13 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^30.3.0",
-    "ipld": "^0.28.0",
-    "ipld-in-memory": "^7.0.0",
+    "aegir": "^31.0.4",
+    "copy": "^0.3.2",
+    "ipld": "^0.29.0",
+    "ipld-block": "^0.11.1",
+    "ipld-in-memory": "^8.0.0",
     "it-buffer-stream": "^2.0.0",
-    "multicodec": "^2.1.0",
+    "multicodec": "^3.0.1",
     "nyc": "^15.0.0",
     "rimraf": "^3.0.2"
   },

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('../src')
+const { importer } = require('../src')
 const { expect } = require('aegir/utils/chai')
 // @ts-ignore
 const IPLD = require('ipld')
@@ -10,7 +10,7 @@ const inMemory = require('ipld-in-memory')
 const mc = require('multicodec')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 
 const iter = async function * () {
   yield uint8ArrayFromString('one')
@@ -18,7 +18,7 @@ const iter = async function * () {
 }
 
 describe('custom chunker', function () {
-  /** @type {import('./helpers/block').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

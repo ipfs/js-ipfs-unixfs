@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('../src')
+const { importer } = require('../src')
 
 // @ts-ignore
 const IPLD = require('ipld')
@@ -18,7 +18,7 @@ const CHUNK_SIZE = 65536
 describe.skip('benchmark', function () {
   this.timeout(30 * 1000)
 
-  /** @type {import('./helpers/block').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

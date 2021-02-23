@@ -7,7 +7,7 @@ const mh = require('multihashing-async').multihash
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
 const first = require('it-first')
 const blockApi = require('./helpers/block')
@@ -15,7 +15,7 @@ const uint8ArrayFromString = require('uint8arrays/from-string')
 const defaultOptions = require('../src/options')
 
 describe('builder', () => {
-  /** @type {import('./helpers/block').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
   /** @type {import('../src').BlockAPI} */
   let block

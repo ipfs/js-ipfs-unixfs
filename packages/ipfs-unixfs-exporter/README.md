@@ -26,8 +26,8 @@
       - [Raw entries](#raw-entries)
       - [CBOR entries](#cbor-entries)
       - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
-    - [`exporter.path(cid, ipld)`](#exporterpathcid-ipld)
-    - [`exporter.recursive(cid, ipld)`](#exporterrecursivecid-ipld)
+    - [`walkPath(cid, ipld)`](#walkpathcid-ipld)
+    - [`recursive(cid, ipld)`](#recursivecid-ipld)
   - [Contribute](#contribute)
   - [License](#license)
 
@@ -43,8 +43,8 @@
 
 ```js
 // import a file and export it again
-const importer = require('ipfs-unixfs-importer')
-const exporter = require('ipfs-unixfs-exporter')
+const { importer } = require('ipfs-unixfs-importer')
+const { exporter } = require('ipfs-unixfs-exporter')
 
 const files = []
 
@@ -80,7 +80,7 @@ console.info(bytes) // 0, 1, 2, 3
 #### API
 
 ```js
-const exporter = require('ipfs-unixfs-exporter')
+const { exporter } = require('ipfs-unixfs-exporter')
 ```
 
 ### `exporter(cid, ipld, options)`
@@ -202,28 +202,32 @@ for await (const entry of dir.content({
 // `entries` contains the first 5 files/directories in the directory
 ```
 
-### `exporter.path(cid, ipld)`
+### `walkPath(cid, ipld)`
 
-`exporter.path` will return an async iterator that yields entries for all segments in a path:
+`walkPath` will return an async iterator that yields entries for all segments in a path:
 
 ```javascript
+const { walkPath } = require('ipfs-unixfs-exporter')
+
 const entries = []
 
-for await (const entry of exporter.path('Qmfoo/foo/bar/baz.txt', ipld)) {
+for await (const entry of walkPath('Qmfoo/foo/bar/baz.txt', ipld)) {
   entries.push(entry)
 }
 
 // entries contains 4x `entry` objects
 ```
 
-### `exporter.recursive(cid, ipld)`
+### `recursive(cid, ipld)`
 
-`exporter.recursive` will return an async iterator that yields all entries beneath a given CID or IPFS path, as well as the containing directory.
+`recursive` will return an async iterator that yields all entries beneath a given CID or IPFS path, as well as the containing directory.
 
 ```javascript
+const { recursive } = require('ipfs-unixfs-exporter')
+
 const entries = []
 
-for await (const child of exporter.recursive('Qmfoo/foo/bar', ipld)) {
+for await (const child of recursive('Qmfoo/foo/bar', ipld)) {
   entries.push(entry)
 }
 

@@ -6,17 +6,29 @@ const {
 } = require('ipld-dag-pb')
 const multicodec = require('multicodec')
 const mh = require('multihashing-async').multihash
+const CID = require('cids')
+const Block = require('ipld-block')
 
 /**
- * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
+ * @param {import('ipld')} ipld
  */
 function createBlockApi (ipld) {
   // make ipld behave like the block api, some tests need to pull
   // data from ipld so can't use a simple in-memory cid->block map
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const BlockApi = {
-    put: async (buf, { cid }) => {
+    put: async (buf, options) => {
+      if (!options || !options.cid) {
+        throw new Error('No cid passed')
+      }
+
+      const cid = new CID(options.cid)
+
       const multihash = mh.decode(cid.multihash)
+
+      if (Block.isBlock(buf)) {
+        buf = buf.data
+      }
 
       /** @type {any} */
       let obj = buf
@@ -30,9 +42,11 @@ function createBlockApi (ipld) {
         hashAlg: multihash.code
       })
 
-      return { cid, data: buf }
+      return new Block(buf, cid)
     },
     get: async (cid, options) => {
+      cid = new CID(cid)
+
       /** @type {Uint8Array} */
       let buf = await ipld.get(cid, options)
 
@@ -40,7 +54,7 @@ function createBlockApi (ipld) {
         buf = buf.serialize()
       }
 
-      return { cid, data: buf }
+      return new Block(buf, cid)
     }
   }
 

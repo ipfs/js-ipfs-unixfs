@@ -6,7 +6,8 @@ const validateOffsetAndLength = require('../utils/validate-offset-and-length')
 const mh = require('multihashing-async').multihash
 
 /**
- * @typedef {import('../').ExporterOptions} ExporterOptions
+ * @typedef {import('../types').ExporterOptions} ExporterOptions
+ * @typedef {import('../types').Resolver} Resolver
  */
 
 /**
@@ -29,7 +30,7 @@ const rawContent = (node) => {
 }
 
 /**
- * @type {import('./').Resolver}
+ * @type {Resolver}
  */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   if (toResolve.length) {
@@ -46,6 +47,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       cid,
       content: rawContent(buf.digest),
       depth,
+      size: buf.length,
       node: buf.digest
     }
   }

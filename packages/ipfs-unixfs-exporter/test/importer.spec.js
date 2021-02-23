@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('ipfs-unixfs-importer')
-const exporter = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
+const { exporter, recursive } = require('../src')
 const extend = require('merge-options')
 const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
@@ -10,7 +10,7 @@ const sinon = require('sinon')
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
-const UnixFs = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const collectLeafCids = require('./helpers/collect-leaf-cids')
 // @ts-ignore
 const loadFixture = require('aegir/fixtures')
@@ -30,13 +30,13 @@ const last = require('it-last')
 const CID = require('cids')
 
 /**
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
- * @typedef {import('ipfs-unixfs-importer').BlockAPI} BlockAPI
+ * @typedef {import('ipld')} IPLD
+ * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
  */
 
 /**
- * @param {{ path?: string, cid: CID, unixfs?: UnixFs }[]} files
+ * @param {{ path?: string, cid: CID, unixfs?: UnixFS }[]} files
  */
 function stringifyMh (files) {
   return files.map((file) => {
@@ -216,7 +216,7 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
 
   /** @type {DAGNode} */
   const node = await ipld.get(file.cid)
-  const meta = UnixFs.unmarshal(node.Data)
+  const meta = UnixFS.unmarshal(node.Data)
 
   expect(meta.type).to.equal('file')
   expect(node.Links.length).to.equal(2)
@@ -226,7 +226,7 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   )
 
   linkedNodes.forEach(node => {
-    const meta = UnixFs.unmarshal(node.Data)
+    const meta = UnixFS.unmarshal(node.Data)
     expect(meta.type).to.equal(expected)
   })
 }
@@ -243,7 +243,7 @@ const checkNodeLinks = async (block, ipld, options, expected) => {
     content: new Uint8Array(100).fill(1)
   }], block, options)) {
     const node = await ipld.get(file.cid)
-    const meta = UnixFs.unmarshal(node.Data)
+    const meta = UnixFS.unmarshal(node.Data)
 
     expect(meta.type).to.equal('file')
     expect(node.Links.length).to.equal(expected)
@@ -658,7 +658,7 @@ strategies.forEach((strategy) => {
       result.forEach(eachFile)
 
       /**
-       * @param {{ path?: string, cid: string, unixfs?: UnixFs }} file
+       * @param {{ path?: string, cid: string, unixfs?: UnixFS }} file
        */
       function eachFile (file) {
         if (!file.unixfs) {
@@ -883,7 +883,7 @@ strategies.forEach((strategy) => {
         content: bigFile
       }], block))
 
-      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.type === 'directory').pop()
 
       if (!node) {
@@ -909,7 +909,7 @@ strategies.forEach((strategy) => {
         content: bigFile
       }], block))
 
-      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.type === 'directory').pop()
 
       if (!node) {
@@ -940,7 +940,7 @@ strategies.forEach((strategy) => {
         content: bigFile
       }], block))
 
-      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.type === 'directory' && node.name === 'bar').pop()
 
       if (!node) {
@@ -971,7 +971,7 @@ strategies.forEach((strategy) => {
         shardSplitThreshold: 0
       }))
 
-      const nodes = await all(exporter.recursive(entries[entries.length - 1].cid, ipld))
+      const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
       const node = nodes.filter(node => node.type === 'directory' && node.unixfs.type === 'hamt-sharded-directory').pop()
 
       if (!node) {
@@ -1089,12 +1089,13 @@ describe('configuration', () => {
   it('alllows configuring with custom dag and tree builder', async () => {
     let builtTree = false
     const cid = new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
-    const unixfs = new UnixFs({ type: 'directory' })
+    const unixfs = new UnixFS({ type: 'directory' })
 
     const entries = await all(importer([{
       path: 'path',
       content: 'content'
     }], block, {
+      /** @type {import('ipfs-unixfs-importer/src/types').DAGBuilder} */
       dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         yield function () {
           return Promise.resolve({
@@ -1105,6 +1106,7 @@ describe('configuration', () => {
           })
         }
       },
+      /** @type {import('ipfs-unixfs-importer/src/types').TreeBuilder} */
       treeBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         builtTree = true
         yield * source
@@ -1126,6 +1128,7 @@ describe('configuration', () => {
       path: 'path',
       content: uint8ArrayFromString('content')
     }], block, {
+      /** @type {import('ipfs-unixfs-importer/src/types').ChunkValidator} */
       chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
         validated = true
 
@@ -1137,6 +1140,7 @@ describe('configuration', () => {
           }
         }
       },
+      /** @type {import('ipfs-unixfs-importer/src/types').Chunker} */
       chunker: async function * (source, opts) { // eslint-disable-line require-await
         chunked = true
         yield * source

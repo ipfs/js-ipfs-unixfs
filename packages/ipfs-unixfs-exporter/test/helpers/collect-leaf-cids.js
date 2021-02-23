@@ -2,7 +2,7 @@
 
 /**
  * @param {import('cids')} cid
- * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
+ * @param {import('ipld')} ipld
  */
 module.exports = function (cid, ipld) {
   /**

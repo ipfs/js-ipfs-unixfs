@@ -16,7 +16,7 @@ const errcode = require('err-code')
  */
 
 /**
- * @type {import('./').Chunker}
+ * @type {import('../types').Chunker}
  */
 module.exports = async function * rabinChunker (source, options) {
   let min, max, avg

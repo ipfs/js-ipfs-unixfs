@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('../src')
+const { importer } = require('../src')
 
 const { expect } = require('aegir/utils/chai')
 // @ts-ignore
@@ -39,7 +39,7 @@ strategies.forEach(strategy => {
   }
 
   describe('go-ipfs interop using importer:' + strategy, () => {
-    /** @type {import('./helpers/block').IPLD} */
+    /** @type {import('ipld')} */
     let ipld
     /** @type {import('../src').BlockAPI} */
     let block

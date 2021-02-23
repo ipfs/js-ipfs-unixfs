@@ -6,15 +6,15 @@ const Dir = require('./dir')
 const toPathComponents = require('./utils/to-path-components')
 
 /**
- * @typedef {import('./').ImportResult} ImportResult
- * @typedef {import('./').PartialImportResult} PartialImportResult
- * @typedef {import('./').ImporterOptions} ImporterOptions
- * @typedef {import('./').BlockAPI} BlockAPI
- * @typedef {(source: AsyncIterable<PartialImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
+ * @typedef {import('./types').ImportResult} ImportResult
+ * @typedef {import('./types').InProgressImportResult} InProgressImportResult
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {(source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
  */
 
 /**
- * @param {PartialImportResult} elem
+ * @param {InProgressImportResult} elem
  * @param {Dir} tree
  * @param {ImporterOptions} options
  */
@@ -64,7 +64,7 @@ async function addToTree (elem, tree, options) {
 }
 
 /**
- * @param {Dir | PartialImportResult} tree
+ * @param {Dir | InProgressImportResult} tree
  * @param {BlockAPI} block
  */
 async function * flushAndYield (tree, block) {

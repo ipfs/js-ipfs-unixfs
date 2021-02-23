@@ -1,16 +1,18 @@
 'use strict'
 
 const errCode = require('err-code')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const findShardCid = require('../../utils/find-cid-in-shard')
 
 /**
- * @typedef {import('../../').ExporterOptions} ExporterOptions
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
- * @typedef {import('../').UnixFSEntry} UnixFSEntry
  * @typedef {import('cids')} CID
+ * @typedef {import('ipld')} IPLD
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- * @typedef {import('../').Resolve} Resolve
+ * @typedef {import('../../types').ExporterOptions} ExporterOptions
+ * @typedef {import('../../types').UnixFSEntry} UnixFSEntry
+ * @typedef {import('../../types').Resolve} Resolve
+ * @typedef {import('../../types').Resolver} Resolver
+ * @typedef {import('../../types').UnixfsV1Resolver} UnixfsV1Resolver
  */
 
 /**
@@ -24,12 +26,6 @@ const findLinkCid = (node, name) => {
 }
 
 /**
- * @typedef {AsyncIterable<Uint8Array> | Iterable<Uint8Array>} UnixfsV1FileContent
- * @typedef {AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>} UnixfsV1DirectoryContent
- *
- * @typedef {UnixfsV1FileContent | UnixfsV1DirectoryContent} UnixfsV1Content
- * @typedef {(cid: CID, node: DAGNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content } UnixfsV1Resolver
- *
  * @type {{ [key: string]: UnixfsV1Resolver }}
  */
 const contentExporters = {
@@ -46,7 +42,7 @@ const contentExporters = {
 }
 
 /**
- * @type {import('../').Resolver}
+ * @type {Resolver}
  */
 const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   const node = await ipld.get(cid, options)
@@ -104,7 +100,8 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, 
       content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, ipld),
       unixfs,
       depth,
-      node
+      node,
+      size: unixfs.fileSize()
     },
     next
   }

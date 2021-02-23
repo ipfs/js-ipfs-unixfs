@@ -4,8 +4,8 @@ const { Bucket, createHAMT } = require('hamt-sharding')
 const multihashing = require('multihashing-async')
 
 /**
- * @typedef {import('../').ExporterOptions} ExporterOptions
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
+ * @typedef {import('../types').ExporterOptions} ExporterOptions
+ * @typedef {import('ipld')} IPLD
  * @typedef {import('cids')} CID
  */
 

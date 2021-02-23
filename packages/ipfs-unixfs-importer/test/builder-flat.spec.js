@@ -3,7 +3,6 @@
 
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/flat')
-const all = require('it-all')
 
 /**
  * @param {*} leaves
@@ -20,16 +19,16 @@ describe('builder: flat', () => {
   it('reduces one value into itself', async () => {
     const source = [1]
     // @ts-ignore
-    const result = await all(builder(source, reduce))
+    const result = await builder(source, reduce)
 
-    expect(result).to.be.eql([1])
+    expect(result).to.be.eql(1)
   })
 
   it('reduces 2 values into parent', async () => {
     const source = [1, 2]
     // @ts-ignore
-    const result = await all(builder(source, reduce))
+    const result = await builder(source, reduce)
 
-    expect(result).to.be.eql([{ children: [1, 2] }])
+    expect(result).to.be.eql({ children: [1, 2] })
   })
 })

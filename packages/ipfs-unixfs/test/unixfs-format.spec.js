@@ -7,7 +7,7 @@ const { expect } = require('aegir/utils/chai')
 // @ts-ignore
 const loadFixture = require('aegir/fixtures')
 
-const UnixFS = require('../src')
+const { UnixFS } = require('../src')
 
 const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')

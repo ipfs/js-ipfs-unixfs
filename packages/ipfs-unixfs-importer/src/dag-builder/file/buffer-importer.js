@@ -1,17 +1,13 @@
 'use strict'
 
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
 const {
   DAGNode
 } = require('ipld-dag-pb')
 
 /**
- * @typedef {import('../../').BlockAPI} BlockAPI
- * @typedef {import('../../').ImporterOptions} ImporterOptions
- * @typedef {import('../../').File} File
- * @typedef {import('../../').PartialImportResult} PartialImportResult
- * @typedef {(file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<PartialImportResult>>} BufferImporter
+ * @typedef {import('../../types').BufferImporter} BufferImporter
  */
 
 /**
@@ -23,8 +19,12 @@ async function * bufferImporter (file, block, options) {
       options.progress(buffer.length, file.path)
       let unixfs
 
+      /** @type {import('../../types').PersistOptions} */
       const opts = {
-        ...options
+        codec: 'dag-pb',
+        cidVersion: options.cidVersion,
+        hashAlg: options.hashAlg,
+        onlyHash: options.onlyHash
       }
 
       if (options.rawLeaves) {

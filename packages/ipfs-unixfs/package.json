@@ -10,12 +10,12 @@
   "scripts": {
     "prepare": "run-s prepare:*",
     "prepare:proto": "pbjs -t static-module -w commonjs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
-    "prepare:proto:types": "pbts -o src/unixfs.d.ts src/unixfs.js",
+    "prepare:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
     "prepare:types": "aegir build --no-bundle",
-    "prepare:copy": "copy ./src/*.d.ts ./dist/src",
     "test": "aegir test",
+    "build": "aegir build",
     "clean": "rimraf ./dist",
-    "lint": "aegir lint",
+    "lint": "aegir ts --check && aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
     "depcheck": "aegir dep-check -i mkdirp -i @types/mocha -i nyc -i npm-run-all -i copy"
   },
@@ -37,7 +37,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^30.3.0",
+    "aegir": "^31.0.4",
     "copy": "^0.3.2",
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",

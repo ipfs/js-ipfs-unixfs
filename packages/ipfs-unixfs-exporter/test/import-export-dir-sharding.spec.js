@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 'use strict'
 
-const importer = require('ipfs-unixfs-importer')
-const exporter = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
+const { exporter } = require('../src')
 
 const { expect } = require('aegir/utils/chai')
 // @ts-ignore
@@ -22,9 +22,9 @@ const uint8ArrayConcat = require('uint8arrays/concat')
  */
 
 describe('builder: directory sharding', () => {
-  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   let block
 
   before(async () => {

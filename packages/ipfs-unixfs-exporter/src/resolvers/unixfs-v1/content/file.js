@@ -2,14 +2,16 @@
 
 const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const errCode = require('err-code')
 
 /**
- * @typedef {import('../../../').ExporterOptions} ExporterOptions
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
+ * @typedef {import('../../../types').ExporterOptions} ExporterOptions
+ * @typedef {import('ipld')} IPLD
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- *
+ */
+
+/**
  * @param {IPLD} ipld
  * @param {DAGNode} node
  * @param {number} start
@@ -62,8 +64,7 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
       const child = await ipld.get(childLink.Hash, {
-        signal: options.signal,
-        timeout: options.timeout
+        signal: options.signal
       })
 
       for await (const buf of emitBytes(ipld, child, start, end, streamPosition, options)) {

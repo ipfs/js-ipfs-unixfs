@@ -3,23 +3,18 @@
 const batch = require('it-batch')
 
 /**
- * @typedef {import('cids')} CID
- * @typedef {import('../..').ImporterOptions} ImporterOptions
- * @typedef {import('../..').ImportResult} ImportResult
+ * @typedef {import('../../types').FileDAGBuilder} FileDAGBuilder
  */
 
 /**
- * @type {import('.').DAGBuilder}
+ * @type {FileDAGBuilder}
  */
-async function * balanced (source, reduce, options) {
-  yield await reduceToParents(source, reduce, options)
+function balanced (source, reduce, options) {
+  return reduceToParents(source, reduce, options)
 }
 
 /**
- * @param {AsyncIterable<ImportResult> | ImportResult[]} source
- * @param {import('.').Reducer} reduce
- * @param {ImporterOptions} options
- * @returns {Promise<ImportResult>}
+ * @type {FileDAGBuilder}
  */
 async function reduceToParents (source, reduce, options) {
   const roots = []

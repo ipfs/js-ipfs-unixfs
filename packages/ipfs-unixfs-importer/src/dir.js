@@ -1,10 +1,10 @@
 'use strict'
 
 /**
- * @typedef {import('./').ImporterOptions} ImporterOptions
- * @typedef {import('./').ImportResult} ImportResult
- * @typedef {import('./').PartialImportResult} PartialImportResult
- * @typedef {import('./').BlockAPI} BlockAPI
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').ImportResult} ImportResult
+ * @typedef {import('./types').InProgressImportResult} InProgressImportResult
+ * @typedef {import('./types').BlockAPI} BlockAPI
  * @typedef {import('cids')} CID
  * @typedef {object} DirProps
  * @property {boolean} root
@@ -14,7 +14,7 @@
  * @property {boolean} flat
  * @property {Dir} [parent]
  * @property {string} [parentKey]
- * @property {import('ipfs-unixfs')} [unixfs]
+ * @property {import('ipfs-unixfs').UnixFS} [unixfs]
  * @property {number} [mode]
  * @property {import('ipfs-unixfs').Mtime} [mtime]
  */
@@ -46,20 +46,20 @@ class Dir {
 
   /**
    * @param {string} name
-   * @param {PartialImportResult | Dir} value
+   * @param {InProgressImportResult | Dir} value
    */
   async put (name, value) { }
 
   /**
    * @param {string} name
-   * @returns {Promise<PartialImportResult | Dir | undefined>}
+   * @returns {Promise<InProgressImportResult | Dir | undefined>}
    */
   get (name) {
     return Promise.resolve(this)
   }
 
   /**
-   * @returns {AsyncIterable<{ key: string, child: PartialImportResult | Dir}>}
+   * @returns {AsyncIterable<{ key: string, child: InProgressImportResult | Dir}>}
    */
   async * eachChildSeries () { }
 

@@ -4,15 +4,15 @@ const {
   DAGLink,
   DAGNode
 } = require('ipld-dag-pb')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 
 /**
- * @typedef {import('./').ImporterOptions} ImporterOptions
- * @typedef {import('./').ImportResult} ImportResult
- * @typedef {import('./').PartialImportResult} PartialImportResult
- * @typedef {import('./').BlockAPI} BlockAPI
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').ImportResult} ImportResult
+ * @typedef {import('./types').InProgressImportResult} InProgressImportResult
+ * @typedef {import('./types').BlockAPI} BlockAPI
  * @typedef {import('./dir').DirProps} DirProps
  * @typedef {import('cids')} CID
  */
@@ -25,13 +25,13 @@ class DirFlat extends Dir {
   constructor (props, options) {
     super(props, options)
 
-    /** @type {{ [key: string]: PartialImportResult | Dir }} */
+    /** @type {{ [key: string]: InProgressImportResult | Dir }} */
     this._children = {}
   }
 
   /**
    * @param {string} name
-   * @param {PartialImportResult | Dir} value
+   * @param {InProgressImportResult | Dir} value
    */
   async put (name, value) {
     this.cid = undefined

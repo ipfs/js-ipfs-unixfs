@@ -5,7 +5,7 @@ const extractDataFromBlock = require('../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../utils/validate-offset-and-length')
 
 /**
- * @typedef {import('../').ExporterOptions} ExporterOptions
+ * @typedef {import('../types').ExporterOptions} ExporterOptions
  */
 
 /**
@@ -28,7 +28,7 @@ const rawContent = (node) => {
 }
 
 /**
- * @type {import('./').Resolver}
+ * @type {import('../types').Resolver}
  */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   if (toResolve.length) {
@@ -45,6 +45,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       cid,
       content: rawContent(buf),
       depth,
+      size: buf.length,
       node: buf
     }
   }

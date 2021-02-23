@@ -4,8 +4,7 @@ const errCode = require('err-code')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 
 /**
- * @typedef {import('../').ImporterOptions} ImporterOptions
- * @typedef {(source: AsyncIterable<Uint8Array | string | ArrayLike<number>>, options: ImporterOptions) => AsyncIterable<Uint8Array>} ChunkValidator
+ * @typedef {import('../types').ChunkValidator} ChunkValidator
  */
 
 /**

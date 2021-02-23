@@ -5,8 +5,8 @@ const CID = require('cids')
 
 /**
  * @param {Uint8Array} buffer
- * @param {import('../').BlockAPI} block
- * @param {import('../').ImporterOptions} options
+ * @param {import('../types').BlockAPI} block
+ * @param {import('../types').PersistOptions} options
  */
 const persist = async (buffer, block, options) => {
   if (!options.codec) {
@@ -29,7 +29,9 @@ const persist = async (buffer, block, options) => {
   const cid = new CID(options.cidVersion, options.codec, multihash)
 
   if (!options.onlyHash) {
+    // @ts-ignore block api takes uint8arrays or blocks but is missing from typedefs
     await block.put(buffer, {
+      // @ts-ignore pin option is missing from block api typedefs
       pin: options.pin,
       preload: options.preload,
       timeout: options.timeout,

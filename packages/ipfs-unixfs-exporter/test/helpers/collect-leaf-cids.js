@@ -1,15 +1,24 @@
 'use strict'
 
+// @ts-ignore - TODO vmx 2021-03-25: add typedefs
+const { decode } = require('@ipld/dag-pb')
+
 /**
- * @param {import('cids')} cid
- * @param {import('ipld')} ipld
+ * @typedef {import('../../src/types').PbLink} PbLink
  */
-module.exports = function (cid, ipld) {
+
+/**
+ * @param {import('multiformats/cid')} cid
+ * @param {import('ipfs-unixfs-importer/src/types').BlockAPI} blockService
+ */
+module.exports = function (cid, blockService) {
   /**
-   * @param {import('cids')} cid
+   * @param {import('multiformats/cid')} cid
    */
   async function * traverse (cid) {
-    const node = await ipld.get(cid)
+    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
+    const block = await blockService.get(cid)
+    const node = decode(block.bytes)
 
     if (node instanceof Uint8Array || !node.Links.length) {
       yield {
@@ -22,8 +31,9 @@ module.exports = function (cid, ipld) {
 
     node.Links.forEach(
       /**
-       * @param {import('ipld-dag-pb').DAGLink} link
+       * @param {PbLink} link
        */
+      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       link => traverse(link.Hash)
     )
   }

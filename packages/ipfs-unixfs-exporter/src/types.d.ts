@@ -1,4 +1,4 @@
-import CID from 'cids'
+import { CID  } from 'multiformats'
 import UnixFS from 'ipfs-unixfs'
 import DAGNode from 'ipld-dag-pb'
 
@@ -67,3 +67,21 @@ type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
 type UnixfsV1Resolver = (cid: CID, node: DAGNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content
+
+
+// TODO vmx 2021=03-24: Just temporary until js-dag-pb has porper types
+interface PbLink {
+  Name: string,
+  Tsize: number,
+  Hash: CID
+}
+
+interface PbNode {
+  Data: Uint8Array,
+  Links: PbLink[]
+}
+
+interface Block {
+  cid: CID,
+  bytes: Uint8Array
+}

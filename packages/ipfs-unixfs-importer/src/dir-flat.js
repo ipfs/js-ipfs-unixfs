@@ -5,7 +5,7 @@ const {
   prepare
 // @ts-ignore
 } = require('@ipld/dag-pb')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 
@@ -15,7 +15,8 @@ const persist = require('./utils/persist')
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
  * @typedef {import('./types').BlockAPI} BlockAPI
  * @typedef {import('./dir').DirProps} DirProps
- * @typedef {import('cids')} CID
+ * @typedef {import('ipfs-unixfs-exporter/src/types').PbNode} PbNode
+ * @typedef {import('ipfs-unixfs-exporter/src/types').PbLink} PbLink
  */
 
 class DirFlat extends Dir {
@@ -101,19 +102,21 @@ class DirFlat extends Dir {
       }
     }
 
+    // @ts-ignore - TODO vmx 2021-03-24: figure out what's wrong and fix it
     const unixfs = new UnixFS({
       type: 'directory',
       mtime: this.mtime,
       mode: this.mode
     })
 
+    /** @type {PbNode} */
     const node = { Data: unixfs.marshal(), Links: links }
     const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, this.options)
     const size = buffer.length + node.Links.reduce(
       /**
        * @param {number} acc
-       * @param {{ Name: string, Tsize: number, Hash: CID }} curr
+       * @param {PbLink} curr
        */
       (acc, curr) => acc + curr.Tsize,
       0)

@@ -1,7 +1,8 @@
 'use strict'
 
-const mh = require('multihashing-async')
-const CID = require('cids')
+const mc = require('multicodec')
+const { sha256 } = require('multiformats/hashes/sha2')
+const CID = require('multiformats/cid')
 
 /**
  * @param {Uint8Array} buffer
@@ -10,7 +11,7 @@ const CID = require('cids')
  */
 const persist = async (buffer, block, options) => {
   if (!options.codec) {
-    options.codec = 'dag-pb'
+    options.codec = mc.DAG_PB
   }
 
   if (!options.cidVersion) {
@@ -18,24 +19,35 @@ const persist = async (buffer, block, options) => {
   }
 
   if (!options.hashAlg) {
-    options.hashAlg = 'sha2-256'
+    options.hashAlg = mc.SHA2_256
   }
 
-  if (options.hashAlg !== 'sha2-256') {
+  if (options.hashAlg !== mc.SHA2_256) {
     options.cidVersion = 1
   }
 
-  const multihash = await mh(buffer, options.hashAlg)
-  const cid = new CID(options.cidVersion, options.codec, multihash)
+  let multihash
+  switch (options.hashAlg) {
+    case mc.SHA2_256:
+      multihash = await sha256.digest(buffer)
+      break
+    default:
+      throw(`TODO vmx 2021-02-24: support other hash algorithms. ${options.hashAlg} not found.`)
+  }
+  // TODO vmx 2021-02-24: no idea why TypeScript fails here, it should work
+  // @ts-ignore
+  const cid = CID.create(options.cidVersion, options.codec, multihash)
 
   if (!options.onlyHash) {
-    // @ts-ignore block api takes uint8arrays or blocks but is missing from typedefs
-    await block.put(buffer, {
+    await block.put({
+      // @ts-ignore TODO vmx 2021-03-17
+      bytes: buffer,
+      cid
+    }, {
       // @ts-ignore pin option is missing from block api typedefs
       pin: options.pin,
       preload: options.preload,
       timeout: options.timeout,
-      cid
     })
   }
 

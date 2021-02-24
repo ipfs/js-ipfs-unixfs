@@ -1,7 +1,9 @@
 'use strict'
 
-const CID = require('cids')
+const CID = require('multiformats/cid')
 const errCode = require('err-code')
+// @ts-ignore
+const dagCbor = require('@ipld/dag-cbor')
 
 /**
  * @typedef {import('../types').Resolver} Resolver
@@ -10,9 +12,9 @@ const errCode = require('err-code')
 /**
  * @type {Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
-  const object = await ipld.get(cid, options)
-  const block = await ipld.get(new CID(1, 'raw', cid.multihash))
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockService, options) => {
+  const block = await blockService.get(cid)
+  const object = dagCbor.decode(block.bytes)
   let subObject = object
   let subPath = path
 
@@ -24,14 +26,16 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       toResolve.shift()
       subPath = `${subPath}/${prop}`
 
-      if (CID.isCID(subObject[prop])) {
+      // @ts-ignore
+      const subObjectCid = CID.asCID(subObject[prop])
+      if (subObjectCid) {
         return {
           entry: {
             type: 'object',
             name,
             path,
             cid,
-            node: block,
+            node: block.bytes,
             depth,
             size: block.length,
             content: async function * () {
@@ -39,7 +43,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
             }
           },
           next: {
-            cid: subObject[prop],
+            cid: subObjectCid,
             name: prop,
             path: subPath,
             toResolve
@@ -60,7 +64,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       name,
       path,
       cid,
-      node: block,
+      node: block.bytes,
       depth,
       size: block.length,
       content: async function * () {

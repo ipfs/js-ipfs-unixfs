@@ -30,23 +30,26 @@ const rawContent = (node) => {
 /**
  * @type {import('../types').Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockService, options) => {
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
   }
 
-  const buf = await ipld.get(cid, options)
+  const block = await blockService.get(cid, options)
 
   return {
     entry: {
       type: 'raw',
       name,
       path,
+      // @ts-ignore
       cid,
-      content: rawContent(buf),
+      content: rawContent(block.bytes),
       depth,
-      size: buf.length,
-      node: buf
+      // TODO vmx 2021-03-24: Check if `size` is needed
+      size: 0,
+      // @ts-ignore
+      node: block.bytes
     }
   }
 }

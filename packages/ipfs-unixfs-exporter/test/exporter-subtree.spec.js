@@ -2,10 +2,6 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const { importer } = require('ipfs-unixfs-importer')
 const all = require('it-all')
 const last = require('it-last')
@@ -19,15 +15,8 @@ const ONE_MEG = Math.pow(1024, 2)
 const { exporter, walkPath } = require('./../src')
 
 describe('exporter subtree', () => {
-  /** @type {import('ipld')} */
-  let ipld
   /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-  let block
-
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
+  const block = blockApi()
 
   it('exports a file 2 levels down', async () => {
     const content = uint8ArrayConcat(await all(randomBytes(ONE_MEG)))
@@ -44,7 +33,7 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid}/level-1/200Bytes.txt`, ipld)
+    const exported = await exporter(`${imported.cid}/level-1/200Bytes.txt`, block)
 
     expect(exported).to.have.property('cid')
     expect(exported.name).to.equal('200Bytes.txt')
@@ -74,7 +63,7 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid}/level-1`, ipld)
+    const exported = await exporter(`${imported.cid}/level-1`, block)
 
     if (exported.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -108,7 +97,7 @@ describe('exporter subtree', () => {
     }
 
     try {
-      await exporter(`${imported.cid}/doesnotexist`, ipld)
+      await exporter(`${imported.cid}/doesnotexist`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
@@ -134,7 +123,7 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await all(walkPath(`${imported.cid}/level-1/level-2/200Bytes.txt`, ipld))
+    const exported = await all(walkPath(`${imported.cid}/level-1/level-2/200Bytes.txt`, block))
 
     expect(exported.length).to.equal(4)
     expect(exported[0].path).to.equal(imported.cid.toString())

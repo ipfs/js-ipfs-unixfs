@@ -3,14 +3,14 @@
 
 const { importer } = require('../src')
 const { expect } = require('aegir/utils/chai')
+const rawCodec = require('multiformats/codecs/raw')
 // @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
-const mc = require('multicodec')
+const { sha256 } = require('multiformats/hashes/sha2')
+const Block = require('multiformats/block')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const { UnixFS } = require('ipfs-unixfs')
+
 
 const iter = async function * () {
   yield uint8ArrayFromString('one')
@@ -18,10 +18,8 @@ const iter = async function * () {
 }
 
 describe('custom chunker', function () {
-  /** @type {import('ipld')} */
-  let ipld
   /** @type {import('../src').BlockAPI} */
-  let block
+  const block = blockApi()
 
   /**
    * @param {AsyncIterable<Uint8Array>} content
@@ -32,9 +30,15 @@ describe('custom chunker', function () {
      * @param {Uint8Array} buf
      */
     const put = async (buf) => {
-      const cid = await ipld.put(buf, mc.RAW)
+      const encodedBlock = await Block.encode({
+        value: buf,
+        // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2739: Type 'typeof import("/js-multiformats/dist/types/codecs/raw")' is missing the following properties from type 'BlockEncoder<number, Uint8Array>': name, code, encode
+        codec: rawCodec,
+        hasher: sha256
+      })
+
       return {
-        cid,
+        cid: encodedBlock.cid,
         size: buf.length,
         unixfs: new UnixFS()
       }
@@ -53,11 +57,6 @@ describe('custom chunker', function () {
       expect(part.size).to.equal(size)
     }
   }
-
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
 
   it('keeps custom chunking', async () => {
     const content = iter()

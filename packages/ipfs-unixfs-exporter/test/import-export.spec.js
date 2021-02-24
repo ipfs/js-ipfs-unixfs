@@ -4,10 +4,6 @@
 
 const { expect } = require('aegir/utils/chai')
 // @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
-// @ts-ignore
 const loadFixture = require('aegir/utils/fixtures')
 // @ts-ignore
 const isNode = require('detect-node')
@@ -31,15 +27,8 @@ describe('import and export', function () {
     const importerOptions = { strategy: strategy }
 
     describe('using builder: ' + strategy, () => {
-      /** @type {import('ipld')} */
-      let ipld
       /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-      let block
-
-      before(async () => {
-        ipld = await inMemory(IPLD)
-        block = blockApi(ipld)
-      })
+      const block = blockApi()
 
       it('imports and exports', async () => {
         const path = `${strategy}-big.dat`
@@ -49,7 +38,8 @@ describe('import and export', function () {
         for await (const file of importer(values, block, importerOptions)) {
           expect(file.path).to.eql(path)
 
-          const result = await exporter(file.cid, ipld)
+          // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
+          const result = await exporter(file.cid, block)
 
           if (result.type !== 'file') {
             throw new Error('Unexpected type')

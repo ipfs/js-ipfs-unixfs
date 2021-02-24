@@ -7,6 +7,7 @@ const {
   prepare
 // @ts-ignore
 } = require('@ipld/dag-pb')
+const mc = require('multicodec')
 
 /**
  * @typedef {import('../../types').BufferImporter} BufferImporter
@@ -23,14 +24,14 @@ async function * bufferImporter (file, block, options) {
 
       /** @type {import('../../types').PersistOptions} */
       const opts = {
-        codec: 'dag-pb',
+        codec: mc.DAG_PB,
         cidVersion: options.cidVersion,
         hashAlg: options.hashAlg,
         onlyHash: options.onlyHash
       }
 
       if (options.rawLeaves) {
-        opts.codec = 'raw'
+        opts.codec = mc.RAW
         opts.cidVersion = 1
       } else {
         unixfs = new UnixFS({

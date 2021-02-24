@@ -4,23 +4,26 @@ const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 const { UnixFS } = require('ipfs-unixfs')
 const errCode = require('err-code')
+// @ts-ignore
+const dagPb = require('@ipld/dag-pb')
+// @ts-ignore
+const dagCbor = require('@ipld/dag-cbor')
+const mc = require('multicodec')
 
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
- * @typedef {import('ipld')} IPLD
- * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- */
-
-/**
- * @param {IPLD} ipld
- * @param {DAGNode} node
+ * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
+ * @typedef {import('../../../types').PbNode} PbNode
+ *
+ * @param {BlockService} blockService
+ * @param {PbNode} node
  * @param {number} start
  * @param {number} end
  * @param {number} streamPosition
  * @param {ExporterOptions} options
  * @returns {AsyncIterable<Uint8Array>}
  */
-async function * emitBytes (ipld, node, start, end, streamPosition = 0, options) {
+async function * emitBytes (blockService, node, start, end, streamPosition = 0, options) {
   // a `raw` node
   if (node instanceof Uint8Array) {
     const buf = extractDataFromBlock(node, streamPosition, start, end)
@@ -63,11 +66,29 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
     if ((start >= childStart && start < childEnd) || // child has offset byte
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
-      const child = await ipld.get(childLink.Hash, {
-        signal: options.signal
+      const block = await blockService.get(childLink.Hash, {
+        signal: options.signal,
       })
+      let child
+      switch (childLink.Hash.code) {
+        case mc.DAG_PB:
+          child = await dagPb.decode(block.bytes)
+          break
+        case mc.RAW:
+          child = block.bytes
+          break;
+        case mc.DAG_CBOR:
+          child = await dagCbor.decode(block.bytes)
+          break;
+        default:
+          // TODO vmx 2021-03-05: fix this type issue properly
+          // @ts-ignore
+          throw Error(`Unsupported codec: ${mc.getName(childLink.Hash.code)}`)
+      }
+      //console.log('file: childlink cid codec:', childLink.Hash.code)
+      //const child = await decode(block.bytes)
 
-      for await (const buf of emitBytes(ipld, child, start, end, streamPosition, options)) {
+      for await (const buf of emitBytes(blockService, child, start, end, streamPosition, options)) {
         streamPosition += buf.length
 
         yield buf
@@ -82,7 +103,7 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
 /**
  * @type {import('../').UnixfsV1Resolver}
  */
-const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
+const fileContent = (cid, node, unixfs, path, resolve, depth, blockService) => {
   /**
    * @param {ExporterOptions} options
    */
@@ -101,7 +122,7 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
     const start = offset
     const end = offset + length
 
-    return emitBytes(ipld, node, start, end, 0, options)
+    return emitBytes(blockService, node, start, end, 0, options)
   }
 
   return yieldFileContent

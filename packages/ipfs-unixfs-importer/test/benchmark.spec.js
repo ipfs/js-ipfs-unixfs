@@ -3,12 +3,7 @@
 
 const { importer } = require('../src')
 
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const bufferStream = require('it-buffer-stream')
-const all = require('it-all')
 const blockApi = require('./helpers/block')
 
 const REPEATS = 10
@@ -18,15 +13,8 @@ const CHUNK_SIZE = 65536
 describe.skip('benchmark', function () {
   this.timeout(30 * 1000)
 
-  /** @type {import('ipld')} */
-  let ipld
   /** @type {import('../src').BlockAPI} */
-  let block
-
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
+  const block = blockApi()
 
   /** @type {number[]} */
   const times = []
@@ -67,7 +55,7 @@ describe.skip('benchmark', function () {
 
       const buf = new Uint8Array(CHUNK_SIZE).fill(0)
 
-      await all(importer([{
+      await importer([{
         path: '200Bytes.txt',
         content: bufferStream(size, {
           chunkSize: CHUNK_SIZE,
@@ -75,7 +63,7 @@ describe.skip('benchmark', function () {
             return buf
           }
         })
-      }], block, options))
+      }], block, options)
     })
   }
 })

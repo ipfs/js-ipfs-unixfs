@@ -8,9 +8,10 @@ const {
   prepare
 // @ts-ignore
 } = require('@ipld/dag-pb')
-const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
-const mh = require('multihashing-async').multihash
+const mc = require('multicodec')
+const mh = require('multiformats/hashes/digest')
+const RAW = require('multiformats/codecs/raw').code
 
 /**
  * @typedef {import('../../types').BlockAPI} BlockAPI
@@ -79,10 +80,10 @@ const reduce = (file, block, options) => {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (leaf.cid.codec === 'raw' && (file.mtime !== undefined || file.mode !== undefined)) {
+      if (leaf.cid.code === RAW && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        let { data: buffer } = await block.get(leaf.cid, options)
+        let { bytes: buffer } = await block.get(leaf.cid, options)
 
         leaf.unixfs = new UnixFS({
           type: 'file',
@@ -91,13 +92,15 @@ const reduce = (file, block, options) => {
           data: buffer
         })
 
-        const multihash = mh.decode(leaf.cid.multihash)
+        // @ts-ignore
+        const multihash = mh.decode(leaf.cid.multihash.bytes)
         buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
         leaf.cid = await persist(buffer, block, {
           ...options,
-          codec: 'dag-pb',
-          hashAlg: multihash.name,
+          codec: mc.DAG_PB,
+          // @ts-ignore
+          hashAlg: multihash.code,
           cidVersion: options.cidVersion
         })
         leaf.size = buffer.length
@@ -120,7 +123,7 @@ const reduce = (file, block, options) => {
 
     const links = leaves
       .filter(leaf => {
-        if (leaf.cid.codec === 'raw' && leaf.size) {
+        if (leaf.cid.code === RAW && leaf.size) {
           return true
         }
 
@@ -131,7 +134,7 @@ const reduce = (file, block, options) => {
         return Boolean(leaf.unixfs && leaf.unixfs.data && leaf.unixfs.data.length)
       })
       .map((leaf) => {
-        if (leaf.cid.codec === 'raw') {
+        if (leaf.cid.code === RAW) {
           // node is a leaf buffer
           f.addBlockSize(leaf.size)
 

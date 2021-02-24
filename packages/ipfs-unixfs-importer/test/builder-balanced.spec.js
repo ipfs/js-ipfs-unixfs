@@ -3,7 +3,7 @@
 
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/balanced')
-const CID = require('cids')
+const CID = require('multiformats/cid')
 const defaultOptions = require('../src/options')
 
 /**
@@ -31,7 +31,8 @@ const options = {
 describe('builder: balanced', () => {
   it('reduces one value into itself', async () => {
     const source = [{
-      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2339: Property 'parse' does not exist on type 'typeof import("/js-multiformats/dist/types/cid")'
+      cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
       size: 0
     }]
 
@@ -44,13 +45,16 @@ describe('builder: balanced', () => {
 
   it('reduces 3 values into parent', async () => {
     const source = [{
-      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2339: Property 'parse' does not exist on type 'typeof import("/js-multiformats/dist/types/cid")'
+      cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
       size: 0
     }, {
-      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2339: Property 'parse' does not exist on type 'typeof import("/js-multiformats/dist/types/cid")'
+      cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
       size: 0
     }, {
-      cid: new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
+      // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2339: Property 'parse' does not exist on type 'typeof import("/js-multiformats/dist/types/cid")'
+      cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
       size: 0
     }]
 

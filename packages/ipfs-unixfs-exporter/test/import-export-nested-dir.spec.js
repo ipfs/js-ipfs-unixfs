@@ -2,10 +2,6 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const { importer } = require('ipfs-unixfs-importer')
 const { exporter } = require('../src')
@@ -17,15 +13,8 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
-  /** @type {import('ipld')} */
-  let ipld
   /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-  let block
-
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
+  const block = blockApi()
 
   it('imports', async function () {
     this.timeout(20 * 1000)
@@ -76,7 +65,7 @@ describe('import and export: directory', () => {
   it('exports', async function () {
     this.timeout(20 * 1000)
 
-    const dir = await exporter(rootHash, ipld)
+    const dir = await exporter(rootHash, block)
     const files = await recursiveExport(dir, rootHash)
 
     expect(files.sort(byPath)).to.eql([{
@@ -121,7 +110,7 @@ async function recursiveExport (node, path, entries = []) {
 }
 
 /**
- * @param {{ path?: string, cid: import('cids') }} node
+ * @param {{ path?: string, cid: import('multiformats').CID }} node
  */
 function normalizeNode (node) {
   return {

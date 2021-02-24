@@ -1,60 +1,28 @@
 'use strict'
 
-const {
-  DAGNode,
-  util
-} = require('ipld-dag-pb')
-const multicodec = require('multicodec')
-const mh = require('multihashing-async').multihash
-const CID = require('cids')
-const Block = require('ipld-block')
+function createBlockApi () {
+  /** @type {{[key: string]: Uint8Array}} */
+  const blocks = {}
 
-/**
- * @param {import('ipld')} ipld
- */
-function createBlockApi (ipld) {
-  // make ipld behave like the block api, some tests need to pull
-  // data from ipld so can't use a simple in-memory cid->block map
-  /** @type {import('../../src/types').BlockAPI} */
+  /** @type {import('../../src').BlockAPI} */
   const BlockApi = {
-    put: async (buf, options) => {
-      if (!options || !options.cid) {
-        throw new Error('No cid passed')
+    put: async ({ cid, bytes }, options) => {
+      if (!(options && !options.onlyHash)) {
+        blocks[cid.toV1().toString()] = bytes
       }
 
-      const cid = new CID(options.cid)
-
-      const multihash = mh.decode(cid.multihash)
-
-      if (Block.isBlock(buf)) {
-        buf = buf.data
-      }
-
-      /** @type {any} */
-      let obj = buf
-
-      if (cid.codec === 'dag-pb') {
-        obj = util.deserialize(buf)
-      }
-
-      await ipld.put(obj, cid.codec === 'dag-pb' ? multicodec.DAG_PB : multicodec.RAW, {
-        cidVersion: cid.version,
-        hashAlg: multihash.code
-      })
-
-      return new Block(buf, cid)
+      return { cid, bytes }
     },
-    get: async (cid, options) => {
-      cid = new CID(cid)
-
-      /** @type {Uint8Array} */
-      let buf = await ipld.get(cid, options)
-
-      if (buf instanceof DAGNode) {
-        buf = buf.serialize()
+    get: async (cid, _options) => {
+      const bytes = blocks[cid.toV1().toString()]
+      if (bytes === undefined) {
+        const error = new Error()
+        // @ts-ignore - TODO vmx 2021-03-24: Should the error type be wrapped in a custom type?
+        error.code = 'ERR_NOT_FOUND'
+        throw(error)
       }
 
-      return new Block(buf, cid)
+      return { cid, bytes }
     }
   }
 

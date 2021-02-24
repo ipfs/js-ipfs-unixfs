@@ -2,6 +2,7 @@
 
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
 const multihashing = require('multihashing-async')
+const mc = require('multicodec')
 
 /**
  * @param {Uint8Array} buf
@@ -38,7 +39,7 @@ const defaultOptions = {
   rawLeaves: false,
   onlyHash: false,
   reduceSingleLeafToSelf: true,
-  hashAlg: 'sha2-256',
+  hashAlg: mc.SHA2_256,
   leafType: 'file', // 'raw'
   cidVersion: 0,
   progress: () => () => {},

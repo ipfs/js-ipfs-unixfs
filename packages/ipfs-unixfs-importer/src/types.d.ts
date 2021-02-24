@@ -1,7 +1,6 @@
 import { UnixFS, Mtime } from 'ipfs-unixfs'
-import CID, { CIDVersion } from 'cids'
+import CID from 'multiformats/cid'
 import { HashName } from 'multihashes'
-import Block from 'ipld-block'
 import { CodecName } from 'multicodec'
 
 interface ImportCandidate {
@@ -53,7 +52,7 @@ interface UserImporterOptions {
   rawLeaves?: boolean
   onlyHash?: boolean
   reduceSingleLeafToSelf?: boolean
-  hashAlg?: HashName
+  hashAlg?: CodecCode
   leafType?: 'file' | 'raw'
   cidVersion?: CIDVersion
   progress?: ProgressHandler
@@ -88,7 +87,7 @@ interface ImporterOptions {
   rawLeaves: boolean
   onlyHash: boolean
   reduceSingleLeafToSelf: boolean
-  hashAlg: HashName
+  hashAlg: CodecCode
   leafType: 'file' | 'raw'
   cidVersion: CIDVersion
   progress: ProgressHandler
@@ -131,19 +130,26 @@ export interface TrickleDagNode {
 }
 
 export interface PersistOptions {
-  codec?: string
+  //codec?: string
+  codec?: number
   cidVersion: CIDVersion
-  hashAlg: HashName
+  hashAlg: CodecCode
   onlyHash: boolean
   preload?: boolean
   timeout?: number
   signal?: AbortSignal
 }
 
+// TODO vmx 2021-03-24: decide where to put this
+export interface Block {
+ cid: CID
+ bytes: Uint8Array
+}
+
 // TODO: remove this and get from core-ipfs-types
 export interface BlockAPI {
-  get: (cid: CID | string | Uint8Array, options?: BlockOptions) => Promise<Block>
-  put: (block: Block | Uint8Array, options?: PutOptions) => Promise<Block>
+  get: (cid: CID, options?: BlockOptions) => Promise<Block>
+  put: (block: Block, options?: PutOptions) => Promise<Block>
 }
 
 // TODO: remove this and get from core-ipfs-types
@@ -155,9 +161,6 @@ export interface BlockOptions {
 
 // TODO: remove this and get from core-ipfs-types
 export interface PutOptions extends BlockOptions {
-  cid?: CID
-  format?: CodecName
-  mhtype?: HashName
-  version?: CIDVersion
+  onlyHash?: boolean
   pin?: boolean
 }

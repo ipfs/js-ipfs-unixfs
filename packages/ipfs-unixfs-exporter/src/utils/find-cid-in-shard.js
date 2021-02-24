@@ -2,11 +2,15 @@
 
 const { Bucket, createHAMT } = require('hamt-sharding')
 const multihashing = require('multihashing-async')
+// @ts-ignore
+const { decode } = require('@ipld/dag-pb')
 
 /**
+ * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
+ * @typedef {import('multiformats').CID} CID
  * @typedef {import('../types').ExporterOptions} ExporterOptions
- * @typedef {import('ipld')} IPLD
- * @typedef {import('cids')} CID
+ * @typedef {import('../types').PbNode} PbNode
+ * @typedef {import('../types').PbLink} PbLink
  */
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
@@ -32,7 +36,7 @@ const hashFn = async function (buf) {
 }
 
 /**
- * @param {import('ipld-dag-pb').DAGLink[]} links
+ * @param {PbLink[]} links
  * @param {Bucket<boolean>} bucket
  * @param {Bucket<boolean>} rootBucket
  */
@@ -88,14 +92,14 @@ const toBucketPath = (position) => {
  * @property {Bucket<boolean>} rootBucket
  * @property {Bucket<boolean>} lastBucket
  *
- * @param {import('ipld-dag-pb').DAGNode} node
+ * @param {PbNode} node
  * @param {string} name
- * @param {IPLD} ipld
+ * @param {BlockService} blockService
  * @param {ShardTraversalContext} [context]
  * @param {ExporterOptions} [options]
  * @returns {Promise<CID|null>}
  */
-const findShardCid = async (node, name, ipld, context, options) => {
+const findShardCid = async (node, name, blockService, context, options) => {
   if (!context) {
     const rootBucket = createHAMT({
       hashFn
@@ -147,9 +151,10 @@ const findShardCid = async (node, name, ipld, context, options) => {
 
   context.hamtDepth++
 
-  node = await ipld.get(link.Hash, options)
+  const block = await blockService.get(link.Hash, options)
+  node = decode(block.bytes)
 
-  return findShardCid(node, name, ipld, context, options)
+  return findShardCid(node, name, blockService, context, options)
 }
 
 module.exports = findShardCid

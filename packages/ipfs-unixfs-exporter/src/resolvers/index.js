@@ -1,10 +1,10 @@
 'use strict'
 
 const errCode = require('err-code')
+const multicodec = require('multicodec')
 
 /**
- * @typedef {import('cids')} CID
- * @typedef {import('ipld')} IPLD
+ * @typedef {import('../').BlockAPI} BlockAPI
  * @typedef {import('../types').ExporterOptions} ExporterOptions
  * @typedef {import('../types').UnixFSEntry} UnixFSEntry
  * @typedef {import('../types').Resolver} Resolver
@@ -15,23 +15,24 @@ const errCode = require('err-code')
  * @type {{ [ key: string ]: Resolver }}
  */
 const resolvers = {
-  'dag-pb': require('./unixfs-v1'),
-  raw: require('./raw'),
-  'dag-cbor': require('./dag-cbor'),
-  identity: require('./identity')
+  [multicodec.DAG_PB]: require('./unixfs-v1'),
+  [multicodec.RAW]: require('./raw'),
+  [multicodec.DAG_CBOR]: require('./dag-cbor'),
+  [multicodec.IDENTITY]: require('./identity')
 }
 
 /**
  * @type {Resolve}
  */
-function resolve (cid, name, path, toResolve, depth, ipld, options) {
-  const resolver = resolvers[cid.codec]
+function resolve (cid, name, path, toResolve, depth, blockService, options) {
+  const resolver = resolvers[cid.code]
 
   if (!resolver) {
-    throw errCode(new Error(`No resolver for codec ${cid.codec}`), 'ERR_NO_RESOLVER')
+    // @ts-ignore - TODO vmx 2021-03-05: Add proper typing
+    throw errCode(new Error(`No resolver for codec ${multicodec.getName(cid.code)}`), 'ERR_NO_RESOLVER')
   }
 
-  return resolver(cid, name, path, toResolve, resolve, depth, ipld, options)
+  return resolver(cid, name, path, toResolve, resolve, depth, blockService, options)
 }
 
 module.exports = resolve

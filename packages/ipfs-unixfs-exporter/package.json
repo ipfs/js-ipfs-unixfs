@@ -35,7 +35,7 @@
     "@types/mocha": "^8.2.1",
     "@types/sinon": "^9.0.10",
     "abort-controller": "^3.0.0",
-    "aegir": "^30.3.0",
+    "aegir": "^31.0.1",
     "detect-node": "^2.0.4",
     "ipfs-core-types": "^0.3.0",
     "ipfs-unixfs-importer": "^6.0.1",

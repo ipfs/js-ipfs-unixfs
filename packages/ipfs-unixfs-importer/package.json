@@ -33,7 +33,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^30.3.0",
+    "aegir": "^31.0.3",
     "ipld": "^0.28.0",
     "ipld-in-memory": "^7.0.0",
     "it-buffer-stream": "^2.0.0",

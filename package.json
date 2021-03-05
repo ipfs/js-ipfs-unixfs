@@ -17,7 +17,7 @@
     "update-contributors": "aegir release --lint=false --test=false --bump=false --build=false --changelog=false --commit=false --tag=false --push=false --ghrelease=false --docs=false --publish=false"
   },
   "devDependencies": {
-    "aegir": "^30.3.0",
+    "aegir": "^31.0.4",
     "lerna": "^3.22.1"
   },
   "repository": {

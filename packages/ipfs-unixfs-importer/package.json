@@ -47,7 +47,7 @@
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^3.0.1",
-    "ipld-dag-pb": "^0.21.0",
+    "ipld-dag-pb": "^0.22.1",
     "it-all": "^1.0.5",
     "it-batch": "^1.0.8",
     "it-first": "^1.0.6",

@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/mocha": "^8.2.1",
     "aegir": "^30.3.0",
-    "ipld": "^0.28.0",
+    "ipld": "^0.29.0",
     "ipld-in-memory": "^7.0.0",
     "it-buffer-stream": "^2.0.0",
     "multicodec": "^2.1.0",

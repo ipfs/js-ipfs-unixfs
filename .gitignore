@@ -6,7 +6,6 @@ test/repo-tests*
 **/bundle.js
 package-lock.json
 tsconfig-types.aegir.json
-tsconfig.json.backup
 
 # Logs
 logs

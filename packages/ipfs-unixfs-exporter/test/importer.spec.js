@@ -13,7 +13,7 @@ const inMemory = require('ipld-in-memory')
 const { UnixFS } = require('ipfs-unixfs')
 const collectLeafCids = require('./helpers/collect-leaf-cids')
 // @ts-ignore
-const loadFixture = require('aegir/fixtures')
+const loadFixture = require('aegir/utils/fixtures')
 // @ts-ignore
 const isNode = require('detect-node')
 /** @type {Uint8Array} */

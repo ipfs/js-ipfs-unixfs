@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "JS implementation of the IPFS UnixFS",
   "scripts": {
-    "postinstall": "rm -rf package-lock.json packages/*/package-lock.json",
     "reset": "lerna run clean && rimraf packages/*/node_modules node_modules",
     "test": "lerna run test",
     "coverage": "lerna run coverage",
@@ -17,7 +16,6 @@
     "update-contributors": "aegir release --lint=false --test=false --bump=false --build=false --changelog=false --commit=false --tag=false --push=false --ghrelease=false --docs=false --publish=false"
   },
   "devDependencies": {
-    "aegir": "^30.3.0",
     "lerna": "^3.22.1"
   },
   "repository": {

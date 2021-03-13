@@ -8,7 +8,7 @@ const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
 // @ts-ignore
-const loadFixture = require('aegir/fixtures')
+const loadFixture = require('aegir/utils/fixtures')
 // @ts-ignore
 const isNode = require('detect-node')
 const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')

@@ -5,7 +5,7 @@ const { expect } = require('aegir/utils/chai')
 
 /** @type {(path: string) => Uint8Array} */
 // @ts-ignore
-const loadFixture = require('aegir/fixtures')
+const loadFixture = require('aegir/utils/fixtures')
 
 const { UnixFS } = require('../src')
 

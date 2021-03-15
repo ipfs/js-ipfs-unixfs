@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@4.0.1...ipfs-unixfs-exporter@5.0.0) (2021-03-15)
+
+
+### chore
+
+* declare interface types in .d.ts file ([#122](https://github.com/ipfs/js-ipfs-unixfs/issues/122)) ([eaa8449](https://github.com/ipfs/js-ipfs-unixfs/commit/eaa8449c10abed9d9a378bee544b4ff501666c4b))
+
+
+### BREAKING CHANGES
+
+* switches to named exports
+
+
+
+
+
 ## [4.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@4.0.0...ipfs-unixfs-exporter@4.0.1) (2021-02-23)
 
 

@@ -7,8 +7,8 @@ const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
 const all = require('it-all')
-const importer = require('ipfs-unixfs-importer')
-const exporter = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
+const { exporter } = require('../src')
 const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
@@ -16,9 +16,9 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
-  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   let block
 
   before(async () => {

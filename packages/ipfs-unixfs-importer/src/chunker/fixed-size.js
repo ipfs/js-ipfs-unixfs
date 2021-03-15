@@ -4,7 +4,7 @@
 const BufferList = require('bl/BufferList')
 
 /**
- * @type {import('./').Chunker}
+ * @type {import('../types').Chunker}
  */
 module.exports = async function * fixedSizeChunker (source, options) {
   let bl = new BufferList()

@@ -25,8 +25,8 @@ async function hamtHashFn (buf) {
 }
 
 /**
- * @typedef {import('../').UserImporterOptions} UserImporterOptions
- * @typedef {import('../').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').UserImporterOptions} UserImporterOptions
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
  */
 
 /**
@@ -38,7 +38,6 @@ const defaultOptions = {
   rawLeaves: false,
   onlyHash: false,
   reduceSingleLeafToSelf: true,
-  codec: 'dag-pb',
   hashAlg: 'sha2-256',
   leafType: 'file', // 'raw'
   cidVersion: 0,

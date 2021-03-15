@@ -3,8 +3,8 @@
 const errCode = require('err-code')
 
 /**
- * @typedef {import('../').ImporterOptions} ImporterOptions
- * @typedef {(source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>} Chunker
+ * @typedef {import('../types').ImporterOptions} ImporterOptions
+ * @typedef {import('../types').Chunker} Chunker
  */
 
 /**
@@ -16,10 +16,9 @@ const chunkers = {
 }
 
 /**
- *
- * @param {import('../').ChunkerType} type
+ * @param {import('../types').ChunkerType} type
  * @param {AsyncIterable<Uint8Array>} source
- * @param {import('../').ImporterOptions} options
+ * @param {import('../types').ImporterOptions} options
  */
 module.exports = (type, source, options) => {
   const chunker = chunkers[type]

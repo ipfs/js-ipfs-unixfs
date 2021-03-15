@@ -4,7 +4,11 @@ const CID = require('cids')
 const errCode = require('err-code')
 
 /**
- * @type {import('./').Resolver}
+ * @typedef {import('../types').Resolver} Resolver
+ */
+
+/**
+ * @type {Resolver}
  */
 const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
   const object = await ipld.get(cid, options)
@@ -29,6 +33,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
             cid,
             node: block,
             depth,
+            size: block.length,
             content: async function * () {
               yield object
             }
@@ -57,6 +62,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       cid,
       node: block,
       depth,
+      size: block.length,
       content: async function * () {
         yield object
       }

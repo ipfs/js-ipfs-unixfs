@@ -1,13 +1,16 @@
 'use strict'
 
 /**
- * @typedef {import('../../../').ExporterOptions} ExporterOptions
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- * @typedef {import('../../').Resolve} Resolve
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
- * @typedef {import('../').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
- *
- * @type {import('../').UnixfsV1Resolver}
+ * @typedef {import('ipld')} IPLD
+ * @typedef {import('../../../types').ExporterOptions} ExporterOptions
+ * @typedef {import('../../../types').Resolve} Resolve
+ * @typedef {import('../../../types').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
+ * @typedef {import('../../../types').UnixfsV1Resolver} UnixfsV1Resolver
+ */
+
+/**
+ * @type {UnixfsV1Resolver}
  */
 const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
   /**

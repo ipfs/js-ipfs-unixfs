@@ -3,7 +3,6 @@
 
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/trickle')
-const all = require('it-all')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 
 /**
@@ -38,29 +37,29 @@ const options = {
 describe('builder: trickle', () => {
   it('reduces one value into itself', async () => {
     // @ts-ignore
-    const result = await all(builder(asAsyncIterable([1]), reduce, options))
+    const result = await builder(asAsyncIterable([1]), reduce, options)
 
-    expect(result).to.deep.equal([1])
+    expect(result).to.deep.equal(1)
   })
 
   it('reduces 3 values into parent', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(3), reduce, options))
+    const result = await builder(createValues(3), reduce, options)
 
-    expect(result).to.deep.equal([{
+    expect(result).to.deep.equal({
       children: [
         0,
         1,
         2
       ]
-    }])
+    })
   })
 
   it('reduces 6 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(6), reduce, options))
+    const result = await builder(createValues(6), reduce, options)
 
-    expect(result).to.deep.equal([{
+    expect(result).to.deep.equal({
       children: [
         0,
         1,
@@ -73,14 +72,14 @@ describe('builder: trickle', () => {
           ]
         }
       ]
-    }])
+    })
   })
 
   it('reduces 9 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(9), reduce, options))
+    const result = await builder(createValues(9), reduce, options)
 
-    expect(result).to.deep.equal([{
+    expect(result).to.deep.equal({
       children: [
         0,
         1,
@@ -100,14 +99,14 @@ describe('builder: trickle', () => {
           ]
         }
       ]
-    }])
+    })
   })
 
   it('reduces 12 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(12), reduce, options))
+    const result = await builder(createValues(12), reduce, options)
 
-    expect(result).to.deep.equal([{
+    expect(result).to.deep.equal({
       children: [
         0,
         1,
@@ -134,14 +133,14 @@ describe('builder: trickle', () => {
           ]
         }
       ]
-    }])
+    })
   })
 
   it('reduces 21 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(21), reduce, options))
+    const result = await builder(createValues(21), reduce, options)
 
-    expect(result).to.deep.equal([{
+    expect(result).to.deep.equal({
       children: [
         0,
         1,
@@ -189,14 +188,14 @@ describe('builder: trickle', () => {
           ]
         }
       ]
-    }])
+    })
   })
 
   it('reduces 68 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(68), reduce, options))
+    const result = await builder(createValues(68), reduce, options)
 
-    expect(result).to.deep.equal([
+    expect(result).to.deep.equal(
       {
         children: [
           0,
@@ -357,14 +356,14 @@ describe('builder: trickle', () => {
           }
         ]
       }
-    ])
+    )
   })
 
   it('reduces 93 values correctly', async () => {
     // @ts-ignore
-    const result = await all(builder(createValues(93), reduce, options))
+    const result = await builder(createValues(93), reduce, options)
 
-    expect(result).to.deep.equal([
+    expect(result).to.deep.equal(
       {
         children: [
           0,
@@ -582,6 +581,6 @@ describe('builder: trickle', () => {
           }
         ]
       }
-    ])
+    )
   })
 })

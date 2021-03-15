@@ -11,6 +11,10 @@ const errcode = require('err-code')
  * @property {number | null} [nsecs]
  */
 
+/**
+ * @typedef {null | undefined | { secs: number, nsecs?: number} |  { Seconds: number, FractionalNanoseconds?: number} | Mtime | [number, number] | Date} MtimeLike
+ */
+
 const types = [
   'raw',
   'directory',
@@ -44,7 +48,7 @@ function parseMode (mode) {
 }
 
 /**
- * @param {null | undefined | { secs: number, nsecs?: number} |  { Seconds: number, FractionalNanoseconds?: number} | Mtime | [number, number] | Date} mtime
+ * @param {MtimeLike} mtime
  * @returns {Mtime | undefined}
  */
 function parseMtime (mtime) {
@@ -161,7 +165,7 @@ class Data {
    * @param {number[]} [options.blockSizes]
    * @param {number} [options.hashType]
    * @param {number} [options.fanout]
-   * @param {Mtime | Date | null} [options.mtime]
+   * @param {MtimeLike | null} [options.mtime]
    * @param {number | string} [options.mode]
    */
   constructor (options = {
@@ -328,4 +332,8 @@ class Data {
   }
 }
 
-module.exports = Data
+module.exports = {
+  UnixFS: Data,
+  parseMode,
+  parseMtime
+}

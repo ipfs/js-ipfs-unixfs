@@ -1,10 +1,13 @@
 'use strict'
 
 /**
- * @typedef {import('../../../').ExporterOptions} ExporterOptions
- * @typedef {import('../').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
- *
- * @type {import('../').UnixfsV1Resolver}
+ * @typedef {import('../../../types').ExporterOptions} ExporterOptions
+ * @typedef {import('../../../types').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
+ * @typedef {import('../../../types').UnixfsV1Resolver} UnixfsV1Resolver
+ */
+
+/**
+ * @type {UnixfsV1Resolver}
  */
 const directoryContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
   /**

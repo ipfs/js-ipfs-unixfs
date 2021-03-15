@@ -6,7 +6,7 @@ const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
-const importer = require('ipfs-unixfs-importer')
+const { importer } = require('ipfs-unixfs-importer')
 const all = require('it-all')
 const last = require('it-last')
 const blockApi = require('./helpers/block')
@@ -15,12 +15,12 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 
 const ONE_MEG = Math.pow(1024, 2)
 
-const exporter = require('./../src')
+const { exporter, walkPath } = require('./../src')
 
 describe('exporter subtree', () => {
-  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   let block
 
   before(async () => {
@@ -133,7 +133,7 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await all(exporter.path(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld))
+    const exported = await all(walkPath(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld))
 
     expect(exported.length).to.equal(4)
     expect(exported[0].path).to.equal(imported.cid.toBaseEncodedString())

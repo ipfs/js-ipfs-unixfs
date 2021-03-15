@@ -2,7 +2,6 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
@@ -12,9 +11,9 @@ const blockApi = require('./helpers/block')
 const defaultOptions = require('../src/options')
 
 describe('builder: onlyHash', () => {
-  /** @type {import('./helpers/block').IPLD} */
+  /** @type {IPLD} */
   let ipld
-  /** @type {import('../src').BlockAPI} */
+  /** @type {import('../src/types').BlockAPI} */
   let block
 
   before(async () => {

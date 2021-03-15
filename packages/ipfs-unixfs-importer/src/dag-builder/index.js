@@ -5,22 +5,11 @@ const fileBuilder = require('./file')
 const errCode = require('err-code')
 
 /**
- * @typedef {import('../').BlockAPI} BlockAPI
- * @typedef {import('../').ImporterOptions} ImporterOptions
- * @typedef {import('../').ImportResult} ImportResult
- * @typedef {import('../').PartialImportResult} PartialImportResult
- * @typedef {import('../').ImportCandidate} ImportCandidate
- * @typedef {import('../').File} File
- * @typedef {import('../').Directory} Directory
- */
-
-/**
- * @template T
- * @typedef {(item: T, block: BlockAPI, options: ImporterOptions) => Promise<PartialImportResult>} UnixFSV1DagBuilder
- */
-
-/**
- * @typedef {(source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<PartialImportResult>>} DAGBuilder
+ * @typedef {import('../types').File} File
+ * @typedef {import('../types').Directory} Directory
+ * @typedef {import('../types').DAGBuilder} DAGBuilder
+ * @typedef {import('../types').Chunker} Chunker
+ * @typedef {import('../types').ChunkValidator} ChunkValidator
  */
 
 /**
@@ -74,7 +63,7 @@ async function * dagBuilder (source, block, options) {
       }())
 
       /**
-       * @type {import('../chunker').Chunker}
+       * @type {Chunker}
        */
       let chunker
 
@@ -87,7 +76,7 @@ async function * dagBuilder (source, block, options) {
       }
 
       /**
-       * @type {import('./validate-chunks').ChunkValidator}
+       * @type {ChunkValidator}
        */
       let chunkValidator
 

@@ -6,66 +6,16 @@ const resolve = require('./resolvers')
 const last = require('it-last')
 
 /**
- * @typedef {import('ipfs-unixfs')} UnixFS
+ * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
  * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- * @typedef {import('ipfs-core-types/src/ipld').IPLD} IPLD
- *
- * @typedef {object} UnixFSFile
- * @property {'file'} type
- * @property {string} name
- * @property {string} path
- * @property {CID} cid
- * @property {number} depth
- * @property {UnixFS} unixfs
- * @property {DAGNode} node
- * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
- *
- * @typedef {object} UnixFSDirectory
- * @property {'directory'} type
- * @property {string} name
- * @property {string} path
- * @property {CID} cid
- * @property {number} depth
- * @property {UnixFS} unixfs
- * @property {DAGNode} node
- * @property {(options?: ExporterOptions) => AsyncIterable<UnixFSEntry>} content
- *
- * @typedef {object} ObjectNode
- * @property {'object'} type
- * @property {string} name
- * @property {string} path
- * @property {CID} cid
- * @property {number} depth
- * @property {Uint8Array} node
- * @property {(options?: ExporterOptions) => AsyncIterable<any>} content
- *
- * @typedef {object} RawNode
- * @property {'raw'} type
- * @property {string} name
- * @property {string} path
- * @property {CID} cid
- * @property {number} depth
- * @property {Uint8Array} node
- * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
- *
- * @typedef {object} IdentityNode
- * @property {'identity'} type
- * @property {string} name
- * @property {string} path
- * @property {CID} cid
- * @property {number} depth
- * @property {Uint8Array} node
- * @property {(options?: ExporterOptions) => AsyncIterable<Uint8Array>} content
- *
- * @typedef {UnixFSFile | UnixFSDirectory | ObjectNode | RawNode | IdentityNode} UnixFSEntry
- */
-
-/**
- * @typedef {object} ExporterOptions
- * @property {number} [offset=0]
- * @property {number} [length]
- * @property {AbortSignal} [signal]
- * @property {number} [timeout]
+ * @typedef {import('ipld')} IPLD
+ * @typedef {import('./types').ExporterOptions} ExporterOptions
+ * @typedef {import('./types').UnixFSFile} UnixFSFile
+ * @typedef {import('./types').UnixFSDirectory} UnixFSDirectory
+ * @typedef {import('./types').ObjectNode} ObjectNode
+ * @typedef {import('./types').RawNode} RawNode
+ * @typedef {import('./types').IdentityNode} IdentityNode
+ * @typedef {import('./types').UnixFSEntry} UnixFSEntry
  */
 
 const toPathComponents = (path = '') => {
@@ -115,7 +65,7 @@ const cidAndRest = (path) => {
  * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
-const walkPath = async function * (path, ipld, options = {}) {
+async function * walkPath (path, ipld, options = {}) {
   let {
     cid,
     toResolve
@@ -152,7 +102,7 @@ const walkPath = async function * (path, ipld, options = {}) {
  * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
-const exporter = async (path, ipld, options = {}) => {
+async function exporter (path, ipld, options = {}) {
   const result = await last(walkPath(path, ipld, options))
 
   if (!result) {
@@ -167,7 +117,7 @@ const exporter = async (path, ipld, options = {}) => {
  * @param {IPLD} ipld
  * @param {ExporterOptions} [options]
  */
-const recursive = async function * (path, ipld, options = {}) {
+async function * recursive (path, ipld, options = {}) {
   const node = await exporter(path, ipld, options)
 
   if (!node) {
@@ -202,7 +152,8 @@ const recursive = async function * (path, ipld, options = {}) {
   }
 }
 
-exporter.path = walkPath
-exporter.recursive = recursive
-
-module.exports = exporter
+module.exports = {
+  exporter,
+  walkPath,
+  recursive
+}

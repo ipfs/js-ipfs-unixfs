@@ -18,7 +18,7 @@
 - [Usage](#usage)
   - [Example](#example)
     - [API](#api)
-    - [const import = importer(source, ipld [, options])](#const-import--importersource-ipld--options)
+    - [const stream = importer(source, ipld [, options])](#const-stream--importersource-ipld--options)
 - [Overriding internals](#overriding-internals)
 - [Contribute](#contribute)
 - [License](#license)
@@ -45,7 +45,7 @@ Let's create a little directory to import:
 And write the importing logic:
 
 ```js
-const importer = require('ipfs-unixfs-importer')
+const { importer } = require('ipfs-unixfs-importer')
 
 // Import path /tmp/foo/bar
 const source = [{
@@ -91,12 +91,12 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 #### API
 
 ```js
-const importer = require('ipfs-unixfs-importer')
+const { importer } = require('ipfs-unixfs-importer')
 ```
 
-#### const import = importer(source, ipld [, options])
+#### const stream = importer(source, ipld [, options])
 
-The `import` function returns an async iterator takes a source async iterator that yields objects of the form:
+The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
 
 ```js
 {
@@ -107,9 +107,9 @@ The `import` function returns an async iterator takes a source async iterator th
 }
 ```
 
-`import` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
+`stream` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-`ipld` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver) or the [`js-ipfs` `dag api`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md)
+`ipld` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver)
 
 The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
 

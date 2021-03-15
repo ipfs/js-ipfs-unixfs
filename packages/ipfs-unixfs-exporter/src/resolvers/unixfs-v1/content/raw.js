@@ -4,9 +4,12 @@ const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 
 /**
- * @typedef {import('../../../').ExporterOptions} ExporterOptions
- *
- * @type {import('../').UnixfsV1Resolver}
+ * @typedef {import('../../../types').ExporterOptions} ExporterOptions
+ * @typedef {import('../../../types').UnixfsV1Resolver} UnixfsV1Resolver
+ */
+
+/**
+ * @type {UnixfsV1Resolver}
  */
 const rawContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
   /**

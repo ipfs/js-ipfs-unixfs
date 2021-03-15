@@ -1,17 +1,17 @@
 'use strict'
 
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../utils/persist')
 const {
   DAGNode
 } = require('ipld-dag-pb')
 
 /**
- * @typedef {import('../').Directory} Directory
+ * @typedef {import('../types').Directory} Directory
  */
 
 /**
- * @type {import('./').UnixFSV1DagBuilder<Directory>}
+ * @type {import('../types').UnixFSV1DagBuilder<Directory>}
  */
 const dirBuilder = async (item, block, options) => {
   const unixfs = new UnixFS({

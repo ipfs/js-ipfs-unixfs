@@ -6,14 +6,14 @@ const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
 const all = require('it-all')
 const last = require('it-last')
 const randomBytes = require('it-buffer-stream')
-const exporter = require('../src')
-const importer = require('ipfs-unixfs-importer')
+const { exporter, walkPath } = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
 const {
   DAGLink,
   DAGNode
@@ -30,9 +30,9 @@ const SHARD_SPLIT_THRESHOLD = 10
 describe('exporter sharded', function () {
   this.timeout(30000)
 
-  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   let block
 
   /**
@@ -206,7 +206,7 @@ describe('exporter sharded', function () {
 
   it('uses .path to extract all intermediate entries from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(exporter.path(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld))
 
     expect(exported.length).to.equal(5)
 
@@ -223,7 +223,7 @@ describe('exporter sharded', function () {
 
   it('uses .path to extract all intermediate entries from the sharded directory as well as the contents', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(exporter.path(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld))
 
     expect(exported.length).to.equal(4)
 

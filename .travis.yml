@@ -46,7 +46,6 @@ jobs:
     - stage: check
       name: linting
       script:
-        - npm --version
         - npm run lint
 
     - stage: check

@@ -3,8 +3,8 @@
 const all = require('it-all')
 
 /**
- * @type {import('./').DAGBuilder}
+ * @type {import('../../types').FileDAGBuilder}
  */
-module.exports = async function * (source, reduce) {
-  yield await reduce(await all(source))
+module.exports = async function (source, reduce) {
+  return reduce(await all(source))
 }

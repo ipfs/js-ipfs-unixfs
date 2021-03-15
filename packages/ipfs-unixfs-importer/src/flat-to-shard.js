@@ -5,7 +5,7 @@ const DirFlat = require('./dir-flat')
 
 /**
  * @typedef {import('./dir')} Dir
- * @typedef {import('./').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
  */
 
 /**

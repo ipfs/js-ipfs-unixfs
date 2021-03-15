@@ -4,16 +4,16 @@ const {
   DAGLink,
   DAGNode
 } = require('ipld-dag-pb')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
 const { createHAMT, Bucket } = require('hamt-sharding')
 
 /**
- * @typedef {import('./').ImporterOptions} ImporterOptions
- * @typedef {import('./').ImportResult} ImportResult
- * @typedef {import('./').PartialImportResult} PartialImportResult
- * @typedef {import('./').BlockAPI} BlockAPI
+ * @typedef {import('./types').ImporterOptions} ImporterOptions
+ * @typedef {import('./types').ImportResult} ImportResult
+ * @typedef {import('./types').InProgressImportResult} InProgressImportResult
+ * @typedef {import('./types').BlockAPI} BlockAPI
  */
 
 /**
@@ -28,7 +28,7 @@ class DirSharded extends Dir {
   constructor (props, options) {
     super(props, options)
 
-    /** @type {Bucket<PartialImportResult | Dir>} */
+    /** @type {Bucket<InProgressImportResult | Dir>} */
     this._bucket = createHAMT({
       hashFn: options.hamtHashFn,
       bits: options.hamtBucketBits
@@ -37,7 +37,7 @@ class DirSharded extends Dir {
 
   /**
    * @param {string} name
-   * @param {PartialImportResult | Dir} value
+   * @param {InProgressImportResult | Dir} value
    */
   async put (name, value) {
     await this._bucket.put(name, value)

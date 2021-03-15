@@ -8,14 +8,14 @@ const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
 // @ts-ignore
-const loadFixture = require('aegir/fixtures')
+const loadFixture = require('aegir/utils/fixtures')
 // @ts-ignore
 const isNode = require('detect-node')
 const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
 const blockApi = require('./helpers/block')
 
-const importer = require('ipfs-unixfs-importer')
-const exporter = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
+const { exporter } = require('../src')
 
 const strategies = [
   'flat',
@@ -30,9 +30,9 @@ describe('import and export', function () {
     const importerOptions = { strategy: strategy }
 
     describe('using builder: ' + strategy, () => {
-      /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+      /** @type {import('ipld')} */
       let ipld
-      /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+      /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
       let block
 
       before(async () => {

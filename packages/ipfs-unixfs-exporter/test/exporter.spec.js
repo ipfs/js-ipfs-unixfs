@@ -6,7 +6,7 @@ const { expect } = require('aegir/utils/chai')
 const IPLD = require('ipld')
 // @ts-ignore
 const inMemory = require('ipld-in-memory')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const CID = require('cids')
 const {
   DAGNode,
@@ -14,8 +14,8 @@ const {
 } = require('ipld-dag-pb')
 const mh = require('multihashing-async').multihash
 const mc = require('multicodec')
-const exporter = require('../src')
-const importer = require('ipfs-unixfs-importer')
+const { exporter, recursive } = require('../src')
+const { importer } = require('ipfs-unixfs-importer')
 const all = require('it-all')
 const last = require('it-last')
 const first = require('it-first')
@@ -29,9 +29,9 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter', () => {
-  /** @type {import('ipfs-core-types/src/ipld').IPLD} */
+  /** @type {import('ipld')} */
   let ipld
-  /** @type {import('ipfs-unixfs-importer').BlockAPI} */
+  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   let block
   /** @type {Uint8Array} */
   let bigFile
@@ -134,7 +134,7 @@ describe('exporter', () => {
   }
 
   /**
-   * @param {import('ipfs-core-types/src/ipld').IPLD} ipld
+   * @param {import('ipld')} ipld
    * @param {'file' | 'directory' | 'raw'} type
    * @param {Uint8Array | ArrayLike<number> | undefined} data
    * @param {{ node: DAGNode, cid: CID }[]} children
@@ -1046,7 +1046,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await all(exporter.recursive(dir.cid, ipld))
+    const exported = await all(recursive(dir.cid, ipld))
     const dirCid = dir.cid.toBaseEncodedString()
 
     expect(exported[0].depth).to.equal(0)

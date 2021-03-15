@@ -1,29 +1,26 @@
 'use strict'
 
 const errCode = require('err-code')
-const UnixFS = require('ipfs-unixfs')
+const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
 const {
   DAGNode,
   DAGLink
 } = require('ipld-dag-pb')
-const all = require('it-all')
 const parallelBatch = require('it-parallel-batch')
 const mh = require('multihashing-async').multihash
 
 /**
- * @typedef {import('cids')} CID
- * @typedef {import('../../').File} File
- * @typedef {import('../../').BlockAPI} BlockAPI
- * @typedef {import('../../').ImporterOptions} ImporterOptions
- * @typedef {import('../../').PartialImportResult} PartialImportResult
- *
- * @typedef {(leaves: PartialImportResult[]) => Promise<PartialImportResult>} Reducer
- * @typedef {(source: AsyncIterable<PartialImportResult>, reducer: Reducer, options: ImporterOptions) => AsyncIterable<PartialImportResult>} DAGBuilder
+ * @typedef {import('../../types').BlockAPI} BlockAPI
+ * @typedef {import('../../types').File} File
+ * @typedef {import('../../types').ImporterOptions} ImporterOptions
+ * @typedef {import('../../types').Reducer} Reducer
+ * @typedef {import('../../types').DAGBuilder} DAGBuilder
+ * @typedef {import('../../types').FileDAGBuilder} FileDAGBuilder
  */
 
 /**
- * @type {{ [key: string]: DAGBuilder}}
+ * @type {{ [key: string]: FileDAGBuilder}}
  */
 const dagBuilders = {
   flat: require('./flat'),
@@ -166,22 +163,16 @@ const reduce = (file, block, options) => {
 }
 
 /**
- * @type {import('../').UnixFSV1DagBuilder<File>}
+ * @type {import('../../types').UnixFSV1DagBuilder<File>}
  */
-const fileBuilder = async (file, block, options) => {
+function fileBuilder (file, block, options) {
   const dagBuilder = dagBuilders[options.strategy]
 
   if (!dagBuilder) {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')
   }
 
-  const roots = await all(dagBuilder(buildFileBatch(file, block, options), reduce(file, block, options), options))
-
-  if (roots.length > 1) {
-    throw errCode(new Error('expected a maximum of 1 roots and got ' + roots.length), 'ETOOMANYROOTS')
-  }
-
-  return roots[0]
+  return dagBuilder(buildFileBatch(file, block, options), reduce(file, block, options), options)
 }
 
 module.exports = fileBuilder

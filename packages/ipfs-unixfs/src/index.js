@@ -8,11 +8,11 @@ const errcode = require('err-code')
 /**
  * @typedef {object} Mtime
  * @property {number} secs
- * @property {number | null} [nsecs]
+ * @property {number} [nsecs]
  */
 
 /**
- * @typedef {null | undefined | { secs: number, nsecs?: number} |  { Seconds: number, FractionalNanoseconds?: number} | Mtime | [number, number] | Date} MtimeLike
+ * @typedef {null | undefined | { secs: number, nsecs?: number} | { Seconds: number, FractionalNanoseconds?: number} | Mtime | [number, number] | Date} MtimeLike
  */
 
 const types = [
@@ -40,11 +40,19 @@ function parseMode (mode) {
     return undefined
   }
 
-  if (typeof mode === 'string') {
-    mode = parseInt(mode, 8)
+  if (typeof mode === 'number') {
+    return mode & 0xFFF
   }
 
-  return mode & 0xFFF
+  mode = mode.toString()
+
+  if (mode.substring(0, 1) === '0') {
+    // octal string
+    return parseInt(mode, 8) & 0xFFF
+  }
+
+  // decimal string
+  return parseInt(mode, 10) & 0xFFF
 }
 
 /**

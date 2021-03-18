@@ -1,4 +1,4 @@
-import { UnixFS, Mtime, MtimeLike } from 'ipfs-unixfs'
+import { UnixFS, Mtime } from 'ipfs-unixfs'
 import CID, { CIDVersion } from 'cids'
 import { HashName } from 'multihashes'
 import Block from 'ipld-block'
@@ -6,21 +6,21 @@ import { CodecName } from 'multicodec'
 
 interface ImportCandidate {
   path?: string
-  content?: AsyncIterable<Uint8Array> | Iterable<Uint8Array> | Uint8Array | ArrayLike<number> | string
-  mtime?: MtimeLike
+  content?: AsyncIterable<Uint8Array>
+  mtime?: Mtime
   mode?: number
 }
 
 interface File {
   content: AsyncIterable<Uint8Array>
   path?: string
-  mtime?: MtimeLike
+  mtime?: Mtime
   mode?: number
 }
 
 interface Directory {
   path?: string
-  mtime?: MtimeLike
+  mtime?: Mtime
   mode?: number
 }
 

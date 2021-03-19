@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@7.0.0...ipfs-unixfs-importer@7.0.1) (2021-03-19)
+
+**Note:** Version bump only for package ipfs-unixfs-importer
+
+
+
+
+
 # [7.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@6.0.1...ipfs-unixfs-importer@7.0.0) (2021-03-15)
 
 

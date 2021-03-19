@@ -379,9 +379,9 @@ strategies.forEach((strategy) => {
 
     it('fails on bad content', async () => {
       try {
-        // @ts-expect-error bad content
         await all(importer([{
           path: '200Bytes.txt',
+          // @ts-expect-error bad content
           content: 7
         }], block, options))
         throw new Error('No error was thrown')
@@ -392,9 +392,9 @@ strategies.forEach((strategy) => {
 
     it('fails on an iterator that yields bad content', async () => {
       try {
-        // @ts-expect-error bad content
         await all(importer([{
           path: '200Bytes.txt',
+          // @ts-expect-error bad content
           content: {
             [Symbol.iterator]: function * () {
               yield 7

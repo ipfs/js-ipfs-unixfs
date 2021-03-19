@@ -211,6 +211,68 @@ describe('unixfs-format', () => {
     expect(unmarshaled).to.have.deep.property('mtime', mtime)
   })
 
+  it.skip('sets mtime to 0 as BigInt', () => {
+    const mtime = {
+      secs: 0,
+      nsecs: 0
+    }
+    const data = new UnixFS({
+      type: 'file'
+      // TODO: https://github.com/ipfs/aegir/issues/487
+      // mtime: BigInt(0)
+    })
+
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(unmarshaled).to.have.deep.property('mtime', mtime)
+  })
+
+  it.skip('sets mtime to 0 as BigInt literal', () => {
+    const mtime = {
+      secs: 0,
+      nsecs: 0
+    }
+    const data = new UnixFS({
+      type: 'file'
+      // TODO: https://github.com/ipfs/aegir/issues/487
+      // mtime: 0n
+    })
+
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(unmarshaled).to.have.deep.property('mtime', mtime)
+  })
+
+  it('sets mtime to 0 as Date', () => {
+    const mtime = {
+      secs: 0,
+      nsecs: 0
+    }
+    const data = new UnixFS({
+      type: 'file',
+      mtime: new Date(0)
+    })
+
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(unmarshaled).to.have.deep.property('mtime', mtime)
+  })
+
+  it('sets mtime to 0 as hrtime', () => {
+    const mtime = {
+      secs: 0,
+      nsecs: 0
+    }
+    const data = new UnixFS({
+      type: 'file',
+      mtime: [0, 0]
+    })
+
+    const marshaled = data.marshal()
+    const unmarshaled = UnixFS.unmarshal(marshaled)
+    expect(unmarshaled).to.have.deep.property('mtime', mtime)
+  })
+
   it('survives undefined mtime', () => {
     const entry = new UnixFS({
       type: 'file',

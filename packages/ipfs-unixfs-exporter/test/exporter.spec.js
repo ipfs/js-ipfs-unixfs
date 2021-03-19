@@ -25,6 +25,7 @@ const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -79,7 +80,7 @@ describe('exporter', () => {
   async function addTestFile ({ file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }) {
     const result = await all(importer([{
       path,
-      content: file
+      content: asAsyncIterable(file)
     }], block, {
       strategy,
       rawLeaves,
@@ -195,7 +196,7 @@ describe('exporter', () => {
 
     const files = await all(importer([{
       path: filePath,
-      content: smallFile
+      content: asAsyncIterable(smallFile)
     }], block))
 
     const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
@@ -211,7 +212,7 @@ describe('exporter', () => {
 
     const files = await all(importer([{
       path: filePath,
-      content: smallFile
+      content: asAsyncIterable(smallFile)
     }], block))
 
     const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
@@ -613,7 +614,7 @@ describe('exporter', () => {
   it('exports a large file > 1mb imported with raw leaves', async () => {
     const imported = await first(importer([{
       path: '1.2MiB.txt',
-      content: bigFile
+      content: asAsyncIterable(bigFile)
     }], block, {
       rawLeaves: true
     }))
@@ -890,7 +891,7 @@ describe('exporter', () => {
 
     const imported = await first(importer([{
       path: '200Bytes.txt',
-      content: bigFile
+      content: asAsyncIterable(bigFile)
     }], block, {
       rawLeaves: true
     }))
@@ -915,7 +916,7 @@ describe('exporter', () => {
   it('exports a raw leaf', async () => {
     const imported = await first(importer([{
       path: '200Bytes.txt',
-      content: smallFile
+      content: asAsyncIterable(smallFile)
     }], block, {
       rawLeaves: true
     }))
@@ -1022,7 +1023,7 @@ describe('exporter', () => {
   it('exports a node with depth', async () => {
     const imported = await all(importer([{
       path: '/foo/bar/baz.txt',
-      content: uint8ArrayFromString('hello world')
+      content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }], block))
 
     const exported = await exporter(imported[0].cid, ipld)
@@ -1033,13 +1034,13 @@ describe('exporter', () => {
   it('exports a node recursively with depth', async () => {
     const dir = await last(importer([{
       path: '/foo/bar/baz.txt',
-      content: uint8ArrayFromString('hello world')
+      content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }, {
       path: '/foo/qux.txt',
-      content: uint8ArrayFromString('hello world')
+      content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }, {
       path: '/foo/bar/quux.txt',
-      content: uint8ArrayFromString('hello world')
+      content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }], block))
 
     if (!dir) {

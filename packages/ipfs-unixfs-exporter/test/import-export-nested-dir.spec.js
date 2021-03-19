@@ -13,6 +13,7 @@ const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
@@ -31,16 +32,16 @@ describe('import and export: directory', () => {
 
     const source = [{
       path: 'a/b/c/d/e',
-      content: uint8ArrayFromString('banana')
+      content: asAsyncIterable(uint8ArrayFromString('banana'))
     }, {
       path: 'a/b/c/d/f',
-      content: uint8ArrayFromString('strawberry')
+      content: asAsyncIterable(uint8ArrayFromString('strawberry'))
     }, {
       path: 'a/b/g',
-      content: uint8ArrayFromString('ice')
+      content: asAsyncIterable(uint8ArrayFromString('ice'))
     }, {
       path: 'a/b/h',
-      content: uint8ArrayFromString('cream')
+      content: asAsyncIterable(uint8ArrayFromString('cream'))
     }]
 
     const files = await all(importer(source, block))

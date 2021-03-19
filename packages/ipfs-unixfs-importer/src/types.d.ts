@@ -42,7 +42,7 @@ type Chunker = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => 
 type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
 type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>
 type BufferImporter = (file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type ChunkValidator = (source: AsyncIterable<Uint8Array | string | ArrayLike<number>>, options: ImporterOptions) => AsyncIterable<Uint8Array>
+type ChunkValidator = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
 type UnixFSV1DagBuilder<T> = (item: T, block: BlockAPI, options: ImporterOptions) => Promise<InProgressImportResult>
 type Reducer = (leaves: InProgressImportResult[]) => Promise<InProgressImportResult>
 

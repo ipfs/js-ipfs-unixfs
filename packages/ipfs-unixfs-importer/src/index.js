@@ -11,10 +11,18 @@ const defaultOptions = require('./options')
  * @typedef {import('./types').Directory} Directory
  * @typedef {import('./types').File} File
  * @typedef {import('./types').ImportResult} ImportResult
+ *
+ * @typedef {import('./types').Chunker} Chunker
+ * @typedef {import('./types').DAGBuilder} DAGBuilder
+ * @typedef {import('./types').TreeBuilder} TreeBuilder
+ * @typedef {import('./types').BufferImporter} BufferImporter
+ * @typedef {import('./types').ChunkValidator} ChunkValidator
+ * @typedef {import('./types').Reducer} Reducer
+ * @typedef {import('./types').ProgressHandler} ProgressHandler
  */
 
 /**
- * @param {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>} source
+ * @param {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate> | ImportCandidate} source
  * @param {BlockAPI} block
  * @param {UserImporterOptions} options
  */
@@ -37,7 +45,18 @@ async function * importer (source, block, options = {}) {
     treeBuilder = require('./tree-builder')
   }
 
-  for await (const entry of treeBuilder(parallelBatch(dagBuilder(source, block, opts), opts.fileImportConcurrency), block, opts)) {
+  /** @type {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>} */
+  let candidates
+
+  if (Symbol.asyncIterator in source || Symbol.iterator in source) {
+    // @ts-ignore
+    candidates = source
+  } else {
+    // @ts-ignore
+    candidates = [source]
+  }
+
+  for await (const entry of treeBuilder(parallelBatch(dagBuilder(candidates, block, opts), opts.fileImportConcurrency), block, opts)) {
     yield {
       cid: entry.cid,
       path: entry.path,

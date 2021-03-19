@@ -20,6 +20,7 @@ const {
 } = require('ipld-dag-pb')
 const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 /**
  * @typedef {import('cids')} CID
@@ -49,14 +50,14 @@ describe('exporter sharded', function () {
   const createShardWithFileNames = (numFiles, fileName) => {
     const files = new Array(numFiles).fill(0).map((_, index) => ({
       path: fileName(index),
-      content: Uint8Array.from([0, 1, 2, 3, 4, index])
+      content: asAsyncIterable(Uint8Array.from([0, 1, 2, 3, 4, index]))
     }))
 
     return createShardWithFiles(files)
   }
 
   /**
-   * @param {{ path: string, content: Uint8Array }[] } files
+   * @param {{ path: string, content: AsyncIterable<Uint8Array> }[] } files
    */
   const createShardWithFiles = async (files) => {
     const result = await last(importer(files, block, {
@@ -88,7 +89,7 @@ describe('exporter sharded', function () {
 
     const imported = await all(importer(Object.keys(files).map(path => ({
       path,
-      content: files[path].content
+      content: asAsyncIterable(files[path].content)
     })), block, {
       wrapWithDirectory: true,
       shardSplitThreshold: SHARD_SPLIT_THRESHOLD

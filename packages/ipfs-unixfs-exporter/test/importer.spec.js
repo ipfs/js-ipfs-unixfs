@@ -25,9 +25,10 @@ const first = require('it-first')
 const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayToString = require('uint8arrays/to-string')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 const last = require('it-last')
 const CID = require('cids')
+const { parseMtime } = require('ipfs-unixfs')
 
 /**
  * @typedef {import('ipld')} IPLD
@@ -207,7 +208,7 @@ const strategyOverrides = {
 const checkLeafNodeTypes = async (block, ipld, options, expected) => {
   const file = await first(importer([{
     path: 'foo',
-    content: new Uint8Array(262144 + 5).fill(1)
+    content: asAsyncIterable(new Uint8Array(262144 + 5).fill(1))
   }], block, options))
 
   if (!file) {
@@ -240,7 +241,7 @@ const checkLeafNodeTypes = async (block, ipld, options, expected) => {
 const checkNodeLinks = async (block, ipld, options, expected) => {
   for await (const file of importer([{
     path: 'foo',
-    content: new Uint8Array(100).fill(1)
+    content: asAsyncIterable(new Uint8Array(100).fill(1))
   }], block, options)) {
     const node = await ipld.get(file.cid)
     const meta = UnixFS.unmarshal(node.Data)
@@ -415,7 +416,7 @@ strategies.forEach((strategy) => {
     it('doesn\'t yield anything on empty file', async () => {
       const files = await all(importer([{
         path: 'emptyfile',
-        content: new Uint8Array(0)
+        content: asAsyncIterable(new Uint8Array(0))
       }], block, options))
 
       expect(files.length).to.eql(1)
@@ -427,36 +428,20 @@ strategies.forEach((strategy) => {
     it('supports more than one root', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }, {
         path: '200Bytes.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       expect(files).to.have.lengthOf(2)
-    })
-
-    it('accepts strings as content', async () => {
-      const content = 'I am a string'
-      const res = await all(importer([{
-        path: '200Bytes.txt',
-        content
-      }], block, options))
-
-      const file = await exporter(res[0].cid, ipld)
-
-      if (file.type !== 'file') {
-        throw new Error('Unexpected type')
-      }
-
-      expect(uint8ArrayToString(uint8ArrayConcat(await all(file.content())))).to.equal(content)
     })
 
     it('small file with an escaped slash in the title', async () => {
       const filePath = `small-\\/file-${Math.random()}.txt`
       const files = await all(importer([{
         path: filePath,
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }], block, options))
 
       expect(files.length).to.equal(1)
@@ -467,7 +452,7 @@ strategies.forEach((strategy) => {
       const filePath = `small-[v]-file-${Math.random()}.txt`
       const files = await all(importer([{
         path: filePath,
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }], block, options))
 
       expect(files.length).to.equal(1)
@@ -477,7 +462,7 @@ strategies.forEach((strategy) => {
     it('small file as buffer (smaller than a chunk)', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }], block, options))
 
       expectFiles(files, [
@@ -488,7 +473,7 @@ strategies.forEach((strategy) => {
     it('small file as array (smaller than a chunk)', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: Uint8Array.from(smallFile)
+        content: asAsyncIterable(Uint8Array.from(smallFile))
       }], block, options))
 
       expectFiles(files, [
@@ -496,21 +481,10 @@ strategies.forEach((strategy) => {
       ])
     })
 
-    it('small file as string (smaller than a chunk)', async () => {
-      const files = await all(importer([{
-        path: 'small.txt',
-        content: 'this is a file\n'
-      }], block, options))
-
-      expectFiles(files, [
-        'small.txt'
-      ])
-    })
-
     it('small file (smaller than a chunk) with raw leaves', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }], block, {
         ...options,
         rawLeaves: true
@@ -524,7 +498,7 @@ strategies.forEach((strategy) => {
     it('small file (smaller than a chunk) with raw leaves and mode', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile,
+        content: asAsyncIterable(smallFile),
         mode: 0o123
       }], block, {
         ...options,
@@ -539,7 +513,7 @@ strategies.forEach((strategy) => {
     it('small file (smaller than a chunk) with raw leaves and mtime', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile,
+        content: asAsyncIterable(smallFile),
         mtime: {
           secs: 10,
           nsecs: 0
@@ -557,7 +531,7 @@ strategies.forEach((strategy) => {
     it('small file (smaller than a chunk) with raw leaves and metadata', async () => {
       const files = await all(importer([{
         path: '200Bytes.txt',
-        content: smallFile,
+        content: asAsyncIterable(smallFile),
         mode: 0o123,
         mtime: {
           secs: 10,
@@ -576,7 +550,7 @@ strategies.forEach((strategy) => {
     it('small file (smaller than a chunk) inside a dir', async () => {
       const files = await all(importer([{
         path: 'foo/bar/200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }], block, options))
 
       expectFiles(files, [
@@ -591,7 +565,7 @@ strategies.forEach((strategy) => {
 
       const files = await all(importer([{
         path: '1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       expectFiles(files, [
@@ -604,7 +578,7 @@ strategies.forEach((strategy) => {
 
       const files = await all(importer([{
         path: 'foo-big/1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       expectFiles(files, [
@@ -626,10 +600,10 @@ strategies.forEach((strategy) => {
     it('directory with files', async () => {
       const files = await all(importer([{
         path: 'pim/200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }, {
         path: 'pim/1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       expectFiles(files, [
@@ -642,13 +616,13 @@ strategies.forEach((strategy) => {
     it('nested directory (2 levels deep)', async () => {
       const files = await all(importer([{
         path: 'pam/pum/200Bytes.txt',
-        content: smallFile
+        content: asAsyncIterable(smallFile)
       }, {
         path: 'pam/pum/1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }, {
         path: 'pam/1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       const result = stringifyMh(files)
@@ -688,7 +662,7 @@ strategies.forEach((strategy) => {
       const content = String(Math.random() + Date.now())
       const files = await all(importer([{
         path: content + '.txt',
-        content: uint8ArrayFromString(content)
+        content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
         onlyHash: true
       }))
@@ -716,7 +690,7 @@ strategies.forEach((strategy) => {
 
       await all(importer([{
         path,
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options))
 
       expect(options.progress.called).to.equal(true)
@@ -757,7 +731,10 @@ strategies.forEach((strategy) => {
         shardSplitThreshold: 3
       }
 
-      const files = await all(importer(inputFiles, block, options))
+      const files = await all(importer(inputFiles.map(file => ({
+        ...file,
+        content: asAsyncIterable(file.content)
+      })), block, options))
 
       const file = files[0]
       expect(file).to.exist()
@@ -826,7 +803,7 @@ strategies.forEach((strategy) => {
 
       for await (const file of importer([{
         path: '1.2MiB.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block, options)) {
         for await (const { cid } of collectLeafCids(file.cid, ipld)) {
           expect(cid).to.have.property('codec', 'raw')
@@ -845,8 +822,8 @@ strategies.forEach((strategy) => {
 
       for await (const file of importer([{
         path: '1.2MiB.txt',
-        content: bigFile,
-        mtime: now
+        content: asAsyncIterable(bigFile),
+        mtime: parseMtime(now)
       }], block, options)) {
         const node = await exporter(file.cid, ipld)
 
@@ -861,7 +838,7 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo',
-        mtime: now
+        mtime: parseMtime(now)
       }], block))
 
       const node = await exporter(entries[0].cid, ipld)
@@ -876,11 +853,11 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo',
-        mtime: now,
+        mtime: parseMtime(now),
         mode: perms
       }, {
         path: '/foo/bar.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
@@ -902,11 +879,11 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo/bar',
-        mtime: now,
+        mtime: parseMtime(now),
         mode: perms
       }, {
         path: '/foo/bar/baz.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
@@ -928,16 +905,16 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo/bar/qux.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }, {
         path: '/foo/bar',
-        mtime: now,
+        mtime: parseMtime(now),
         mode: perms
       }, {
         path: '/foo/quux'
       }, {
         path: '/foo/bar/baz.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, ipld))
@@ -958,13 +935,13 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo',
-        mtime: now
+        mtime: parseMtime(now)
       }, {
         path: '/foo/bar.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }, {
         path: '/foo/baz.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }, {
         path: '/foo/qux'
       }], block, {
@@ -991,7 +968,7 @@ strategies.forEach((strategy) => {
 
       for await (const file of importer([{
         path: '1.2MiB.txt',
-        content: bigFile,
+        content: asAsyncIterable(bigFile),
         mode
       }], block, options)) {
         const node = await exporter(file.cid, ipld)
@@ -1022,11 +999,11 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo/file1.txt',
-        content: bigFile,
+        content: asAsyncIterable(bigFile),
         mode: mode1
       }, {
         path: '/foo/file2.txt',
-        content: bigFile,
+        content: asAsyncIterable(bigFile),
         mode: mode2
       }], block))
 
@@ -1044,11 +1021,11 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo/file1.txt',
-        content: bigFile,
+        content: asAsyncIterable(bigFile),
         mode: mode
       }, {
         path: '/foo/bar/baz/file2.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block))
 
       const node1 = await exporter(entries[0].cid, ipld)
@@ -1063,7 +1040,7 @@ strategies.forEach((strategy) => {
 
       const entries = await all(importer([{
         path: '/foo/file1.txt',
-        content: bigFile
+        content: asAsyncIterable(bigFile)
       }], block))
 
       const node1 = await exporter(entries[0].cid, ipld)
@@ -1091,6 +1068,7 @@ describe('configuration', () => {
     const cid = new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
     const unixfs = new UnixFS({ type: 'directory' })
 
+    // @ts-expect-error custom dag builder expects weird data
     const entries = await all(importer([{
       path: 'path',
       content: 'content'
@@ -1126,10 +1104,10 @@ describe('configuration', () => {
     let chunked = false
     const entries = await all(importer([{
       path: 'path',
-      content: uint8ArrayFromString('content')
+      content: asAsyncIterable(uint8ArrayFromString('content'))
     }], block, {
-      /** @type {import('ipfs-unixfs-importer/src/types').ChunkValidator} */
-      chunkValidator: async function * (source, opts) { // eslint-disable-line require-await
+      /** @type {import('ipfs-unixfs-importer').ChunkValidator} */
+      chunkValidator: async function * (source) { // eslint-disable-line require-await
         validated = true
 
         for await (const str of source) {
@@ -1140,8 +1118,8 @@ describe('configuration', () => {
           }
         }
       },
-      /** @type {import('ipfs-unixfs-importer/src/types').Chunker} */
-      chunker: async function * (source, opts) { // eslint-disable-line require-await
+      /** @type {import('ipfs-unixfs-importer').Chunker} */
+      chunker: async function * (source) { // eslint-disable-line require-await
         chunked = true
         yield * source
       }
@@ -1159,7 +1137,7 @@ describe('configuration', () => {
     const buf = uint8ArrayFromString('content')
 
     const result = await last(importer([{
-      content: buf
+      content: asAsyncIterable(buf)
     }], block, {
       cidVersion: 0,
       rawLeaves: false
@@ -1172,7 +1150,7 @@ describe('configuration', () => {
     const { cid: cidV0 } = result
 
     const result2 = await last(importer([{
-      content: buf
+      content: asAsyncIterable(buf)
     }], block, {
       cidVersion: 1,
       rawLeaves: false

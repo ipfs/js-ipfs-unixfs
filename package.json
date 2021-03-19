@@ -6,7 +6,6 @@
     "reset": "lerna run clean && rimraf packages/*/node_modules node_modules",
     "test": "lerna run test",
     "coverage": "lerna run coverage",
-    "prepare": "lerna run prepare",
     "build": "lerna run build",
     "clean": "lerna run clean",
     "lint": "lerna run lint",

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "JS implementation of the IPFS UnixFS",
   "scripts": {
-    "reset": "lerna run clean && rimraf packages/*/node_modules node_modules",
+    "reset": "lerna run clean && rimraf packages/*/node_modules node_modules packages/*/package-lock.json package-lock.json",
     "test": "lerna run test",
     "coverage": "lerna run coverage",
     "build": "lerna run build",

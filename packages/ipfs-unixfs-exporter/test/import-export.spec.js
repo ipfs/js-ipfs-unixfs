@@ -13,6 +13,7 @@ const loadFixture = require('aegir/utils/fixtures')
 const isNode = require('detect-node')
 const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
 const blockApi = require('./helpers/block')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 const { importer } = require('ipfs-unixfs-importer')
 const { exporter } = require('../src')
@@ -42,7 +43,7 @@ describe('import and export', function () {
 
       it('imports and exports', async () => {
         const path = `${strategy}-big.dat`
-        const values = [{ path: path, content: bigFile }]
+        const values = [{ path: path, content: asAsyncIterable(bigFile) }]
 
         // @ts-ignore
         for await (const file of importer(values, block, importerOptions)) {

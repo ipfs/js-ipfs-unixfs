@@ -13,21 +13,43 @@ const errCode = require('err-code')
  */
 
 /**
- * @param {any} item
- * @returns {item is ArrayLike<number>}
+ * @param {any} thing
+ * @returns {thing is Iterable<any>}
  */
-function isArrayLike (item) {
-  return (
-    Array.isArray(item) ||
-      (Boolean(item) &&
-        typeof item === 'object' &&
-        typeof (item.length) === 'number' &&
-        (item.length === 0 ||
-           (item.length > 0 &&
-           (item.length - 1) in item)
-        )
-      )
-  )
+function isIterable (thing) {
+  return Symbol.iterator in thing
+}
+
+/**
+ * @param {any} thing
+ * @returns {thing is AsyncIterable<any>}
+ */
+function isAsyncIterable (thing) {
+  return Symbol.asyncIterator in thing
+}
+
+/**
+ * @param {Uint8Array | AsyncIterable<Uint8Array> | Iterable<Uint8Array>} content
+ * @returns {AsyncIterable<Uint8Array>}
+ */
+function contentAsAsyncIterable (content) {
+  try {
+    if (content instanceof Uint8Array) {
+      return (async function * () {
+        yield content
+      }())
+    } else if (isIterable(content)) {
+      return (async function * () {
+        yield * content
+      }())
+    } else if (isAsyncIterable(content)) {
+      return content
+    }
+  } catch {
+    throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
+  }
+
+  throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
 }
 
 /**
@@ -47,21 +69,6 @@ async function * dagBuilder (source, block, options) {
     }
 
     if (entry.content) {
-      const source = entry.content
-
-      /** @type {AsyncIterable<string | Uint8Array | ArrayLike<number>>} */
-      const content = (async function * () {
-        // wrap in iterator if it is a, string, Uint8Array or array-like
-        if (typeof source === 'string' || isArrayLike(source)) {
-          yield source
-          // @ts-ignore
-        } else if (source[Symbol.asyncIterator] || source[Symbol.iterator]) {
-          yield * source
-        } else {
-          throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
-        }
-      }())
-
       /**
        * @type {Chunker}
        */
@@ -91,7 +98,7 @@ async function * dagBuilder (source, block, options) {
         path: entry.path,
         mtime: entry.mtime,
         mode: entry.mode,
-        content: chunker(chunkValidator(content, options), options)
+        content: chunker(chunkValidator(contentAsAsyncIterable(entry.content), options), options)
       }
 
       yield () => fileBuilder(file, block, options)

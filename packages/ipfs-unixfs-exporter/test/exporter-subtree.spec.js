@@ -12,6 +12,7 @@ const last = require('it-last')
 const blockApi = require('./helpers/block')
 const randomBytes = require('it-buffer-stream')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -36,7 +37,7 @@ describe('exporter subtree', () => {
       content: randomBytes(ONE_MEG)
     }, {
       path: './level-1/200Bytes.txt',
-      content
+      content: asAsyncIterable(content)
     }], block))
 
     if (!imported) {
@@ -64,7 +65,7 @@ describe('exporter subtree', () => {
       content: randomBytes(ONE_MEG)
     }, {
       path: './level-1/200Bytes.txt',
-      content
+      content: asAsyncIterable(content)
     }, {
       path: './level-1/level-2'
     }], block))
@@ -121,12 +122,12 @@ describe('exporter subtree', () => {
       content: randomBytes(ONE_MEG)
     }, {
       path: './level-1/200Bytes.txt',
-      content
+      content: asAsyncIterable(content)
     }, {
       path: './level-1/level-2'
     }, {
       path: './level-1/level-2/200Bytes.txt',
-      content
+      content: asAsyncIterable(content)
     }], block))
 
     if (!imported) {

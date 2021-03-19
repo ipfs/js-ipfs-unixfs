@@ -1,4 +1,4 @@
-import { UnixFS, Mtime, MtimeLike } from 'ipfs-unixfs'
+import { UnixFS, Mtime } from 'ipfs-unixfs'
 import CID, { CIDVersion } from 'cids'
 import { HashName } from 'multihashes'
 import Block from 'ipld-block'
@@ -6,21 +6,21 @@ import { CodecName } from 'multicodec'
 
 interface ImportCandidate {
   path?: string
-  content?: AsyncIterable<Uint8Array> | Iterable<Uint8Array> | Uint8Array | ArrayLike<number> | string
-  mtime?: MtimeLike
+  content?: AsyncIterable<Uint8Array>
+  mtime?: Mtime
   mode?: number
 }
 
 interface File {
   content: AsyncIterable<Uint8Array>
   path?: string
-  mtime?: MtimeLike
+  mtime?: Mtime
   mode?: number
 }
 
 interface Directory {
   path?: string
-  mtime?: MtimeLike
+  mtime?: Mtime
   mode?: number
 }
 
@@ -42,7 +42,7 @@ type Chunker = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => 
 type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
 type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>
 type BufferImporter = (file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type ChunkValidator = (source: AsyncIterable<Uint8Array | string | ArrayLike<number>>, options: ImporterOptions) => AsyncIterable<Uint8Array>
+type ChunkValidator = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
 type UnixFSV1DagBuilder<T> = (item: T, block: BlockAPI, options: ImporterOptions) => Promise<InProgressImportResult>
 type Reducer = (leaves: InProgressImportResult[]) => Promise<InProgressImportResult>
 

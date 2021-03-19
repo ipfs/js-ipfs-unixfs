@@ -6,13 +6,8 @@ const {
 const errcode = require('err-code')
 
 /**
- * @typedef {object} Mtime
- * @property {number} secs
- * @property {number | null} [nsecs]
- */
-
-/**
- * @typedef {null | undefined | { secs: number, nsecs?: number} |  { Seconds: number, FractionalNanoseconds?: number} | Mtime | [number, number] | Date} MtimeLike
+ * @typedef {import('./types').Mtime} Mtime
+ * @typedef {import('./types').MtimeLike} MtimeLike
  */
 
 const types = [
@@ -40,54 +35,59 @@ function parseMode (mode) {
     return undefined
   }
 
-  if (typeof mode === 'string') {
-    mode = parseInt(mode, 8)
+  if (typeof mode === 'number') {
+    return mode & 0xFFF
   }
 
-  return mode & 0xFFF
+  mode = mode.toString()
+
+  if (mode.substring(0, 1) === '0') {
+    // octal string
+    return parseInt(mode, 8) & 0xFFF
+  }
+
+  // decimal string
+  return parseInt(mode, 10) & 0xFFF
 }
 
 /**
- * @param {MtimeLike} mtime
- * @returns {Mtime | undefined}
+ * @param {any} input
  */
-function parseMtime (mtime) {
-  if (mtime == null) {
+function parseMtime (input) {
+  if (input == null) {
     return undefined
   }
 
+  /** @type {Mtime | undefined} */
+  let mtime
+
   // { secs, nsecs }
-  if (Object.prototype.hasOwnProperty.call(mtime, 'secs')) {
+  if (input.secs != null) {
     mtime = {
-      // @ts-ignore
-      secs: mtime.secs,
-      // @ts-ignore
-      nsecs: mtime.nsecs
+      secs: input.secs,
+      nsecs: input.nsecs
     }
   }
 
   // UnixFS TimeSpec
-  if (Object.prototype.hasOwnProperty.call(mtime, 'Seconds')) {
-    // @ts-ignore
+  if (input.Seconds != null) {
     mtime = {
-      // @ts-ignore
-      secs: mtime.Seconds,
-      // @ts-ignore
-      nsecs: mtime.FractionalNanoseconds
+      secs: input.Seconds,
+      nsecs: input.FractionalNanoseconds
     }
   }
 
   // process.hrtime()
-  if (Array.isArray(mtime)) {
+  if (Array.isArray(input)) {
     mtime = {
-      secs: mtime[0],
-      nsecs: mtime[1]
+      secs: input[0],
+      nsecs: input[1]
     }
   }
 
   // Javascript Date
-  if (mtime instanceof Date) {
-    const ms = mtime.getTime()
+  if (input instanceof Date) {
+    const ms = input.getTime()
     const secs = Math.floor(ms / 1000)
 
     mtime = {
@@ -100,13 +100,13 @@ function parseMtime (mtime) {
   TODO: https://github.com/ipfs/aegir/issues/487
 
   // process.hrtime.bigint()
-  if (typeof mtime === 'bigint') {
-    const secs = mtime / BigInt(1e9)
-    const nsecs = mtime - (secs * BigInt(1e9))
+  if (input instanceof BigInt) {
+    const secs = input / BigInt(1e9)
+    const nsecs = input - (secs * BigInt(1e9))
 
     mtime = {
-      secs: parseInt(secs),
-      nsecs: parseInt(nsecs)
+      secs: parseInt(secs.toString()),
+      nsecs: parseInt(nsecs.toString())
     }
   }
   */
@@ -115,12 +115,10 @@ function parseMtime (mtime) {
     return undefined
   }
 
-  // @ts-ignore
-  if (mtime.nsecs < 0 || mtime.nsecs > 999999999) {
+  if (mtime != null && mtime.nsecs != null && (mtime.nsecs < 0 || mtime.nsecs > 999999999)) {
     throw errcode(new Error('mtime-nsecs must be within the range [0,999999999]'), 'ERR_INVALID_MTIME_NSECS')
   }
 
-  // @ts-ignore
   return mtime
 }
 

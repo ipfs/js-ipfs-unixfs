@@ -9,6 +9,7 @@ const builder = require('../src/dag-builder')
 const all = require('it-all')
 const blockApi = require('./helpers/block')
 const defaultOptions = require('../src/options')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('builder: onlyHash', () => {
   /** @type {IPLD} */
@@ -24,7 +25,7 @@ describe('builder: onlyHash', () => {
   it('will only chunk and hash if passed an "onlyHash" option', async () => {
     const nodes = await all(builder([{
       path: 'foo.txt',
-      content: Uint8Array.from([0, 1, 2, 3, 4])
+      content: asAsyncIterable(Uint8Array.from([0, 1, 2, 3, 4]))
     }], block, {
       ...defaultOptions({}),
       onlyHash: true

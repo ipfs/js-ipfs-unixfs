@@ -15,6 +15,7 @@ const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const uint8ArrayConcat = require('uint8arrays/concat')
+const asAsyncIterable = require('./helpers/as-async-iterable')
 
 /**
  * @typedef {import('../src').UnixFSEntry} UnixFSEntry
@@ -37,7 +38,7 @@ describe('builder: directory sharding', () => {
       const content = uint8ArrayFromString('i have the best bytes')
       const nodes = await all(importer([{
         path: 'a/b',
-        content
+        content: asAsyncIterable(content)
       }], block, {
         shardSplitThreshold: Infinity // never shard
       }))
@@ -73,7 +74,7 @@ describe('builder: directory sharding', () => {
     it('yields a sharded dir', async () => {
       const nodes = await all(importer([{
         path: 'a/b',
-        content: uint8ArrayFromString('i have the best bytes')
+        content: asAsyncIterable(uint8ArrayFromString('i have the best bytes'))
       }], block, {
         shardSplitThreshold: 0 // always shard
       }))
@@ -95,7 +96,7 @@ describe('builder: directory sharding', () => {
       const content = 'i have the best bytes'
       const nodes = await all(importer([{
         path: 'a/b',
-        content: uint8ArrayFromString(content)
+        content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
         shardSplitThreshold: Infinity // never shard
       }))
@@ -132,7 +133,7 @@ describe('builder: directory sharding', () => {
       const content = 'i have the best bytes'
       const nodes = await all(importer([{
         path: 'a/b',
-        content: uint8ArrayFromString(content)
+        content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
         shardSplitThreshold: 0 // always shard
       }))
@@ -177,7 +178,7 @@ describe('builder: directory sharding', () => {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
-              content: uint8ArrayFromString(i.toString())
+              content: asAsyncIterable(uint8ArrayFromString(i.toString()))
             }
           }
         }
@@ -196,7 +197,7 @@ describe('builder: directory sharding', () => {
           for (let i = 0; i < maxDirs; i++) {
             yield {
               path: 'big/' + i.toString().padStart(4, '0'),
-              content: uint8ArrayFromString(i.toString())
+              content: asAsyncIterable(uint8ArrayFromString(i.toString()))
             }
           }
         }
@@ -249,7 +250,7 @@ describe('builder: directory sharding', () => {
 
             yield {
               path: dir.concat(i.toString().padStart(4, '0')).join('/'),
-              content: uint8ArrayFromString(i.toString())
+              content: asAsyncIterable(uint8ArrayFromString(i.toString()))
             }
 
             pending--

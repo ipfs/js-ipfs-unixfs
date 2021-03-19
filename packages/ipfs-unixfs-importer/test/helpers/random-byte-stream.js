@@ -3,7 +3,7 @@
 /**
  * @param {number} seed
  */
-function * randomByteStream (seed) {
+async function * randomByteStream (seed) {
   while (true) {
     const r = Math.floor(random(seed) * 256)
     seed = r

@@ -126,7 +126,7 @@ async function recursiveExport (node, path, entries = []) {
 function normalizeNode (node) {
   return {
     path: node.path || '',
-    multihash: node.cid.toBaseEncodedString()
+    multihash: node.cid.toString()
   }
 }
 

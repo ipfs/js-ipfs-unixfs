@@ -70,7 +70,7 @@ async function * walkPath (path, ipld, options = {}) {
     cid,
     toResolve
   } = cidAndRest(path)
-  let name = cid.toBaseEncodedString()
+  let name = cid.toString()
   let entryPath = name
   const startingDepth = toResolve.length
 

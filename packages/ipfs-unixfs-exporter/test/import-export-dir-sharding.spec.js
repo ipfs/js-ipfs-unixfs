@@ -117,10 +117,10 @@ describe('builder: directory sharding', () => {
         throw new Error('Unexpected type')
       }
 
-      const expectedHash = nonShardedHash.toBaseEncodedString()
+      const expectedHash = nonShardedHash.toString()
 
       expect(dir.path).to.be.eql(expectedHash)
-      expect(dir.cid.toBaseEncodedString()).to.be.eql(expectedHash)
+      expect(dir.cid.toString()).to.be.eql(expectedHash)
       expect(files[0].path).to.be.eql(expectedHash + '/b')
       expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
 
@@ -154,10 +154,10 @@ describe('builder: directory sharding', () => {
         throw new Error('Unexpected type')
       }
 
-      const expectedHash = shardedHash.toBaseEncodedString()
+      const expectedHash = shardedHash.toString()
 
       expect(dir.path).to.be.eql(expectedHash)
-      expect(dir.cid.toBaseEncodedString()).to.be.eql(expectedHash)
+      expect(dir.cid.toString()).to.be.eql(expectedHash)
       expect(files[0].path).to.be.eql(expectedHash + '/b')
       expect(files[0].unixfs.fileSize()).to.be.eql(content.length)
 
@@ -325,7 +325,7 @@ describe('builder: directory sharding', () => {
         if (!index) {
           // first dir
           if (depth === 1) {
-            expect(path).to.equal(dir.cid.toBaseEncodedString())
+            expect(path).to.equal(dir.cid.toString())
           }
 
           const entry = entries[path]
@@ -363,7 +363,7 @@ describe('builder: directory sharding', () => {
     })
 
     it('exports a big dir with subpath', async () => {
-      const exportHash = rootHash.toBaseEncodedString() + '/big/big/2000'
+      const exportHash = rootHash.toString() + '/big/big/2000'
 
       const node = await exporter(exportHash, ipld)
       expect(node.path).to.equal(exportHash)

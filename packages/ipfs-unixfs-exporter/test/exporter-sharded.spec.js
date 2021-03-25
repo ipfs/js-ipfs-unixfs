@@ -172,59 +172,59 @@ describe('exporter sharded', function () {
 
   it('exports one file from a sharded directory', async () => {
     const dirCid = await createShard(31)
-    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-14`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid.toString()}/file-14`, ipld)
 
     expect(exported).to.have.property('name', 'file-14')
   })
 
   it('exports one file from a sharded directory sub shard', async () => {
     const dirCid = await createShard(31)
-    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-30`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid.toString()}/file-30`, ipld)
 
     expect(exported.name).to.deep.equal('file-30')
   })
 
   it('exports one file from a shard inside a shard inside a shard', async () => {
     const dirCid = await createShard(2568)
-    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/file-2567`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid.toString()}/file-2567`, ipld)
 
     expect(exported.name).to.deep.equal('file-2567')
   })
 
   it('extracts a deep folder from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid.toString()}/foo/bar/baz`, ipld)
 
     expect(exported.name).to.deep.equal('baz')
   })
 
   it('extracts an intermediate folder from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await exporter(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid.toString()}/foo/bar`, ipld)
 
     expect(exported.name).to.deep.equal('bar')
   })
 
   it('uses .path to extract all intermediate entries from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid.toString()}/foo/bar/baz/file-1`, ipld))
 
     expect(exported.length).to.equal(5)
 
-    expect(exported[0].name).to.equal(dirCid.toBaseEncodedString())
+    expect(exported[0].name).to.equal(dirCid.toString())
     expect(exported[1].name).to.equal('foo')
-    expect(exported[1].path).to.equal(`${dirCid.toBaseEncodedString()}/foo`)
+    expect(exported[1].path).to.equal(`${dirCid.toString()}/foo`)
     expect(exported[2].name).to.equal('bar')
-    expect(exported[2].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar`)
+    expect(exported[2].path).to.equal(`${dirCid.toString()}/foo/bar`)
     expect(exported[3].name).to.equal('baz')
-    expect(exported[3].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar/baz`)
+    expect(exported[3].path).to.equal(`${dirCid.toString()}/foo/bar/baz`)
     expect(exported[4].name).to.equal('file-1')
-    expect(exported[4].path).to.equal(`${dirCid.toBaseEncodedString()}/foo/bar/baz/file-1`)
+    expect(exported[4].path).to.equal(`${dirCid.toString()}/foo/bar/baz/file-1`)
   })
 
   it('uses .path to extract all intermediate entries from the sharded directory as well as the contents', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid.toBaseEncodedString()}/foo/bar/baz`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid.toString()}/foo/bar/baz`, ipld))
 
     expect(exported.length).to.equal(4)
 
@@ -268,7 +268,7 @@ describe('exporter sharded', function () {
       hashAlg: mh.names['sha2-256']
     })
 
-    const exported = await exporter(`/ipfs/${shardNodeCid.toBaseEncodedString()}/normal-dir/shard/file-1`, ipld)
+    const exported = await exporter(`/ipfs/${shardNodeCid.toString()}/normal-dir/shard/file-1`, ipld)
 
     expect(exported.name).to.deep.equal('file-1')
   })

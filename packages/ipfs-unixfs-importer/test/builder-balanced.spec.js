@@ -3,7 +3,7 @@
 
 const { expect } = require('aegir/utils/chai')
 const builder = require('../src/dag-builder/file/balanced')
-const CID = require('multiformats/cid')
+const { CID } = require('multiformats')
 const defaultOptions = require('../src/options')
 
 /**

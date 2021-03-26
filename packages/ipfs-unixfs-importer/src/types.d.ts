@@ -2,6 +2,7 @@ import { UnixFS, Mtime } from 'ipfs-unixfs'
 import CID from 'multiformats/cid'
 import { HashName } from 'multihashes'
 import { CodecName } from 'multicodec'
+import MultihashDigest from 'multiformats/hashes/hasher'
 
 interface ImportCandidate {
   path?: string
@@ -52,7 +53,7 @@ interface UserImporterOptions {
   rawLeaves?: boolean
   onlyHash?: boolean
   reduceSingleLeafToSelf?: boolean
-  hashAlg?: CodecCode
+  hasher?: MultihashDigest
   leafType?: 'file' | 'raw'
   cidVersion?: CIDVersion
   progress?: ProgressHandler
@@ -87,7 +88,7 @@ interface ImporterOptions {
   rawLeaves: boolean
   onlyHash: boolean
   reduceSingleLeafToSelf: boolean
-  hashAlg: CodecCode
+  hasher: MultihashDigest
   leafType: 'file' | 'raw'
   cidVersion: CIDVersion
   progress: ProgressHandler
@@ -133,7 +134,7 @@ export interface PersistOptions {
   //codec?: string
   codec?: number
   cidVersion: CIDVersion
-  hashAlg: CodecCode
+  hasher: MultihashDigest
   onlyHash: boolean
   preload?: boolean
   timeout?: number

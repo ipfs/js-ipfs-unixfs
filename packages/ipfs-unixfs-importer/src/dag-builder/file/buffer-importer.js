@@ -26,7 +26,7 @@ async function * bufferImporter (file, block, options) {
       const opts = {
         codec: mc.DAG_PB,
         cidVersion: options.cidVersion,
-        hashAlg: options.hashAlg,
+        hasher: options.hasher,
         onlyHash: options.onlyHash
       }
 

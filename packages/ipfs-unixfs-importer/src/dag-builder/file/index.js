@@ -96,11 +96,28 @@ const reduce = (file, block, options) => {
         const multihash = mh.decode(leaf.cid.multihash.bytes)
         buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
+        //// TODO vmx 2021-03-26: This is what the original code does, it checks
+        //// the multihash of the original leaf node and uses then the same
+        //// hasher. i wonder if that's really needed or if we could just use
+        //// the hasher from `options.hasher` instead.
+        //let hasher
+        //switch multihash {
+        //  case sha256.code {
+        //    hasher = sha256
+        //    break;
+        //  }
+        //  //case identity.code {
+        //  //  hasher = identity
+        //  //  break;
+        //  //}
+        //  default: {
+        //    throw new Error(`Unsupported hasher "${multihash}"`)
+        //  }
+        //}
         leaf.cid = await persist(buffer, block, {
           ...options,
           codec: mc.DAG_PB,
-          // @ts-ignore
-          hashAlg: multihash.code,
+          hasher: options.hasher,
           cidVersion: options.cidVersion
         })
         leaf.size = buffer.length

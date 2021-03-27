@@ -21,96 +21,96 @@ describe('builder', () => {
 
   const testMultihashes = [sha256, sha512]
 
- it('allows multihash hash algorithm to be specified', async () => {
-   for (let i = 0; i < testMultihashes.length; i++) {
-     const hasher = testMultihashes[i]
-     const content = uint8ArrayFromString(String(Math.random() + Date.now()))
-     const inputFile = {
-       path: content + '.txt',
-       content: asAsyncIterable(content)
-     }
+  it('allows multihash hash algorithm to be specified', async () => {
+    for (let i = 0; i < testMultihashes.length; i++) {
+      const hasher = testMultihashes[i]
+      const content = uint8ArrayFromString(String(Math.random() + Date.now()))
+      const inputFile = {
+        path: content + '.txt',
+        content: asAsyncIterable(content)
+      }
 
-     const result = await first(builder([inputFile], block, {
-       ...defaultOptions(),
-       // @ts-ignore thinks these aren't valid hash alg names
-       hasher
-     }))
+      const result = await first(builder([inputFile], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hasher
+      }))
 
-     if (!result) {
-       throw new Error('Nothing built')
-     }
+      if (!result) {
+        throw new Error('Nothing built')
+      }
 
-     const imported = await result()
-     expect(imported).to.exist()
+      const imported = await result()
+      expect(imported).to.exist()
 
-     // Verify multihash has been encoded using hasher
-     expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
+      // Verify multihash has been encoded using hasher
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
 
-     // Fetch using hasher encoded multihash
-     const importedBlock = await block.get(imported.cid)
-     const node = decode(importedBlock.bytes)
+      // Fetch using hasher encoded multihash
+      const importedBlock = await block.get(imported.cid)
+      const node = decode(importedBlock.bytes)
 
-     const fetchedContent = UnixFS.unmarshal(node.Data).data
-     expect(fetchedContent).to.deep.equal(content)
-   }
+      const fetchedContent = UnixFS.unmarshal(node.Data).data
+      expect(fetchedContent).to.deep.equal(content)
+    }
+  })
+
+  it('allows multihash hash algorithm to be specified for big file', async function () {
+    this.timeout(30000)
+
+    for (let i = 0; i < testMultihashes.length; i++) {
+      const hasher = testMultihashes[i]
+      const content = String(Math.random() + Date.now())
+      const inputFile = {
+        path: content + '.txt',
+        // Bigger than maxChunkSize
+        content: asAsyncIterable(new Uint8Array(262144 + 5).fill(1))
+      }
+
+      const result = await first(builder([inputFile], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hasher
+      }))
+
+      if (!result) {
+        throw new Error('Nothing built')
+      }
+
+      const imported = await result()
+
+      expect(imported).to.exist()
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
+    }
+  })
+
+  it('allows multihash hash algorithm to be specified for a directory', async () => {
+    for (let i = 0; i < testMultihashes.length; i++) {
+      const hasher = testMultihashes[i]
+      const inputFile = {
+        path: `${String(Math.random() + Date.now())}-dir`
+      }
+
+      const result = await first(builder([{ ...inputFile }], block, {
+        ...defaultOptions(),
+        // @ts-ignore thinks these aren't valid hash alg names
+        hasher
+      }))
+
+      if (!result) {
+        return new Error('Nothing built')
+      }
+
+      const imported = await result()
+
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
+
+      // Fetch using hasher encoded multihash
+      const importedBlock = await block.get(imported.cid)
+      const node = decode(importedBlock.bytes)
+
+      const meta = UnixFS.unmarshal(node.Data)
+      expect(meta.type).to.equal('directory')
+    }
+  })
  })
-
- it('allows multihash hash algorithm to be specified for big file', async function () {
-   this.timeout(30000)
-
-   for (let i = 0; i < testMultihashes.length; i++) {
-     const hasher = testMultihashes[i]
-     const content = String(Math.random() + Date.now())
-     const inputFile = {
-       path: content + '.txt',
-       // Bigger than maxChunkSize
-       content: asAsyncIterable(new Uint8Array(262144 + 5).fill(1))
-     }
-
-     const result = await first(builder([inputFile], block, {
-       ...defaultOptions(),
-       // @ts-ignore thinks these aren't valid hash alg names
-       hasher
-     }))
-
-     if (!result) {
-       throw new Error('Nothing built')
-     }
-
-     const imported = await result()
-
-     expect(imported).to.exist()
-     expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
-   }
- })
-
- it('allows multihash hash algorithm to be specified for a directory', async () => {
-   for (let i = 0; i < testMultihashes.length; i++) {
-     const hasher = testMultihashes[i]
-     const inputFile = {
-       path: `${String(Math.random() + Date.now())}-dir`
-     }
-
-     const result = await first(builder([{ ...inputFile }], block, {
-       ...defaultOptions(),
-       // @ts-ignore thinks these aren't valid hash alg names
-       hasher
-     }))
-
-     if (!result) {
-       return new Error('Nothing built')
-     }
-
-     const imported = await result()
-
-     expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
-
-     // Fetch using hasher encoded multihash
-     const importedBlock = await block.get(imported.cid)
-     const node = decode(importedBlock.bytes)
-
-     const meta = UnixFS.unmarshal(node.Data)
-     expect(meta.type).to.equal('directory')
-   }
- })
-})

@@ -3,7 +3,7 @@
 
 const { expect } = require('aegir/utils/chai')
 const { UnixFS } = require('ipfs-unixfs')
-const CID = require('multiformats/cid')
+const { CID } = require('multiformats/cid')
 // @ts-ignore - TODO vmx 2021-03-25: add those typedefs
 const dagPb = require('@ipld/dag-pb')
 // @ts-ignore - TODO vmx 2021-03-25: add those typedefs
@@ -109,7 +109,6 @@ describe('exporter', () => {
    */
   async function addAndReadTestFile ({ file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }) {
     const cid = await addTestFile({ file, strategy, path, maxChunkSize, rawLeaves })
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const entry = await exporter(cid, block)
 
     if (entry.type !== 'file' && entry.type !== 'raw') {
@@ -159,7 +158,6 @@ describe('exporter', () => {
 
       links.push({
         Name: '',
-        // TODO vmx 2021-03-24: this might make the test fail, perhaps just use `0`?
         Tsize: child.node.Data.length,
         Hash: child.cid
       })
@@ -190,7 +188,6 @@ describe('exporter', () => {
 
     expect(unmarsh.data).to.deep.equal(result.file.data)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(result.cid, block)
 
     expect(file).to.have.property('cid')
@@ -252,7 +249,6 @@ describe('exporter', () => {
       throw new Error('Unexpected data')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(result.cid, block)
 
     if (file.type !== 'file') {
@@ -322,7 +318,6 @@ describe('exporter', () => {
     })
     await block.put(fileBlock)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(fileBlock.cid, block)
 
     if (exported.type !== 'file') {
@@ -351,7 +346,6 @@ describe('exporter', () => {
       throw new Error('Expected data')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(result.cid, block)
 
     if (file.type !== 'file') {
@@ -373,7 +367,6 @@ describe('exporter', () => {
       file: uint8ArrayConcat(await all(randomBytes(ONE_MEG * 6)))
     })
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(cid, block)
 
     if (file.type !== 'file') {
@@ -395,7 +388,6 @@ describe('exporter', () => {
       file: bytes
     })
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(cid, block)
     expect(file).to.have.property('path', cid.toString())
 
@@ -462,7 +454,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const dir = await exporter(importedDir.cid, block)
 
     if (dir.type !== 'directory') {
@@ -511,7 +502,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const dir = await exporter(importedDir.cid, block)
 
     if (dir.type !== 'directory') {
@@ -668,7 +658,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(imported.cid, block)
 
     if (file.type !== 'file') {
@@ -689,7 +678,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const dir = await exporter(imported.cid, block)
 
     if (dir.type !== 'directory') {
@@ -809,7 +797,6 @@ describe('exporter', () => {
       file: bigFile,
       maxChunkSize: 1024
     })
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(cid, block)
 
     if (file.type !== 'file') {
@@ -848,7 +835,6 @@ describe('exporter', () => {
     const hash = 'bafybeidu2qqwriogfndznz32swi5r4p2wruf6ztu5k7my53tsezwhncs5y'
 
     try {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       await exporter(hash, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
@@ -858,11 +844,9 @@ describe('exporter', () => {
   it('exports file with data on internal and leaf nodes', async () => {
     const leaf = await createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [])
     const node = await createAndPersistNode('file', [0x00, 0x01, 0x02, 0x03], [
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       leaf
     ])
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
@@ -892,22 +876,16 @@ describe('exporter', () => {
     ])
 
     const internalNodes = await Promise.all([
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]]),
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       createAndPersistNode('raw', undefined, [leaves[2]])
     ])
 
     const node = await createAndPersistNode('file', undefined, [
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       leaves[0],
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       internalNodes[0],
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       internalNodes[1]
     ])
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
@@ -927,11 +905,9 @@ describe('exporter', () => {
   it('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', async () => {
     const leaf = await createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [])
     const node = await createAndPersistNode('file', [0x00, 0x01, 0x02, 0x03], [
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       leaf
     ])
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
@@ -959,7 +935,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(imported.cid, block)
 
     if (file.type !== 'file') {
@@ -985,9 +960,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const file = await exporter(imported.cid, block)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     expect(CID.asCID(file.cid)).to.not.be.undefined()
 
     if (file.type !== 'raw') {
@@ -1007,7 +980,6 @@ describe('exporter', () => {
     await block.put(cborBlock)
 
     try {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       await exporter(`${cborBlock.cid}/baz`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_PROP')
@@ -1025,7 +997,6 @@ describe('exporter', () => {
       hasher: sha256
     })
     await block.put(cborBlock)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(`${cborBlock.cid}`, block)
 
     if (exported.type !== 'object') {
@@ -1036,11 +1007,9 @@ describe('exporter', () => {
   })
 
   it('errors when exporting a node with no resolver', async () => {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.GIT_RAW, CID.parse('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
 
     try {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       await exporter(`${cid}`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_RESOLVER')
@@ -1050,14 +1019,12 @@ describe('exporter', () => {
   it('errors if we try to export links from inside a raw node', async () => {
     const rawBlock = await Block.encode({
       value: Uint8Array.from([0, 1, 2, 3, 4]),
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       codec: rawCodec,
       hasher: sha256
     })
     await block.put(rawBlock)
 
     try {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       await exporter(`${rawBlock.cid}/lol`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
@@ -1073,7 +1040,6 @@ describe('exporter', () => {
     await block.put(dagpbBlock)
 
     try {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       await exporter(dagpbBlock.cid, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
@@ -1108,7 +1074,6 @@ describe('exporter', () => {
     })
     await block.put(dagpbBlock)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(dagpbBlock.cid, block)
 
     if (exported.type !== 'file') {
@@ -1128,7 +1093,6 @@ describe('exporter', () => {
       content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }], block))
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(imported[0].cid, block)
 
     expect(exported.depth).to.equal(0)
@@ -1150,7 +1114,6 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await all(recursive(dir.cid, block))
     const dirCid = dir.cid.toString()
 
@@ -1177,10 +1140,8 @@ describe('exporter', () => {
   it('exports a CID encoded with the identity hash', async () => {
     const data = uint8ArrayFromString('hello world')
     const hash = mh.create(mc.IDENTITY, data)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.IDENTITY, hash)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
@@ -1196,10 +1157,8 @@ describe('exporter', () => {
   it('exports a CID encoded with the identity hash with an offset', async () => {
     const data = uint8ArrayFromString('hello world')
     const hash = mh.create(mc.IDENTITY, data)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.IDENTITY, hash)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
@@ -1216,10 +1175,8 @@ describe('exporter', () => {
   it('exports a CID encoded with the identity hash with a length', async () => {
     const data = uint8ArrayFromString('hello world')
     const hash = mh.create(mc.IDENTITY, data)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.IDENTITY, hash)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
@@ -1236,10 +1193,8 @@ describe('exporter', () => {
   it('exports a CID encoded with the identity hash with an offset and a length', async () => {
     const data = uint8ArrayFromString('hello world')
     const hash = mh.create(mc.IDENTITY, data)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.IDENTITY, hash)
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
@@ -1260,7 +1215,6 @@ describe('exporter', () => {
     // data should not be in IPLD
     const data = uint8ArrayFromString(`hello world '${Math.random()}`)
     const hash = mh.create(mc.SHA2_256, data)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.create(1, mc.DAG_PB, hash)
     const message = `User aborted ${Math.random()}`
 

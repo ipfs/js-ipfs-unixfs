@@ -5,7 +5,7 @@
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
  * @typedef {import('./types').BlockAPI} BlockAPI
- * @typedef {import('multiformats/cid')} CID
+ * @typedef {import('multiformats/cid').CID} CID
  * @typedef {object} DirProps
  * @property {boolean} root
  * @property {boolean} dir

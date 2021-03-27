@@ -38,7 +38,6 @@ describe('import and export', function () {
         for await (const file of importer(values, block, importerOptions)) {
           expect(file.path).to.eql(path)
 
-          // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
           const result = await exporter(file.cid, block)
 
           if (result.type !== 'file') {

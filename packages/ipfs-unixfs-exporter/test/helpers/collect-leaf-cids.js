@@ -8,15 +8,14 @@ const { decode } = require('@ipld/dag-pb')
  */
 
 /**
- * @param {import('multiformats/cid')} cid
+ * @param {import('multiformats/cid').CID} cid
  * @param {import('ipfs-unixfs-importer/src/types').BlockAPI} blockService
  */
 module.exports = function (cid, blockService) {
   /**
-   * @param {import('multiformats/cid')} cid
+   * @param {import('multiformats/cid').CID} cid
    */
   async function * traverse (cid) {
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const block = await blockService.get(cid)
     const node = decode(block.bytes)
 
@@ -33,7 +32,6 @@ module.exports = function (cid, blockService) {
       /**
        * @param {PbLink} link
        */
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       link => traverse(link.Hash)
     )
   }

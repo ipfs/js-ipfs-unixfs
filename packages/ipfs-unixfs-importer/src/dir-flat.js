@@ -110,6 +110,7 @@ class DirFlat extends Dir {
     })
 
     /** @type {PbNode} */
+    // @ts-ignore - TODO vmx 2021-03-27: fix this
     const node = { Data: unixfs.marshal(), Links: links }
     const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, this.options)
@@ -121,6 +122,7 @@ class DirFlat extends Dir {
       (acc, curr) => acc + curr.Tsize,
       0)
 
+    // @ts-ignore - TODO vmx 2021-03-27: fix this
     this.cid = cid
     this.size = size
 

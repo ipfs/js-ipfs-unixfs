@@ -1,7 +1,7 @@
 'use strict'
 
 const errCode = require('err-code')
-const CID = require('multiformats/cid')
+const { CID } = require('multiformats/cid')
 const resolve = require('./resolvers')
 const last = require('it-last')
 

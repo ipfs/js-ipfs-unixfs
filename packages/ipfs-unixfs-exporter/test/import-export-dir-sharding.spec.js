@@ -37,7 +37,6 @@ describe('builder: directory sharding', () => {
       expect(nodes[0].path).to.equal('a/b')
       expect(nodes[1].path).to.equal('a')
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dirNode = await exporter(nodes[1].cid, block)
 
       if (dirNode.type !== 'directory') {
@@ -46,7 +45,6 @@ describe('builder: directory sharding', () => {
 
       expect(dirNode.unixfs.type).to.equal('directory')
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const fileNode = await exporter(nodes[0].cid, block)
 
       if (fileNode.type !== 'file') {
@@ -74,7 +72,6 @@ describe('builder: directory sharding', () => {
       expect(nodes[0].path).to.equal('a/b')
       expect(nodes[1].path).to.equal('a')
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node = await exporter(nodes[1].cid, block)
 
       if (node.type !== 'directory') {
@@ -95,7 +92,6 @@ describe('builder: directory sharding', () => {
 
       const nonShardedHash = nodes[1].cid
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dir = await exporter(nonShardedHash, block)
 
       if (dir.type !== 'directory') {
@@ -133,7 +129,6 @@ describe('builder: directory sharding', () => {
 
       const shardedHash = nodes[1].cid
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dir = await exporter(shardedHash, block)
 
       if (dir.type !== 'directory') {
@@ -201,7 +196,6 @@ describe('builder: directory sharding', () => {
 
       expect(nodes.length).to.equal(maxDirs + 1) // files plus the containing directory
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dir = await exporter(nodes[nodes.length - 1].cid, block)
 
       if (dir.type !== 'directory') {
@@ -224,7 +218,7 @@ describe('builder: directory sharding', () => {
 
     const maxDirs = 2000
     const maxDepth = 3
-    /** @type {import('multiformats').CID} */
+    /** @type {import('multiformats/cid').CID} */
     let rootHash
 
     before(async () => {
@@ -271,7 +265,6 @@ describe('builder: directory sharding', () => {
     })
 
     it('imports a big dir', async () => {
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dir = await exporter(rootHash, block)
 
       /**
@@ -347,7 +340,6 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const dir = await exporter(rootHash, block)
 
       const entries = await collectContent(dir)
@@ -362,7 +354,6 @@ describe('builder: directory sharding', () => {
     it('exports a big dir with subpath', async () => {
       const exportHash = rootHash.toString() + '/big/big/2000'
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node = await exporter(exportHash, block)
       expect(node.path).to.equal(exportHash)
 

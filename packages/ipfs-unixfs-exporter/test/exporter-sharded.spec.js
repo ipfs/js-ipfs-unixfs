@@ -17,7 +17,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 
 /**
- * @typedef {import('multiformats').CID} CID
+ * @typedef {import('multiformats/cid').CID} CID
  */
 
 const SHARD_SPLIT_THRESHOLD = 10
@@ -103,7 +103,6 @@ describe('exporter sharded', function () {
 
     expect(dirMetadata.type).to.equal('hamt-sharded-directory')
 
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(dirCid, block)
 
     expect(exported.cid.toString()).to.be.equal(dirCid.toString())
@@ -140,7 +139,6 @@ describe('exporter sharded', function () {
   it('exports all files from a sharded directory with subshards', async () => {
     const numFiles = 31
     const dirCid = await createShard(numFiles)
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const exported = await exporter(dirCid, block)
 
     if (exported.type !== 'directory') {

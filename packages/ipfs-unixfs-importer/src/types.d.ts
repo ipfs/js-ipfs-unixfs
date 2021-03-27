@@ -1,5 +1,5 @@
 import { UnixFS, Mtime } from 'ipfs-unixfs'
-import CID from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 import { HashName } from 'multihashes'
 import { CodecName } from 'multicodec'
 import MultihashDigest from 'multiformats/hashes/hasher'

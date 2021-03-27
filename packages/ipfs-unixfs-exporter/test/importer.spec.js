@@ -23,7 +23,7 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 const last = require('it-last')
-const CID = require('multiformats/cid')
+const { CID } = require('multiformats/cid')
 const { base58btc } = require('multiformats/bases/base58')
 // @ts-ignore - TODO vmx 2021-03-25: add the types
 const { decode } = require('@ipld/dag-pb')
@@ -619,7 +619,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block, options))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const result = stringifyMh(files)
 
       expect(result.length).to.equal(5)
@@ -755,7 +754,6 @@ strategies.forEach((strategy) => {
         }
 
         // Check the imported content is correct
-        // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
         const node = await exporter(cid, block)
 
         if (node.type !== 'file') {
@@ -801,7 +799,6 @@ strategies.forEach((strategy) => {
         path: '1.2MiB.txt',
         content: asAsyncIterable(bigFile)
       }], block, options)) {
-        // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
         for await (const { cid } of collectLeafCids(file.cid, block)) {
           expect(cid).to.have.property('codec', 'raw')
           expect(cid).to.have.property('version', 1)
@@ -822,7 +819,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile),
         mtime: parseMtime(now)
       }], block, options)) {
-        // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
         const node = await exporter(file.cid, block)
 
         expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
@@ -839,7 +835,6 @@ strategies.forEach((strategy) => {
         mtime: parseMtime(now)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node = await exporter(entries[0].cid, block)
       expect(node).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
     })
@@ -859,7 +854,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
       const node = nodes.filter(node => node.type === 'directory').pop()
 
@@ -886,7 +880,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
       const node = nodes.filter(node => node.type === 'directory').pop()
 
@@ -918,7 +911,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
       const node = nodes.filter(node => node.type === 'directory' && node.name === 'bar').pop()
 
@@ -950,7 +942,6 @@ strategies.forEach((strategy) => {
         shardSplitThreshold: 0
       }))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
       const node = nodes.filter(node => node.type === 'directory' && node.unixfs.type === 'hamt-sharded-directory').pop()
 
@@ -974,7 +965,6 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile),
         mode
       }], block, options)) {
-        // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
         const node = await exporter(file.cid, block)
 
         expect(node).to.have.nested.property('unixfs.mode', mode)
@@ -991,7 +981,6 @@ strategies.forEach((strategy) => {
         mode
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node = await exporter(entries[0].cid, block)
       expect(node).to.have.nested.property('unixfs.mode', mode)
     })
@@ -1012,11 +1001,9 @@ strategies.forEach((strategy) => {
         mode: mode2
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node1 = await exporter(entries[0].cid, block)
       expect(node1).to.have.nested.property('unixfs.mode', mode1)
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node2 = await exporter(entries[1].cid, block)
       expect(node2).to.have.nested.property('unixfs.mode', mode2)
     })
@@ -1035,11 +1022,9 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node1 = await exporter(entries[0].cid, block)
       expect(node1).to.have.nested.property('unixfs.mode', mode)
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node2 = await exporter(entries[1].cid, block)
       expect(node2).to.have.nested.property('unixfs.mode').that.does.not.equal(mode)
     })
@@ -1052,11 +1037,9 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block))
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node1 = await exporter(entries[0].cid, block)
       expect(node1).to.have.nested.property('unixfs.mode', 0o0644)
 
-      // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
       const node2 = await exporter(entries[1].cid, block)
       expect(node2).to.have.nested.property('unixfs.mode', 0o0755)
     })
@@ -1069,7 +1052,6 @@ describe('configuration', () => {
 
   it('alllows configuring with custom dag and tree builder', async () => {
     let builtTree = false
-    // @ts-ignore - TODO vmx 2021-03-25: the multiformats package is the problem, not the code
     const cid = CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
     const unixfs = new UnixFS({ type: 'directory' })
 

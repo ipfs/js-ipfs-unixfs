@@ -11,7 +11,7 @@ const {
 const parallelBatch = require('it-parallel-batch')
 const mc = require('multicodec')
 const mh = require('multiformats/hashes/digest')
-const RAW = require('multiformats/codecs/raw').code
+const rawCodec = require('multiformats/codecs/raw')
 
 /**
  * @typedef {import('../../types').BlockAPI} BlockAPI
@@ -80,7 +80,7 @@ const reduce = (file, block, options) => {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (leaf.cid.code === RAW && (file.mtime !== undefined || file.mode !== undefined)) {
+      if (leaf.cid.code === rawCodec.code && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
         let { bytes: buffer } = await block.get(leaf.cid, options)
@@ -140,7 +140,7 @@ const reduce = (file, block, options) => {
 
     const links = leaves
       .filter(leaf => {
-        if (leaf.cid.code === RAW && leaf.size) {
+        if (leaf.cid.code === rawCodec.code && leaf.size) {
           return true
         }
 
@@ -151,7 +151,7 @@ const reduce = (file, block, options) => {
         return Boolean(leaf.unixfs && leaf.unixfs.data && leaf.unixfs.data.length)
       })
       .map((leaf) => {
-        if (leaf.cid.code === RAW) {
+        if (leaf.cid.code === rawCodec.code) {
           // node is a leaf buffer
           f.addBlockSize(leaf.size)
 

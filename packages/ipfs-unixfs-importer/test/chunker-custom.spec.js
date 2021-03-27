@@ -32,7 +32,6 @@ describe('custom chunker', function () {
     const put = async (buf) => {
       const encodedBlock = await Block.encode({
         value: buf,
-        // @ts-ignore - TODO vmx 2021-03-25: fix: error TS2739: Type 'typeof import("/js-multiformats/dist/types/codecs/raw")' is missing the following properties from type 'BlockEncoder<number, Uint8Array>': name, code, encode
         codec: rawCodec,
         hasher: sha256
       })

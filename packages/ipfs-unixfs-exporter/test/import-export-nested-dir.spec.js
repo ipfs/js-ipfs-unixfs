@@ -110,7 +110,7 @@ async function recursiveExport (node, path, entries = []) {
 }
 
 /**
- * @param {{ path?: string, cid: import('multiformats').CID }} node
+ * @param {{ path?: string, cid: import('multiformats/cid').CID }} node
  */
 function normalizeNode (node) {
   return {

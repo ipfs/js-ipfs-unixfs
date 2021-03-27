@@ -1,7 +1,7 @@
 'use strict'
 
 const mc = require('multicodec')
-const { CID } = require('multiformats')
+const { CID } = require('multiformats/cid')
 
 /**
  * @param {Uint8Array} buffer

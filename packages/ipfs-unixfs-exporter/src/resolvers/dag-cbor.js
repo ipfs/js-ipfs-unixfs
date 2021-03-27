@@ -1,6 +1,6 @@
 'use strict'
 
-const CID = require('multiformats/cid')
+const { CID } = require('multiformats/cid')
 const errCode = require('err-code')
 // @ts-ignore
 const dagCbor = require('@ipld/dag-cbor')

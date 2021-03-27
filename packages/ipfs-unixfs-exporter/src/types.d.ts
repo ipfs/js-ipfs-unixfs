@@ -1,4 +1,4 @@
-import { CID  } from 'multiformats'
+import { CID  } from 'multiformats/cid'
 import UnixFS from 'ipfs-unixfs'
 import DAGNode from 'ipld-dag-pb'
 

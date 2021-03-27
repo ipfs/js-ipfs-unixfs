@@ -7,7 +7,7 @@ const { decode } = require('@ipld/dag-pb')
 
 /**
  * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
- * @typedef {import('multiformats').CID} CID
+ * @typedef {import('multiformats/cid').CID} CID
  * @typedef {import('../types').ExporterOptions} ExporterOptions
  * @typedef {import('../types').PbNode} PbNode
  * @typedef {import('../types').PbLink} PbLink

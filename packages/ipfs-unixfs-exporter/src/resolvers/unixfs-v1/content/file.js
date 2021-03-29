@@ -6,7 +6,6 @@ const { UnixFS } = require('ipfs-unixfs')
 const errCode = require('err-code')
 // @ts-ignore
 const dagPb = require('@ipld/dag-pb')
-// @ts-ignore
 const dagCbor = require('@ipld/dag-cbor')
 const mc = require('multicodec')
 

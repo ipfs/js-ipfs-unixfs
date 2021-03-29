@@ -6,7 +6,6 @@ const { UnixFS } = require('ipfs-unixfs')
 const { CID } = require('multiformats/cid')
 // @ts-ignore - TODO vmx 2021-03-25: add those typedefs
 const dagPb = require('@ipld/dag-pb')
-// @ts-ignore - TODO vmx 2021-03-25: add those typedefs
 const dagCbor = require('@ipld/dag-cbor')
 const rawCodec = require('multiformats/codecs/raw')
 const { sha256 } = require('multiformats/hashes/sha2')

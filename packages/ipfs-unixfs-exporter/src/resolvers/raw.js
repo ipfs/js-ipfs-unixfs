@@ -42,13 +42,11 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
       type: 'raw',
       name,
       path,
-      // @ts-ignore
       cid,
       content: rawContent(block.bytes),
       depth,
       // TODO vmx 2021-03-24: Check if `size` is needed
       size: 0,
-      // @ts-ignore
       node: block.bytes
     }
   }

@@ -26,7 +26,6 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
       toResolve.shift()
       subPath = `${subPath}/${prop}`
 
-      // @ts-ignore
       const subObjectCid = CID.asCID(subObject[prop])
       if (subObjectCid) {
         return {

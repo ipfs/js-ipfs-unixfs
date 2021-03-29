@@ -32,13 +32,11 @@ const cidAndRest = (path) => {
   if (path instanceof Uint8Array) {
     console.log('vmx: index: path:', path)
     return {
-      // @ts-ignore
       cid: CID.decode(path),
       toResolve: []
     }
   }
 
-  // @ts-ignore
   const cid = CID.asCID(path)
   if (cid) {
     return {
@@ -55,7 +53,6 @@ const cidAndRest = (path) => {
     const output = toPathComponents(path)
 
     return {
-      // @ts-ignore
       cid: CID.parse(output[0]),
       toResolve: output.slice(1)
     }

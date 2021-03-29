@@ -10,7 +10,7 @@ const {
 } = require('@ipld/dag-pb')
 const parallelBatch = require('it-parallel-batch')
 const mc = require('multicodec')
-const mh = require('multiformats/hashes/digest')
+//const mh = require('multiformats/hashes/digest')
 const rawCodec = require('multiformats/codecs/raw')
 
 /**
@@ -92,14 +92,13 @@ const reduce = (file, block, options) => {
           data: buffer
         })
 
-        // @ts-ignore
-        const multihash = mh.decode(leaf.cid.multihash.bytes)
         buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
         //// TODO vmx 2021-03-26: This is what the original code does, it checks
         //// the multihash of the original leaf node and uses then the same
         //// hasher. i wonder if that's really needed or if we could just use
         //// the hasher from `options.hasher` instead.
+        //const multihash = mh.decode(leaf.cid.multihash.bytes)
         //let hasher
         //switch multihash {
         //  case sha256.code {

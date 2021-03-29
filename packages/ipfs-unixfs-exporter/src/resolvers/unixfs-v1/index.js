@@ -97,7 +97,6 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockS
       type: unixfs.isDirectory() ? 'directory' : 'file',
       name,
       path,
-      // @ts-ignore
       cid,
       // @ts-ignore
       content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockService),

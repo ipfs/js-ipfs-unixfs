@@ -22,13 +22,10 @@ const persist = async (buffer, block, options) => {
   }
 
   const multihash = await options.hasher.digest(buffer)
-  // TODO vmx 2021-02-24: no idea why TypeScript fails here, it should work
-  // @ts-ignore
   const cid = CID.create(options.cidVersion, options.codec, multihash)
 
   if (!options.onlyHash) {
     await block.put({
-      // @ts-ignore TODO vmx 2021-03-17
       bytes: buffer,
       cid
     }, {

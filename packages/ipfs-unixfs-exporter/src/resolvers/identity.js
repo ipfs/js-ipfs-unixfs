@@ -36,7 +36,6 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
   }
-  // @ts-ignore
   const buf = await mh.decode(cid.multihash.bytes)
 
   return {
@@ -44,7 +43,6 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
       type: 'identity',
       name,
       path,
-      // @ts-ignore
       cid,
       content: rawContent(buf.digest),
       depth,

@@ -31,7 +31,6 @@ describe('builder', () => {
 
       const result = await first(builder([inputFile], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
         hasher
       }))
 
@@ -68,7 +67,6 @@ describe('builder', () => {
 
       const result = await first(builder([inputFile], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
         hasher
       }))
 
@@ -92,7 +90,6 @@ describe('builder', () => {
 
       const result = await first(builder([{ ...inputFile }], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
         hasher
       }))
 

@@ -973,6 +973,7 @@ describe('exporter', () => {
   it('errors when exporting a non-existent key from a cbor node', async () => {
     const cborBlock = await Block.encode({
       value: { foo: 'bar' },
+      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })
@@ -992,6 +993,7 @@ describe('exporter', () => {
 
     const cborBlock = await Block.encode({
       value: node,
+      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })
@@ -1048,6 +1050,7 @@ describe('exporter', () => {
   it('errors we export a unixfs node that has a non-unixfs/dag-pb child', async () => {
     const cborBlock = await Block.encode({
       value: { foo: 'bar' },
+      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })

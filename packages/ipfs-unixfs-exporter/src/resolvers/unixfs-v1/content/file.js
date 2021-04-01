@@ -77,6 +77,7 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
           child = block.bytes
           break;
         case mc.DAG_CBOR:
+          // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
           child = await dagCbor.decode(block.bytes)
           break;
         default:

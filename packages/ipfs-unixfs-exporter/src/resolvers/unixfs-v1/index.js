@@ -50,7 +50,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, 
   let next
 
   if (!name) {
-    name = cid.toBaseEncodedString()
+    name = cid.toString()
   }
 
   try {

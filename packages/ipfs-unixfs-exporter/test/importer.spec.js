@@ -43,7 +43,7 @@ function stringifyMh (files) {
   return files.map((file) => {
     return {
       ...file,
-      cid: file.cid.toBaseEncodedString()
+      cid: file.cid.toString()
     }
   })
 }
@@ -341,7 +341,7 @@ strategies.forEach((strategy) => {
       const actualFile = actualFiles[i]
 
       expect(actualFile.path).to.equal(expectedFile.path)
-      expect(actualFile.cid.toBaseEncodedString('base58btc')).to.equal(expectedFile.cid)
+      expect(actualFile.cid.toString('base58btc')).to.equal(expectedFile.cid)
 
       if (actualFile.unixfs) {
         expect(actualFile.unixfs.type).to.equal(expectedFile.type)
@@ -422,7 +422,7 @@ strategies.forEach((strategy) => {
       expect(files.length).to.eql(1)
 
       // always yield empty file node
-      expect(files[0].cid.toBaseEncodedString()).to.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
+      expect(files[0].cid.toString()).to.eql('QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH')
     })
 
     it('supports more than one root', async () => {

@@ -44,11 +44,11 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`, ipld)
+    const exported = await exporter(`${imported.cid}/level-1/200Bytes.txt`, ipld)
 
     expect(exported).to.have.property('cid')
     expect(exported.name).to.equal('200Bytes.txt')
-    expect(exported.path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`)
+    expect(exported.path).to.equal(`${imported.cid}/level-1/200Bytes.txt`)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -74,7 +74,7 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid.toBaseEncodedString()}/level-1`, ipld)
+    const exported = await exporter(`${imported.cid}/level-1`, ipld)
 
     if (exported.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -84,10 +84,10 @@ describe('exporter subtree', () => {
 
     expect(files.length).to.equal(2)
     expect(files[0].name).to.equal('200Bytes.txt')
-    expect(files[0].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/200Bytes.txt`)
+    expect(files[0].path).to.equal(`${imported.cid}/level-1/200Bytes.txt`)
 
     expect(files[1].name).to.equal('level-2')
-    expect(files[1].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/level-2`)
+    expect(files[1].path).to.equal(`${imported.cid}/level-1/level-2`)
 
     if (files[0].type !== 'file') {
       throw new Error('Unexpected type')
@@ -108,7 +108,7 @@ describe('exporter subtree', () => {
     }
 
     try {
-      await exporter(`${imported.cid.toBaseEncodedString()}/doesnotexist`, ipld)
+      await exporter(`${imported.cid}/doesnotexist`, ipld)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
@@ -134,16 +134,16 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await all(walkPath(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`, ipld))
+    const exported = await all(walkPath(`${imported.cid}/level-1/level-2/200Bytes.txt`, ipld))
 
     expect(exported.length).to.equal(4)
-    expect(exported[0].path).to.equal(imported.cid.toBaseEncodedString())
-    expect(exported[0].name).to.equal(imported.cid.toBaseEncodedString())
-    expect(exported[1].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1`)
+    expect(exported[0].path).to.equal(imported.cid.toString())
+    expect(exported[0].name).to.equal(imported.cid.toString())
+    expect(exported[1].path).to.equal(`${imported.cid}/level-1`)
     expect(exported[1].name).to.equal('level-1')
-    expect(exported[2].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/level-2`)
+    expect(exported[2].path).to.equal(`${imported.cid}/level-1/level-2`)
     expect(exported[2].name).to.equal('level-2')
-    expect(exported[3].path).to.equal(`${imported.cid.toBaseEncodedString()}/level-1/level-2/200Bytes.txt`)
+    expect(exported[3].path).to.equal(`${imported.cid}/level-1/level-2/200Bytes.txt`)
     expect(exported[3].name).to.equal('200Bytes.txt')
   })
 })

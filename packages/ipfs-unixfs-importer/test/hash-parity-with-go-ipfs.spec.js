@@ -63,7 +63,7 @@ strategies.forEach(strategy => {
         throw new Error('Nothing imported')
       }
 
-      expect(file.cid.toBaseEncodedString()).to.be.equal(expectedHashes[strategy])
+      expect(file.cid.toString()).to.be.equal(expectedHashes[strategy])
     })
   })
 })

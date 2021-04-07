@@ -180,7 +180,7 @@ describe('exporter', () => {
     const file = await exporter(result.cid, ipld)
 
     expect(file).to.have.property('cid')
-    expect(file).to.have.property('path', result.cid.toBaseEncodedString())
+    expect(file).to.have.property('path', result.cid.toString())
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -199,11 +199,11 @@ describe('exporter', () => {
       content: asAsyncIterable(smallFile)
     }], block))
 
-    const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
+    const path = `/ipfs/${files[1].cid}/${fileName}`
     const file = await exporter(path, ipld)
 
     expect(file.name).to.equal(fileName)
-    expect(file.path).to.equal(`${files[1].cid.toBaseEncodedString()}/${fileName}`)
+    expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
   })
 
   it('small file in a directory with an square brackets in the title', async () => {
@@ -215,11 +215,11 @@ describe('exporter', () => {
       content: asAsyncIterable(smallFile)
     }], block))
 
-    const path = `/ipfs/${files[1].cid.toBaseEncodedString()}/${fileName}`
+    const path = `/ipfs/${files[1].cid}/${fileName}`
     const file = await exporter(path, ipld)
 
     expect(file.name).to.equal(fileName)
-    expect(file.path).to.equal(`${files[1].cid.toBaseEncodedString()}/${fileName}`)
+    expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
   })
 
   it('exports a chunk of a file with no links', async () => {
@@ -338,7 +338,7 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    expect(file).to.have.property('path', cid.toBaseEncodedString())
+    expect(file).to.have.property('path', cid.toString())
     expect(file.unixfs.fileSize()).to.equal(ONE_MEG * 6)
   })
 
@@ -354,7 +354,7 @@ describe('exporter', () => {
     })
 
     const file = await exporter(cid, ipld)
-    expect(file).to.have.property('path', cid.toBaseEncodedString())
+    expect(file).to.have.property('path', cid.toString())
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -432,9 +432,9 @@ describe('exporter', () => {
     expect(
       files.map((file) => file.path)
     ).to.be.eql([
-      `${dir.cid.toBaseEncodedString()}/200Bytes.txt`,
-      `${dir.cid.toBaseEncodedString()}/dir-another`,
-      `${dir.cid.toBaseEncodedString()}/level-1`
+      `${dir.cid}/200Bytes.txt`,
+      `${dir.cid}/dir-another`,
+      `${dir.cid}/level-1`
     ])
 
     files
@@ -480,9 +480,9 @@ describe('exporter', () => {
     expect(
       files.map((file) => file.path)
     ).to.be.eql([
-      `${importedDir.cid.toBaseEncodedString()}/200Bytes.txt`,
-      `${importedDir.cid.toBaseEncodedString()}/dir-another`,
-      `${importedDir.cid.toBaseEncodedString()}/level-1`
+      `${importedDir.cid}/200Bytes.txt`,
+      `${importedDir.cid}/dir-another`,
+      `${importedDir.cid}/level-1`
     ])
 
     expect(
@@ -942,7 +942,7 @@ describe('exporter', () => {
     }, mc.DAG_CBOR)
 
     try {
-      await exporter(`${cborNodeCid.toBaseEncodedString()}/baz`, ipld)
+      await exporter(`${cborNodeCid}/baz`, ipld)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_PROP')
     }
@@ -954,7 +954,7 @@ describe('exporter', () => {
     }
 
     const cborNodeCid = await ipld.put(node, mc.DAG_CBOR)
-    const exported = await exporter(`${cborNodeCid.toBaseEncodedString()}`, ipld)
+    const exported = await exporter(`${cborNodeCid}`, ipld)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
@@ -967,7 +967,7 @@ describe('exporter', () => {
     const cid = new CID(1, 'git-raw', new CID('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
 
     try {
-      await exporter(`${cid.toBaseEncodedString()}`, ipld)
+      await exporter(`${cid}`, ipld)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_RESOLVER')
     }
@@ -977,7 +977,7 @@ describe('exporter', () => {
     const cid = await ipld.put(Uint8Array.from([0, 1, 2, 3, 4]), mc.RAW)
 
     try {
-      await exporter(`${cid.toBaseEncodedString()}/lol`, ipld)
+      await exporter(`${cid}/lol`, ipld)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
@@ -1048,7 +1048,7 @@ describe('exporter', () => {
     }
 
     const exported = await all(recursive(dir.cid, ipld))
-    const dirCid = dir.cid.toBaseEncodedString()
+    const dirCid = dir.cid.toString()
 
     expect(exported[0].depth).to.equal(0)
     expect(exported[0].name).to.equal(dirCid)

@@ -4,7 +4,6 @@
 const { importer } = require('../src')
 const { expect } = require('aegir/utils/chai')
 const rawCodec = require('multiformats/codecs/raw')
-// @ts-ignore
 const { sha256 } = require('multiformats/hashes/sha2')
 const Block = require('multiformats/block')
 const blockApi = require('./helpers/block')

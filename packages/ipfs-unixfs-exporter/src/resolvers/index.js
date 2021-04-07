@@ -28,7 +28,7 @@ function resolve (cid, name, path, toResolve, depth, blockService, options) {
   const resolver = resolvers[cid.code]
 
   if (!resolver) {
-    // @ts-ignore - TODO vmx 2021-03-05: Add proper typing
+    // @ts-ignore - A `CodecCode` is expected, but a number is just fine
     throw errCode(new Error(`No resolver for codec ${multicodec.getName(cid.code)}`), 'ERR_NO_RESOLVER')
   }
 

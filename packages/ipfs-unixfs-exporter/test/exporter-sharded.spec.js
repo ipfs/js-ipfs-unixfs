@@ -128,7 +128,7 @@ describe('exporter sharded', function () {
       const data = uint8ArrayConcat(await all(dirFile.content()))
 
       // validate the CID
-      // @ts-ignore - TODO vmx 2021-03-25: fix that one
+      // @ts-ignore - files[dirFile.name].cid is defined
       expect(files[dirFile.name].cid.toString()).that.deep.equals(dirFile.cid.toString())
 
       // validate the exported file content

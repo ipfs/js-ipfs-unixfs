@@ -81,8 +81,7 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
           child = await dagCbor.decode(block.bytes)
           break
         default:
-          // TODO vmx 2021-03-05: fix this type issue properly
-          // @ts-ignore
+          // @ts-ignore - A `CodecCode` is expected, but a number is just fine
           throw Error(`Unsupported codec: ${mc.getName(childLink.Hash.code)}`)
       }
 

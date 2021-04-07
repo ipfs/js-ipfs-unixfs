@@ -30,7 +30,6 @@ const toPathComponents = (path = '') => {
  */
 const cidAndRest = (path) => {
   if (path instanceof Uint8Array) {
-    console.log('vmx: index: path:', path)
     return {
       cid: CID.decode(path),
       toResolve: []

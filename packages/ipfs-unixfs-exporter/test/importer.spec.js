@@ -30,7 +30,6 @@ const { decode } = require('@ipld/dag-pb')
 const { parseMtime } = require('ipfs-unixfs')
 
 /**
- * @typedef {import('ipfs-core-types/src/block-service').BlockService} BlockService
  * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
  * @typedef {import('../src/types').PbNode} PbNode
  */
@@ -226,7 +225,7 @@ const checkLeafNodeTypes = async (block, options, expected) => {
     node.Links.map(link => block.get(link.Hash))
   )
 
-  linkedBlocks.forEach(({ bytes}) => {
+  linkedBlocks.forEach(({ bytes }) => {
     const node = decode(bytes)
     const meta = UnixFS.unmarshal(node.Data)
     expect(meta.type).to.equal(expected)

@@ -10,7 +10,7 @@ const { CID } = require('multiformats/cid')
  */
 const persist = async (buffer, block, options) => {
   if (!options.hasher) {
-    throw new Error(`Hasher must be specified.`)
+    throw new Error('Hasher must be specified.')
   }
 
   if (!options.codec) {
@@ -32,7 +32,7 @@ const persist = async (buffer, block, options) => {
       // @ts-ignore pin option is missing from block api typedefs
       pin: options.pin,
       preload: options.preload,
-      timeout: options.timeout,
+      timeout: options.timeout
     })
   }
 

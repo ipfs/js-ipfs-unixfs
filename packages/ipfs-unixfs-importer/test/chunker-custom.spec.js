@@ -11,7 +11,6 @@ const blockApi = require('./helpers/block')
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const { UnixFS } = require('ipfs-unixfs')
 
-
 const iter = async function * () {
   yield uint8ArrayFromString('one')
   yield uint8ArrayFromString('two')

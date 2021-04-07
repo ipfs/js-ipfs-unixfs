@@ -109,4 +109,4 @@ describe('builder', () => {
       expect(meta.type).to.equal('directory')
     }
   })
- })
+})

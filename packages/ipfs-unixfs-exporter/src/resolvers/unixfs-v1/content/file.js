@@ -66,7 +66,7 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
       const block = await blockService.get(childLink.Hash, {
-        signal: options.signal,
+        signal: options.signal
       })
       let child
       switch (childLink.Hash.code) {
@@ -75,18 +75,16 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
           break
         case mc.RAW:
           child = block.bytes
-          break;
+          break
         case mc.DAG_CBOR:
           // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
           child = await dagCbor.decode(block.bytes)
-          break;
+          break
         default:
           // TODO vmx 2021-03-05: fix this type issue properly
           // @ts-ignore
           throw Error(`Unsupported codec: ${mc.getName(childLink.Hash.code)}`)
       }
-      //console.log('file: childlink cid codec:', childLink.Hash.code)
-      //const child = await decode(block.bytes)
 
       for await (const buf of emitBytes(blockService, child, start, end, streamPosition, options)) {
         streamPosition += buf.length

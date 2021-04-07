@@ -269,7 +269,6 @@ describe('exporter', () => {
       data: content.slice(0, 5)
     })
     const chunkNode1 = dagPb.prepare({ Data: chunk1.marshal() })
-    // TODO vmx 2022-02-23: Use CIv0
     const chunkBlock1 = await Block.encode({
       value: chunkNode1,
       codec: dagPb,
@@ -283,7 +282,6 @@ describe('exporter', () => {
       codec: dagPb,
       hasher: sha256
     })
-    // TODO vmx 2022-02-23: USE CIDv0
     const chunkBlock2 = await Block.encode({
       value: chunkNode2,
       codec: dagPb,
@@ -302,14 +300,13 @@ describe('exporter', () => {
       Links: [{
         Name: '',
         Tsize: chunkNode1.size,
-        Hash: chunkBlock1.cid
+        Hash: chunkBlock1.cid.toV0()
       }, {
         Name: '',
         Tsize: chunkNode2.size,
-        Hash: chunkBlock2.cid
+        Hash: chunkBlock2.cid.toV0()
       }]
     })
-    // TODO vmx 2022-02-23: Use CIDv0
     const fileBlock = await Block.encode({
       value: fileNode,
       codec: dagPb,
@@ -317,7 +314,7 @@ describe('exporter', () => {
     })
     await block.put(fileBlock)
 
-    const exported = await exporter(fileBlock.cid, block)
+    const exported = await exporter(fileBlock.cid.toV0(), block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')

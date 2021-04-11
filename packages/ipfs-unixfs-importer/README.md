@@ -115,7 +115,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 
 `options` is an JavaScript option that might include the following keys:
 
-- `wrap` (boolean, defaults to false): if true, a wrapping node will be created
+- `wrapWithDirectory` (boolean, defaults to false): if true, a wrapping node will be created
 - `shardSplitThreshold` (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)
 - `chunker` (string, defaults to `"fixed"`): the chunking strategy. Supports:
   - `fixed`

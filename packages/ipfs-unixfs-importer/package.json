@@ -34,7 +34,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^32.1.0",
+    "aegir": "^33.1.0",
     "assert": "^2.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
@@ -50,12 +50,12 @@
     "util": "^0.12.3"
   },
   "dependencies": {
-    "bl": "^4.1.0",
+    "bl": "^5.0.0",
     "cids": "^1.1.5",
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^4.0.1",
-    "ipld-dag-pb": "^0.21.0",
+    "ipld-dag-pb": "^0.22.2",
     "it-all": "^1.0.5",
     "it-batch": "^1.0.8",
     "it-first": "^1.0.6",

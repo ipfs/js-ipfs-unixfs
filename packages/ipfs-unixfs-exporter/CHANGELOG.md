@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@5.0.2...ipfs-unixfs-exporter@5.0.3) (2021-04-20)
+
+**Note:** Version bump only for package ipfs-unixfs-exporter
+
+
+
+
+
 ## [5.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@5.0.1...ipfs-unixfs-exporter@5.0.2) (2021-04-16)
 
 **Note:** Version bump only for package ipfs-unixfs-exporter

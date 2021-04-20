@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@4.0.2...ipfs-unixfs@4.0.3) (2021-04-20)
+
+
+### Bug Fixes
+
+* add pbjs namespace ([#145](https://github.com/ipfs/js-ipfs-unixfs/issues/145)) ([dd26b92](https://github.com/ipfs/js-ipfs-unixfs/commit/dd26b92606a935d08221a0bf6709a4954d864259))
+
+
+
+
+
 ## [4.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@4.0.1...ipfs-unixfs@4.0.2) (2021-04-16)
 
 **Note:** Version bump only for package ipfs-unixfs

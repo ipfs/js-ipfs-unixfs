@@ -150,13 +150,14 @@ describe('exporter', () => {
 
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
+      // @ts-ignore - we can guarantee that it's not undefined
       const leaf = UnixFS.unmarshal(child.node.Data)
 
       file.addBlockSize(leaf.fileSize())
 
       links.push({
         Name: '',
-        Tsize: child.node.Data.length,
+        Tsize: child.node.Data != null ? child.node.Data.length : 0,
         Hash: child.cid
       })
     }
@@ -182,6 +183,8 @@ describe('exporter', () => {
     const result = await dagPut()
     const encodedBlock = await block.get(result.cid)
     const node = dagPb.decode(encodedBlock.bytes)
+    expect(node.Data).is.not.undefined()
+    // @ts-ignore ^ we've checked that it's defined
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     expect(unmarsh.data).to.deep.equal(result.file.data)
@@ -241,6 +244,8 @@ describe('exporter', () => {
 
     const encodedBlock = await block.get(result.cid)
     const node = dagPb.decode(encodedBlock.bytes)
+    expect(node.Data).is.not.undefined()
+    // @ts-ignore ^ we've checked that it's defined
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     if (!unmarsh.data) {
@@ -298,11 +303,11 @@ describe('exporter', () => {
       Data: file.marshal(),
       Links: [{
         Name: '',
-        Tsize: chunkNode1.size,
+        Tsize: chunkNode1.Data != null ? chunkNode1.Data.length : 0,
         Hash: chunkBlock1.cid.toV0()
       }, {
         Name: '',
-        Tsize: chunkNode2.size,
+        Tsize: chunkNode2.Data != null ? chunkNode2.Data.length : 0,
         Hash: chunkBlock2.cid.toV0()
       }]
     })
@@ -332,7 +337,7 @@ describe('exporter', () => {
       content: uint8ArrayConcat(await all(randomBytes(100))),
       links: [{
         Name: '',
-        Tsize: chunk.node.size,
+        Tsize: chunk.node.Data != null ? chunk.node.Data.length : 0,
         Hash: chunk.cid
       }]
     })

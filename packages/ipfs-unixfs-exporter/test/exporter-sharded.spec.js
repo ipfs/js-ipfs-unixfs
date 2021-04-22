@@ -98,6 +98,8 @@ describe('exporter sharded', function () {
 
     const encodedBlock = await block.get(dirCid)
     const dir = dagPb.decode(encodedBlock.bytes)
+    expect(dir.Data).to.not.be.undefined()
+    // @ts-ignore ^ we've checked that it's defined
     const dirMetadata = UnixFS.unmarshal(dir.Data)
 
     expect(dirMetadata.type).to.equal('hamt-sharded-directory')

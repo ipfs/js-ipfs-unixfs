@@ -3,7 +3,7 @@
 const { decode } = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('../../src/types').PbLink} PbLink
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
 
 /**
@@ -29,7 +29,7 @@ module.exports = function (cid, blockService) {
 
     node.Links.forEach(
       /**
-       * @param {PbLink} link
+       * @param {PBLink} link
        */
       link => traverse(link.Hash)
     )

@@ -215,6 +215,8 @@ const checkLeafNodeTypes = async (block, options, expected) => {
   const fileBlock = await block.get(file.cid)
   /** @type {PBNode} */
   const node = decode(fileBlock.bytes)
+  expect(node.Data).to.not.be.undefined()
+  // @ts-ignore ^ we know it's not undefined
   const meta = UnixFS.unmarshal(node.Data)
 
   expect(meta.type).to.equal('file')
@@ -226,6 +228,8 @@ const checkLeafNodeTypes = async (block, options, expected) => {
 
   linkedBlocks.forEach(({ bytes }) => {
     const node = decode(bytes)
+    expect(node.Data).to.not.be.undefined()
+    // @ts-ignore ^ we know it's not undefined
     const meta = UnixFS.unmarshal(node.Data)
     expect(meta.type).to.equal(expected)
   })
@@ -243,6 +247,8 @@ const checkNodeLinks = async (block, options, expected) => {
   }], block, options)) {
     const fileBlock = await block.get(file.cid)
     const node = decode(fileBlock.bytes)
+    expect(node.Data).to.not.be.undefined()
+    // @ts-ignore ^ we know it's not undefined
     const meta = UnixFS.unmarshal(node.Data)
 
     expect(meta.type).to.equal('file')

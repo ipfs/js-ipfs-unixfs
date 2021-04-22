@@ -47,6 +47,8 @@ describe('builder', () => {
       const importedBlock = await block.get(imported.cid)
       const node = decode(importedBlock.bytes)
 
+      expect(node.Data).to.not.be.undefined()
+      // @ts-ignore ^ we've checked that it's defined
       const fetchedContent = UnixFS.unmarshal(node.Data).data
       expect(fetchedContent).to.deep.equal(content)
     }
@@ -104,6 +106,8 @@ describe('builder', () => {
       const importedBlock = await block.get(imported.cid)
       const node = decode(importedBlock.bytes)
 
+      expect(node.Data).to.not.be.undefined()
+      // @ts-ignore ^ we've checked that it's defined
       const meta = UnixFS.unmarshal(node.Data)
       expect(meta.type).to.equal('directory')
     }

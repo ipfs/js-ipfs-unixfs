@@ -20,7 +20,7 @@ const directoryContent = (cid, node, unixfs, path, resolve, depth, blockService)
     const links = node.Links.slice(offset, length)
 
     for (const link of links) {
-      const result = await resolve(link.Hash, link.Name, `${path}/${link.Name}`, [], depth + 1, blockService, options)
+      const result = await resolve(link.Hash, link.Name || '', `${path}/${link.Name || ''}`, [], depth + 1, blockService, options)
 
       if (result.entry) {
         yield result.entry

@@ -4,7 +4,6 @@
 const { expect } = require('aegir/utils/chai')
 const { UnixFS } = require('ipfs-unixfs')
 const { CID } = require('multiformats/cid')
-// @ts-ignore - TODO vmx 2021-03-25: add those typedefs
 const dagPb = require('@ipld/dag-pb')
 const dagCbor = require('@ipld/dag-cbor')
 const rawCodec = require('multiformats/codecs/raw')
@@ -28,8 +27,8 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
 const ONE_MEG = Math.pow(1024, 2)
 
 /**
- * @typedef {import('../src/types').PbLink} PbLink
- * @typedef {import('../src/types').PbNode} PbNode
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
 describe('exporter', () => {
@@ -49,7 +48,7 @@ describe('exporter', () => {
    * @param {object} [options]
    * @param {string} [options.type='file']
    * @param {Uint8Array} [options.content]
-   * @param {PbLink[]} [options.links=[]]
+   * @param {PBLink[]} [options.links=[]]
    */
   async function dagPut (options = {}) {
     options.type = options.type || 'file'
@@ -143,7 +142,7 @@ describe('exporter', () => {
   /**
    * @param {'file' | 'directory' | 'raw'} type
    * @param {Uint8Array | ArrayLike<number> | undefined} data
-   * @param {{ node: PbNode, cid: CID }[]} children
+   * @param {{ node: PBNode, cid: CID }[]} children
    */
   async function createAndPersistNode (type, data, children) {
     const file = new UnixFS({ type, data: data ? Uint8Array.from(data) : undefined })
@@ -970,7 +969,6 @@ describe('exporter', () => {
   it('errors when exporting a non-existent key from a cbor node', async () => {
     const cborBlock = await Block.encode({
       value: { foo: 'bar' },
-      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })
@@ -990,7 +988,6 @@ describe('exporter', () => {
 
     const cborBlock = await Block.encode({
       value: node,
-      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })
@@ -1047,7 +1044,6 @@ describe('exporter', () => {
   it('errors we export a unixfs node that has a non-unixfs/dag-pb child', async () => {
     const cborBlock = await Block.encode({
       value: { foo: 'bar' },
-      // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
       codec: dagCbor,
       hasher: sha256
     })

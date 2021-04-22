@@ -25,13 +25,12 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
 const last = require('it-last')
 const { CID } = require('multiformats/cid')
 const { base58btc } = require('multiformats/bases/base58')
-// @ts-ignore - TODO vmx 2021-03-25: add the types
 const { decode } = require('@ipld/dag-pb')
 const { parseMtime } = require('ipfs-unixfs')
 
 /**
  * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
- * @typedef {import('../src/types').PbNode} PbNode
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
 /**
@@ -214,7 +213,7 @@ const checkLeafNodeTypes = async (block, options, expected) => {
 
   // @type {Block}
   const fileBlock = await block.get(file.cid)
-  /** @type {PbNode} */
+  /** @type {PBNode} */
   const node = decode(fileBlock.bytes)
   const meta = UnixFS.unmarshal(node.Data)
 

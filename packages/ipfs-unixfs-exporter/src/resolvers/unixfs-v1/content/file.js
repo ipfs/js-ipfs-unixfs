@@ -4,7 +4,6 @@ const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 const { UnixFS } = require('ipfs-unixfs')
 const errCode = require('err-code')
-// @ts-ignore
 const dagPb = require('@ipld/dag-pb')
 const dagCbor = require('@ipld/dag-cbor')
 const mc = require('multicodec')
@@ -12,10 +11,10 @@ const mc = require('multicodec')
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
  * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
- * @typedef {import('../../../types').PbNode} PbNode
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  *
  * @param {BlockService} blockService
- * @param {PbNode} node
+ * @param {PBNode} node
  * @param {number} start
  * @param {number} end
  * @param {number} streamPosition
@@ -34,6 +33,10 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
     streamPosition += buf.length
 
     return streamPosition
+  }
+
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
   }
 
   let file
@@ -77,7 +80,6 @@ async function * emitBytes (blockService, node, start, end, streamPosition = 0, 
           child = block.bytes
           break
         case mc.DAG_CBOR:
-          // @ts-ignore - TODO vmx 2021-04-01: will work once js-dag-cbor has proper types
           child = await dagCbor.decode(block.bytes)
           break
         default:

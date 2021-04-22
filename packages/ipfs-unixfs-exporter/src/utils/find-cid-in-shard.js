@@ -9,8 +9,8 @@ const { decode } = require('@ipld/dag-pb')
  * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
  * @typedef {import('multiformats/cid').CID} CID
  * @typedef {import('../types').ExporterOptions} ExporterOptions
- * @typedef {import('../types').PbNode} PbNode
- * @typedef {import('../types').PbLink} PbLink
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
@@ -36,13 +36,17 @@ const hashFn = async function (buf) {
 }
 
 /**
- * @param {PbLink[]} links
+ * @param {PBLink[]} links
  * @param {Bucket<boolean>} bucket
  * @param {Bucket<boolean>} rootBucket
  */
 const addLinksToHamtBucket = (links, bucket, rootBucket) => {
   return Promise.all(
     links.map(link => {
+      if (link.Name == null) {
+        // TODO(@rvagg): what do? this is technically possible
+        throw new Error('Unexpected Link without a Name')
+      }
       if (link.Name.length === 2) {
         const pos = parseInt(link.Name, 16)
 
@@ -92,7 +96,7 @@ const toBucketPath = (position) => {
  * @property {Bucket<boolean>} rootBucket
  * @property {Bucket<boolean>} lastBucket
  *
- * @param {PbNode} node
+ * @param {PBNode} node
  * @param {string} name
  * @param {BlockService} blockService
  * @param {ShardTraversalContext} [context]
@@ -125,6 +129,10 @@ const findShardCid = async (node, name, blockService, context, options) => {
   }
 
   const link = node.Links.find(link => {
+    if (link.Name == null) {
+      return false
+    }
+
     const entryPrefix = link.Name.substring(0, 2)
     const entryName = link.Name.substring(2)
 
@@ -145,7 +153,7 @@ const findShardCid = async (node, name, blockService, context, options) => {
     return null
   }
 
-  if (link.Name.substring(2) === name) {
+  if (link.Name != null && link.Name.substring(2) === name) {
     return link.Hash
   }
 

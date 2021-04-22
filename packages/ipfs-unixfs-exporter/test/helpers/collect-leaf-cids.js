@@ -1,6 +1,5 @@
 'use strict'
 
-// @ts-ignore - TODO vmx 2021-03-25: add typedefs
 const { decode } = require('@ipld/dag-pb')
 
 /**

@@ -9,7 +9,7 @@ const { decode } = require('@ipld/dag-pb')
  * @typedef {import('../../../types').Resolve} Resolve
  * @typedef {import('../../../types').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
  * @typedef {import('../../../types').UnixfsV1Resolver} UnixfsV1Resolver
- * @typedef {import('../../../types').PbNode} PbNode
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
 /**
@@ -28,7 +28,7 @@ const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, bl
 }
 
 /**
- * @param {PbNode} node
+ * @param {PBNode} node
  * @param {string} path
  * @param {Resolve} resolve
  * @param {number} depth
@@ -41,7 +41,7 @@ async function * listDirectory (node, path, resolve, depth, blockService, option
   const links = node.Links
 
   for (const link of links) {
-    const name = link.Name.substring(2)
+    const name = link.Name != null ? link.Name.substring(2) : null
 
     if (name) {
       const result = await resolve(link.Hash, name, `${path}/${name}`, [], depth + 1, blockService, options)

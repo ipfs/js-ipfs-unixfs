@@ -4,7 +4,6 @@
 const { expect } = require('aegir/utils/chai')
 const mh = require('multiformats/hashes/digest')
 const { sha256, sha512 } = require('multiformats/hashes/sha2')
-// @ts-ignore - TODO vmx 2021-03-27 define those types
 const { decode } = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')

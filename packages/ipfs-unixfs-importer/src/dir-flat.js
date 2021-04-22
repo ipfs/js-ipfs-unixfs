@@ -15,8 +15,8 @@ const persist = require('./utils/persist')
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
  * @typedef {import('./types').BlockAPI} BlockAPI
  * @typedef {import('./dir').DirProps} DirProps
- * @typedef {import('ipfs-unixfs-exporter/src/types').PbNode} PbNode
- * @typedef {import('ipfs-unixfs-exporter/src/types').PbLink} PbLink
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
 
 class DirFlat extends Dir {
@@ -108,16 +108,16 @@ class DirFlat extends Dir {
       mode: this.mode
     })
 
-    /** @type {PbNode} */
+    /** @type {PBNode} */
     const node = { Data: unixfs.marshal(), Links: links }
     const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, this.options)
     const size = buffer.length + node.Links.reduce(
       /**
        * @param {number} acc
-       * @param {PbLink} curr
+       * @param {PBLink} curr
        */
-      (acc, curr) => acc + curr.Tsize,
+      (acc, curr) => acc + (curr.Tsize == null ? 0 : curr.Tsize),
       0)
 
     this.cid = cid

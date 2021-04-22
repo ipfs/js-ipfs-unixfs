@@ -56,14 +56,14 @@
     "util": "^0.12.3"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^4.0.0",
-    "@ipld/dag-pb": "^0.0.1",
+    "@ipld/dag-cbor": "https://gitpkg.now.sh/ipld/js-dag-cbor/dist?rvagg/esm-ts-build-improvements",
+    "@ipld/dag-pb": "https://gitpkg.now.sh/ipld/js-dag-pb/dist?rvagg/types",
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "ipfs-unixfs": "^4.0.3",
     "it-last": "^1.0.5",
     "multicodec": "^3.0.1",
-    "multiformats": "^6.0.0",
+    "multiformats": "https://gitpkg.now.sh/multiformats/js-multiformats/dist?rvagg/moar-generic-blockcodec",
     "multihashing-async": "^2.1.0"
   },
   "types": "dist/src/index.d.ts",

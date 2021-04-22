@@ -13,11 +13,11 @@ const { decode } = require('@ipld/dag-pb')
  * @typedef {import('../../types').Resolve} Resolve
  * @typedef {import('../../types').Resolver} Resolver
  * @typedef {import('../../types').UnixfsV1Resolver} UnixfsV1Resolver
- * @typedef {import('../../types').PbNode} PbNode
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
 /**
- * @param {PbNode} node
+ * @param {PBNode} node
  * @param {string} name
  */
 const findLinkCid = (node, name) => {
@@ -53,6 +53,10 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockS
 
   if (!name) {
     name = cid.toString()
+  }
+
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
   }
 
   try {

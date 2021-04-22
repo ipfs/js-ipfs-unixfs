@@ -1,6 +1,6 @@
 import { CID  } from 'multiformats/cid'
 import UnixFS from 'ipfs-unixfs'
-import DAGNode from 'ipld-dag-pb'
+import { PBNode } from '@ipld/dag-pb'
 
 interface ExporterOptions {
   offset?: number
@@ -22,13 +22,13 @@ interface Exportable<T> {
 interface UnixFSFile extends Exportable<Uint8Array> {
   type: 'file'
   unixfs: UnixFS
-  node: DAGNode
+  node: PBNode
 }
 
 interface UnixFSDirectory extends Exportable<UnixFSEntry> {
   type: 'directory'
   unixfs: UnixFS
-  node: DAGNode
+  node: PBNode
 }
 
 interface ObjectNode extends Exportable<any> {
@@ -66,20 +66,7 @@ type Resolver = (cid: CID, name: string, path: string, toResolve: string[], reso
 type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-type UnixfsV1Resolver = (cid: CID, node: DAGNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content
-
-
-// TODO vmx 2021=03-24: Just temporary until js-dag-pb has porper types
-interface PbLink {
-  Name: string,
-  Tsize: number,
-  Hash: CID
-}
-
-interface PbNode {
-  Data: Uint8Array,
-  Links: PbLink[]
-}
+type UnixfsV1Resolver = (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content
 
 interface Block {
   cid: CID,

@@ -8,7 +8,6 @@ const last = require('it-last')
 const randomBytes = require('it-buffer-stream')
 const { exporter, walkPath } = require('../src')
 const { importer } = require('ipfs-unixfs-importer')
-// @ts-ignore - TODO vmx 2021-03-25
 const dagPb = require('@ipld/dag-pb')
 const { sha256 } = require('multiformats/hashes/sha2')
 const Block = require('multiformats/block')

@@ -1,6 +1,5 @@
 'use strict'
 
-// @ts-ignore
 const { decode } = require('@ipld/dag-pb')
 
 /**

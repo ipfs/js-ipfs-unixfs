@@ -3,7 +3,6 @@
 const errCode = require('err-code')
 const { UnixFS } = require('ipfs-unixfs')
 const findShardCid = require('../../utils/find-cid-in-shard')
-// @ts-ignore
 const { decode } = require('@ipld/dag-pb')
 
 /**

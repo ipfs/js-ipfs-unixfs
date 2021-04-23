@@ -2,7 +2,6 @@
 
 const { Bucket, createHAMT } = require('hamt-sharding')
 const multihashing = require('multihashing-async')
-// @ts-ignore
 const { decode } = require('@ipld/dag-pb')
 
 /**

@@ -3,14 +3,9 @@
 const errCode = require('err-code')
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
-const {
-  encode,
-  prepare
-// @ts-ignore
-} = require('@ipld/dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const parallelBatch = require('it-parallel-batch')
 const mc = require('multicodec')
-// const mh = require('multiformats/hashes/digest')
 const rawCodec = require('multiformats/codecs/raw')
 
 /**

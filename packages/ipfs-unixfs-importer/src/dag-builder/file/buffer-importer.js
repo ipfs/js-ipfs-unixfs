@@ -2,11 +2,7 @@
 
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
-const {
-  encode,
-  prepare
-// @ts-ignore
-} = require('@ipld/dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const mc = require('multicodec')
 
 /**

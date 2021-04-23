@@ -1,10 +1,6 @@
 'use strict'
 
-const {
-  encode,
-  prepare
-// @ts-ignore
-} = require('@ipld/dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')

@@ -183,8 +183,9 @@ describe('exporter', () => {
     const result = await dagPut()
     const encodedBlock = await block.get(result.cid)
     const node = dagPb.decode(encodedBlock.bytes)
-    expect(node.Data).is.not.undefined()
-    // @ts-ignore ^ we've checked that it's defined
+    if (!node.Data) {
+      throw new Error('PBNode Data undefined')
+    }
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     expect(unmarsh.data).to.deep.equal(result.file.data)
@@ -244,8 +245,9 @@ describe('exporter', () => {
 
     const encodedBlock = await block.get(result.cid)
     const node = dagPb.decode(encodedBlock.bytes)
-    expect(node.Data).is.not.undefined()
-    // @ts-ignore ^ we've checked that it's defined
+    if (!node.Data) {
+      throw new Error('PBNode Data undefined')
+    }
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     if (!unmarsh.data) {

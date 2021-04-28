@@ -3,6 +3,7 @@ import CID, { CIDVersion } from 'cids'
 import { HashName } from 'multihashes'
 import Block from 'ipld-block'
 import { CodecName } from 'multicodec'
+import { BaseName } from 'multibase'
 
 interface ImportCandidate {
   path?: string
@@ -81,6 +82,7 @@ interface UserImporterOptions {
   treeBuilder?: TreeBuilder
   bufferImporter?: BufferImporter
   chunkValidator?: ChunkValidator
+  multibaseName?: BaseName
 }
 
 interface ImporterOptions {
@@ -116,6 +118,7 @@ interface ImporterOptions {
   treeBuilder?: TreeBuilder
   bufferImporter?: BufferImporter
   chunkValidator?: ChunkValidator
+  multibaseName?: BaseName
 }
 
 export interface TrickleDagNode {
@@ -138,6 +141,7 @@ export interface PersistOptions {
   preload?: boolean
   timeout?: number
   signal?: AbortSignal
+  multibaseName?: BaseName
 }
 
 // TODO: remove this and get from core-ipfs-types

@@ -43,7 +43,6 @@
     "ipld-block": "^0.11.1",
     "ipld-in-memory": "^8.0.0",
     "it-buffer-stream": "^2.0.0",
-    "multibase": "^4.0.4",
     "multicodec": "^3.0.1",
     "nyc": "^15.0.0",
     "readable-stream": "^3.6.0",

@@ -26,7 +26,7 @@ const persist = async (buffer, block, options) => {
   }
 
   const multihash = await mh(buffer, options.hashAlg)
-  const cid = new CID(options.cidVersion, options.codec, multihash)
+  const cid = new CID(options.cidVersion, options.codec, multihash, options.multibaseName)
 
   if (!options.onlyHash) {
     // @ts-ignore block api takes uint8arrays or blocks but is missing from typedefs

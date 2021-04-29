@@ -1,3 +1,6 @@
+/* eslint-env mocha */
+'use strict'
+
 const { expect } = require('aegir/utils/chai')
 // @ts-ignore
 const IPLD = require('ipld')
@@ -18,8 +21,12 @@ describe('persist', () => {
   })
 
   it('persists files with specified multibaseName', async () => {
-      const cid = await persist(new Uint8Array(2), block, { cidVersion: 1, multibaseName: 'base2' })
-      expect(cid.multibaseName).to.equal('base2')
+    const cid = await persist(new Uint8Array(2), block, {
+      cidVersion: 1,
+      hashAlg: 'sha2-256',
+      onlyHash: false,
+      multibaseName: 'base2'
+    })
+    expect(cid.multibaseName).to.equal('base2')
   })
-
 })

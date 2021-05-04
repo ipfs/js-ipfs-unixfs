@@ -34,7 +34,7 @@ declare class Dir {
     parentKey: string | undefined;
     unixfs: import("ipfs-unixfs").UnixFS | undefined;
     mode: number | undefined;
-    mtime: any;
+    mtime: import("ipfs-unixfs/dist/src/types").Mtime | undefined;
     /** @type {CID | undefined} */
     cid: CID | undefined;
     /** @type {number | undefined} */
@@ -79,7 +79,7 @@ type DirProps = {
     parentKey?: string | undefined;
     unixfs?: import("ipfs-unixfs").UnixFS | undefined;
     mode?: number | undefined;
-    mtime?: any;
+    mtime?: import("ipfs-unixfs/dist/src/types").Mtime | undefined;
 };
 type ImporterOptions = import('./types').ImporterOptions;
 //# sourceMappingURL=dir.d.ts.map

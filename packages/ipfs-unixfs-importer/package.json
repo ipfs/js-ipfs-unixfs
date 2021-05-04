@@ -46,7 +46,7 @@
     "util": "^0.12.3"
   },
   "dependencies": {
-    "@ipld/dag-pb": "https://gitpkg.now.sh/ipld/js-dag-pb/dist?rvagg/types",
+    "@ipld/dag-pb": "^1.1.0",
     "bl": "^5.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
@@ -57,7 +57,7 @@
     "it-parallel-batch": "^1.0.9",
     "merge-options": "^3.0.4",
     "multicodec": "^3.0.1",
-    "multiformats": "https://gitpkg.now.sh/multiformats/js-multiformats/dist?rvagg/moar-generic-blockcodec",
+    "multiformats": "^7.0.0",
     "multihashing-async": "^2.1.0",
     "rabin-wasm": "^0.1.4",
     "uint8arrays": "^2.1.2"

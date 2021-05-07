@@ -57,7 +57,7 @@
     "it-parallel-batch": "^1.0.9",
     "merge-options": "^3.0.4",
     "multicodec": "^3.0.1",
-    "multiformats": "^7.0.0",
+    "multiformats": "^8.0.3",
     "multihashing-async": "^2.1.0",
     "rabin-wasm": "^0.1.4",
     "uint8arrays": "^2.1.2"

@@ -41,7 +41,7 @@
     "crypto-browserify": "^3.12.0",
     "detect-node": "^2.0.4",
     "events": "^3.3.0",
-    "ipfs-core-types": "^0.3.1",
+    "ipfs-core-types": "^0.4.0",
     "ipfs-unixfs-importer": "^7.0.3",
     "ipld": "^0.29.0",
     "ipld-block": "^0.11.1",

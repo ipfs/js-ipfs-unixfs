@@ -42,7 +42,7 @@
     "detect-node": "^2.0.4",
     "events": "^3.3.0",
     "ipfs-core-types": "^0.3.1",
-    "ipfs-unixfs-importer": "^7.0.3",
+    "ipfs-unixfs-importer": "../ipfs-unixfs-importer",
     "it-all": "^1.0.5",
     "it-buffer-stream": "^2.0.0",
     "it-first": "^1.0.6",

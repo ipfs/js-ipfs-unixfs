@@ -43,7 +43,7 @@
     "events": "^3.3.0",
     "ipfs-core-types": "^0.3.1",
     "ipfs-unixfs-importer": "^7.0.3",
-    "ipld": "^0.29.0",
+    "ipld": "^0.30.1",
     "ipld-block": "^0.11.1",
     "ipld-dag-pb": "^0.22.2",
     "ipld-in-memory": "^8.0.0",

@@ -1,5 +1,5 @@
-import { CID  } from 'multiformats/cid'
-import UnixFS from 'ipfs-unixfs'
+import { CID } from 'multiformats/cid'
+import { UnixFS } from 'ipfs-unixfs'
 import { PBNode } from '@ipld/dag-pb'
 import { Blockstore } from 'interface-blockstore'
 

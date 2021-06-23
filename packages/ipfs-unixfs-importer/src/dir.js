@@ -4,7 +4,7 @@
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('multiformats/cid').CID} CID
  * @typedef {object} DirProps
  * @property {boolean} root
@@ -64,10 +64,10 @@ class Dir {
   async * eachChildSeries () { }
 
   /**
-   * @param {BlockAPI} block
+   * @param {Blockstore} blockstore
    * @returns {AsyncIterable<ImportResult>}
    */
-  async * flush (block) { }
+  async * flush (blockstore) { }
 }
 
 module.exports = Dir

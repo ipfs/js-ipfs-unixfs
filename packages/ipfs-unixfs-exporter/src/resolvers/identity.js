@@ -32,7 +32,7 @@ const rawContent = (node) => {
 /**
  * @type {Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, blockService, options) => {
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
   }

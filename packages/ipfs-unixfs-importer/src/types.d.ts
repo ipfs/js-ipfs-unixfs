@@ -1,8 +1,8 @@
 import { UnixFS, Mtime } from 'ipfs-unixfs'
-import { CID } from 'multiformats/cid'
-import { HashName } from 'multihashes'
-import { CodecName } from 'multicodec'
-import MultihashDigest from 'multiformats/hashes/hasher'
+import { CID, CIDVersion } from 'multiformats/cid'
+import { MultihashHasher } from 'multiformats/hashes/interface'
+import { BlockCodec } from 'multiformats/codecs/interface'
+import { Blockstore } from 'interface-blockstore'
 
 interface ImportCandidate {
   path?: string
@@ -39,11 +39,11 @@ type ChunkerType = 'fixed' | 'rabin'
 type ProgressHandler = (chunkSize: number, path?: string) => void
 type HamtHashFn = (value: Uint8Array) => Promise<Uint8Array>
 type Chunker = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>
-type BufferImporter = (file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
+type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
+type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<ImportResult>
+type BufferImporter = (file: File, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
 type ChunkValidator = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type UnixFSV1DagBuilder<T> = (item: T, block: BlockAPI, options: ImporterOptions) => Promise<InProgressImportResult>
+type UnixFSV1DagBuilder<T> = (item: T, blockstore: Blockstore, options: ImporterOptions) => Promise<InProgressImportResult>
 type Reducer = (leaves: InProgressImportResult[]) => Promise<InProgressImportResult>
 
 type FileDAGBuilder = (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer, options: ImporterOptions) => Promise<InProgressImportResult>
@@ -53,7 +53,7 @@ interface UserImporterOptions {
   rawLeaves?: boolean
   onlyHash?: boolean
   reduceSingleLeafToSelf?: boolean
-  hasher?: MultihashDigest
+  hasher?: MultihashHasher
   leafType?: 'file' | 'raw'
   cidVersion?: CIDVersion
   progress?: ProgressHandler
@@ -88,7 +88,7 @@ interface ImporterOptions {
   rawLeaves: boolean
   onlyHash: boolean
   reduceSingleLeafToSelf: boolean
-  hasher: MultihashDigest
+  hasher: MultihashHasher
   leafType: 'file' | 'raw'
   cidVersion: CIDVersion
   progress: ProgressHandler
@@ -131,37 +131,9 @@ export interface TrickleDagNode {
 }
 
 export interface PersistOptions {
-  //codec?: string
-  codec?: number
+  codec?: BlockCodec<any, any>
+  hasher: MultihashHasher
   cidVersion: CIDVersion
-  hasher: MultihashDigest
   onlyHash: boolean
-  preload?: boolean
-  timeout?: number
   signal?: AbortSignal
-}
-
-// TODO vmx 2021-03-24: decide where to put this
-export interface Block {
- cid: CID
- bytes: Uint8Array
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface BlockAPI {
-  get: (cid: CID, options?: BlockOptions) => Promise<Block>
-  put: (block: Block, options?: PutOptions) => Promise<Block>
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface BlockOptions {
-  signal?: AbortSignal
-  timeout?: number
-  preload?: boolean
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface PutOptions extends BlockOptions {
-  onlyHash?: boolean
-  pin?: boolean
 }

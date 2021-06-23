@@ -9,7 +9,6 @@ const defaultOptions = require('../src/options')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('builder: onlyHash', () => {
-  /** @type {import('../src/types').BlockAPI} */
   const block = blockApi()
 
   it('will only chunk and hash if passed an "onlyHash" option', async () => {

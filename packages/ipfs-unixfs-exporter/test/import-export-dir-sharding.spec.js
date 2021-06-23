@@ -19,7 +19,6 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
  */
 
 describe('builder: directory sharding', () => {
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const block = blockApi()
 
   describe('basic dirbuilder', () => {

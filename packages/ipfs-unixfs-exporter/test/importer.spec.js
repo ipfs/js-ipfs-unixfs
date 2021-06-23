@@ -29,7 +29,7 @@ const { decode } = require('@ipld/dag-pb')
 const { parseMtime } = require('ipfs-unixfs')
 
 /**
- * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
@@ -197,24 +197,24 @@ const strategyOverrides = {
 }
 
 /**
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
  * @param {*} expected
  */
-const checkLeafNodeTypes = async (block, options, expected) => {
+const checkLeafNodeTypes = async (blockstore, options, expected) => {
   const file = await first(importer([{
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(262144 + 5).fill(1))
-  }], block, options))
+  }], blockstore, options))
 
   if (!file) {
     throw new Error('Nothing imported')
   }
 
   // @type {Block}
-  const fileBlock = await block.get(file.cid)
+  const fileBlock = await blockstore.get(file.cid)
   /** @type {PBNode} */
-  const node = decode(fileBlock.bytes)
+  const node = decode(fileBlock)
   if (!node.Data) {
     throw new Error('PBNode Data undefined')
   }
@@ -224,10 +224,10 @@ const checkLeafNodeTypes = async (block, options, expected) => {
   expect(node.Links.length).to.equal(2)
 
   const linkedBlocks = await Promise.all(
-    node.Links.map(link => block.get(link.Hash))
+    node.Links.map(link => blockstore.get(link.Hash))
   )
 
-  linkedBlocks.forEach(({ bytes }) => {
+  linkedBlocks.forEach(bytes => {
     const node = decode(bytes)
     if (!node.Data) {
       throw new Error('PBNode Data undefined')
@@ -238,17 +238,17 @@ const checkLeafNodeTypes = async (block, options, expected) => {
 }
 
 /**
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {import('ipfs-unixfs-importer').UserImporterOptions} options
  * @param {*} expected
  */
-const checkNodeLinks = async (block, options, expected) => {
+const checkNodeLinks = async (blockstore, options, expected) => {
   for await (const file of importer([{
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(100).fill(1))
-  }], block, options)) {
-    const fileBlock = await block.get(file.cid)
-    const node = decode(fileBlock.bytes)
+  }], blockstore, options)) {
+    const fileBlock = await blockstore.get(file.cid)
+    const node = decode(fileBlock)
     if (!node.Data) {
       throw new Error('PBNode Data undefined')
     }
@@ -364,7 +364,6 @@ strategies.forEach((strategy) => {
   describe('importer: ' + strategy, function () {
     this.timeout(30 * 1000)
 
-    /** @type {BlockAPI} */
     const block = blockApi()
     /** @type {import('ipfs-unixfs-importer').UserImporterOptions} */
     const options = {
@@ -1054,7 +1053,6 @@ strategies.forEach((strategy) => {
 })
 
 describe('configuration', () => {
-  /** @type {BlockAPI} */
   const block = blockApi()
 
   it('alllows configuring with custom dag and tree builder', async () => {

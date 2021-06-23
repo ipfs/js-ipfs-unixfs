@@ -9,7 +9,7 @@ const persist = require('./utils/persist')
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./dir').DirProps} DirProps
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  * @typedef {import('@ipld/dag-pb').PBLink} PBLink
@@ -71,7 +71,7 @@ class DirFlat extends Dir {
   }
 
   /**
-   * @param {BlockAPI} block
+   * @param {Blockstore} block
    * @returns {AsyncIterable<ImportResult>}
    */
   async * flush (block) {

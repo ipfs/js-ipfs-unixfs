@@ -13,7 +13,6 @@ const CHUNK_SIZE = 65536
 describe.skip('benchmark', function () {
   this.timeout(30 * 1000)
 
-  /** @type {import('../src').BlockAPI} */
   const block = blockApi()
 
   /** @type {number[]} */

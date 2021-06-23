@@ -35,7 +35,6 @@ strategies.forEach(strategy => {
   }
 
   describe('go-ipfs interop using importer:' + strategy, () => {
-    /** @type {import('../src').BlockAPI} */
     const block = blockApi()
 
     it('yields the same tree as go-ipfs', async function () {

@@ -1,6 +1,7 @@
 import { CID  } from 'multiformats/cid'
 import UnixFS from 'ipfs-unixfs'
 import { PBNode } from '@ipld/dag-pb'
+import { Blockstore } from 'interface-blockstore'
 
 interface ExporterOptions {
   offset?: number
@@ -60,15 +61,10 @@ interface ResolveResult {
   next?: NextResult
 }
 
-type Resolve = (cid: CID, name: string, path: string, toResolve: string[], depth: number, ipld: IPLD, options: ExporterOptions) => Promise<ResolveResult>
-type Resolver = (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, ipld: IPLD, options: ExporterOptions) => Promise<ResolveResult>
+type Resolve = (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: Blockstore, options: ExporterOptions) => Promise<ResolveResult>
+type Resolver = (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: Blockstore, options: ExporterOptions) => Promise<ResolveResult>
 
 type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-type UnixfsV1Resolver = (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, ipld: IPLD) => (options: ExporterOptions) => UnixfsV1Content
-
-interface Block {
-  cid: CID,
-  bytes: Uint8Array
-}
+type UnixfsV1Resolver = (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: Blockstore) => (options: ExporterOptions) => UnixfsV1Content

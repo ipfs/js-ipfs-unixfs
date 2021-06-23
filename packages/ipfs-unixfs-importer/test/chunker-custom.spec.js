@@ -16,7 +16,6 @@ const iter = async function * () {
 }
 
 describe('custom chunker', function () {
-  /** @type {import('../src').BlockAPI} */
   const block = blockApi()
 
   /**

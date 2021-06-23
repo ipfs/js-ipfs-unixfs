@@ -11,7 +11,7 @@ const { encode, prepare } = require('@ipld/dag-pb')
 /**
  * @type {import('../types').UnixFSV1DagBuilder<Directory>}
  */
-const dirBuilder = async (item, block, options) => {
+const dirBuilder = async (item, blockstore, options) => {
   const unixfs = new UnixFS({
     type: 'directory',
     mtime: item.mtime,
@@ -19,7 +19,7 @@ const dirBuilder = async (item, block, options) => {
   })
 
   const buffer = encode(prepare({ Data: unixfs.marshal() }))
-  const cid = await persist(buffer, block, options)
+  const cid = await persist(buffer, blockstore, options)
   const path = item.path
 
   return {

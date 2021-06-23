@@ -1,28 +1,22 @@
 'use strict'
 
 const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
-const multihashing = require('multihashing-async')
 const { sha256 } = require('multiformats/hashes/sha2')
+// @ts-ignore - no types available
+const mur = require('murmurhash3js-revisited')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 /**
  * @param {Uint8Array} buf
  */
 async function hamtHashFn (buf) {
-  const hash = await multihashing(buf, 'murmur3-128')
-
-  // Multihashing inserts preamble of 2 bytes. Remove it.
-  // Also, murmur3 outputs 128 bit but, accidentally, IPFS Go's
-  // implementation only uses the first 64, so we must do the same
-  // for parity..
-  const justHash = hash.slice(2, 10)
-  const length = justHash.length
-  const result = new Uint8Array(length)
-  // TODO: invert buffer because that's how Go impl does it
-  for (let i = 0; i < length; i++) {
-    result[length - i - 1] = justHash[i]
-  }
-
-  return result
+  return uint8ArrayFromString(mur.x64.hash128(buf), 'base16')
+    // Murmur3 outputs 128 bit but, accidentally, IPFS Go's
+    // implementation only uses the first 64, so we must do the same
+    // for parity..
+    .slice(0, 8)
+    // Invert buffer because that's how Go impl does it
+    .reverse()
 }
 
 /**

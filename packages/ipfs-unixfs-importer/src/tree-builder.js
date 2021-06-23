@@ -9,8 +9,8 @@ const toPathComponents = require('./utils/to-path-components')
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
  * @typedef {import('./types').ImporterOptions} ImporterOptions
- * @typedef {import('./types').BlockAPI} BlockAPI
- * @typedef {(source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
+ * @typedef {(source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
  */
 
 /**
@@ -65,9 +65,9 @@ async function addToTree (elem, tree, options) {
 
 /**
  * @param {Dir | InProgressImportResult} tree
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  */
-async function * flushAndYield (tree, block) {
+async function * flushAndYield (tree, blockstore) {
   if (!(tree instanceof Dir)) {
     if (tree && tree.unixfs && tree.unixfs.isDirectory()) {
       yield tree
@@ -76,7 +76,7 @@ async function * flushAndYield (tree, block) {
     return
   }
 
-  yield * tree.flush(block)
+  yield * tree.flush(blockstore)
 }
 
 /**

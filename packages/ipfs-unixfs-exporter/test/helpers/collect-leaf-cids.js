@@ -1,6 +1,6 @@
 'use strict'
 
-const { decode } = require('@ipld/dag-pb')
+const dagPb = require('@ipld/dag-pb')
 
 /**
  * @typedef {import('@ipld/dag-pb').PBLink} PBLink
@@ -8,15 +8,15 @@ const { decode } = require('@ipld/dag-pb')
 
 /**
  * @param {import('multiformats/cid').CID} cid
- * @param {import('ipfs-unixfs-importer/src/types').BlockAPI} blockService
+ * @param {import('interface-blockstore').Blockstore} blockstore
  */
-module.exports = function (cid, blockService) {
+module.exports = function (cid, blockstore) {
   /**
    * @param {import('multiformats/cid').CID} cid
    */
   async function * traverse (cid) {
-    const block = await blockService.get(cid)
-    const node = decode(block.bytes)
+    const block = await blockstore.get(cid)
+    const node = dagPb.decode(block)
 
     if (node instanceof Uint8Array || !node.Links.length) {
       yield {
@@ -27,12 +27,7 @@ module.exports = function (cid, blockService) {
       return
     }
 
-    node.Links.forEach(
-      /**
-       * @param {PBLink} link
-       */
-      link => traverse(link.Hash)
-    )
+    node.Links.forEach(link => traverse(link.Hash))
   }
 
   return traverse(cid)

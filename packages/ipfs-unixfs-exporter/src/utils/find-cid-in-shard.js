@@ -1,37 +1,25 @@
 'use strict'
 
 const { Bucket, createHAMT } = require('hamt-sharding')
-const multihashing = require('multihashing-async')
 const { decode } = require('@ipld/dag-pb')
+// @ts-ignore - no types available
+const mur = require('murmurhash3js-revisited')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 /**
- * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockService
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('multiformats/cid').CID} CID
  * @typedef {import('../types').ExporterOptions} ExporterOptions
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
 
-// FIXME: this is copy/pasted from ipfs-unixfs-importer/src/dir-sharded.js
+// FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js
 /**
  * @param {Uint8Array} buf
  */
 const hashFn = async function (buf) {
-  const hash = await multihashing(buf, 'murmur3-128')
-
-  // Multihashing inserts preamble of 2 bytes. Remove it.
-  // Also, murmur3 outputs 128 bit but, accidentally, IPFS Go's
-  // implementation only uses the first 64, so we must do the same
-  // for parity..
-  const justHash = hash.slice(2, 10)
-  const length = justHash.length
-  const result = new Uint8Array(length)
-  // TODO: invert buffer because that's how Go impl does it
-  for (let i = 0; i < length; i++) {
-    result[length - i - 1] = justHash[i]
-  }
-
-  return result
+  return uint8ArrayFromString(mur.x64.hash128(buf), 'base16').slice(0, 8).reverse()
 }
 
 /**
@@ -97,12 +85,12 @@ const toBucketPath = (position) => {
  *
  * @param {PBNode} node
  * @param {string} name
- * @param {BlockService} blockService
+ * @param {Blockstore} blockstore
  * @param {ShardTraversalContext} [context]
  * @param {ExporterOptions} [options]
  * @returns {Promise<CID|null>}
  */
-const findShardCid = async (node, name, blockService, context, options) => {
+const findShardCid = async (node, name, blockstore, context, options) => {
   if (!context) {
     const rootBucket = createHAMT({
       hashFn
@@ -158,10 +146,10 @@ const findShardCid = async (node, name, blockService, context, options) => {
 
   context.hamtDepth++
 
-  const block = await blockService.get(link.Hash, options)
-  node = decode(block.bytes)
+  const block = await blockstore.get(link.Hash, options)
+  node = decode(block)
 
-  return findShardCid(node, name, blockService, context, options)
+  return findShardCid(node, name, blockstore, context, options)
 }
 
 module.exports = findShardCid

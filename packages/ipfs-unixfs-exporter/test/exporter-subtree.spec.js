@@ -15,7 +15,6 @@ const ONE_MEG = Math.pow(1024, 2)
 const { exporter, walkPath } = require('./../src')
 
 describe('exporter subtree', () => {
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const block = blockApi()
 
   it('exports a file 2 levels down', async () => {

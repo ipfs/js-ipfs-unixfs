@@ -10,7 +10,7 @@ const { createHAMT, Bucket } = require('hamt-sharding')
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  */
 
 /**
@@ -69,11 +69,11 @@ class DirSharded extends Dir {
   }
 
   /**
-   * @param {BlockAPI} block
+   * @param {Blockstore} blockstore
    * @returns {AsyncIterable<ImportResult>}
    */
-  async * flush (block) {
-    for await (const entry of flush(this._bucket, block, this, this.options)) {
+  async * flush (blockstore) {
+    for await (const entry of flush(this._bucket, blockstore, this, this.options)) {
       yield {
         ...entry,
         path: this.path
@@ -86,12 +86,12 @@ module.exports = DirSharded
 
 /**
  * @param {Bucket<?>} bucket
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {*} shardRoot
  * @param {ImporterOptions} options
  * @returns {AsyncIterable<ImportResult>}
  */
-async function * flush (bucket, block, shardRoot, options) {
+async function * flush (bucket, blockstore, shardRoot, options) {
   const children = bucket._children
   const links = []
   let childrenSize = 0
@@ -108,7 +108,7 @@ async function * flush (bucket, block, shardRoot, options) {
     if (child instanceof Bucket) {
       let shard
 
-      for await (const subShard of await flush(child, block, null, options)) {
+      for await (const subShard of await flush(child, blockstore, null, options)) {
         shard = subShard
       }
 
@@ -126,7 +126,7 @@ async function * flush (bucket, block, shardRoot, options) {
       const dir = child.value
       let flushedDir
 
-      for await (const entry of dir.flush(block)) {
+      for await (const entry of dir.flush(blockstore)) {
         flushedDir = entry
 
         yield flushedDir
@@ -176,7 +176,7 @@ async function * flush (bucket, block, shardRoot, options) {
     Links: links
   }
   const buffer = encode(prepare(node))
-  const cid = await persist(buffer, block, options)
+  const cid = await persist(buffer, blockstore, options)
   const size = buffer.length + childrenSize
 
   yield {

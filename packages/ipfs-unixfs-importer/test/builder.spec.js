@@ -14,7 +14,6 @@ const defaultOptions = require('../src/options')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('builder', () => {
-  /** @type {import('../src').BlockAPI} */
   const block = blockApi()
 
   const testMultihashes = [sha256, sha512]
@@ -45,7 +44,7 @@ describe('builder', () => {
 
       // Fetch using hasher encoded multihash
       const importedBlock = await block.get(imported.cid)
-      const node = decode(importedBlock.bytes)
+      const node = decode(importedBlock)
       if (!node.Data) {
         throw new Error('PBNode Data undefined')
       }
@@ -104,7 +103,7 @@ describe('builder', () => {
 
       // Fetch using hasher encoded multihash
       const importedBlock = await block.get(imported.cid)
-      const node = decode(importedBlock.bytes)
+      const node = decode(importedBlock)
 
       if (!node.Data) {
         throw new Error('PBNode Data undefined')

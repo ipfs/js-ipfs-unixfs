@@ -1,12 +1,13 @@
 'use strict'
 
 const errCode = require('err-code')
-const multicodec = require('multicodec')
+
+const dagPb = require('@ipld/dag-pb')
+const dagCbor = require('@ipld/dag-cbor')
+const raw = require('multiformats/codecs/raw')
+const { identity } = require('multiformats/hashes/identity')
 
 /**
- * @typedef {import('../').BlockAPI} BlockAPI
- * @typedef {import('../types').ExporterOptions} ExporterOptions
- * @typedef {import('../types').UnixFSEntry} UnixFSEntry
  * @typedef {import('../types').Resolver} Resolver
  * @typedef {import('../types').Resolve} Resolve
  */
@@ -15,24 +16,23 @@ const multicodec = require('multicodec')
  * @type {{ [ key: string ]: Resolver }}
  */
 const resolvers = {
-  [multicodec.DAG_PB]: require('./unixfs-v1'),
-  [multicodec.RAW]: require('./raw'),
-  [multicodec.DAG_CBOR]: require('./dag-cbor'),
-  [multicodec.IDENTITY]: require('./identity')
+  [dagPb.code]: require('./unixfs-v1'),
+  [raw.code]: require('./raw'),
+  [dagCbor.code]: require('./dag-cbor'),
+  [identity.code]: require('./identity')
 }
 
 /**
  * @type {Resolve}
  */
-function resolve (cid, name, path, toResolve, depth, blockService, options) {
+function resolve (cid, name, path, toResolve, depth, blockstore, options) {
   const resolver = resolvers[cid.code]
 
   if (!resolver) {
-    // @ts-ignore - A `CodecCode` is expected, but a number is just fine
-    throw errCode(new Error(`No resolver for codec ${multicodec.getName(cid.code)}`), 'ERR_NO_RESOLVER')
+    throw errCode(new Error(`No resolver for code ${cid.code}`), 'ERR_NO_RESOLVER')
   }
 
-  return resolver(cid, name, path, toResolve, resolve, depth, blockService, options)
+  return resolver(cid, name, path, toResolve, resolve, depth, blockstore, options)
 }
 
 module.exports = resolve

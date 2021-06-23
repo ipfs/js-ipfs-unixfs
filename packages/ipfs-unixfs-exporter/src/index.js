@@ -7,7 +7,7 @@ const last = require('it-last')
 
 /**
  * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
- * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./types').ExporterOptions} ExporterOptions
  * @typedef {import('./types').UnixFSFile} UnixFSFile
  * @typedef {import('./types').UnixFSDirectory} UnixFSDirectory
@@ -62,10 +62,10 @@ const cidAndRest = (path) => {
 
 /**
  * @param {string | CID} path
- * @param {BlockAPI} blockService
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * walkPath (path, blockService, options = {}) {
+async function * walkPath (path, blockstore, options = {}) {
   let {
     cid,
     toResolve
@@ -75,7 +75,7 @@ async function * walkPath (path, blockService, options = {}) {
   const startingDepth = toResolve.length
 
   while (true) {
-    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, blockService, options)
+    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, blockstore, options)
 
     if (!result.entry && !result.next) {
       throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
@@ -99,11 +99,11 @@ async function * walkPath (path, blockService, options = {}) {
 
 /**
  * @param {string | CID} path
- * @param {BlockAPI} blockService
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function exporter (path, blockService, options = {}) {
-  const result = await last(walkPath(path, blockService, options))
+async function exporter (path, blockstore, options = {}) {
+  const result = await last(walkPath(path, blockstore, options))
 
   if (!result) {
     throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
@@ -114,11 +114,11 @@ async function exporter (path, blockService, options = {}) {
 
 /**
  * @param {string | CID} path
- * @param {BlockAPI} blockService
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * recursive (path, blockService, options = {}) {
-  const node = await exporter(path, blockService, options)
+async function * recursive (path, blockstore, options = {}) {
+  const node = await exporter(path, blockstore, options)
 
   if (!node) {
     return

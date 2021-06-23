@@ -1,38 +1,37 @@
 'use strict'
 
-const mc = require('multicodec')
 const { CID } = require('multiformats/cid')
+const dagPb = require('@ipld/dag-pb')
+const { sha256 } = require('multiformats/hashes/sha2')
 
 /**
  * @param {Uint8Array} buffer
- * @param {import('../types').BlockAPI} block
+ * @param {import('interface-blockstore').Blockstore} blockstore
  * @param {import('../types').PersistOptions} options
  */
-const persist = async (buffer, block, options) => {
-  if (!options.hasher) {
-    throw new Error('Hasher must be specified.')
+const persist = async (buffer, blockstore, options) => {
+  if (!options.codec) {
+    options.codec = dagPb
   }
 
-  if (!options.codec) {
-    options.codec = mc.DAG_PB
+  if (!options.hasher) {
+    options.hasher = sha256
   }
 
   if (options.cidVersion === undefined) {
     options.cidVersion = 1
   }
 
+  if (options.codec === dagPb && options.hasher !== sha256) {
+    options.cidVersion = 1
+  }
+
   const multihash = await options.hasher.digest(buffer)
-  const cid = CID.create(options.cidVersion, options.codec, multihash)
+  const cid = CID.create(options.cidVersion, options.codec.code, multihash)
 
   if (!options.onlyHash) {
-    await block.put({
-      bytes: buffer,
-      cid
-    }, {
-      // @ts-ignore pin option is missing from block api typedefs
-      pin: options.pin,
-      preload: options.preload,
-      timeout: options.timeout
+    await blockstore.put(cid, buffer, {
+      signal: options.signal
     })
   }
 

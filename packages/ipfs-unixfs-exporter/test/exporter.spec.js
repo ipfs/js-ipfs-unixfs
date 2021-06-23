@@ -6,11 +6,9 @@ const { UnixFS } = require('ipfs-unixfs')
 const { CID } = require('multiformats/cid')
 const dagPb = require('@ipld/dag-pb')
 const dagCbor = require('@ipld/dag-cbor')
-const rawCodec = require('multiformats/codecs/raw')
 const { sha256 } = require('multiformats/hashes/sha2')
-const Block = require('multiformats/block')
-const mh = require('multiformats/hashes/digest')
-const mc = require('multicodec')
+const { identity } = require('multiformats/hashes/identity')
+const raw = require('multiformats/codecs/raw')
 const { exporter, recursive } = require('../src')
 const { importer } = require('ipfs-unixfs-importer')
 const all = require('it-all')
@@ -32,7 +30,6 @@ const ONE_MEG = Math.pow(1024, 2)
  */
 
 describe('exporter', () => {
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const block = blockApi()
   /** @type {Uint8Array} */
   let bigFile
@@ -59,19 +56,15 @@ describe('exporter', () => {
       type: options.type,
       data: options.content
     })
-
-    const node = dagPb.prepare({
+    const node = {
       Data: file.marshal(),
       Links: options.links
-    })
-    const encodedBlock = await Block.encode({
-      value: node,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(encodedBlock)
+    }
+    const buf = dagPb.encode(node)
+    const cid = CID.createV0(await sha256.digest(buf))
+    await block.put(cid, buf)
 
-    return { file: file, node: node, cid: encodedBlock.cid.toV0() }
+    return { file: file, node: node, cid }
   }
 
   /**
@@ -162,27 +155,25 @@ describe('exporter', () => {
       })
     }
 
-    const node = dagPb.prepare({
+    const node = {
       Data: file.marshal(),
       Links: links
-    })
-    const encodedBlock = await Block.encode({
-      value: node,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(encodedBlock)
+    }
+
+    const nodeBlock = dagPb.encode(node)
+    const nodeCid = CID.createV0(await sha256.digest(nodeBlock))
+    await block.put(nodeCid, nodeBlock)
 
     return {
       node,
-      cid: encodedBlock.cid
+      cid: nodeCid
     }
   }
 
   it('ensure hash inputs are sanitized', async () => {
     const result = await dagPut()
     const encodedBlock = await block.get(result.cid)
-    const node = dagPb.decode(encodedBlock.bytes)
+    const node = dagPb.decode(encodedBlock)
     if (!node.Data) {
       throw new Error('PBNode Data undefined')
     }
@@ -244,7 +235,7 @@ describe('exporter', () => {
     })
 
     const encodedBlock = await block.get(result.cid)
-    const node = dagPb.decode(encodedBlock.bytes)
+    const node = dagPb.decode(encodedBlock)
     if (!node.Data) {
       throw new Error('PBNode Data undefined')
     }
@@ -274,26 +265,22 @@ describe('exporter', () => {
       type: 'raw',
       data: content.slice(0, 5)
     })
-    const chunkNode1 = dagPb.prepare({ Data: chunk1.marshal() })
-    const chunkBlock1 = await Block.encode({
-      value: chunkNode1,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(chunkBlock1)
+    const chunkNode1 = {
+      Data: chunk1.marshal(),
+      Links: []
+    }
+    const chunkBlock1 = dagPb.encode(chunkNode1)
+    const chunkCid1 = CID.createV0(await sha256.digest(chunkBlock1))
+    await block.put(chunkCid1, chunkBlock1)
 
     const chunk2 = new UnixFS({ type: 'raw', data: content.slice(5) })
-    const chunkNode2 = dagPb.prepare({
+    const chunkNode2 = {
       Data: chunk2.marshal(),
-      codec: dagPb,
-      hasher: sha256
-    })
-    const chunkBlock2 = await Block.encode({
-      value: chunkNode2,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(chunkBlock2)
+      Links: []
+    }
+    const chunkBlock2 = dagPb.encode(chunkNode2)
+    const chunkCid2 = CID.createV0(await sha256.digest(chunkBlock2))
+    await block.put(chunkCid2, chunkBlock2)
 
     const file = new UnixFS({
       type: 'file'
@@ -306,21 +293,18 @@ describe('exporter', () => {
       Links: [{
         Name: '',
         Tsize: chunkNode1.Data != null ? chunkNode1.Data.length : 0,
-        Hash: chunkBlock1.cid.toV0()
+        Hash: chunkCid1.toV0()
       }, {
         Name: '',
         Tsize: chunkNode2.Data != null ? chunkNode2.Data.length : 0,
-        Hash: chunkBlock2.cid.toV0()
+        Hash: chunkCid2.toV0()
       }]
     })
-    const fileBlock = await Block.encode({
-      value: fileNode,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(fileBlock)
+    const fileBlock = dagPb.encode(fileNode)
+    const fileCid = CID.createV0(await sha256.digest(fileBlock))
+    await block.put(fileCid, fileBlock)
 
-    const exported = await exporter(fileBlock.cid.toV0(), block)
+    const exported = await exporter(fileCid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -974,15 +958,16 @@ describe('exporter', () => {
   })
 
   it('errors when exporting a non-existent key from a cbor node', async () => {
-    const cborBlock = await Block.encode({
-      value: { foo: 'bar' },
-      codec: dagCbor,
-      hasher: sha256
-    })
-    await block.put(cborBlock)
+    const node = {
+      foo: 'bar'
+    }
+
+    const cborBlock = dagCbor.encode(node)
+    const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cid, cborBlock)
 
     try {
-      await exporter(`${cborBlock.cid}/baz`, block)
+      await exporter(`${cid}/baz`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_PROP')
     }
@@ -993,13 +978,10 @@ describe('exporter', () => {
       foo: 'bar'
     }
 
-    const cborBlock = await Block.encode({
-      value: node,
-      codec: dagCbor,
-      hasher: sha256
-    })
-    await block.put(cborBlock)
-    const exported = await exporter(`${cborBlock.cid}`, block)
+    const cborBlock = dagCbor.encode(node)
+    const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cid, cborBlock)
+    const exported = await exporter(`${cid}`, block)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
@@ -1009,7 +991,7 @@ describe('exporter', () => {
   })
 
   it('errors when exporting a node with no resolver', async () => {
-    const cid = CID.create(1, mc.GIT_RAW, CID.parse('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
+    const cid = CID.create(1, 0x78, CID.parse('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
 
     try {
       await exporter(`${cid}`, block)
@@ -1019,64 +1001,54 @@ describe('exporter', () => {
   })
 
   it('errors if we try to export links from inside a raw node', async () => {
-    const rawBlock = await Block.encode({
-      value: Uint8Array.from([0, 1, 2, 3, 4]),
-      codec: rawCodec,
-      hasher: sha256
-    })
-    await block.put(rawBlock)
+    const rawBlock = Uint8Array.from([0, 1, 2, 3, 4])
+    const cid = CID.createV1(raw.code, await sha256.digest(rawBlock))
+    await block.put(cid, rawBlock)
 
     try {
-      await exporter(`${rawBlock.cid}/lol`, block)
+      await exporter(`${cid}/lol`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
-    const dagpbBlock = await Block.encode({
-      value: dagPb.prepare({ Data: Uint8Array.from([0, 1, 2, 3, 4]) }),
-      codec: dagPb,
-      hasher: sha256
+    const dagpbBlock = dagPb.encode({
+      Data: Uint8Array.from([0, 1, 2, 3, 4]),
+      Links: []
     })
-    await block.put(dagpbBlock)
+    const dagpbCid = CID.createV0(await sha256.digest(dagpbBlock))
+    await block.put(dagpbCid, dagpbBlock)
 
     try {
-      await exporter(dagpbBlock.cid, block)
+      await exporter(dagpbCid, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })
 
   it('errors we export a unixfs node that has a non-unixfs/dag-pb child', async () => {
-    const cborBlock = await Block.encode({
-      value: { foo: 'bar' },
-      codec: dagCbor,
-      hasher: sha256
-    })
-    await block.put(cborBlock)
+    const cborBlock = await dagCbor.encode({ foo: 'bar' })
+    const cborCid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cborCid, cborBlock)
 
     const file = new UnixFS({
       type: 'file'
     })
     file.addBlockSize(100)
 
-    const dagpbNode = dagPb.prepare({
+    const dagpbBuffer = dagPb.encode({
       Data: file.marshal(),
       Links: [{
         Name: '',
-        Tsize: 100,
-        Hash: cborBlock.cid
+        Tsize: cborBlock.length,
+        Hash: cborCid
       }]
     })
-    const dagpbBlock = await Block.encode({
-      value: dagpbNode,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(dagpbBlock)
+    const dagpbCid = CID.createV0(await sha256.digest(dagpbBuffer))
+    await block.put(dagpbCid, dagpbBuffer)
 
-    const exported = await exporter(dagpbBlock.cid, block)
+    const exported = await exporter(dagpbCid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -1141,8 +1113,8 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.create(mc.IDENTITY, data)
-    const cid = CID.create(1, mc.IDENTITY, hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
     const exported = await exporter(cid, block)
 
@@ -1158,8 +1130,8 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with an offset', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.create(mc.IDENTITY, data)
-    const cid = CID.create(1, mc.IDENTITY, hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
     const exported = await exporter(cid, block)
 
@@ -1176,8 +1148,8 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with a length', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.create(mc.IDENTITY, data)
-    const cid = CID.create(1, mc.IDENTITY, hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
     const exported = await exporter(cid, block)
 
@@ -1194,8 +1166,8 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with an offset and a length', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.create(mc.IDENTITY, data)
-    const cid = CID.create(1, mc.IDENTITY, hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
     const exported = await exporter(cid, block)
 
@@ -1216,8 +1188,8 @@ describe('exporter', () => {
 
     // data should not be in IPLD
     const data = uint8ArrayFromString(`hello world '${Math.random()}`)
-    const hash = mh.create(mc.SHA2_256, data)
-    const cid = CID.create(1, mc.DAG_PB, hash)
+    const hash = await sha256.digest(data)
+    const cid = CID.create(1, dagPb.code, hash)
     const message = `User aborted ${Math.random()}`
 
     setTimeout(() => {

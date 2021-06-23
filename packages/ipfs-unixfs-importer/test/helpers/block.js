@@ -1,31 +1,50 @@
 'use strict'
 
 const errCode = require('err-code')
+const { BlockstoreAdapter } = require('interface-blockstore')
+const { base58btc } = require('multiformats/bases/base58')
+
+/**
+ * @typedef {import('multiformats/cid').CID} CID
+ */
 
 function createBlockApi () {
-  /** @type {{[key: string]: Uint8Array}} */
-  const blocks = {}
+  class MockBlockstore extends BlockstoreAdapter {
+    constructor () {
+      super()
 
-  /** @type {import('../../src').BlockAPI} */
-  const BlockApi = {
-    put: async ({ cid, bytes }, options) => {
-      if (!options || !options.onlyHash) {
-        blocks[cid.toV1().toString()] = bytes
-      }
+      /** @type {{[key: string]: Uint8Array}} */
+      this._blocks = {}
+    }
 
-      return { cid, bytes }
-    },
-    get: async (cid, _options) => {
-      const bytes = blocks[cid.toV1().toString()]
+    /**
+     * @param {CID} cid
+     * @param {Uint8Array} block
+     * @param {any} [options]
+     */
+    async put (cid, block, options = {}) {
+      this._blocks[base58btc.encode(cid.multihash.bytes)] = block
+    }
+
+    /**
+     * @param {CID} cid
+     * @param {any} [options]
+     */
+    async get (cid, options = {}) {
+      const bytes = this._blocks[base58btc.encode(cid.multihash.bytes)]
+
       if (bytes === undefined) {
-        throw errCode(new Error(`Couold not find data for CID '${cid}'`), 'ERR_NOT_FOUND')
+        throw errCode(new Error(`Could not find data for CID '${cid}'`), 'ERR_NOT_FOUND')
       }
 
-      return { cid, bytes }
+      return bytes
     }
   }
 
-  return BlockApi
+  /** @type {import('interface-blockstore').Blockstore} */
+  const bs = new MockBlockstore()
+
+  return bs
 }
 
 module.exports = createBlockApi

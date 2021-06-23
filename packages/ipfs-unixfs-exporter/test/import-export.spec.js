@@ -27,7 +27,6 @@ describe('import and export', function () {
     const importerOptions = { strategy: strategy }
 
     describe('using builder: ' + strategy, () => {
-      /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
       const block = blockApi()
 
       it('imports and exports', async () => {

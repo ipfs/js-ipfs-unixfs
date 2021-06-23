@@ -6,9 +6,6 @@ const findShardCid = require('../../utils/find-cid-in-shard')
 const { decode } = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI}
- * @typedef {import('../../types').ExporterOptions} ExporterOptions
- * @typedef {import('../../types').UnixFSEntry} UnixFSEntry
  * @typedef {import('../../types').Resolve} Resolve
  * @typedef {import('../../types').Resolver} Resolver
  * @typedef {import('../../types').UnixfsV1Resolver} UnixfsV1Resolver
@@ -33,10 +30,10 @@ const contentExporters = {
   file: require('./content/file'),
   directory: require('./content/directory'),
   'hamt-sharded-directory': require('./content/hamt-sharded-directory'),
-  metadata: (cid, node, unixfs, path, resolve, depth, blockService) => {
+  metadata: (cid, node, unixfs, path, resolve, depth, blockstore) => {
     return () => []
   },
-  symlink: (cid, node, unixfs, path, resolve, depth, blockService) => {
+  symlink: (cid, node, unixfs, path, resolve, depth, blockstore) => {
     return () => []
   }
 }
@@ -44,9 +41,9 @@ const contentExporters = {
 /**
  * @type {Resolver}
  */
-const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockService, options) => {
-  const block = await blockService.get(cid, options)
-  const node = decode(block.bytes)
+const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
+  const block = await blockstore.get(cid, options)
+  const node = decode(block)
   let unixfs
   let next
 
@@ -74,7 +71,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockS
 
     if (unixfs && unixfs.type === 'hamt-sharded-directory') {
       // special case - unixfs v1 hamt shards
-      linkCid = await findShardCid(node, toResolve[0], blockService)
+      linkCid = await findShardCid(node, toResolve[0], blockstore)
     } else {
       linkCid = findLinkCid(node, toResolve[0])
     }
@@ -102,7 +99,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockS
       path,
       cid,
       // @ts-ignore
-      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockService),
+      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockstore),
       unixfs,
       depth,
       node,

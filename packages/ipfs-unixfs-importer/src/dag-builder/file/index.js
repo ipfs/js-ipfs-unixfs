@@ -5,11 +5,11 @@ const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
 const { encode, prepare } = require('@ipld/dag-pb')
 const parallelBatch = require('it-parallel-batch')
-const mc = require('multicodec')
 const rawCodec = require('multiformats/codecs/raw')
+const dagPb = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('../../types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('../../types').File} File
  * @typedef {import('../../types').ImporterOptions} ImporterOptions
  * @typedef {import('../../types').Reducer} Reducer
@@ -28,10 +28,10 @@ const dagBuilders = {
 
 /**
  * @param {File} file
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {ImporterOptions} options
  */
-async function * buildFileBatch (file, block, options) {
+async function * buildFileBatch (file, blockstore, options) {
   let count = -1
   let previous
   let bufferImporter
@@ -42,7 +42,7 @@ async function * buildFileBatch (file, block, options) {
     bufferImporter = require('./buffer-importer')
   }
 
-  for await (const entry of parallelBatch(bufferImporter(file, block, options), options.blockWriteConcurrency)) {
+  for await (const entry of parallelBatch(bufferImporter(file, blockstore, options), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -64,10 +64,10 @@ async function * buildFileBatch (file, block, options) {
 
 /**
  * @param {File} file
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {ImporterOptions} options
  */
-const reduce = (file, block, options) => {
+const reduce = (file, blockstore, options) => {
   /**
    * @type {Reducer}
    */
@@ -78,7 +78,7 @@ const reduce = (file, block, options) => {
       if (leaf.cid.code === rawCodec.code && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        let { bytes: buffer } = await block.get(leaf.cid, options)
+        let buffer = await blockstore.get(leaf.cid)
 
         leaf.unixfs = new UnixFS({
           type: 'file',
@@ -108,9 +108,9 @@ const reduce = (file, block, options) => {
         //     throw new Error(`Unsupported hasher "${multihash}"`)
         //   }
         // }
-        leaf.cid = await persist(buffer, block, {
+        leaf.cid = await persist(buffer, blockstore, {
           ...options,
-          codec: mc.DAG_PB,
+          codec: dagPb,
           hasher: options.hasher,
           cidVersion: options.cidVersion
         })
@@ -176,7 +176,7 @@ const reduce = (file, block, options) => {
       Links: links
     }
     const buffer = encode(prepare(node))
-    const cid = await persist(buffer, block, options)
+    const cid = await persist(buffer, blockstore, options)
 
     return {
       cid,

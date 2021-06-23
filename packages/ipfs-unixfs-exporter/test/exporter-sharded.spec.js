@@ -9,22 +9,17 @@ const randomBytes = require('it-buffer-stream')
 const { exporter, walkPath } = require('../src')
 const { importer } = require('ipfs-unixfs-importer')
 const dagPb = require('@ipld/dag-pb')
-const { sha256 } = require('multiformats/hashes/sha2')
-const Block = require('multiformats/block')
 const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const asAsyncIterable = require('./helpers/as-async-iterable')
-
-/**
- * @typedef {import('multiformats/cid').CID} CID
- */
+const { CID } = require('multiformats/cid')
+const { sha256 } = require('multiformats/hashes/sha2')
 
 const SHARD_SPLIT_THRESHOLD = 10
 
 describe('exporter sharded', function () {
   this.timeout(30000)
 
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const block = blockApi()
 
   /**
@@ -97,7 +92,7 @@ describe('exporter sharded', function () {
     })
 
     const encodedBlock = await block.get(dirCid)
-    const dir = dagPb.decode(encodedBlock.bytes)
+    const dir = dagPb.decode(encodedBlock)
     if (!dir.Data) {
       throw Error('PBNode Data undefined')
     }
@@ -243,7 +238,7 @@ describe('exporter sharded', function () {
   it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
     const dirCid = await createShard(15)
 
-    const node = dagPb.prepare({
+    const nodeBlockBuf = dagPb.encode({
       Data: new UnixFS({ type: 'directory' }).marshal(),
       Links: [{
         Name: 'shard',
@@ -251,30 +246,21 @@ describe('exporter sharded', function () {
         Hash: dirCid
       }]
     })
-    // TODO vmx 2021-02-23: Make it a CIDv0
-    const nodeBlock = await Block.encode({
-      value: node,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(nodeBlock)
+    const nodeBlockCid = CID.createV0(await sha256.digest(nodeBlockBuf))
+    await block.put(nodeBlockCid, nodeBlockBuf)
 
-    const shardNode = dagPb.prepare({
+    const shardNodeBuf = dagPb.encode({
       Data: new UnixFS({ type: 'hamt-sharded-directory' }).marshal(),
       Links: [{
         Name: '75normal-dir',
-        Tsize: 5,
-        Hash: nodeBlock.cid.toV0()
+        Tsize: nodeBlockBuf.length,
+        Hash: nodeBlockCid
       }]
     })
-    const shardNodeBlock = await Block.encode({
-      value: shardNode,
-      codec: dagPb,
-      hasher: sha256
-    })
-    await block.put(shardNodeBlock)
+    const shardNodeCid = CID.createV0(await sha256.digest(shardNodeBuf))
+    await block.put(shardNodeCid, shardNodeBuf)
 
-    const exported = await exporter(`/ipfs/${shardNodeBlock.cid}/normal-dir/shard/file-1`, block)
+    const exported = await exporter(`/ipfs/${shardNodeCid}/normal-dir/shard/file-1`, block)
 
     expect(exported.name).to.deep.equal('file-1')
   })

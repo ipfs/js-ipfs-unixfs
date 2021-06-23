@@ -3,7 +3,7 @@
 const { decode } = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('ipfs-unixfs-importer/src/types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
  * @typedef {import('../../../types').Resolve} Resolve
  * @typedef {import('../../../types').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
@@ -14,13 +14,13 @@ const { decode } = require('@ipld/dag-pb')
 /**
  * @type {UnixfsV1Resolver}
  */
-const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, blockService) => {
+const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   /**
    * @param {ExporterOptions} options
    *
    */
   function yieldHamtDirectoryContent (options = {}) {
-    return listDirectory(node, path, resolve, depth, blockService, options)
+    return listDirectory(node, path, resolve, depth, blockstore, options)
   }
 
   return yieldHamtDirectoryContent
@@ -31,27 +31,27 @@ const hamtShardedDirectoryContent = (cid, node, unixfs, path, resolve, depth, bl
  * @param {string} path
  * @param {Resolve} resolve
  * @param {number} depth
- * @param {BlockAPI} blockService
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} options
  *
  * @returns {UnixfsV1DirectoryContent}
  */
-async function * listDirectory (node, path, resolve, depth, blockService, options) {
+async function * listDirectory (node, path, resolve, depth, blockstore, options) {
   const links = node.Links
 
   for (const link of links) {
     const name = link.Name != null ? link.Name.substring(2) : null
 
     if (name) {
-      const result = await resolve(link.Hash, name, `${path}/${name}`, [], depth + 1, blockService, options)
+      const result = await resolve(link.Hash, name, `${path}/${name}`, [], depth + 1, blockstore, options)
 
       yield result.entry
     } else {
       // descend into subshard
-      const block = await blockService.get(link.Hash)
-      node = decode(block.bytes)
+      const block = await blockstore.get(link.Hash)
+      node = decode(block)
 
-      for await (const file of listDirectory(node, path, resolve, depth, blockService, options)) {
+      for await (const file of listDirectory(node, path, resolve, depth, blockstore, options)) {
         yield file
       }
     }

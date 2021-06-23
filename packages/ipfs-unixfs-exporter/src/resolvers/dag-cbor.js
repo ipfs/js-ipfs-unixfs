@@ -11,9 +11,9 @@ const dagCbor = require('@ipld/dag-cbor')
 /**
  * @type {Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, blockService, options) => {
-  const block = await blockService.get(cid)
-  const object = dagCbor.decode(block.bytes)
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
+  const block = await blockstore.get(cid)
+  const object = dagCbor.decode(block)
   let subObject = object
   let subPath = path
 
@@ -33,7 +33,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
             name,
             path,
             cid,
-            node: block.bytes,
+            node: block,
             depth,
             size: block.length,
             content: async function * () {
@@ -62,7 +62,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockService,
       name,
       path,
       cid,
-      node: block.bytes,
+      node: block,
       depth,
       size: block.length,
       content: async function * () {

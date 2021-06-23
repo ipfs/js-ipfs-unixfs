@@ -13,7 +13,6 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
   const block = blockApi()
 
   it('imports', async function () {

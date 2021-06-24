@@ -12,9 +12,9 @@
     "test": "aegir test",
     "build": "aegir build",
     "clean": "rimraf ./dist",
-    "lint": "aegir ts --check && aegir lint",
+    "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf -i ipfs-core-types -i copy -i util -i crypto-browserify -i events -i readable-stream"
+    "depcheck": "aegir dep-check -i @types/mocha -i @types/sinon -i nyc -i abort-controller -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i interface-blockstore"
   },
   "repository": {
     "type": "git",
@@ -36,12 +36,11 @@
     "@types/mocha": "^8.2.1",
     "@types/sinon": "^10.0.0",
     "abort-controller": "^3.0.0",
-    "aegir": "^33.1.0",
+    "aegir": "^34.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
     "detect-node": "^2.0.4",
     "events": "^3.3.0",
-    "ipfs-core-types": "^0.5.2",
     "ipfs-unixfs-importer": "^7.0.3",
     "it-all": "^1.0.5",
     "it-buffer-stream": "^2.0.0",
@@ -61,10 +60,12 @@
     "@ipld/dag-pb": "^2.0.2",
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
-    "interface-blockstore": "^0.0.5",
+    "interface-blockstore": "^1.0.0",
     "ipfs-unixfs": "^4.0.3",
     "it-last": "^1.0.5",
-    "multiformats": "^9.0.4"
+    "multiformats": "^9.0.4",
+    "murmurhash3js-revisited": "^3.0.0",
+    "uint8arrays": "^2.1.5"
   },
   "types": "dist/src/index.d.ts",
   "files": [

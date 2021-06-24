@@ -11,7 +11,7 @@ interface ExporterOptions {
 }
 
 interface Exportable<T> {
-  type: 'file' | 'directory' | 'object' | 'raw' | 'identity',
+  type: 'file' | 'directory' | 'object' | 'raw' | 'identity'
   name: string
   path: string
   cid: CID
@@ -61,10 +61,10 @@ interface ResolveResult {
   next?: NextResult
 }
 
-type Resolve = (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: Blockstore, options: ExporterOptions) => Promise<ResolveResult>
-type Resolver = (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: Blockstore, options: ExporterOptions) => Promise<ResolveResult>
+interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: Blockstore, options: ExporterOptions): Promise<ResolveResult> }
+interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: Blockstore, options: ExporterOptions): Promise<ResolveResult> }
 
 type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-type UnixfsV1Resolver = (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: Blockstore) => (options: ExporterOptions) => UnixfsV1Content
+interface UnixfsV1Resolver { (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: Blockstore): (options: ExporterOptions) => UnixfsV1Content }

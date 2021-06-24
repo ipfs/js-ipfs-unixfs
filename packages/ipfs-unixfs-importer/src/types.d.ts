@@ -36,17 +36,17 @@ interface InProgressImportResult extends ImportResult {
 }
 
 type ChunkerType = 'fixed' | 'rabin'
-type ProgressHandler = (chunkSize: number, path?: string) => void
-type HamtHashFn = (value: Uint8Array) => Promise<Uint8Array>
-type Chunker = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<ImportResult>
-type BufferImporter = (file: File, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type ChunkValidator = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type UnixFSV1DagBuilder<T> = (item: T, blockstore: Blockstore, options: ImporterOptions) => Promise<InProgressImportResult>
-type Reducer = (leaves: InProgressImportResult[]) => Promise<InProgressImportResult>
+interface ProgressHandler { (chunkSize: number, path?: string): void }
+interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
+interface Chunker { (source: AsyncIterable<Uint8Array>, options: ImporterOptions): AsyncIterable<Uint8Array> }
+interface DAGBuilder { (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<() => Promise<InProgressImportResult>> }
+interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<ImportResult> }
+interface BufferImporter { (file: File, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<() => Promise<InProgressImportResult>> }
+interface ChunkValidator { (source: AsyncIterable<Uint8Array>, options: ImporterOptions): AsyncIterable<Uint8Array> }
+interface UnixFSV1DagBuilder<T> { (item: T, blockstore: Blockstore, options: ImporterOptions): Promise<InProgressImportResult> }
+interface Reducer { (leaves: InProgressImportResult[]): Promise<InProgressImportResult> }
 
-type FileDAGBuilder = (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer, options: ImporterOptions) => Promise<InProgressImportResult>
+interface FileDAGBuilder { (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer, options: ImporterOptions): Promise<InProgressImportResult> }
 
 interface UserImporterOptions {
   strategy?: 'balanced' | 'flat' | 'trickle'
@@ -68,10 +68,8 @@ interface UserImporterOptions {
   maxChildrenPerNode?: number
   layerRepeat?: number
   wrapWithDirectory?: boolean
-  pin?: boolean
   recursive?: boolean
   hidden?: boolean
-  preload?: boolean
   timeout?: number
   hamtHashFn?: HamtHashFn
   hamtBucketBits?: number
@@ -103,10 +101,8 @@ interface ImporterOptions {
   maxChildrenPerNode: number
   layerRepeat: number
   wrapWithDirectory: boolean
-  pin: boolean
   recursive: boolean
   hidden: boolean
-  preload: boolean
   timeout?: number
   hamtHashFn: HamtHashFn
   hamtBucketBits: number
@@ -119,14 +115,14 @@ interface ImporterOptions {
 }
 
 export interface TrickleDagNode {
-  children: InProgressImportResult[],
-  depth: number,
-  maxDepth: number,
-  maxChildren: number,
-  data?: InProgressImportResult[],
+  children: InProgressImportResult[]
+  depth: number
+  maxDepth: number
+  maxChildren: number
+  data?: InProgressImportResult[]
   parent?: TrickleDagNode
-  cid?: CID,
-  size?: number,
+  cid?: CID
+  size?: number
   unixfs?: UnixFS
 }
 

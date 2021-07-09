@@ -30,12 +30,12 @@ const rawContent = (node) => {
 /**
  * @type {import('../types').Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
   }
 
-  const buf = await ipld.get(cid, options)
+  const block = await blockstore.get(cid, options)
 
   return {
     entry: {
@@ -43,10 +43,10 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       name,
       path,
       cid,
-      content: rawContent(buf),
+      content: rawContent(block),
       depth,
-      size: buf.length,
-      node: buf
+      size: block.length,
+      node: block
     }
   }
 }

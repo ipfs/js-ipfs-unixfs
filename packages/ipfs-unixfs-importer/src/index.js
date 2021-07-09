@@ -4,7 +4,7 @@ const parallelBatch = require('it-parallel-batch')
 const defaultOptions = require('./options')
 
 /**
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./types').ImportCandidate} ImportCandidate
  * @typedef {import('./types').UserImporterOptions} UserImporterOptions
  * @typedef {import('./types').ImporterOptions} ImporterOptions
@@ -23,10 +23,10 @@ const defaultOptions = require('./options')
 
 /**
  * @param {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate> | ImportCandidate} source
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {UserImporterOptions} options
  */
-async function * importer (source, block, options = {}) {
+async function * importer (source, blockstore, options = {}) {
   const opts = defaultOptions(options)
 
   let dagBuilder
@@ -56,7 +56,7 @@ async function * importer (source, block, options = {}) {
     candidates = [source]
   }
 
-  for await (const entry of treeBuilder(parallelBatch(dagBuilder(candidates, block, opts), opts.fileImportConcurrency), block, opts)) {
+  for await (const entry of treeBuilder(parallelBatch(dagBuilder(candidates, blockstore, opts), opts.fileImportConcurrency), blockstore, opts)) {
     yield {
       cid: entry.cid,
       path: entry.path,

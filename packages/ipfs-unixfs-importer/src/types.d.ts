@@ -1,8 +1,8 @@
 import { UnixFS, Mtime } from 'ipfs-unixfs'
-import CID, { CIDVersion } from 'cids'
-import { HashName } from 'multihashes'
-import Block from 'ipld-block'
-import { CodecName } from 'multicodec'
+import { CID, CIDVersion } from 'multiformats/cid'
+import { MultihashHasher } from 'multiformats/hashes/interface'
+import { BlockCodec } from 'multiformats/codecs/interface'
+import { Blockstore } from 'interface-blockstore'
 
 interface ImportCandidate {
   path?: string
@@ -36,24 +36,24 @@ interface InProgressImportResult extends ImportResult {
 }
 
 type ChunkerType = 'fixed' | 'rabin'
-type ProgressHandler = (chunkSize: number, path?: string) => void
-type HamtHashFn = (value: Uint8Array) => Promise<Uint8Array>
-type Chunker = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type DAGBuilder = (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type TreeBuilder = (source: AsyncIterable<InProgressImportResult>, block: BlockAPI, options: ImporterOptions) => AsyncIterable<ImportResult>
-type BufferImporter = (file: File, block: BlockAPI, options: ImporterOptions) => AsyncIterable<() => Promise<InProgressImportResult>>
-type ChunkValidator = (source: AsyncIterable<Uint8Array>, options: ImporterOptions) => AsyncIterable<Uint8Array>
-type UnixFSV1DagBuilder<T> = (item: T, block: BlockAPI, options: ImporterOptions) => Promise<InProgressImportResult>
-type Reducer = (leaves: InProgressImportResult[]) => Promise<InProgressImportResult>
+interface ProgressHandler { (chunkSize: number, path?: string): void }
+interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
+interface Chunker { (source: AsyncIterable<Uint8Array>, options: ImporterOptions): AsyncIterable<Uint8Array> }
+interface DAGBuilder { (source: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<() => Promise<InProgressImportResult>> }
+interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<ImportResult> }
+interface BufferImporter { (file: File, blockstore: Blockstore, options: ImporterOptions): AsyncIterable<() => Promise<InProgressImportResult>> }
+interface ChunkValidator { (source: AsyncIterable<Uint8Array>, options: ImporterOptions): AsyncIterable<Uint8Array> }
+interface UnixFSV1DagBuilder<T> { (item: T, blockstore: Blockstore, options: ImporterOptions): Promise<InProgressImportResult> }
+interface Reducer { (leaves: InProgressImportResult[]): Promise<InProgressImportResult> }
 
-type FileDAGBuilder = (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer, options: ImporterOptions) => Promise<InProgressImportResult>
+interface FileDAGBuilder { (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer, options: ImporterOptions): Promise<InProgressImportResult> }
 
 interface UserImporterOptions {
   strategy?: 'balanced' | 'flat' | 'trickle'
   rawLeaves?: boolean
   onlyHash?: boolean
   reduceSingleLeafToSelf?: boolean
-  hashAlg?: HashName
+  hasher?: MultihashHasher
   leafType?: 'file' | 'raw'
   cidVersion?: CIDVersion
   progress?: ProgressHandler
@@ -68,10 +68,8 @@ interface UserImporterOptions {
   maxChildrenPerNode?: number
   layerRepeat?: number
   wrapWithDirectory?: boolean
-  pin?: boolean
   recursive?: boolean
   hidden?: boolean
-  preload?: boolean
   timeout?: number
   hamtHashFn?: HamtHashFn
   hamtBucketBits?: number
@@ -88,7 +86,7 @@ interface ImporterOptions {
   rawLeaves: boolean
   onlyHash: boolean
   reduceSingleLeafToSelf: boolean
-  hashAlg: HashName
+  hasher: MultihashHasher
   leafType: 'file' | 'raw'
   cidVersion: CIDVersion
   progress: ProgressHandler
@@ -103,10 +101,8 @@ interface ImporterOptions {
   maxChildrenPerNode: number
   layerRepeat: number
   wrapWithDirectory: boolean
-  pin: boolean
   recursive: boolean
   hidden: boolean
-  preload: boolean
   timeout?: number
   hamtHashFn: HamtHashFn
   hamtBucketBits: number
@@ -119,45 +115,21 @@ interface ImporterOptions {
 }
 
 export interface TrickleDagNode {
-  children: InProgressImportResult[],
-  depth: number,
-  maxDepth: number,
-  maxChildren: number,
-  data?: InProgressImportResult[],
+  children: InProgressImportResult[]
+  depth: number
+  maxDepth: number
+  maxChildren: number
+  data?: InProgressImportResult[]
   parent?: TrickleDagNode
-  cid?: CID,
-  size?: number,
+  cid?: CID
+  size?: number
   unixfs?: UnixFS
 }
 
 export interface PersistOptions {
-  codec?: string
+  codec?: BlockCodec<any, any>
+  hasher: MultihashHasher
   cidVersion: CIDVersion
-  hashAlg: HashName
   onlyHash: boolean
-  preload?: boolean
-  timeout?: number
   signal?: AbortSignal
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface BlockAPI {
-  get: (cid: CID | string | Uint8Array, options?: BlockOptions) => Promise<Block>
-  put: (block: Block | Uint8Array, options?: PutOptions) => Promise<Block>
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface BlockOptions {
-  signal?: AbortSignal
-  timeout?: number
-  preload?: boolean
-}
-
-// TODO: remove this and get from core-ipfs-types
-export interface PutOptions extends BlockOptions {
-  cid?: CID
-  format?: CodecName
-  mhtype?: HashName
-  version?: CIDVersion
-  pin?: boolean
 }

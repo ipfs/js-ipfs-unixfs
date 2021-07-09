@@ -3,15 +3,13 @@
 const errCode = require('err-code')
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
-const {
-  DAGNode,
-  DAGLink
-} = require('ipld-dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const parallelBatch = require('it-parallel-batch')
-const mh = require('multihashing-async').multihash
+const rawCodec = require('multiformats/codecs/raw')
+const dagPb = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('../../types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('../../types').File} File
  * @typedef {import('../../types').ImporterOptions} ImporterOptions
  * @typedef {import('../../types').Reducer} Reducer
@@ -30,10 +28,10 @@ const dagBuilders = {
 
 /**
  * @param {File} file
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {ImporterOptions} options
  */
-async function * buildFileBatch (file, block, options) {
+async function * buildFileBatch (file, blockstore, options) {
   let count = -1
   let previous
   let bufferImporter
@@ -44,7 +42,7 @@ async function * buildFileBatch (file, block, options) {
     bufferImporter = require('./buffer-importer')
   }
 
-  for await (const entry of parallelBatch(bufferImporter(file, block, options), options.blockWriteConcurrency)) {
+  for await (const entry of parallelBatch(bufferImporter(file, blockstore, options), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -66,10 +64,10 @@ async function * buildFileBatch (file, block, options) {
 
 /**
  * @param {File} file
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {ImporterOptions} options
  */
-const reduce = (file, block, options) => {
+const reduce = (file, blockstore, options) => {
   /**
    * @type {Reducer}
    */
@@ -77,10 +75,10 @@ const reduce = (file, block, options) => {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (leaf.cid.codec === 'raw' && (file.mtime !== undefined || file.mode !== undefined)) {
+      if (leaf.cid.code === rawCodec.code && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        let { data: buffer } = await block.get(leaf.cid, options)
+        let buffer = await blockstore.get(leaf.cid)
 
         leaf.unixfs = new UnixFS({
           type: 'file',
@@ -89,13 +87,31 @@ const reduce = (file, block, options) => {
           data: buffer
         })
 
-        const multihash = mh.decode(leaf.cid.multihash)
-        buffer = new DAGNode(leaf.unixfs.marshal()).serialize()
+        buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
-        leaf.cid = await persist(buffer, block, {
+        // // TODO vmx 2021-03-26: This is what the original code does, it checks
+        // // the multihash of the original leaf node and uses then the same
+        // // hasher. i wonder if that's really needed or if we could just use
+        // // the hasher from `options.hasher` instead.
+        // const multihash = mh.decode(leaf.cid.multihash.bytes)
+        // let hasher
+        // switch multihash {
+        //   case sha256.code {
+        //     hasher = sha256
+        //     break;
+        //   }
+        //   //case identity.code {
+        //   //  hasher = identity
+        //   //  break;
+        //   //}
+        //   default: {
+        //     throw new Error(`Unsupported hasher "${multihash}"`)
+        //   }
+        // }
+        leaf.cid = await persist(buffer, blockstore, {
           ...options,
-          codec: 'dag-pb',
-          hashAlg: multihash.name,
+          codec: dagPb,
+          hasher: options.hasher,
           cidVersion: options.cidVersion
         })
         leaf.size = buffer.length
@@ -118,7 +134,7 @@ const reduce = (file, block, options) => {
 
     const links = leaves
       .filter(leaf => {
-        if (leaf.cid.codec === 'raw' && leaf.size) {
+        if (leaf.cid.code === rawCodec.code && leaf.size) {
           return true
         }
 
@@ -129,11 +145,15 @@ const reduce = (file, block, options) => {
         return Boolean(leaf.unixfs && leaf.unixfs.data && leaf.unixfs.data.length)
       })
       .map((leaf) => {
-        if (leaf.cid.codec === 'raw') {
+        if (leaf.cid.code === rawCodec.code) {
           // node is a leaf buffer
           f.addBlockSize(leaf.size)
 
-          return new DAGLink('', leaf.size, leaf.cid)
+          return {
+            Name: '',
+            Tsize: leaf.size,
+            Hash: leaf.cid
+          }
         }
 
         if (!leaf.unixfs || !leaf.unixfs.data) {
@@ -144,12 +164,19 @@ const reduce = (file, block, options) => {
           f.addBlockSize(leaf.unixfs.data.length)
         }
 
-        return new DAGLink('', leaf.size, leaf.cid)
+        return {
+          Name: '',
+          Tsize: leaf.size,
+          Hash: leaf.cid
+        }
       })
 
-    const node = new DAGNode(f.marshal(), links)
-    const buffer = node.serialize()
-    const cid = await persist(buffer, block, options)
+    const node = {
+      Data: f.marshal(),
+      Links: links
+    }
+    const buffer = encode(prepare(node))
+    const cid = await persist(buffer, blockstore, options)
 
     return {
       cid,

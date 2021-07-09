@@ -2,9 +2,8 @@
 
 const { UnixFS } = require('ipfs-unixfs')
 const persist = require('../../utils/persist')
-const {
-  DAGNode
-} = require('ipld-dag-pb')
+const dagPb = require('@ipld/dag-pb')
+const raw = require('multiformats/codecs/raw')
 
 /**
  * @typedef {import('../../types').BufferImporter} BufferImporter
@@ -21,14 +20,14 @@ async function * bufferImporter (file, block, options) {
 
       /** @type {import('../../types').PersistOptions} */
       const opts = {
-        codec: 'dag-pb',
+        codec: dagPb,
         cidVersion: options.cidVersion,
-        hashAlg: options.hashAlg,
+        hasher: options.hasher,
         onlyHash: options.onlyHash
       }
 
       if (options.rawLeaves) {
-        opts.codec = 'raw'
+        opts.codec = raw
         opts.cidVersion = 1
       } else {
         unixfs = new UnixFS({
@@ -38,7 +37,10 @@ async function * bufferImporter (file, block, options) {
           mode: file.mode
         })
 
-        buffer = new DAGNode(unixfs.marshal()).serialize()
+        buffer = dagPb.encode({
+          Data: unixfs.marshal(),
+          Links: []
+        })
       }
 
       return {

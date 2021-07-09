@@ -1,15 +1,22 @@
 'use strict'
 
+const dagPb = require('@ipld/dag-pb')
+
 /**
- * @param {import('cids')} cid
- * @param {import('ipld')} ipld
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
-module.exports = function (cid, ipld) {
+
+/**
+ * @param {import('multiformats/cid').CID} cid
+ * @param {import('interface-blockstore').Blockstore} blockstore
+ */
+module.exports = function (cid, blockstore) {
   /**
-   * @param {import('cids')} cid
+   * @param {import('multiformats/cid').CID} cid
    */
   async function * traverse (cid) {
-    const node = await ipld.get(cid)
+    const block = await blockstore.get(cid)
+    const node = dagPb.decode(block)
 
     if (node instanceof Uint8Array || !node.Links.length) {
       yield {
@@ -20,12 +27,7 @@ module.exports = function (cid, ipld) {
       return
     }
 
-    node.Links.forEach(
-      /**
-       * @param {import('ipld-dag-pb').DAGLink} link
-       */
-      link => traverse(link.Hash)
-    )
+    node.Links.forEach(link => traverse(link.Hash))
   }
 
   return traverse(cid)

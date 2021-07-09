@@ -1,14 +1,13 @@
 'use strict'
 
 const errCode = require('err-code')
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 const resolve = require('./resolvers')
 const last = require('it-last')
 
 /**
  * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
- * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- * @typedef {import('ipld')} IPLD
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./types').ExporterOptions} ExporterOptions
  * @typedef {import('./types').UnixFSFile} UnixFSFile
  * @typedef {import('./types').UnixFSDirectory} UnixFSDirectory
@@ -32,14 +31,15 @@ const toPathComponents = (path = '') => {
 const cidAndRest = (path) => {
   if (path instanceof Uint8Array) {
     return {
-      cid: new CID(path),
+      cid: CID.decode(path),
       toResolve: []
     }
   }
 
-  if (CID.isCID(path)) {
+  const cid = CID.asCID(path)
+  if (cid) {
     return {
-      cid: path,
+      cid,
       toResolve: []
     }
   }
@@ -52,7 +52,7 @@ const cidAndRest = (path) => {
     const output = toPathComponents(path)
 
     return {
-      cid: new CID(output[0]),
+      cid: CID.parse(output[0]),
       toResolve: output.slice(1)
     }
   }
@@ -62,10 +62,10 @@ const cidAndRest = (path) => {
 
 /**
  * @param {string | CID} path
- * @param {IPLD} ipld
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * walkPath (path, ipld, options = {}) {
+async function * walkPath (path, blockstore, options = {}) {
   let {
     cid,
     toResolve
@@ -75,7 +75,7 @@ async function * walkPath (path, ipld, options = {}) {
   const startingDepth = toResolve.length
 
   while (true) {
-    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, ipld, options)
+    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, blockstore, options)
 
     if (!result.entry && !result.next) {
       throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
@@ -99,11 +99,11 @@ async function * walkPath (path, ipld, options = {}) {
 
 /**
  * @param {string | CID} path
- * @param {IPLD} ipld
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function exporter (path, ipld, options = {}) {
-  const result = await last(walkPath(path, ipld, options))
+async function exporter (path, blockstore, options = {}) {
+  const result = await last(walkPath(path, blockstore, options))
 
   if (!result) {
     throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
@@ -114,11 +114,11 @@ async function exporter (path, ipld, options = {}) {
 
 /**
  * @param {string | CID} path
- * @param {IPLD} ipld
+ * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * recursive (path, ipld, options = {}) {
-  const node = await exporter(path, ipld, options)
+async function * recursive (path, blockstore, options = {}) {
+  const node = await exporter(path, blockstore, options)
 
   if (!node) {
     return

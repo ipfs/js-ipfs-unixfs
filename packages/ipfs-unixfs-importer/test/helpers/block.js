@@ -1,64 +1,50 @@
 'use strict'
 
-const {
-  DAGNode,
-  util
-} = require('ipld-dag-pb')
-const multicodec = require('multicodec')
-const mh = require('multihashing-async').multihash
-const CID = require('cids')
-const Block = require('ipld-block')
+const errCode = require('err-code')
+const { BlockstoreAdapter } = require('interface-blockstore')
+const { base58btc } = require('multiformats/bases/base58')
 
 /**
- * @param {import('ipld')} ipld
+ * @typedef {import('multiformats/cid').CID} CID
  */
-function createBlockApi (ipld) {
-  // make ipld behave like the block api, some tests need to pull
-  // data from ipld so can't use a simple in-memory cid->block map
-  /** @type {import('../../src/types').BlockAPI} */
-  const BlockApi = {
-    put: async (buf, options) => {
-      if (!options || !options.cid) {
-        throw new Error('No cid passed')
+
+function createBlockApi () {
+  class MockBlockstore extends BlockstoreAdapter {
+    constructor () {
+      super()
+
+      /** @type {{[key: string]: Uint8Array}} */
+      this._blocks = {}
+    }
+
+    /**
+     * @param {CID} cid
+     * @param {Uint8Array} block
+     * @param {any} [options]
+     */
+    async put (cid, block, options = {}) {
+      this._blocks[base58btc.encode(cid.multihash.bytes)] = block
+    }
+
+    /**
+     * @param {CID} cid
+     * @param {any} [options]
+     */
+    async get (cid, options = {}) {
+      const bytes = this._blocks[base58btc.encode(cid.multihash.bytes)]
+
+      if (bytes === undefined) {
+        throw errCode(new Error(`Could not find data for CID '${cid}'`), 'ERR_NOT_FOUND')
       }
 
-      const cid = new CID(options.cid)
-
-      const multihash = mh.decode(cid.multihash)
-
-      if (Block.isBlock(buf)) {
-        buf = buf.data
-      }
-
-      /** @type {any} */
-      let obj = buf
-
-      if (cid.codec === 'dag-pb') {
-        obj = util.deserialize(buf)
-      }
-
-      await ipld.put(obj, cid.codec === 'dag-pb' ? multicodec.DAG_PB : multicodec.RAW, {
-        cidVersion: cid.version,
-        hashAlg: multihash.code
-      })
-
-      return new Block(buf, cid)
-    },
-    get: async (cid, options) => {
-      cid = new CID(cid)
-
-      /** @type {Uint8Array} */
-      let buf = await ipld.get(cid, options)
-
-      if (buf instanceof DAGNode) {
-        buf = buf.serialize()
-      }
-
-      return new Block(buf, cid)
+      return bytes
     }
   }
 
-  return BlockApi
+  /** @type {import('interface-blockstore').Blockstore} */
+  const bs = new MockBlockstore()
+
+  return bs
 }
 
 module.exports = createBlockApi

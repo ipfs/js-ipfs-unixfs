@@ -55,7 +55,7 @@ function contentAsAsyncIterable (content) {
 /**
  * @type {DAGBuilder}
  */
-async function * dagBuilder (source, block, options) {
+async function * dagBuilder (source, blockstore, options) {
   for await (const entry of source) {
     if (entry.path) {
       if (entry.path.substring(0, 2) === './') {
@@ -101,7 +101,7 @@ async function * dagBuilder (source, block, options) {
         content: chunker(chunkValidator(contentAsAsyncIterable(entry.content), options), options)
       }
 
-      yield () => fileBuilder(file, block, options)
+      yield () => fileBuilder(file, blockstore, options)
     } else if (entry.path) {
       /** @type {Directory} */
       const dir = {
@@ -110,7 +110,7 @@ async function * dagBuilder (source, block, options) {
         mode: entry.mode
       }
 
-      yield () => dirBuilder(dir, block, options)
+      yield () => dirBuilder(dir, blockstore, options)
     } else {
       throw new Error('Import candidate must have content or path or both')
     }

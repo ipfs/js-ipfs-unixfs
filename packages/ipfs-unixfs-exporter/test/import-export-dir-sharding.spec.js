@@ -5,10 +5,6 @@ const { importer } = require('ipfs-unixfs-importer')
 const { exporter } = require('../src')
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const all = require('it-all')
 const last = require('it-last')
 const blockApi = require('./helpers/block')
@@ -23,15 +19,7 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
  */
 
 describe('builder: directory sharding', () => {
-  /** @type {import('ipld')} */
-  let ipld
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-  let block
-
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
+  const block = blockApi()
 
   describe('basic dirbuilder', () => {
     it('yields a non-sharded dir', async () => {
@@ -48,7 +36,7 @@ describe('builder: directory sharding', () => {
       expect(nodes[0].path).to.equal('a/b')
       expect(nodes[1].path).to.equal('a')
 
-      const dirNode = await exporter(nodes[1].cid, ipld)
+      const dirNode = await exporter(nodes[1].cid, block)
 
       if (dirNode.type !== 'directory') {
         throw new Error('Unexpected type')
@@ -56,7 +44,7 @@ describe('builder: directory sharding', () => {
 
       expect(dirNode.unixfs.type).to.equal('directory')
 
-      const fileNode = await exporter(nodes[0].cid, ipld)
+      const fileNode = await exporter(nodes[0].cid, block)
 
       if (fileNode.type !== 'file') {
         throw new Error('Unexpected type')
@@ -83,7 +71,7 @@ describe('builder: directory sharding', () => {
       expect(nodes[0].path).to.equal('a/b')
       expect(nodes[1].path).to.equal('a')
 
-      const node = await exporter(nodes[1].cid, ipld)
+      const node = await exporter(nodes[1].cid, block)
 
       if (node.type !== 'directory') {
         throw new Error('Unexpected type')
@@ -103,7 +91,7 @@ describe('builder: directory sharding', () => {
 
       const nonShardedHash = nodes[1].cid
 
-      const dir = await exporter(nonShardedHash, ipld)
+      const dir = await exporter(nonShardedHash, block)
 
       if (dir.type !== 'directory') {
         throw new Error('Unexpected type')
@@ -140,7 +128,7 @@ describe('builder: directory sharding', () => {
 
       const shardedHash = nodes[1].cid
 
-      const dir = await exporter(shardedHash, ipld)
+      const dir = await exporter(shardedHash, block)
 
       if (dir.type !== 'directory') {
         throw new Error('Unexpected type')
@@ -207,7 +195,7 @@ describe('builder: directory sharding', () => {
 
       expect(nodes.length).to.equal(maxDirs + 1) // files plus the containing directory
 
-      const dir = await exporter(nodes[nodes.length - 1].cid, ipld)
+      const dir = await exporter(nodes[nodes.length - 1].cid, block)
 
       if (dir.type !== 'directory') {
         throw new Error('Unexpected type')
@@ -229,7 +217,7 @@ describe('builder: directory sharding', () => {
 
     const maxDirs = 2000
     const maxDepth = 3
-    /** @type {import('cids')} */
+    /** @type {import('multiformats/cid').CID} */
     let rootHash
 
     before(async () => {
@@ -276,7 +264,7 @@ describe('builder: directory sharding', () => {
     })
 
     it('imports a big dir', async () => {
-      const dir = await exporter(rootHash, ipld)
+      const dir = await exporter(rootHash, block)
 
       /**
        * @param {UnixFSEntry} node
@@ -351,7 +339,7 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const dir = await exporter(rootHash, ipld)
+      const dir = await exporter(rootHash, block)
 
       const entries = await collectContent(dir)
       let index = 0
@@ -365,7 +353,7 @@ describe('builder: directory sharding', () => {
     it('exports a big dir with subpath', async () => {
       const exportHash = rootHash.toString() + '/big/big/2000'
 
-      const node = await exporter(exportHash, ipld)
+      const node = await exporter(exportHash, block)
       expect(node.path).to.equal(exportHash)
 
       if (node.type !== 'file') {

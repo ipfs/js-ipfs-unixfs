@@ -2,39 +2,25 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const { UnixFS } = require('ipfs-unixfs')
-const mh = require('multihashing-async').multihash
-const mc = require('multicodec')
 const all = require('it-all')
 const last = require('it-last')
 const randomBytes = require('it-buffer-stream')
 const { exporter, walkPath } = require('../src')
 const { importer } = require('ipfs-unixfs-importer')
-const {
-  DAGLink,
-  DAGNode
-} = require('ipld-dag-pb')
+const dagPb = require('@ipld/dag-pb')
 const blockApi = require('./helpers/block')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const asAsyncIterable = require('./helpers/as-async-iterable')
-
-/**
- * @typedef {import('cids')} CID
- */
+const { CID } = require('multiformats/cid')
+const { sha256 } = require('multiformats/hashes/sha2')
 
 const SHARD_SPLIT_THRESHOLD = 10
 
 describe('exporter sharded', function () {
   this.timeout(30000)
 
-  /** @type {import('ipld')} */
-  let ipld
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-  let block
+  const block = blockApi()
 
   /**
    * @param {number} numFiles
@@ -72,11 +58,6 @@ describe('exporter sharded', function () {
     return result.cid
   }
 
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
-
   it('exports a sharded directory', async () => {
     /** @type {{ [key: string]: { content: Uint8Array, cid?: CID }}} */
     const files = {}
@@ -110,14 +91,18 @@ describe('exporter sharded', function () {
       files[imported.path].cid = imported.cid
     })
 
-    const dir = await ipld.get(dirCid)
+    const encodedBlock = await block.get(dirCid)
+    const dir = dagPb.decode(encodedBlock)
+    if (!dir.Data) {
+      throw Error('PBNode Data undefined')
+    }
     const dirMetadata = UnixFS.unmarshal(dir.Data)
 
     expect(dirMetadata.type).to.equal('hamt-sharded-directory')
 
-    const exported = await exporter(dirCid, ipld)
+    const exported = await exporter(dirCid, block)
 
-    expect(exported.cid.equals(dirCid)).to.be.true()
+    expect(exported.cid.toString()).to.be.equal(dirCid.toString())
 
     if (exported.type !== 'directory') {
       throw new Error('Expected directory')
@@ -140,7 +125,8 @@ describe('exporter sharded', function () {
       const data = uint8ArrayConcat(await all(dirFile.content()))
 
       // validate the CID
-      expect(files[dirFile.name]).to.have.property('cid').that.deep.equals(dirFile.cid)
+      // @ts-ignore - files[dirFile.name].cid is defined
+      expect(files[dirFile.name].cid.toString()).that.deep.equals(dirFile.cid.toString())
 
       // validate the exported file content
       expect(files[dirFile.name].content).to.deep.equal(data)
@@ -150,7 +136,7 @@ describe('exporter sharded', function () {
   it('exports all files from a sharded directory with subshards', async () => {
     const numFiles = 31
     const dirCid = await createShard(numFiles)
-    const exported = await exporter(dirCid, ipld)
+    const exported = await exporter(dirCid, block)
 
     if (exported.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -172,42 +158,42 @@ describe('exporter sharded', function () {
 
   it('exports one file from a sharded directory', async () => {
     const dirCid = await createShard(31)
-    const exported = await exporter(`/ipfs/${dirCid}/file-14`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid}/file-14`, block)
 
     expect(exported).to.have.property('name', 'file-14')
   })
 
   it('exports one file from a sharded directory sub shard', async () => {
     const dirCid = await createShard(31)
-    const exported = await exporter(`/ipfs/${dirCid}/file-30`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid}/file-30`, block)
 
     expect(exported.name).to.deep.equal('file-30')
   })
 
   it('exports one file from a shard inside a shard inside a shard', async () => {
     const dirCid = await createShard(2568)
-    const exported = await exporter(`/ipfs/${dirCid}/file-2567`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid}/file-2567`, block)
 
     expect(exported.name).to.deep.equal('file-2567')
   })
 
   it('extracts a deep folder from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await exporter(`/ipfs/${dirCid}/foo/bar/baz`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid}/foo/bar/baz`, block)
 
     expect(exported.name).to.deep.equal('baz')
   })
 
   it('extracts an intermediate folder from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await exporter(`/ipfs/${dirCid}/foo/bar`, ipld)
+    const exported = await exporter(`/ipfs/${dirCid}/foo/bar`, block)
 
     expect(exported.name).to.deep.equal('bar')
   })
 
   it('uses .path to extract all intermediate entries from the sharded directory', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz/file-1`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz/file-1`, block))
 
     expect(exported.length).to.equal(5)
 
@@ -224,7 +210,7 @@ describe('exporter sharded', function () {
 
   it('uses .path to extract all intermediate entries from the sharded directory as well as the contents', async () => {
     const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, ipld))
+    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, block))
 
     expect(exported.length).to.equal(4)
 
@@ -252,23 +238,29 @@ describe('exporter sharded', function () {
   it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
     const dirCid = await createShard(15)
 
-    const node = new DAGNode(new UnixFS({ type: 'directory' }).marshal(), [
-      new DAGLink('shard', 5, dirCid)
-    ])
-    const nodeCid = await ipld.put(node, mc.DAG_PB, {
-      cidVersion: 0,
-      hashAlg: mh.names['sha2-256']
+    const nodeBlockBuf = dagPb.encode({
+      Data: new UnixFS({ type: 'directory' }).marshal(),
+      Links: [{
+        Name: 'shard',
+        Tsize: 5,
+        Hash: dirCid
+      }]
     })
+    const nodeBlockCid = CID.createV0(await sha256.digest(nodeBlockBuf))
+    await block.put(nodeBlockCid, nodeBlockBuf)
 
-    const shardNode = new DAGNode(new UnixFS({ type: 'hamt-sharded-directory' }).marshal(), [
-      new DAGLink('75normal-dir', 5, nodeCid)
-    ])
-    const shardNodeCid = await ipld.put(shardNode, mc.DAG_PB, {
-      cidVersion: 1,
-      hashAlg: mh.names['sha2-256']
+    const shardNodeBuf = dagPb.encode({
+      Data: new UnixFS({ type: 'hamt-sharded-directory' }).marshal(),
+      Links: [{
+        Name: '75normal-dir',
+        Tsize: nodeBlockBuf.length,
+        Hash: nodeBlockCid
+      }]
     })
+    const shardNodeCid = CID.createV0(await sha256.digest(shardNodeBuf))
+    await block.put(shardNodeCid, shardNodeBuf)
 
-    const exported = await exporter(`/ipfs/${shardNodeCid}/normal-dir/shard/file-1`, ipld)
+    const exported = await exporter(`/ipfs/${shardNodeCid}/normal-dir/shard/file-1`, block)
 
     expect(exported.name).to.deep.equal('file-1')
   })

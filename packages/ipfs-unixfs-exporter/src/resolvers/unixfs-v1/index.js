@@ -3,20 +3,17 @@
 const errCode = require('err-code')
 const { UnixFS } = require('ipfs-unixfs')
 const findShardCid = require('../../utils/find-cid-in-shard')
+const { decode } = require('@ipld/dag-pb')
 
 /**
- * @typedef {import('cids')} CID
- * @typedef {import('ipld')} IPLD
- * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- * @typedef {import('../../types').ExporterOptions} ExporterOptions
- * @typedef {import('../../types').UnixFSEntry} UnixFSEntry
  * @typedef {import('../../types').Resolve} Resolve
  * @typedef {import('../../types').Resolver} Resolver
  * @typedef {import('../../types').UnixfsV1Resolver} UnixfsV1Resolver
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
 /**
- * @param {import('ipld-dag-pb').DAGNode} node
+ * @param {PBNode} node
  * @param {string} name
  */
 const findLinkCid = (node, name) => {
@@ -33,10 +30,10 @@ const contentExporters = {
   file: require('./content/file'),
   directory: require('./content/directory'),
   'hamt-sharded-directory': require('./content/hamt-sharded-directory'),
-  metadata: (cid, node, unixfs, path, resolve, depth, ipld) => {
+  metadata: (cid, node, unixfs, path, resolve, depth, blockstore) => {
     return () => []
   },
-  symlink: (cid, node, unixfs, path, resolve, depth, ipld) => {
+  symlink: (cid, node, unixfs, path, resolve, depth, blockstore) => {
     return () => []
   }
 }
@@ -44,13 +41,18 @@ const contentExporters = {
 /**
  * @type {Resolver}
  */
-const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
-  const node = await ipld.get(cid, options)
+const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
+  const block = await blockstore.get(cid, options)
+  const node = decode(block)
   let unixfs
   let next
 
   if (!name) {
     name = cid.toString()
+  }
+
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
   }
 
   try {
@@ -69,7 +71,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, 
 
     if (unixfs && unixfs.type === 'hamt-sharded-directory') {
       // special case - unixfs v1 hamt shards
-      linkCid = await findShardCid(node, toResolve[0], ipld)
+      linkCid = await findShardCid(node, toResolve[0], blockstore)
     } else {
       linkCid = findLinkCid(node, toResolve[0])
     }
@@ -97,7 +99,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, ipld, 
       path,
       cid,
       // @ts-ignore
-      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, ipld),
+      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockstore),
       unixfs,
       depth,
       node,

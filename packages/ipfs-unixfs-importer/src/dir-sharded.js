@@ -1,9 +1,6 @@
 'use strict'
 
-const {
-  DAGLink,
-  DAGNode
-} = require('ipld-dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
@@ -13,7 +10,7 @@ const { createHAMT, Bucket } = require('hamt-sharding')
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  */
 
 /**
@@ -72,11 +69,11 @@ class DirSharded extends Dir {
   }
 
   /**
-   * @param {BlockAPI} block
+   * @param {Blockstore} blockstore
    * @returns {AsyncIterable<ImportResult>}
    */
-  async * flush (block) {
-    for await (const entry of flush(this._bucket, block, this, this.options)) {
+  async * flush (blockstore) {
+    for await (const entry of flush(this._bucket, blockstore, this, this.options)) {
       yield {
         ...entry,
         path: this.path
@@ -89,12 +86,12 @@ module.exports = DirSharded
 
 /**
  * @param {Bucket<?>} bucket
- * @param {BlockAPI} block
+ * @param {Blockstore} blockstore
  * @param {*} shardRoot
  * @param {ImporterOptions} options
  * @returns {AsyncIterable<ImportResult>}
  */
-async function * flush (bucket, block, shardRoot, options) {
+async function * flush (bucket, blockstore, shardRoot, options) {
   const children = bucket._children
   const links = []
   let childrenSize = 0
@@ -111,7 +108,7 @@ async function * flush (bucket, block, shardRoot, options) {
     if (child instanceof Bucket) {
       let shard
 
-      for await (const subShard of await flush(child, block, null, options)) {
+      for await (const subShard of await flush(child, blockstore, null, options)) {
         shard = subShard
       }
 
@@ -119,20 +116,28 @@ async function * flush (bucket, block, shardRoot, options) {
         throw new Error('Could not flush sharded directory, no subshard found')
       }
 
-      links.push(new DAGLink(labelPrefix, shard.size, shard.cid))
+      links.push({
+        Name: labelPrefix,
+        Tsize: shard.size,
+        Hash: shard.cid
+      })
       childrenSize += shard.size
     } else if (typeof child.value.flush === 'function') {
       const dir = child.value
       let flushedDir
 
-      for await (const entry of dir.flush(block)) {
+      for await (const entry of dir.flush(blockstore)) {
         flushedDir = entry
 
         yield flushedDir
       }
 
       const label = labelPrefix + child.key
-      links.push(new DAGLink(label, flushedDir.size, flushedDir.cid))
+      links.push({
+        Name: label,
+        Tsize: flushedDir.size,
+        Hash: flushedDir.cid
+      })
 
       childrenSize += flushedDir.size
     } else {
@@ -145,7 +150,11 @@ async function * flush (bucket, block, shardRoot, options) {
       const label = labelPrefix + child.key
       const size = value.size
 
-      links.push(new DAGLink(label, size, value.cid))
+      links.push({
+        Name: label,
+        Tsize: size,
+        Hash: value.cid
+      })
       childrenSize += size
     }
   }
@@ -162,9 +171,12 @@ async function * flush (bucket, block, shardRoot, options) {
     mode: shardRoot && shardRoot.mode
   })
 
-  const node = new DAGNode(dir.marshal(), links)
-  const buffer = node.serialize()
-  const cid = await persist(buffer, block, options)
+  const node = {
+    Data: dir.marshal(),
+    Links: links
+  }
+  const buffer = encode(prepare(node))
+  const cid = await persist(buffer, blockstore, options)
   const size = buffer.length + childrenSize
 
   yield {

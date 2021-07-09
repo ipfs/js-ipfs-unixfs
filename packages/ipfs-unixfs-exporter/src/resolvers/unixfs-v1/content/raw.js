@@ -11,7 +11,7 @@ const validateOffsetAndLength = require('../../../utils/validate-offset-and-leng
 /**
  * @type {UnixfsV1Resolver}
  */
-const rawContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
+const rawContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   /**
    * @param {ExporterOptions} options
    */

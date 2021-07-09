@@ -3,7 +3,6 @@
 const batch = require('it-batch')
 
 /**
- * @typedef {import('cids')} CID
  * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
  * @typedef {import('../../types').ImporterOptions} ImporterOptions
  * @typedef {import('../../types').InProgressImportResult} InProgressImportResult

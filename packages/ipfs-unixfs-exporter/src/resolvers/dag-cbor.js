@@ -1,7 +1,8 @@
 'use strict'
 
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 const errCode = require('err-code')
+const dagCbor = require('@ipld/dag-cbor')
 
 /**
  * @typedef {import('../types').Resolver} Resolver
@@ -10,9 +11,9 @@ const errCode = require('err-code')
 /**
  * @type {Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
-  const object = await ipld.get(cid, options)
-  const block = await ipld.get(new CID(1, 'raw', cid.multihash))
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
+  const block = await blockstore.get(cid)
+  const object = dagCbor.decode(block)
   let subObject = object
   let subPath = path
 
@@ -24,7 +25,8 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       toResolve.shift()
       subPath = `${subPath}/${prop}`
 
-      if (CID.isCID(subObject[prop])) {
+      const subObjectCid = CID.asCID(subObject[prop])
+      if (subObjectCid) {
         return {
           entry: {
             type: 'object',
@@ -39,7 +41,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
             }
           },
           next: {
-            cid: subObject[prop],
+            cid: subObjectCid,
             name: prop,
             path: subPath,
             toResolve

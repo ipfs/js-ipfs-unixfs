@@ -9,7 +9,7 @@
 /**
  * @type {UnixfsV1Resolver}
  */
-const directoryContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
+const directoryContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   /**
    * @param {ExporterOptions} [options]
    * @returns {UnixfsV1DirectoryContent}
@@ -20,7 +20,7 @@ const directoryContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
     const links = node.Links.slice(offset, length)
 
     for (const link of links) {
-      const result = await resolve(link.Hash, link.Name, `${path}/${link.Name}`, [], depth + 1, ipld, options)
+      const result = await resolve(link.Hash, link.Name || '', `${path}/${link.Name || ''}`, [], depth + 1, blockstore, options)
 
       if (result.entry) {
         yield result.entry

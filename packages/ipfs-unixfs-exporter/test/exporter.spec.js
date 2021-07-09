@@ -2,18 +2,13 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const { UnixFS } = require('ipfs-unixfs')
-const CID = require('cids')
-const {
-  DAGNode,
-  DAGLink
-} = require('ipld-dag-pb')
-const mh = require('multihashing-async').multihash
-const mc = require('multicodec')
+const { CID } = require('multiformats/cid')
+const dagPb = require('@ipld/dag-pb')
+const dagCbor = require('@ipld/dag-cbor')
+const { sha256 } = require('multiformats/hashes/sha2')
+const { identity } = require('multiformats/hashes/identity')
+const raw = require('multiformats/codecs/raw')
 const { exporter, recursive } = require('../src')
 const { importer } = require('ipfs-unixfs-importer')
 const all = require('it-all')
@@ -29,11 +24,13 @@ const asAsyncIterable = require('./helpers/as-async-iterable')
 
 const ONE_MEG = Math.pow(1024, 2)
 
+/**
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ */
+
 describe('exporter', () => {
-  /** @type {import('ipld')} */
-  let ipld
-  /** @type {import('ipfs-unixfs-importer/src/types').BlockAPI} */
-  let block
+  const block = blockApi()
   /** @type {Uint8Array} */
   let bigFile
   /** @type {Uint8Array} */
@@ -48,7 +45,7 @@ describe('exporter', () => {
    * @param {object} [options]
    * @param {string} [options.type='file']
    * @param {Uint8Array} [options.content]
-   * @param {DAGLink[]} [options.links=[]]
+   * @param {PBLink[]} [options.links=[]]
    */
   async function dagPut (options = {}) {
     options.type = options.type || 'file'
@@ -59,14 +56,15 @@ describe('exporter', () => {
       type: options.type,
       data: options.content
     })
+    const node = {
+      Data: file.marshal(),
+      Links: options.links
+    }
+    const buf = dagPb.encode(node)
+    const cid = CID.createV0(await sha256.digest(buf))
+    await block.put(cid, buf)
 
-    const node = new DAGNode(file.marshal(), options.links)
-    const cid = await ipld.put(node, mc.DAG_PB, {
-      cidVersion: 0,
-      hashAlg: mh.names['sha2-256']
-    })
-
-    return { file: file, node: node, cid: cid }
+    return { file: file, node: node, cid }
   }
 
   /**
@@ -102,7 +100,7 @@ describe('exporter', () => {
    */
   async function addAndReadTestFile ({ file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves }) {
     const cid = await addTestFile({ file, strategy, path, maxChunkSize, rawLeaves })
-    const entry = await exporter(cid, ipld)
+    const entry = await exporter(cid, block)
 
     if (entry.type !== 'file' && entry.type !== 'raw') {
       throw new Error('Unexpected type')
@@ -135,49 +133,55 @@ describe('exporter', () => {
   }
 
   /**
-   * @param {import('ipld')} ipld
    * @param {'file' | 'directory' | 'raw'} type
    * @param {Uint8Array | ArrayLike<number> | undefined} data
-   * @param {{ node: DAGNode, cid: CID }[]} children
+   * @param {{ node: PBNode, cid: CID }[]} children
    */
-  async function createAndPersistNode (ipld, type, data, children) {
+  async function createAndPersistNode (type, data, children) {
     const file = new UnixFS({ type, data: data ? Uint8Array.from(data) : undefined })
     const links = []
 
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
+      // @ts-ignore - we can guarantee that it's not undefined
       const leaf = UnixFS.unmarshal(child.node.Data)
 
       file.addBlockSize(leaf.fileSize())
 
-      links.push(new DAGLink('', child.node.size, child.cid))
+      links.push({
+        Name: '',
+        Tsize: child.node.Data != null ? child.node.Data.length : 0,
+        Hash: child.cid
+      })
     }
 
-    const node = new DAGNode(file.marshal(), links)
-    const cid = await ipld.put(node, mc.DAG_PB, {
-      cidVersion: 1,
-      hashAlg: mh.names['sha2-256']
-    })
+    const node = {
+      Data: file.marshal(),
+      Links: links
+    }
+
+    const nodeBlock = dagPb.encode(node)
+    const nodeCid = CID.createV0(await sha256.digest(nodeBlock))
+    await block.put(nodeCid, nodeBlock)
 
     return {
       node,
-      cid
+      cid: nodeCid
     }
   }
 
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
-
   it('ensure hash inputs are sanitized', async () => {
     const result = await dagPut()
-    const node = await ipld.get(result.cid)
+    const encodedBlock = await block.get(result.cid)
+    const node = dagPb.decode(encodedBlock)
+    if (!node.Data) {
+      throw new Error('PBNode Data undefined')
+    }
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     expect(unmarsh.data).to.deep.equal(result.file.data)
 
-    const file = await exporter(result.cid, ipld)
+    const file = await exporter(result.cid, block)
 
     expect(file).to.have.property('cid')
     expect(file).to.have.property('path', result.cid.toString())
@@ -200,7 +204,7 @@ describe('exporter', () => {
     }], block))
 
     const path = `/ipfs/${files[1].cid}/${fileName}`
-    const file = await exporter(path, ipld)
+    const file = await exporter(path, block)
 
     expect(file.name).to.equal(fileName)
     expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
@@ -216,7 +220,7 @@ describe('exporter', () => {
     }], block))
 
     const path = `/ipfs/${files[1].cid}/${fileName}`
-    const file = await exporter(path, ipld)
+    const file = await exporter(path, block)
 
     expect(file.name).to.equal(fileName)
     expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
@@ -230,14 +234,18 @@ describe('exporter', () => {
       content: uint8ArrayConcat(await all(randomBytes(100)))
     })
 
-    const node = await ipld.get(result.cid)
+    const encodedBlock = await block.get(result.cid)
+    const node = dagPb.decode(encodedBlock)
+    if (!node.Data) {
+      throw new Error('PBNode Data undefined')
+    }
     const unmarsh = UnixFS.unmarshal(node.Data)
 
     if (!unmarsh.data) {
       throw new Error('Unexpected data')
     }
 
-    const file = await exporter(result.cid, ipld)
+    const file = await exporter(result.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -257,18 +265,22 @@ describe('exporter', () => {
       type: 'raw',
       data: content.slice(0, 5)
     })
-    const chunkNode1 = new DAGNode(chunk1.marshal())
-    const chunkCid1 = await ipld.put(chunkNode1, mc.DAG_PB, {
-      cidVersion: 0,
-      hashAlg: mh.names['sha2-256']
-    })
+    const chunkNode1 = {
+      Data: chunk1.marshal(),
+      Links: []
+    }
+    const chunkBlock1 = dagPb.encode(chunkNode1)
+    const chunkCid1 = CID.createV0(await sha256.digest(chunkBlock1))
+    await block.put(chunkCid1, chunkBlock1)
 
     const chunk2 = new UnixFS({ type: 'raw', data: content.slice(5) })
-    const chunkNode2 = new DAGNode(chunk2.marshal())
-    const chunkCid2 = await ipld.put(chunkNode2, mc.DAG_PB, {
-      cidVersion: 0,
-      hashAlg: mh.names['sha2-256']
-    })
+    const chunkNode2 = {
+      Data: chunk2.marshal(),
+      Links: []
+    }
+    const chunkBlock2 = dagPb.encode(chunkNode2)
+    const chunkCid2 = CID.createV0(await sha256.digest(chunkBlock2))
+    await block.put(chunkCid2, chunkBlock2)
 
     const file = new UnixFS({
       type: 'file'
@@ -276,16 +288,23 @@ describe('exporter', () => {
     file.addBlockSize(5)
     file.addBlockSize(5)
 
-    const fileNode = new DAGNode(file.marshal(), [
-      new DAGLink('', chunkNode1.size, chunkCid1),
-      new DAGLink('', chunkNode2.size, chunkCid2)
-    ])
-    const fileCid = await ipld.put(fileNode, mc.DAG_PB, {
-      cidVersion: 0,
-      hashAlg: mh.names['sha2-256']
+    const fileNode = dagPb.prepare({
+      Data: file.marshal(),
+      Links: [{
+        Name: '',
+        Tsize: chunkNode1.Data != null ? chunkNode1.Data.length : 0,
+        Hash: chunkCid1.toV0()
+      }, {
+        Name: '',
+        Tsize: chunkNode2.Data != null ? chunkNode2.Data.length : 0,
+        Hash: chunkCid2.toV0()
+      }]
     })
+    const fileBlock = dagPb.encode(fileNode)
+    const fileCid = CID.createV0(await sha256.digest(fileBlock))
+    await block.put(fileCid, fileBlock)
 
-    const exported = await exporter(fileCid, ipld)
+    const exported = await exporter(fileCid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -302,16 +321,18 @@ describe('exporter', () => {
     const chunk = await dagPut({ content: uint8ArrayConcat(await all(randomBytes(100))) })
     const result = await dagPut({
       content: uint8ArrayConcat(await all(randomBytes(100))),
-      links: [
-        new DAGLink('', chunk.node.size, chunk.cid)
-      ]
+      links: [{
+        Name: '',
+        Tsize: chunk.node.Data != null ? chunk.node.Data.length : 0,
+        Hash: chunk.cid
+      }]
     })
 
     if (!result.file.data) {
       throw new Error('Expected data')
     }
 
-    const file = await exporter(result.cid, ipld)
+    const file = await exporter(result.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -332,7 +353,7 @@ describe('exporter', () => {
       file: uint8ArrayConcat(await all(randomBytes(ONE_MEG * 6)))
     })
 
-    const file = await exporter(cid, ipld)
+    const file = await exporter(cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -353,7 +374,7 @@ describe('exporter', () => {
       file: bytes
     })
 
-    const file = await exporter(cid, ipld)
+    const file = await exporter(cid, block)
     expect(file).to.have.property('path', cid.toString())
 
     if (file.type !== 'file') {
@@ -419,7 +440,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const dir = await exporter(importedDir.cid, ipld)
+    const dir = await exporter(importedDir.cid, block)
 
     if (dir.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -467,7 +488,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const dir = await exporter(importedDir.cid, ipld)
+    const dir = await exporter(importedDir.cid, block)
 
     if (dir.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -623,7 +644,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const file = await exporter(imported.cid, ipld)
+    const file = await exporter(imported.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -643,7 +664,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const dir = await exporter(imported.cid, ipld)
+    const dir = await exporter(imported.cid, block)
 
     if (dir.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -762,7 +783,7 @@ describe('exporter', () => {
       file: bigFile,
       maxChunkSize: 1024
     })
-    const file = await exporter(cid, ipld)
+    const file = await exporter(cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -800,19 +821,19 @@ describe('exporter', () => {
     const hash = 'bafybeidu2qqwriogfndznz32swi5r4p2wruf6ztu5k7my53tsezwhncs5y'
 
     try {
-      await exporter(hash, ipld)
+      await exporter(hash, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
   it('exports file with data on internal and leaf nodes', async () => {
-    const leaf = await createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [])
-    const node = await createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+    const leaf = await createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [])
+    const node = await createAndPersistNode('file', [0x00, 0x01, 0x02, 0x03], [
       leaf
     ])
 
-    const file = await exporter(node.cid, ipld)
+    const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -835,23 +856,23 @@ describe('exporter', () => {
     //             |     \
     //             l      l
     const leaves = await Promise.all([
-      createAndPersistNode(ipld, 'raw', [0x00, 0x01, 0x02, 0x03], []),
-      createAndPersistNode(ipld, 'raw', [0x08, 0x09, 0x10, 0x11], []),
-      createAndPersistNode(ipld, 'raw', [0x12, 0x13, 0x14, 0x15], [])
+      createAndPersistNode('raw', [0x00, 0x01, 0x02, 0x03], []),
+      createAndPersistNode('raw', [0x08, 0x09, 0x10, 0x11], []),
+      createAndPersistNode('raw', [0x12, 0x13, 0x14, 0x15], [])
     ])
 
     const internalNodes = await Promise.all([
-      createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]]),
-      createAndPersistNode(ipld, 'raw', undefined, [leaves[2]])
+      createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [leaves[1]]),
+      createAndPersistNode('raw', undefined, [leaves[2]])
     ])
 
-    const node = await createAndPersistNode(ipld, 'file', undefined, [
+    const node = await createAndPersistNode('file', undefined, [
       leaves[0],
       internalNodes[0],
       internalNodes[1]
     ])
 
-    const file = await exporter(node.cid, ipld)
+    const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -868,12 +889,12 @@ describe('exporter', () => {
   })
 
   it('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', async () => {
-    const leaf = await createAndPersistNode(ipld, 'raw', [0x04, 0x05, 0x06, 0x07], [])
-    const node = await createAndPersistNode(ipld, 'file', [0x00, 0x01, 0x02, 0x03], [
+    const leaf = await createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [])
+    const node = await createAndPersistNode('file', [0x00, 0x01, 0x02, 0x03], [
       leaf
     ])
 
-    const file = await exporter(node.cid, ipld)
+    const file = await exporter(node.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -900,7 +921,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const file = await exporter(imported.cid, ipld)
+    const file = await exporter(imported.cid, block)
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -925,8 +946,8 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const file = await exporter(imported.cid, ipld)
-    expect(CID.isCID(file.cid)).to.be.true()
+    const file = await exporter(imported.cid, block)
+    expect(CID.asCID(file.cid)).to.not.be.undefined()
 
     if (file.type !== 'raw') {
       throw new Error('Unexpected type')
@@ -937,12 +958,16 @@ describe('exporter', () => {
   })
 
   it('errors when exporting a non-existent key from a cbor node', async () => {
-    const cborNodeCid = await ipld.put({
+    const node = {
       foo: 'bar'
-    }, mc.DAG_CBOR)
+    }
+
+    const cborBlock = dagCbor.encode(node)
+    const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cid, cborBlock)
 
     try {
-      await exporter(`${cborNodeCid}/baz`, ipld)
+      await exporter(`${cid}/baz`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_PROP')
     }
@@ -953,8 +978,10 @@ describe('exporter', () => {
       foo: 'bar'
     }
 
-    const cborNodeCid = await ipld.put(node, mc.DAG_CBOR)
-    const exported = await exporter(`${cborNodeCid}`, ipld)
+    const cborBlock = dagCbor.encode(node)
+    const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cid, cborBlock)
+    const exported = await exporter(`${cid}`, block)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
@@ -964,50 +991,64 @@ describe('exporter', () => {
   })
 
   it('errors when exporting a node with no resolver', async () => {
-    const cid = new CID(1, 'git-raw', new CID('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
+    const cid = CID.create(1, 0x78, CID.parse('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
 
     try {
-      await exporter(`${cid}`, ipld)
+      await exporter(`${cid}`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NO_RESOLVER')
     }
   })
 
   it('errors if we try to export links from inside a raw node', async () => {
-    const cid = await ipld.put(Uint8Array.from([0, 1, 2, 3, 4]), mc.RAW)
+    const rawBlock = Uint8Array.from([0, 1, 2, 3, 4])
+    const cid = CID.createV1(raw.code, await sha256.digest(rawBlock))
+    await block.put(cid, rawBlock)
 
     try {
-      await exporter(`${cid}/lol`, ipld)
+      await exporter(`${cid}/lol`, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
-    const cid = await ipld.put(new DAGNode(Uint8Array.from([0, 1, 2, 3, 4])), mc.DAG_PB)
+    const dagpbBlock = dagPb.encode({
+      Data: Uint8Array.from([0, 1, 2, 3, 4]),
+      Links: []
+    })
+    const dagpbCid = CID.createV0(await sha256.digest(dagpbBlock))
+    await block.put(dagpbCid, dagpbBlock)
 
     try {
-      await exporter(cid, ipld)
+      await exporter(dagpbCid, block)
     } catch (err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })
 
   it('errors we export a unixfs node that has a non-unixfs/dag-pb child', async () => {
-    const cborNodeCid = await ipld.put({
-      foo: 'bar'
-    }, mc.DAG_CBOR)
+    const cborBlock = await dagCbor.encode({ foo: 'bar' })
+    const cborCid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
+    await block.put(cborCid, cborBlock)
 
     const file = new UnixFS({
       type: 'file'
     })
     file.addBlockSize(100)
 
-    const cid = await ipld.put(new DAGNode(file.marshal(), [
-      new DAGLink('', 100, cborNodeCid)
-    ]), mc.DAG_PB)
+    const dagpbBuffer = dagPb.encode({
+      Data: file.marshal(),
+      Links: [{
+        Name: '',
+        Tsize: cborBlock.length,
+        Hash: cborCid
+      }]
+    })
+    const dagpbCid = CID.createV0(await sha256.digest(dagpbBuffer))
+    await block.put(dagpbCid, dagpbBuffer)
 
-    const exported = await exporter(cid, ipld)
+    const exported = await exporter(dagpbCid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -1026,7 +1067,7 @@ describe('exporter', () => {
       content: asAsyncIterable(uint8ArrayFromString('hello world'))
     }], block))
 
-    const exported = await exporter(imported[0].cid, ipld)
+    const exported = await exporter(imported[0].cid, block)
 
     expect(exported.depth).to.equal(0)
   })
@@ -1047,7 +1088,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await all(recursive(dir.cid, ipld))
+    const exported = await all(recursive(dir.cid, block))
     const dirCid = dir.cid.toString()
 
     expect(exported[0].depth).to.equal(0)
@@ -1072,10 +1113,10 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.encode(data, 'identity')
-    const cid = new CID(1, 'identity', hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
-    const exported = await exporter(cid, ipld)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
@@ -1089,10 +1130,10 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with an offset', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.encode(data, 'identity')
-    const cid = new CID(1, 'identity', hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
-    const exported = await exporter(cid, ipld)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
@@ -1107,10 +1148,10 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with a length', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.encode(data, 'identity')
-    const cid = new CID(1, 'identity', hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
-    const exported = await exporter(cid, ipld)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
@@ -1125,10 +1166,10 @@ describe('exporter', () => {
 
   it('exports a CID encoded with the identity hash with an offset and a length', async () => {
     const data = uint8ArrayFromString('hello world')
-    const hash = mh.encode(data, 'identity')
-    const cid = new CID(1, 'identity', hash)
+    const hash = await identity.digest(data)
+    const cid = CID.create(1, identity.code, hash)
 
-    const exported = await exporter(cid, ipld)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'identity') {
       throw new Error('Unexpected type')
@@ -1147,8 +1188,8 @@ describe('exporter', () => {
 
     // data should not be in IPLD
     const data = uint8ArrayFromString(`hello world '${Math.random()}`)
-    const hash = mh.encode(data, 'sha2-256')
-    const cid = new CID(1, 'dag-pb', hash)
+    const hash = await sha256.digest(data)
+    const cid = CID.create(1, dagPb.code, hash)
     const message = `User aborted ${Math.random()}`
 
     setTimeout(() => {
@@ -1157,7 +1198,7 @@ describe('exporter', () => {
 
     // regular test IPLD is offline-only, we need to mimic what happens when
     // we try to get a block from the network
-    const ipld = {
+    const customBlock = {
       /**
        *
        * @param {CID} cid
@@ -1174,7 +1215,7 @@ describe('exporter', () => {
     }
 
     // @ts-ignore ipld implementation incomplete
-    await expect(exporter(cid, ipld, {
+    await expect(exporter(cid, customBlock, {
       signal: abortController.signal
     })).to.eventually.be.rejectedWith(message)
   })

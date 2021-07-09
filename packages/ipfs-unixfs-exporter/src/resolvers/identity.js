@@ -3,7 +3,7 @@
 const errCode = require('err-code')
 const extractDataFromBlock = require('../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../utils/validate-offset-and-length')
-const mh = require('multihashing-async').multihash
+const mh = require('multiformats/hashes/digest')
 
 /**
  * @typedef {import('../types').ExporterOptions} ExporterOptions
@@ -32,12 +32,11 @@ const rawContent = (node) => {
 /**
  * @type {Resolver}
  */
-const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options) => {
+const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
   if (toResolve.length) {
     throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
   }
-
-  const buf = await mh.decode(cid.multihash)
+  const buf = await mh.decode(cid.multihash.bytes)
 
   return {
     entry: {
@@ -47,7 +46,7 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, ipld, options
       cid,
       content: rawContent(buf.digest),
       depth,
-      size: buf.length,
+      size: buf.digest.length,
       node: buf.digest
     }
   }

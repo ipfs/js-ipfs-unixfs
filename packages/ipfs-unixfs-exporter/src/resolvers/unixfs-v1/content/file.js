@@ -4,23 +4,24 @@ const extractDataFromBlock = require('../../../utils/extract-data-from-block')
 const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
 const { UnixFS } = require('ipfs-unixfs')
 const errCode = require('err-code')
+const dagPb = require('@ipld/dag-pb')
+const dagCbor = require('@ipld/dag-cbor')
+const raw = require('multiformats/codecs/raw')
 
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
- * @typedef {import('ipld')} IPLD
- * @typedef {import('ipld-dag-pb').DAGNode} DAGNode
- */
-
-/**
- * @param {IPLD} ipld
- * @param {DAGNode} node
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ *
+ * @param {Blockstore} blockstore
+ * @param {PBNode} node
  * @param {number} start
  * @param {number} end
  * @param {number} streamPosition
  * @param {ExporterOptions} options
  * @returns {AsyncIterable<Uint8Array>}
  */
-async function * emitBytes (ipld, node, start, end, streamPosition = 0, options) {
+async function * emitBytes (blockstore, node, start, end, streamPosition = 0, options) {
   // a `raw` node
   if (node instanceof Uint8Array) {
     const buf = extractDataFromBlock(node, streamPosition, start, end)
@@ -32,6 +33,10 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
     streamPosition += buf.length
 
     return streamPosition
+  }
+
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
   }
 
   let file
@@ -63,11 +68,25 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
     if ((start >= childStart && start < childEnd) || // child has offset byte
         (end > childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
-      const child = await ipld.get(childLink.Hash, {
+      const block = await blockstore.get(childLink.Hash, {
         signal: options.signal
       })
+      let child
+      switch (childLink.Hash.code) {
+        case dagPb.code:
+          child = await dagPb.decode(block)
+          break
+        case raw.code:
+          child = block
+          break
+        case dagCbor.code:
+          child = await dagCbor.decode(block)
+          break
+        default:
+          throw Error(`Unsupported codec: ${childLink.Hash.code}`)
+      }
 
-      for await (const buf of emitBytes(ipld, child, start, end, streamPosition, options)) {
+      for await (const buf of emitBytes(blockstore, child, start, end, streamPosition, options)) {
         streamPosition += buf.length
 
         yield buf
@@ -82,7 +101,7 @@ async function * emitBytes (ipld, node, start, end, streamPosition = 0, options)
 /**
  * @type {import('../').UnixfsV1Resolver}
  */
-const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
+const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   /**
    * @param {ExporterOptions} options
    */
@@ -101,7 +120,7 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, ipld) => {
     const start = offset
     const end = offset + length
 
-    return emitBytes(ipld, node, start, end, 0, options)
+    return emitBytes(blockstore, node, start, end, 0, options)
   }
 
   return yieldFileContent

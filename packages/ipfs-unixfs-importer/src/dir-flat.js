@@ -1,9 +1,6 @@
 'use strict'
 
-const {
-  DAGLink,
-  DAGNode
-} = require('ipld-dag-pb')
+const { encode, prepare } = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const Dir = require('./dir')
 const persist = require('./utils/persist')
@@ -12,9 +9,10 @@ const persist = require('./utils/persist')
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').BlockAPI} BlockAPI
+ * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./dir').DirProps} DirProps
- * @typedef {import('cids')} CID
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
  */
 
 class DirFlat extends Dir {
@@ -73,7 +71,7 @@ class DirFlat extends Dir {
   }
 
   /**
-   * @param {BlockAPI} block
+   * @param {Blockstore} block
    * @returns {AsyncIterable<ImportResult>}
    */
   async * flush (block) {
@@ -92,7 +90,11 @@ class DirFlat extends Dir {
       }
 
       if (child.size != null && child.cid) {
-        links.push(new DAGLink(children[i], child.size, child.cid))
+        links.push({
+          Name: children[i],
+          Tsize: child.size,
+          Hash: child.cid
+        })
       }
     }
 
@@ -102,15 +104,16 @@ class DirFlat extends Dir {
       mode: this.mode
     })
 
-    const node = new DAGNode(unixfs.marshal(), links)
-    const buffer = node.serialize()
+    /** @type {PBNode} */
+    const node = { Data: unixfs.marshal(), Links: links }
+    const buffer = encode(prepare(node))
     const cid = await persist(buffer, block, this.options)
     const size = buffer.length + node.Links.reduce(
       /**
        * @param {number} acc
-       * @param {DAGLink} curr
+       * @param {PBLink} curr
        */
-      (acc, curr) => acc + curr.Tsize,
+      (acc, curr) => acc + (curr.Tsize == null ? 0 : curr.Tsize),
       0)
 
     this.cid = cid

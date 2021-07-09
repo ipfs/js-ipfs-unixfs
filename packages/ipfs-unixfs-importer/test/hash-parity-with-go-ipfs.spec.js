@@ -4,10 +4,6 @@
 const { importer } = require('../src')
 
 const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
 const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
 const first = require('it-first')
 const blockApi = require('./helpers/block')
@@ -39,15 +35,7 @@ strategies.forEach(strategy => {
   }
 
   describe('go-ipfs interop using importer:' + strategy, () => {
-    /** @type {import('ipld')} */
-    let ipld
-    /** @type {import('../src').BlockAPI} */
-    let block
-
-    before(async () => {
-      ipld = await inMemory(IPLD)
-      block = blockApi(ipld)
-    })
+    const block = blockApi()
 
     it('yields the same tree as go-ipfs', async function () {
       this.timeout(100 * 1000)

@@ -2,11 +2,9 @@
 'use strict'
 
 const { expect } = require('aegir/utils/chai')
-const mh = require('multihashing-async').multihash
-// @ts-ignore
-const IPLD = require('ipld')
-// @ts-ignore
-const inMemory = require('ipld-in-memory')
+const mh = require('multiformats/hashes/digest')
+const { sha256, sha512 } = require('multiformats/hashes/sha2')
+const { decode } = require('@ipld/dag-pb')
 const { UnixFS } = require('ipfs-unixfs')
 const builder = require('../src/dag-builder')
 const first = require('it-first')
@@ -16,21 +14,13 @@ const defaultOptions = require('../src/options')
 const asAsyncIterable = require('./helpers/as-async-iterable')
 
 describe('builder', () => {
-  /** @type {import('ipld')} */
-  let ipld
-  /** @type {import('../src').BlockAPI} */
-  let block
+  const block = blockApi()
 
-  before(async () => {
-    ipld = await inMemory(IPLD)
-    block = blockApi(ipld)
-  })
-
-  const testMultihashes = Object.keys(mh.names).slice(1, 10)
+  const testMultihashes = [sha256, sha512]
 
   it('allows multihash hash algorithm to be specified', async () => {
     for (let i = 0; i < testMultihashes.length; i++) {
-      const hashAlg = testMultihashes[i]
+      const hasher = testMultihashes[i]
       const content = uint8ArrayFromString(String(Math.random() + Date.now()))
       const inputFile = {
         path: content + '.txt',
@@ -39,8 +29,7 @@ describe('builder', () => {
 
       const result = await first(builder([inputFile], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
-        hashAlg
+        hasher
       }))
 
       if (!result) {
@@ -48,15 +37,17 @@ describe('builder', () => {
       }
 
       const imported = await result()
-
       expect(imported).to.exist()
 
-      // Verify multihash has been encoded using hashAlg
-      expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
+      // Verify multihash has been encoded using hasher
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
 
-      // Fetch using hashAlg encoded multihash
-      const node = await ipld.get(imported.cid)
-
+      // Fetch using hasher encoded multihash
+      const importedBlock = await block.get(imported.cid)
+      const node = decode(importedBlock)
+      if (!node.Data) {
+        throw new Error('PBNode Data undefined')
+      }
       const fetchedContent = UnixFS.unmarshal(node.Data).data
       expect(fetchedContent).to.deep.equal(content)
     }
@@ -66,7 +57,7 @@ describe('builder', () => {
     this.timeout(30000)
 
     for (let i = 0; i < testMultihashes.length; i++) {
-      const hashAlg = testMultihashes[i]
+      const hasher = testMultihashes[i]
       const content = String(Math.random() + Date.now())
       const inputFile = {
         path: content + '.txt',
@@ -76,8 +67,7 @@ describe('builder', () => {
 
       const result = await first(builder([inputFile], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
-        hashAlg
+        hasher
       }))
 
       if (!result) {
@@ -87,21 +77,20 @@ describe('builder', () => {
       const imported = await result()
 
       expect(imported).to.exist()
-      expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
     }
   })
 
   it('allows multihash hash algorithm to be specified for a directory', async () => {
     for (let i = 0; i < testMultihashes.length; i++) {
-      const hashAlg = testMultihashes[i]
+      const hasher = testMultihashes[i]
       const inputFile = {
         path: `${String(Math.random() + Date.now())}-dir`
       }
 
       const result = await first(builder([{ ...inputFile }], block, {
         ...defaultOptions(),
-        // @ts-ignore thinks these aren't valid hash alg names
-        hashAlg
+        hasher
       }))
 
       if (!result) {
@@ -110,11 +99,15 @@ describe('builder', () => {
 
       const imported = await result()
 
-      expect(mh.decode(imported.cid.multihash).name).to.equal(hashAlg)
+      expect(mh.decode(imported.cid.multihash.bytes).code).to.equal(hasher.code)
 
-      // Fetch using hashAlg encoded multihash
-      const node = await ipld.get(imported.cid)
+      // Fetch using hasher encoded multihash
+      const importedBlock = await block.get(imported.cid)
+      const node = decode(importedBlock)
 
+      if (!node.Data) {
+        throw new Error('PBNode Data undefined')
+      }
       const meta = UnixFS.unmarshal(node.Data)
       expect(meta.type).to.equal('directory')
     }

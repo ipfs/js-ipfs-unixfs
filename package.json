@@ -42,10 +42,12 @@
     "Bernard Mordan <bernard@tableflip.io>",
     "Mithgol <getgit@mithgol.ru>",
     "Irakli Gozalishvili <contact@gozala.io>",
+    "Arpit Agarwal <atvanguard@users.noreply.github.com>",
     "Hector Sanjuan <code@hector.link>",
     "Francisco Baio Dias <xicombd@gmail.com>",
     "Diogo Silva <fsdiogo@gmail.com>",
-    "jbenet <juan@benet.ai>"
+    "jbenet <juan@benet.ai>",
+    "SahidMiller <SahidMiller@users.noreply.github.com>"
   ],
   "workspaces": [
     "packages/*"

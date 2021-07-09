@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@5.0.3...ipfs-unixfs-exporter@6.0.0) (2021-07-09)
+
+
+### Bug Fixes
+
+* use @ipld/dag-pb instead of ipld-dag-pb ([#116](https://github.com/ipfs/js-ipfs-unixfs/issues/116)) ([bab1985](https://github.com/ipfs/js-ipfs-unixfs/commit/bab1985e3f80c17dc94b0e9448ac993bfe78488a))
+
+
+### BREAKING CHANGES
+
+* uses new multiformats stack and takes a blockservice instead of the block api
+
+Co-authored-by: Rod Vagg <rod@vagg.org>
+Co-authored-by: achingbrain <alex@achingbrain.net>
+
+
+
+
+
 ## [5.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@5.0.2...ipfs-unixfs-exporter@5.0.3) (2021-04-20)
 
 **Note:** Version bump only for package ipfs-unixfs-exporter

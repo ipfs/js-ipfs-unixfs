@@ -1,8 +1,11 @@
-'use strict'
+import dirBuilder from './dir.js'
+import fileBuilder from './file/index.js'
+import errCode from 'err-code'
 
-const dirBuilder = require('./dir')
-const fileBuilder = require('./file')
-const errCode = require('err-code')
+// TODO: dynamic imports
+import validateChunks from './validate-chunks.js'
+import rabinChunker from '../chunker/rabin.js'
+import fixedSizeChunker from '../chunker/fixed-size.js'
 
 /**
  * @typedef {import('../types').File} File
@@ -77,9 +80,9 @@ async function * dagBuilder (source, blockstore, options) {
       if (typeof options.chunker === 'function') {
         chunker = options.chunker
       } else if (options.chunker === 'rabin') {
-        chunker = require('../chunker/rabin')
+        chunker = rabinChunker
       } else {
-        chunker = require('../chunker/fixed-size')
+        chunker = fixedSizeChunker
       }
 
       /**
@@ -90,7 +93,7 @@ async function * dagBuilder (source, blockstore, options) {
       if (typeof options.chunkValidator === 'function') {
         chunkValidator = options.chunkValidator
       } else {
-        chunkValidator = require('./validate-chunks')
+        chunkValidator = validateChunks
       }
 
       /** @type {File} */
@@ -117,4 +120,4 @@ async function * dagBuilder (source, blockstore, options) {
   }
 }
 
-module.exports = dagBuilder
+export default dagBuilder

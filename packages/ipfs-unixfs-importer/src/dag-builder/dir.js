@@ -1,8 +1,6 @@
-'use strict'
-
-const { UnixFS } = require('ipfs-unixfs')
-const persist = require('../utils/persist')
-const { encode, prepare } = require('@ipld/dag-pb')
+import { UnixFS } from 'ipfs-unixfs'
+import persist from '../utils/persist.js'
+import { encode, prepare } from '@ipld/dag-pb'
 
 /**
  * @typedef {import('../types').Directory} Directory
@@ -30,4 +28,4 @@ const dirBuilder = async (item, blockstore, options) => {
   }
 }
 
-module.exports = dirBuilder
+export default dirBuilder

@@ -4,13 +4,15 @@
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
+  "type": "module",
   "browser": {
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build --no-bundle",
+    "prepare": "aegir build",
     "test": "aegir test",
     "build": "aegir build",
+    "postbuild": "cd dist && npx json -I -f package.json -e 'this.types=\"src/index.d.ts\"'",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
@@ -36,7 +38,7 @@
     "@types/mocha": "^8.2.1",
     "@types/sinon": "^10.0.0",
     "abort-controller": "^3.0.0",
-    "aegir": "^34.0.0",
+    "aegir": "https://gitpkg.now.sh/ipfs/aegir?feat/build-esm-modules",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
     "detect-node": "^2.0.4",
@@ -45,6 +47,7 @@
     "it-all": "^1.0.5",
     "it-buffer-stream": "^2.0.0",
     "it-first": "^1.0.6",
+    "json": "^11.0.0",
     "merge-options": "^3.0.4",
     "murmurhash3js-revisited": "^3.0.0",
     "native-abort-controller": "^1.0.3",
@@ -68,10 +71,6 @@
     "uint8arrays": "^2.1.7"
   },
   "types": "dist/src/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
   "eslintConfig": {
     "extends": "ipfs"
   }

@@ -1,10 +1,10 @@
-'use strict'
-
-const all = require('it-all')
+import all from 'it-all'
 
 /**
  * @type {import('../../types').FileDAGBuilder}
  */
-module.exports = async function (source, reduce) {
+async function flat (source, reduce) {
   return reduce(await all(source))
 }
+
+export default flat

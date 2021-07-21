@@ -1,12 +1,10 @@
-'use strict'
-
 // @ts-ignore
-const BufferList = require('bl/BufferList')
+import BufferList from 'bl/BufferList.js'
 
 /**
  * @type {import('../types').Chunker}
  */
-module.exports = async function * fixedSizeChunker (source, options) {
+async function * fixedSizeChunker (source, options) {
   let bl = new BufferList()
   let currentLength = 0
   let emitted = false
@@ -41,3 +39,5 @@ module.exports = async function * fixedSizeChunker (source, options) {
     yield bl.slice(0, currentLength)
   }
 }
+
+export default fixedSizeChunker

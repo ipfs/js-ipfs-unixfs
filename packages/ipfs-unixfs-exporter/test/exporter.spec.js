@@ -1,26 +1,26 @@
 /* eslint-env mocha */
 'use strict'
-
-const { expect } = require('aegir/utils/chai')
-const { UnixFS } = require('ipfs-unixfs')
-const { CID } = require('multiformats/cid')
-const dagPb = require('@ipld/dag-pb')
-const dagCbor = require('@ipld/dag-cbor')
-const { sha256 } = require('multiformats/hashes/sha2')
-const { identity } = require('multiformats/hashes/identity')
-const raw = require('multiformats/codecs/raw')
-const { exporter, recursive } = require('../src')
-const { importer } = require('ipfs-unixfs-importer')
-const all = require('it-all')
-const last = require('it-last')
-const first = require('it-first')
-const randomBytes = require('it-buffer-stream')
-const { AbortController } = require('native-abort-controller')
-const blockApi = require('./helpers/block')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayToString = require('uint8arrays/to-string')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import { UnixFS } from 'ipfs-unixfs'
+import { CID } from 'multiformats/cid'
+import * as dagPb from '@ipld/dag-pb'
+import * as dagCbor from '@ipld/dag-cbor'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { identity } from 'multiformats/hashes/identity'
+import * as raw from 'multiformats/codecs/raw'
+import { exporter, recursive } from '../src/index.js'
+import { importer } from 'ipfs-unixfs-importer'
+import all from 'it-all'
+import last from 'it-last'
+import first from 'it-first'
+import randomBytes from 'it-buffer-stream'
+import { AbortController } from 'native-abort-controller'
+import blockApi from './helpers/block.js'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import uint8ArrayToString from 'uint8arrays/to-string.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const ONE_MEG = Math.pow(1024, 2)
 

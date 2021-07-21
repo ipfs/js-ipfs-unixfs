@@ -1,10 +1,8 @@
-'use strict'
-
-const { encode, prepare } = require('@ipld/dag-pb')
-const { UnixFS } = require('ipfs-unixfs')
-const Dir = require('./dir')
-const persist = require('./utils/persist')
-const { createHAMT, Bucket } = require('hamt-sharding')
+import { encode, prepare } from '@ipld/dag-pb'
+import { UnixFS } from 'ipfs-unixfs'
+import Dir from './dir.js'
+import persist from './utils/persist.js'
+import { createHAMT, Bucket } from 'hamt-sharding'
 
 /**
  * @typedef {import('./types').ImporterOptions} ImporterOptions
@@ -82,7 +80,7 @@ class DirSharded extends Dir {
   }
 }
 
-module.exports = DirSharded
+export default DirSharded
 
 /**
  * @param {Bucket<?>} bucket

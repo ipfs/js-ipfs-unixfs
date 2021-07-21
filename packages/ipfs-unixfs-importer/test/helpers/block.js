@@ -1,8 +1,6 @@
-'use strict'
-
-const errCode = require('err-code')
-const { BlockstoreAdapter } = require('interface-blockstore')
-const { base58btc } = require('multiformats/bases/base58')
+import errCode from 'err-code'
+import { BlockstoreAdapter } from 'interface-blockstore'
+import { base58btc } from 'multiformats/bases/base58'
 
 /**
  * @typedef {import('multiformats/cid').CID} CID
@@ -47,4 +45,4 @@ function createBlockApi () {
   return bs
 }
 
-module.exports = createBlockApi
+export default createBlockApi

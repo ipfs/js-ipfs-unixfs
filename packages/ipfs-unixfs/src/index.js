@@ -1,9 +1,6 @@
-'use strict'
-
-const {
-  Data: PBData
-} = require('./unixfs')
-const errcode = require('err-code')
+import errcode from 'err-code'
+import * as Pb from './unixfs.js'
+const PBData = Pb.Data
 
 /**
  * @typedef {import('./types').Mtime} Mtime
@@ -30,7 +27,7 @@ const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 /**
  * @param {string | number | undefined} [mode]
  */
-function parseMode (mode) {
+export function parseMode (mode) {
   if (mode == null) {
     return undefined
   }
@@ -53,7 +50,7 @@ function parseMode (mode) {
 /**
  * @param {any} input
  */
-function parseMtime (input) {
+export function parseMtime (input) {
   if (input == null) {
     return undefined
   }
@@ -122,7 +119,7 @@ function parseMtime (input) {
   return mtime
 }
 
-class Data {
+class UnixFS {
   /**
    * Decode from protobuf https://github.com/ipfs/specs/blob/master/UNIXFS.md
    *
@@ -137,7 +134,7 @@ class Data {
       objects: false
     })
 
-    const data = new Data({
+    const data = new UnixFS({
       type: types[decoded.Type],
       data: decoded.Data,
       blockSizes: decoded.blocksizes,
@@ -330,8 +327,4 @@ class Data {
   }
 }
 
-module.exports = {
-  UnixFS: Data,
-  parseMode,
-  parseMtime
-}
+export { UnixFS }

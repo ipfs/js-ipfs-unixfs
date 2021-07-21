@@ -1,32 +1,31 @@
 /* eslint-env mocha */
-'use strict'
 
-const { importer } = require('ipfs-unixfs-importer')
-const { exporter, recursive } = require('../src')
-const extend = require('merge-options')
-const { expect } = require('aegir/utils/chai')
-const sinon = require('sinon')
-const { UnixFS } = require('ipfs-unixfs')
-const collectLeafCids = require('./helpers/collect-leaf-cids')
+import { importer } from 'ipfs-unixfs-importer'
+import { exporter, recursive } from '../src/index.js'
+import extend from 'merge-options'
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import sinon from 'sinon'
+import { UnixFS } from 'ipfs-unixfs'
+import collectLeafCids from './helpers/collect-leaf-cids.js'
 // @ts-ignore
-const loadFixture = require('aegir/utils/fixtures')
-// @ts-ignore
-const isNode = require('detect-node')
+import loadFixture from 'aegir/utils/fixtures.js'
+import all from 'it-all'
+import first from 'it-first'
+import blockApi from './helpers/block.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
+import last from 'it-last'
+import { CID } from 'multiformats/cid'
+import { base58btc } from 'multiformats/bases/base58'
+import { decode } from '@ipld/dag-pb'
+import { parseMtime } from 'ipfs-unixfs'
+
 /** @type {Uint8Array} */
-const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
+const bigFile = loadFixture(('test') + '/fixtures/1.2MiB.txt')
 /** @type {Uint8Array} */
-const smallFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/200Bytes.txt')
-const all = require('it-all')
-const first = require('it-first')
-const blockApi = require('./helpers/block')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const asAsyncIterable = require('./helpers/as-async-iterable')
-const last = require('it-last')
-const { CID } = require('multiformats/cid')
-const { base58btc } = require('multiformats/bases/base58')
-const { decode } = require('@ipld/dag-pb')
-const { parseMtime } = require('ipfs-unixfs')
+const smallFile = loadFixture(('test') + '/fixtures/200Bytes.txt')
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore

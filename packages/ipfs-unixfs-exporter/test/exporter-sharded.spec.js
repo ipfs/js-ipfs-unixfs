@@ -1,19 +1,18 @@
 /* eslint-env mocha */
-'use strict'
-
-const { expect } = require('aegir/utils/chai')
-const { UnixFS } = require('ipfs-unixfs')
-const all = require('it-all')
-const last = require('it-last')
-const randomBytes = require('it-buffer-stream')
-const { exporter, walkPath } = require('../src')
-const { importer } = require('ipfs-unixfs-importer')
-const dagPb = require('@ipld/dag-pb')
-const blockApi = require('./helpers/block')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const asAsyncIterable = require('./helpers/as-async-iterable')
-const { CID } = require('multiformats/cid')
-const { sha256 } = require('multiformats/hashes/sha2')
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import { UnixFS } from 'ipfs-unixfs'
+import all from 'it-all'
+import last from 'it-last'
+import randomBytes from 'it-buffer-stream'
+import { exporter, walkPath } from '../src/index.js'
+import { importer } from 'ipfs-unixfs-importer'
+import * as dagPb from '@ipld/dag-pb'
+import blockApi from './helpers/block.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
+import { CID } from 'multiformats/cid'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 const SHARD_SPLIT_THRESHOLD = 10
 

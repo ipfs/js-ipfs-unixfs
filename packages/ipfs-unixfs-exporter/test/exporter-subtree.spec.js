@@ -1,18 +1,17 @@
 /* eslint-env mocha */
-'use strict'
-
-const { expect } = require('aegir/utils/chai')
-const { importer } = require('ipfs-unixfs-importer')
-const all = require('it-all')
-const last = require('it-last')
-const blockApi = require('./helpers/block')
-const randomBytes = require('it-buffer-stream')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import { importer } from 'ipfs-unixfs-importer'
+import all from 'it-all'
+import last from 'it-last'
+import blockApi from './helpers/block.js'
+import randomBytes from 'it-buffer-stream'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const ONE_MEG = Math.pow(1024, 2)
 
-const { exporter, walkPath } = require('./../src')
+import { exporter, walkPath } from './../src/index.js'
 
 describe('exporter subtree', () => {
   const block = blockApi()

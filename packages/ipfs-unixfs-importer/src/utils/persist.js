@@ -1,8 +1,6 @@
-'use strict'
-
-const { CID } = require('multiformats/cid')
-const dagPb = require('@ipld/dag-pb')
-const { sha256 } = require('multiformats/hashes/sha2')
+import { CID } from 'multiformats/cid'
+import * as dagPb from '@ipld/dag-pb'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 /**
  * @param {Uint8Array} buffer
@@ -38,4 +36,4 @@ const persist = async (buffer, blockstore, options) => {
   return cid
 }
 
-module.exports = persist
+export default persist

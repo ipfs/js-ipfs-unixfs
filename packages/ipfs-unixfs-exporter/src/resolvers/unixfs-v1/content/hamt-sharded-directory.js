@@ -1,6 +1,4 @@
-'use strict'
-
-const { decode } = require('@ipld/dag-pb')
+import { decode } from '@ipld/dag-pb'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -58,4 +56,4 @@ async function * listDirectory (node, path, resolve, depth, blockstore, options)
   }
 }
 
-module.exports = hamtShardedDirectoryContent
+export default hamtShardedDirectoryContent

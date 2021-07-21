@@ -1,11 +1,15 @@
-'use strict'
+import errCode from 'err-code'
 
-const errCode = require('err-code')
+import * as dagPb from '@ipld/dag-pb'
+import * as dagCbor from '@ipld/dag-cbor'
+import * as raw from 'multiformats/codecs/raw'
+import { identity } from 'multiformats/hashes/identity'
 
-const dagPb = require('@ipld/dag-pb')
-const dagCbor = require('@ipld/dag-cbor')
-const raw = require('multiformats/codecs/raw')
-const { identity } = require('multiformats/hashes/identity')
+// TODO: Lazy Load
+import unixFs1Resolver from './unixfs-v1/index.js'
+import rawResolver from './raw.js'
+import dagCborResolver from './dag-cbor.js'
+import identityResolver from './identity.js'
 
 /**
  * @typedef {import('../types').Resolver} Resolver
@@ -16,10 +20,10 @@ const { identity } = require('multiformats/hashes/identity')
  * @type {{ [ key: string ]: Resolver }}
  */
 const resolvers = {
-  [dagPb.code]: require('./unixfs-v1'),
-  [raw.code]: require('./raw'),
-  [dagCbor.code]: require('./dag-cbor'),
-  [identity.code]: require('./identity')
+  [dagPb.code]: unixFs1Resolver,
+  [raw.code]: rawResolver,
+  [dagCbor.code]: dagCborResolver,
+  [identity.code]: identityResolver
 }
 
 /**
@@ -35,4 +39,4 @@ function resolve (cid, name, path, toResolve, depth, blockstore, options) {
   return resolver(cid, name, path, toResolve, resolve, depth, blockstore, options)
 }
 
-module.exports = resolve
+export default resolve

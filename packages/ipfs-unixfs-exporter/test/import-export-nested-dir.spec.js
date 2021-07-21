@@ -1,15 +1,14 @@
 /* eslint-env mocha */
-'use strict'
-
-const { expect } = require('aegir/utils/chai')
-const all = require('it-all')
-const { importer } = require('ipfs-unixfs-importer')
-const { exporter } = require('../src')
-const blockApi = require('./helpers/block')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayToString = require('uint8arrays/to-string')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import all from 'it-all'
+import { importer } from 'ipfs-unixfs-importer'
+import { exporter } from '../src/index.js'
+import blockApi from './helpers/block.js'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import uint8ArrayToString from 'uint8arrays/to-string.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'

@@ -1,10 +1,10 @@
-'use strict'
-
-const mergeOptions = require('merge-options').bind({ ignoreUndefined: true })
-const { sha256 } = require('multiformats/hashes/sha2')
+import mergeOptions from 'merge-options'
+import { sha256 } from 'multiformats/hashes/sha2'
 // @ts-ignore - no types available
-const mur = require('murmurhash3js-revisited')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+import mur from 'murmurhash3js-revisited'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+
+mergeOptions.bind({ ignoreUndefined: true })
 
 /**
  * @param {Uint8Array} buf
@@ -62,6 +62,6 @@ const defaultOptions = {
  * @param {UserImporterOptions} options
  * @returns {ImporterOptions}
  */
-module.exports = function (options = {}) {
+export default (options = {}) => {
   return mergeOptions(defaultOptions, options)
 }

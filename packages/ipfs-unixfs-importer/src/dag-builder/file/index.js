@@ -1,12 +1,16 @@
-'use strict'
+import errCode from 'err-code'
+import { UnixFS } from 'ipfs-unixfs'
+import persist from '../../utils/persist.js'
+import { encode, prepare } from '@ipld/dag-pb'
+import parallelBatch from 'it-parallel-batch'
+import * as rawCodec from 'multiformats/codecs/raw'
+import * as dagPb from '@ipld/dag-pb'
 
-const errCode = require('err-code')
-const { UnixFS } = require('ipfs-unixfs')
-const persist = require('../../utils/persist')
-const { encode, prepare } = require('@ipld/dag-pb')
-const parallelBatch = require('it-parallel-batch')
-const rawCodec = require('multiformats/codecs/raw')
-const dagPb = require('@ipld/dag-pb')
+// TODO: Lazy load
+import flatBuilder from './flat.js'
+import balancedBuilder from './balanced.js'
+import trickleBuilder from './trickle.js'
+import bufImporter from './buffer-importer.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -21,9 +25,9 @@ const dagPb = require('@ipld/dag-pb')
  * @type {{ [key: string]: FileDAGBuilder}}
  */
 const dagBuilders = {
-  flat: require('./flat'),
-  balanced: require('./balanced'),
-  trickle: require('./trickle')
+  flat: flatBuilder,
+  balanced: balancedBuilder,
+  trickle: trickleBuilder
 }
 
 /**
@@ -39,7 +43,7 @@ async function * buildFileBatch (file, blockstore, options) {
   if (typeof options.bufferImporter === 'function') {
     bufferImporter = options.bufferImporter
   } else {
-    bufferImporter = require('./buffer-importer')
+    bufferImporter = bufImporter
   }
 
   for await (const entry of parallelBatch(bufferImporter(file, blockstore, options), options.blockWriteConcurrency)) {
@@ -202,4 +206,4 @@ function fileBuilder (file, block, options) {
   return dagBuilder(buildFileBatch(file, block, options), reduce(file, block, options), options)
 }
 
-module.exports = fileBuilder
+export default fileBuilder

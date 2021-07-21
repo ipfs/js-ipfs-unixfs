@@ -4,6 +4,7 @@
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
+  "type": "module",
   "browser": {
     "fs": false
   },
@@ -11,6 +12,7 @@
     "prepare": "aegir build --no-bundle",
     "test": "aegir test",
     "build": "aegir build",
+    "postbuild": "cd dist && npx json -I -f package.json -e 'this.types=\"src/index.d.ts\"'",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
@@ -34,12 +36,13 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^34.0.0",
+    "aegir": "https://gitpkg.now.sh/ipfs/aegir?feat/build-esm-modules",
     "assert": "^2.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
     "events": "^3.3.0",
     "it-buffer-stream": "^2.0.0",
+    "json": "^11.0.0",
     "nyc": "^15.0.0",
     "readable-stream": "^3.6.0",
     "rimraf": "^3.0.2",
@@ -63,10 +66,6 @@
     "uint8arrays": "^2.1.7"
   },
   "types": "dist/src/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
   "eslintConfig": {
     "extends": "ipfs"
   }

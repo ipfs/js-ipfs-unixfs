@@ -1,9 +1,7 @@
-'use strict'
-
-const { UnixFS } = require('ipfs-unixfs')
-const persist = require('../../utils/persist')
-const dagPb = require('@ipld/dag-pb')
-const raw = require('multiformats/codecs/raw')
+import { UnixFS } from 'ipfs-unixfs'
+import persist from '../../utils/persist.js'
+import * as dagPb from '@ipld/dag-pb'
+import * as raw from 'multiformats/codecs/raw'
 
 /**
  * @typedef {import('../../types').BufferImporter} BufferImporter
@@ -52,4 +50,4 @@ async function * bufferImporter (file, block, options) {
   }
 }
 
-module.exports = bufferImporter
+export default bufferImporter

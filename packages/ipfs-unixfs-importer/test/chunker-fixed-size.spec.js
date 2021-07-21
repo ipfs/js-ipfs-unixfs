@@ -1,14 +1,13 @@
 /* eslint-env mocha */
-'use strict'
-
-const chunker = require('../src/chunker/fixed-size')
-const { expect } = require('aegir/utils/chai')
-const all = require('it-all')
+import chunker from '../src/chunker/fixed-size.js'
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import all from 'it-all'
 const rawFile = new Uint8Array(Math.pow(2, 20))
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const defaultOptions = require('../src/options')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import defaultOptions from '../src/options.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 describe('chunker: fixed size', function () {
   this.timeout(30000)

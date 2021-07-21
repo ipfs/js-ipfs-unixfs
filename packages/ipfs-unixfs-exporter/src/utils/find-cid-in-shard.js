@@ -1,10 +1,10 @@
 'use strict'
 
-const { Bucket, createHAMT } = require('hamt-sharding')
-const { decode } = require('@ipld/dag-pb')
+import { Bucket, createHAMT } from 'hamt-sharding'
+import { decode } from '@ipld/dag-pb'
 // @ts-ignore - no types available
-const mur = require('murmurhash3js-revisited')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+import mur from 'murmurhash3js-revisited'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -152,4 +152,4 @@ const findShardCid = async (node, name, blockstore, context, options) => {
   return findShardCid(node, name, blockstore, context, options)
 }
 
-module.exports = findShardCid
+export default findShardCid

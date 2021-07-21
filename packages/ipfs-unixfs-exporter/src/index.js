@@ -1,9 +1,7 @@
-'use strict'
-
-const errCode = require('err-code')
-const { CID } = require('multiformats/cid')
-const resolve = require('./resolvers')
-const last = require('it-last')
+import errCode from 'err-code'
+import { CID } from 'multiformats/cid'
+import resolve from './resolvers/index.js'
+import last from 'it-last'
 
 /**
  * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
@@ -65,7 +63,7 @@ const cidAndRest = (path) => {
  * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * walkPath (path, blockstore, options = {}) {
+export async function * walkPath (path, blockstore, options = {}) {
   let {
     cid,
     toResolve
@@ -102,7 +100,7 @@ async function * walkPath (path, blockstore, options = {}) {
  * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function exporter (path, blockstore, options = {}) {
+export async function exporter (path, blockstore, options = {}) {
   const result = await last(walkPath(path, blockstore, options))
 
   if (!result) {
@@ -117,7 +115,7 @@ async function exporter (path, blockstore, options = {}) {
  * @param {Blockstore} blockstore
  * @param {ExporterOptions} [options]
  */
-async function * recursive (path, blockstore, options = {}) {
+export async function * recursive (path, blockstore, options = {}) {
   const node = await exporter(path, blockstore, options)
 
   if (!node) {
@@ -150,10 +148,4 @@ async function * recursive (path, blockstore, options = {}) {
       }
     }
   }
-}
-
-module.exports = {
-  exporter,
-  walkPath,
-  recursive
 }

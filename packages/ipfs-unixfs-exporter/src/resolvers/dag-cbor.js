@@ -1,8 +1,6 @@
-'use strict'
-
-const { CID } = require('multiformats/cid')
-const errCode = require('err-code')
-const dagCbor = require('@ipld/dag-cbor')
+import { CID } from 'multiformats/cid'
+import errCode from 'err-code'
+import * as dagCbor from '@ipld/dag-cbor'
 
 /**
  * @typedef {import('../types').Resolver} Resolver
@@ -72,4 +70,4 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, o
   }
 }
 
-module.exports = resolve
+export default resolve

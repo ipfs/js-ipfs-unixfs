@@ -1,6 +1,4 @@
-'use strict'
-
-const dagPb = require('@ipld/dag-pb')
+import * as dagPb from '@ipld/dag-pb'
 
 /**
  * @typedef {import('@ipld/dag-pb').PBLink} PBLink
@@ -10,7 +8,7 @@ const dagPb = require('@ipld/dag-pb')
  * @param {import('multiformats/cid').CID} cid
  * @param {import('interface-blockstore').Blockstore} blockstore
  */
-module.exports = function (cid, blockstore) {
+export default function (cid, blockstore) {
   /**
    * @param {import('multiformats/cid').CID} cid
    */

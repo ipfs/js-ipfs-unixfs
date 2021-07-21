@@ -1,13 +1,13 @@
 /* eslint-env mocha */
-'use strict'
 
-const chunker = require('../src/chunker/rabin')
-const { expect } = require('aegir/utils/chai')
-const all = require('it-all')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayConcat = require('uint8arrays/concat')
-const asAsyncIterable = require('./helpers/as-async-iterable')
-const defaultOptions = require('../src/options')
+import chunker from '../src/chunker/rabin.js'
+// @ts-ignore needs types properly fixed
+import { expect } from 'aegir/utils/chai.js'
+import all from 'it-all'
+import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import uint8ArrayConcat from 'uint8arrays/concat.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
+import defaultOptions from '../src/options.js'
 
 const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)
 

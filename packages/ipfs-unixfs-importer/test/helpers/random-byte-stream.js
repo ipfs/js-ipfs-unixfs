@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * @param {number} seed
  */
@@ -20,4 +18,4 @@ function random (seed) {
   return x - Math.floor(x)
 }
 
-module.exports = randomByteStream
+export default randomByteStream

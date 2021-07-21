@@ -1,6 +1,8 @@
-'use strict'
+import errCode from 'err-code'
 
-const errCode = require('err-code')
+// TODO: lazy load
+import rabinChunker from './rabin.js'
+import fixedSizeChunker from './fixed-size.js'
 
 /**
  * @typedef {import('../types').ImporterOptions} ImporterOptions
@@ -11,8 +13,8 @@ const errCode = require('err-code')
  * @type {{ [key: string]: Chunker }}
  */
 const chunkers = {
-  fixed: require('../chunker/fixed-size'),
-  rabin: require('../chunker/rabin')
+  fixed: fixedSizeChunker,
+  rabin: rabinChunker
 }
 
 /**

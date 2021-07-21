@@ -1,6 +1,4 @@
-'use strict'
-
-const batch = require('it-batch')
+import batch from 'it-batch'
 
 /**
  * @typedef {import('../../types').FileDAGBuilder} FileDAGBuilder
@@ -30,4 +28,4 @@ async function reduceToParents (source, reduce, options) {
   return roots[0]
 }
 
-module.exports = balanced
+export default balanced

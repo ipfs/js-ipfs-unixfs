@@ -6,7 +6,7 @@ import extend from 'merge-options'
 // @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import sinon from 'sinon'
-import { UnixFS } from 'ipfs-unixfs'
+import { UnixFS, parseMtime } from 'ipfs-unixfs'
 import collectLeafCids from './helpers/collect-leaf-cids.js'
 // @ts-ignore
 import loadFixture from 'aegir/utils/fixtures.js'
@@ -20,7 +20,6 @@ import last from 'it-last'
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { decode } from '@ipld/dag-pb'
-import { parseMtime } from 'ipfs-unixfs'
 
 /** @type {Uint8Array} */
 const bigFile = loadFixture(('test') + '/fixtures/1.2MiB.txt')

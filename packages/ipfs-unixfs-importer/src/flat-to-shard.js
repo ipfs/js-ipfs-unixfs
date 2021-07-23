@@ -17,7 +17,6 @@ async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
   if (dir instanceof DirFlat && dir.directChildrenCount() >= threshold) {
-    
     // @ts-ignore Dir type conflict!?
     newDir = await convertToShard(dir, options)
   }

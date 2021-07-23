@@ -3,11 +3,11 @@ import chunker from '../src/chunker/fixed-size.js'
 // @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import all from 'it-all'
-const rawFile = new Uint8Array(Math.pow(2, 20))
 import uint8ArrayFromString from 'uint8arrays/from-string.js'
 import uint8ArrayConcat from 'uint8arrays/concat.js'
 import defaultOptions from '../src/options.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
+const rawFile = new Uint8Array(Math.pow(2, 20))
 
 describe('chunker: fixed size', function () {
   this.timeout(30000)

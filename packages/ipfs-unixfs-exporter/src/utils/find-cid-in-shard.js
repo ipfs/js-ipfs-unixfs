@@ -1,4 +1,3 @@
-'use strict'
 
 import { Bucket, createHAMT } from 'hamt-sharding'
 import { decode } from '@ipld/dag-pb'

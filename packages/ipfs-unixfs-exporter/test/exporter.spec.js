@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-'use strict'
+
 // @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import { UnixFS } from 'ipfs-unixfs'

@@ -54,11 +54,6 @@ jobs:
       script:
         - npm run depcheck -- $RUN_SINCE -- -- -p
 
-    - stage: check
-      name: dep-check (unused deps)
-      script:
-        - npm run depcheck -- $RUN_SINCE -- -- -- --unused
-
     - stage: test
       name: chrome
       addons:

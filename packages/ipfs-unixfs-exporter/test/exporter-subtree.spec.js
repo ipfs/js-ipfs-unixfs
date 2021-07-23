@@ -9,9 +9,9 @@ import randomBytes from 'it-buffer-stream'
 import uint8ArrayConcat from 'uint8arrays/concat.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
-const ONE_MEG = Math.pow(1024, 2)
-
 import { exporter, walkPath } from './../src/index.js'
+
+const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter subtree', () => {
   const block = blockApi()

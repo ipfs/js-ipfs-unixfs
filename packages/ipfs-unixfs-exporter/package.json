@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^9.0.0",
     "@types/sinon": "^10.0.0",
     "abort-controller": "^3.0.0",
     "aegir": "^34.0.0",

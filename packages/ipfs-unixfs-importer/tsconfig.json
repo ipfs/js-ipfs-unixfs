@@ -2,6 +2,7 @@
   "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
     "outDir": "dist",
+    "module": "es2020",
     "importsNotUsedAsValues": "preserve"
   },
   "include": [

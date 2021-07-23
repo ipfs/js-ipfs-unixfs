@@ -2,7 +2,7 @@ import DirSharded from './dir-sharded.js'
 import DirFlat from './dir-flat.js'
 
 /**
- * @typedef {import('./dir')} Dir
+ * @typedef {import('./dir').default} Dir
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  */
 
@@ -17,26 +17,21 @@ async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
   if (dir instanceof DirFlat && dir.directChildrenCount() >= threshold) {
-    // @ts-ignore Dir type conflict!?
     newDir = await convertToShard(dir, options)
   }
 
-  // @ts-ignore Dir type conflict!?
   const parent = newDir.parent
 
   if (parent) {
     if (newDir !== dir) {
       if (child) {
-        // @ts-ignore Dir type conflict!?
         child.parent = newDir
       }
 
-      // @ts-ignore Dir type conflict!?
       if (!newDir.parentKey) {
         throw new Error('No parent key found')
       }
 
-      // @ts-ignore Dir type conflict!?
       await parent.put(newDir.parentKey, newDir)
     }
 

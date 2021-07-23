@@ -34,7 +34,6 @@ async function addToTree (elem, tree, options) {
 
     if (last) {
       await parent.put(pathElem, elem)
-      // @ts-ignore Dir type conflict!?
       tree = await flatToShard(null, parent, options.shardSplitThreshold, options)
     } else {
       let dir = await parent.get(pathElem)

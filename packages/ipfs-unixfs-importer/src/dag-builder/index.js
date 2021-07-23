@@ -2,11 +2,6 @@ import dirBuilder from './dir.js'
 import fileBuilder from './file/index.js'
 import errCode from 'err-code'
 
-// TODO: dynamic imports
-import validateChunks from './validate-chunks.js'
-import rabinChunker from '../chunker/rabin.js'
-import fixedSizeChunker from '../chunker/fixed-size.js'
-
 /**
  * @typedef {import('../types').File} File
  * @typedef {import('../types').Directory} Directory
@@ -80,9 +75,9 @@ async function * dagBuilder (source, blockstore, options) {
       if (typeof options.chunker === 'function') {
         chunker = options.chunker
       } else if (options.chunker === 'rabin') {
-        chunker = rabinChunker
+        chunker = (await (import('../chunker/rabin.js'))).default
       } else {
-        chunker = fixedSizeChunker
+        chunker = (await (import('../chunker/fixed-size.js'))).default
       }
 
       /**
@@ -93,7 +88,7 @@ async function * dagBuilder (source, blockstore, options) {
       if (typeof options.chunkValidator === 'function') {
         chunkValidator = options.chunkValidator
       } else {
-        chunkValidator = validateChunks
+        chunkValidator = (await (import('./validate-chunks.js'))).default
       }
 
       /** @type {File} */

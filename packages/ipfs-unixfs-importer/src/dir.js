@@ -19,7 +19,6 @@
  */
 class Dir {
   /**
-   *
    * @param {DirProps} props
    * @param {ImporterOptions} options
    */

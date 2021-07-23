@@ -9,7 +9,7 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build",
+    "prepare": "aegir build --no-bundle",
     "test": "aegir test",
     "build": "aegir build",
     "clean": "rimraf ./dist",

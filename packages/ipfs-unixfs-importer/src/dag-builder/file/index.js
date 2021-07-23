@@ -6,12 +6,6 @@ import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
 import * as dagPb from '@ipld/dag-pb'
 
-// TODO: Lazy load
-import flatBuilder from './flat.js'
-import balancedBuilder from './balanced.js'
-import trickleBuilder from './trickle.js'
-import bufImporter from './buffer-importer.js'
-
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('../../types').File} File
@@ -22,12 +16,19 @@ import bufImporter from './buffer-importer.js'
  */
 
 /**
- * @type {{ [key: string]: FileDAGBuilder}}
+ * @param {string} key
+ * @returns {Promise<FileDAGBuilder|undefined>}
  */
-const dagBuilders = {
-  flat: flatBuilder,
-  balanced: balancedBuilder,
-  trickle: trickleBuilder
+const importDagBuilder = async (key) => {
+  switch (key) {
+    case 'flat':
+      return (await (import('./flat.js'))).default
+    case 'balanced':
+      return (await (import('./balanced.js'))).default
+    case 'trickle':
+      return (await (import('./trickle.js'))).default
+    default:
+  }
 }
 
 /**
@@ -43,7 +44,7 @@ async function * buildFileBatch (file, blockstore, options) {
   if (typeof options.bufferImporter === 'function') {
     bufferImporter = options.bufferImporter
   } else {
-    bufferImporter = bufImporter
+    bufferImporter = (await (import('./buffer-importer.js'))).default
   }
 
   for await (const entry of parallelBatch(bufferImporter(file, blockstore, options), options.blockWriteConcurrency)) {
@@ -196,8 +197,8 @@ const reduce = (file, blockstore, options) => {
 /**
  * @type {import('../../types').UnixFSV1DagBuilder<File>}
  */
-function fileBuilder (file, block, options) {
-  const dagBuilder = dagBuilders[options.strategy]
+async function fileBuilder (file, block, options) {
+  const dagBuilder = await importDagBuilder(options.strategy)
 
   if (!dagBuilder) {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')

@@ -1,10 +1,6 @@
 import parallelBatch from 'it-parallel-batch'
 import defaultOptions from './options.js'
 
-// TODO: Lazy Load
-import defaultDagBuilder from './dag-builder/index.js'
-import defaultTreeBuilder from './tree-builder.js'
-
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('./types').ImportCandidate} ImportCandidate
@@ -36,7 +32,7 @@ export async function * importer (source, blockstore, options = {}) {
   if (typeof options.dagBuilder === 'function') {
     dagBuilder = options.dagBuilder
   } else {
-    dagBuilder = defaultDagBuilder
+    dagBuilder = (await (import('./dag-builder/index.js'))).default
   }
 
   let treeBuilder
@@ -44,7 +40,7 @@ export async function * importer (source, blockstore, options = {}) {
   if (typeof options.treeBuilder === 'function') {
     treeBuilder = options.treeBuilder
   } else {
-    treeBuilder = defaultTreeBuilder
+    treeBuilder = (await (import('./tree-builder.js'))).default
   }
 
   /** @type {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>} */

@@ -1,20 +1,22 @@
 import errCode from 'err-code'
 
-// TODO: lazy load
-import rabinChunker from './rabin.js'
-import fixedSizeChunker from './fixed-size.js'
-
 /**
  * @typedef {import('../types').ImporterOptions} ImporterOptions
  * @typedef {import('../types').Chunker} Chunker
  */
 
 /**
- * @type {{ [key: string]: Chunker }}
+ * @param {string} key
+ * @returns {Promise<Chunker|undefined>}
  */
-const chunkers = {
-  fixed: fixedSizeChunker,
-  rabin: rabinChunker
+const importChunkers = async (key) => {
+  switch (key) {
+    case 'fixed':
+      return (await (import('./fixed-size.js'))).default
+    case 'rabin':
+      return (await (import('./rabin.js'))).default
+    default:
+  }
 }
 
 /**
@@ -22,8 +24,8 @@ const chunkers = {
  * @param {AsyncIterable<Uint8Array>} source
  * @param {import('../types').ImporterOptions} options
  */
-module.exports = (type, source, options) => {
-  const chunker = chunkers[type]
+module.exports = async (type, source, options) => {
+  const chunker = await importChunkers(type)
 
   if (!chunker) {
     throw errCode(new Error(`Unknkown chunker named ${type}`), 'ERR_UNKNOWN_CHUNKER')

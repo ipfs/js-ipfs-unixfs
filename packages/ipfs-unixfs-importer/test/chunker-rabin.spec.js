@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 
 import chunker from '../src/chunker/rabin.js'
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import all from 'it-all'
 import uint8ArrayFromString from 'uint8arrays/from-string.js'

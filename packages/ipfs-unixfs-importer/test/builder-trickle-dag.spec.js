@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import builder from '../src/dag-builder/file/trickle.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'

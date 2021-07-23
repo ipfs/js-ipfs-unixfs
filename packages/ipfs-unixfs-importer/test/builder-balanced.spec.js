@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import builder from '../src/dag-builder/file/balanced.js'
 import { CID } from 'multiformats/cid'

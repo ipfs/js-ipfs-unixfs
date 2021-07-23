@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import * as mh from 'multiformats/hashes/digest'
 import { sha256, sha512 } from 'multiformats/hashes/sha2'

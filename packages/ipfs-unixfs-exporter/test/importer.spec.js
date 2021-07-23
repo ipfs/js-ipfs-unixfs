@@ -3,12 +3,10 @@
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter, recursive } from '../src/index.js'
 import extend from 'merge-options'
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import sinon from 'sinon'
 import { UnixFS, parseMtime } from 'ipfs-unixfs'
 import collectLeafCids from './helpers/collect-leaf-cids.js'
-// @ts-ignore
 import loadFixture from 'aegir/utils/fixtures.js'
 import all from 'it-all'
 import first from 'it-first'

@@ -1,8 +1,6 @@
 /* eslint-env mocha */
 /* eslint max-nested-callbacks: ["error", 5] */
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
-// @ts-ignore
 import loadFixture from 'aegir/utils/fixtures.js'
 import blockApi from './helpers/block.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'

@@ -1,10 +1,8 @@
 /* eslint-env mocha */
 
-// @ts-ignore needs proper types export for paths
 import { expect } from 'aegir/utils/chai.js'
 
 /** @type {(path: string) => Uint8Array} */
-// @ts-ignore
 import loadFixture from 'aegir/utils/fixtures.js'
 import uint8ArrayFromString from 'uint8arrays/from-string.js'
 

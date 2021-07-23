@@ -2,7 +2,6 @@
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter } from '../src/index.js'
 
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import all from 'it-all'
 import last from 'it-last'

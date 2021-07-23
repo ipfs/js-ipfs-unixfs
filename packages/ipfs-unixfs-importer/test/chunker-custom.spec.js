@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 import { importer } from '../src/index.js'
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 
 import * as rawCodec from 'multiformats/codecs/raw'

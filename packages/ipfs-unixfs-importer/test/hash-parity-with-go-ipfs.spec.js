@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 import { importer } from '../src/index.js'
 
-// @ts-ignore needs types properly fixed
 import { expect } from 'aegir/utils/chai.js'
 import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
 import first from 'it-first'

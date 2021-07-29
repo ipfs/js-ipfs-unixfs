@@ -20,9 +20,9 @@ import { base58btc } from 'multiformats/bases/base58'
 import { decode } from '@ipld/dag-pb'
 
 /** @type {Uint8Array} */
-const bigFile = loadFixture(('test') + '/fixtures/1.2MiB.txt')
+const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 /** @type {Uint8Array} */
-const smallFile = loadFixture(('test') + '/fixtures/200Bytes.txt')
+const smallFile = loadFixture('test/fixtures/200Bytes.txt')
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore

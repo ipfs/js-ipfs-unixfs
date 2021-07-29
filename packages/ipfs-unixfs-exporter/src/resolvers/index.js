@@ -5,34 +5,31 @@ import * as dagCbor from '@ipld/dag-cbor'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
 
+import dagPbResolver from './unixfs-v1/index.js'
+import rawResolver from './raw.js'
+import dagCborResolver from './dag-cbor.js'
+import identifyResolver from './identity.js'
+
 /**
  * @typedef {import('../types').Resolver} Resolver
  * @typedef {import('../types').Resolve} Resolve
  */
 
 /**
- * @param {number} key
- * @returns {Promise<Resolver|undefined>}
+ * @type {{ [ key: string ]: Resolver }}
  */
-const importResolver = async (key) => {
-  switch (key) {
-    case dagPb.code:
-      return (await (import('./unixfs-v1/index.js'))).default
-    case raw.code:
-      return (await (import('./raw.js'))).default
-    case dagCbor.code:
-      return (await (import('./dag-cbor.js'))).default
-    case identity.code:
-      return (await (import('./identity.js'))).default
-    default:
-  }
+const resolvers = {
+  [dagPb.code]: dagPbResolver,
+  [raw.code]: rawResolver,
+  [dagCbor.code]: dagCborResolver,
+  [identity.code]: identifyResolver
 }
 
 /**
  * @type {Resolve}
  */
-async function resolve (cid, name, path, toResolve, depth, blockstore, options) {
-  const resolver = await importResolver(cid.code)
+function resolve (cid, name, path, toResolve, depth, blockstore, options) {
+  const resolver = resolvers[cid.code]
 
   if (!resolver) {
     throw errCode(new Error(`No resolver for code ${cid.code}`), 'ERR_NO_RESOLVER')

@@ -6,6 +6,10 @@ import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
 import * as dagPb from '@ipld/dag-pb'
 
+import dagFlat from './flat.js'
+import dagBalanced from './balanced.js'
+import dagTrickle from './trickle.js'
+
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('../../types').File} File
@@ -16,19 +20,12 @@ import * as dagPb from '@ipld/dag-pb'
  */
 
 /**
- * @param {string} key
- * @returns {Promise<FileDAGBuilder|undefined>}
+ * @type {{ [key: string]: FileDAGBuilder}}
  */
-const importDagBuilder = async (key) => {
-  switch (key) {
-    case 'flat':
-      return (await (import('./flat.js'))).default
-    case 'balanced':
-      return (await (import('./balanced.js'))).default
-    case 'trickle':
-      return (await (import('./trickle.js'))).default
-    default:
-  }
+const dagBuilders = {
+  flat: dagFlat,
+  balanced: dagBalanced,
+  trickle: dagTrickle
 }
 
 /**
@@ -197,8 +194,8 @@ const reduce = (file, blockstore, options) => {
 /**
  * @type {import('../../types').UnixFSV1DagBuilder<File>}
  */
-async function fileBuilder (file, block, options) {
-  const dagBuilder = await importDagBuilder(options.strategy)
+function fileBuilder (file, block, options) {
+  const dagBuilder = dagBuilders[options.strategy]
 
   if (!dagBuilder) {
     throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')

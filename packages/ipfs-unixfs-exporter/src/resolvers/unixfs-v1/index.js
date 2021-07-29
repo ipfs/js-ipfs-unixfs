@@ -3,6 +3,10 @@ import { UnixFS } from 'ipfs-unixfs'
 import findShardCid from '../../utils/find-cid-in-shard.js'
 import { decode } from '@ipld/dag-pb'
 
+import contentFile from './content/file.js'
+import contentDirectory from './content/directory.js'
+import contentHamtShardedDirectory from './content/hamt-sharded-directory.js'
+
 /**
  * @typedef {import('../../types').Resolve} Resolve
  * @typedef {import('../../types').Resolver} Resolver
@@ -21,22 +25,18 @@ const findLinkCid = (node, name) => {
 }
 
 /**
- * @param {string} key
- * @returns {Promise<UnixfsV1Resolver|undefined>}
+ * @type {{ [key: string]: UnixfsV1Resolver }}
  */
-const importContentExporters = async (key) => {
-  switch (key) {
-    case 'raw':
-    case 'file':
-      return (await (import('./content/file.js'))).default
-    case 'directory':
-      return (await (import('./content/directory.js'))).default
-    case 'hamt-sharded-directory':
-      return (await (import('./content/hamt-sharded-directory.js'))).default
-    case 'metadata':
-    case 'symlink':
-      return () => () => []
-    default:
+const contentExporters = {
+  raw: contentFile,
+  file: contentFile,
+  directory: contentDirectory,
+  'hamt-sharded-directory': contentHamtShardedDirectory,
+  metadata: (cid, node, unixfs, path, resolve, depth, blockstore) => {
+    return () => []
+  },
+  symlink: (cid, node, unixfs, path, resolve, depth, blockstore) => {
+    return () => []
   }
 }
 
@@ -94,8 +94,6 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blocks
     }
   }
 
-  const contentExporter = await importContentExporters(unixfs.type)
-
   return {
     entry: {
       type: unixfs.isDirectory() ? 'directory' : 'file',
@@ -103,7 +101,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blocks
       path,
       cid,
       // @ts-ignore
-      content: contentExporter(cid, node, unixfs, path, resolve, depth, blockstore),
+      content: contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockstore),
       unixfs,
       depth,
       node,

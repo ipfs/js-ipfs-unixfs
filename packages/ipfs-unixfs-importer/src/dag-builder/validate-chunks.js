@@ -1,5 +1,5 @@
 import errCode from 'err-code'
-import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
 
 /**
  * @typedef {import('../types').ChunkValidator} ChunkValidator

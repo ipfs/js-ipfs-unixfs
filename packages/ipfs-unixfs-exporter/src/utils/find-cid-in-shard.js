@@ -3,7 +3,7 @@ import { Bucket, createHAMT } from 'hamt-sharding'
 import { decode } from '@ipld/dag-pb'
 // @ts-ignore - no types available
 import mur from 'murmurhash3js-revisited'
-import uint8ArrayFromString from 'uint8arrays/from-string.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore

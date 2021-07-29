@@ -35,7 +35,7 @@
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "https://gitpkg.now.sh/ipfs/aegir?feat/build-esm-modules-follow-up",
+    "aegir": "https://gitpkg.now.sh/ipfs/aegir?feat/build-esm-modules-follow-up-with-dist",
     "assert": "^2.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
@@ -61,7 +61,7 @@
     "multiformats": "^9.4.2",
     "murmurhash3js-revisited": "^3.0.0",
     "rabin-wasm": "^0.1.4",
-    "uint8arrays": "^2.1.7"
+    "@vascosantos/uint8arrays": "^3.0.3"
   },
   "types": "dist/src/index.d.ts",
   "eslintConfig": {

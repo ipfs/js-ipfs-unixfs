@@ -6,9 +6,9 @@ import { expect } from 'aegir/utils/chai.js'
 import all from 'it-all'
 import last from 'it-last'
 import blockApi from './helpers/block.js'
-import uint8ArrayFromString from 'uint8arrays/from-string.js'
-import uint8ArrayToString from 'uint8arrays/to-string.js'
-import uint8ArrayConcat from 'uint8arrays/concat.js'
+import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
+import { toString as uint8ArrayToString } from '@vascosantos/uint8arrays/to-string.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
 /**

@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "aegir build --no-bundle",
     "test": "aegir test",
-    "build": "aegir build",
+    "build": "aegir build --esm-tests",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",

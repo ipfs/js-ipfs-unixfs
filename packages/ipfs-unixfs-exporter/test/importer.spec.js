@@ -392,10 +392,10 @@ strategies.forEach((strategy) => {
 
     it('fails on an iterator that yields bad content', async () => {
       try {
+        // @ts-expect-error bad content
         await all(importer([{
           path: '200Bytes.txt',
           content: {
-            // @ts-expect-error bad content
             [Symbol.iterator]: function * () {
               yield 7
             }

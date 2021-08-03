@@ -6,7 +6,7 @@ import { Blockstore } from 'interface-blockstore'
 
 interface ImportCandidate {
   path?: string
-  content?: AsyncIterable<Uint8Array>
+  content?: AsyncIterable<Uint8Array> | Iterable<Uint8Array> | Uint8Array
   mtime?: Mtime
   mode?: number
 }

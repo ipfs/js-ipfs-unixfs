@@ -9,7 +9,7 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build --no-bundle --esm-tests",
+    "prepare": "aegir build --no-bundle",
     "test": "aegir test",
     "build": "aegir build --esm-tests",
     "clean": "rimraf ./dist",

@@ -9,7 +9,7 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build",
+    "prepare": "aegir build --esm-tests",
     "prepare:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
     "prepare:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
     "prepare:types": "aegir build --no-bundle",
@@ -36,6 +36,9 @@
     "npm": ">=7.0.0"
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
+  "publishConfig": {
+    "directory": "dist"
+  },
   "devDependencies": {
     "@types/mocha": "^8.2.1",
     "aegir": "https://gitpkg.now.sh/ipfs/aegir?feat/build-esm-modules-follow-up-with-dist",

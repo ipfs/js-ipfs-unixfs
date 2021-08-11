@@ -4,6 +4,7 @@
   "description": "JS implementation of the IPFS UnixFS",
   "scripts": {
     "reset": "lerna run clean && rimraf packages/*/node_modules node_modules packages/*/package-lock.json package-lock.json",
+    "postinstall": "lerna link",
     "test": "lerna run test",
     "coverage": "lerna run coverage",
     "prepare": "lerna run prepare",

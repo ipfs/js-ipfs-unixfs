@@ -16,9 +16,9 @@ import first from 'it-first'
 import randomBytes from 'it-buffer-stream'
 import { AbortController } from 'native-abort-controller'
 import blockApi from './helpers/block.js'
-import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat.js'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
-import { toString as uint8ArrayToString } from '@vascosantos/uint8arrays/to-string.js'
+import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
+import { toString as uint8ArrayToString } from '@vascosantos/uint8arrays/to-string'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const ONE_MEG = Math.pow(1024, 2)

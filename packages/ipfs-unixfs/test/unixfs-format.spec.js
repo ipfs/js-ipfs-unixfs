@@ -4,7 +4,7 @@ import { expect } from 'aegir/utils/chai.js'
 
 /** @type {(path: string) => Uint8Array} */
 import loadFixture from 'aegir/utils/fixtures.js'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
 
 import { UnixFS } from '../src/index.js'
 import * as Pb from '../src/unixfs.js'

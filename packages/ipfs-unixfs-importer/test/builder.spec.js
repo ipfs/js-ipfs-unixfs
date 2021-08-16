@@ -7,7 +7,7 @@ import { UnixFS } from 'ipfs-unixfs'
 import builder from '../src/dag-builder/index.js'
 import first from 'it-first'
 import blockApi from './helpers/block.js'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
 import defaultOptions from '../src/options.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 

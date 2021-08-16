@@ -4,9 +4,9 @@ import all from 'it-all'
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter } from '../src/index.js'
 import blockApi from './helpers/block.js'
-import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat.js'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
-import { toString as uint8ArrayToString } from '@vascosantos/uint8arrays/to-string.js'
+import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
+import { toString as uint8ArrayToString } from '@vascosantos/uint8arrays/to-string'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
 describe('import and export: directory', () => {

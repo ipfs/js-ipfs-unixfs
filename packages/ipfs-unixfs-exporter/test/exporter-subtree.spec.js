@@ -5,7 +5,7 @@ import all from 'it-all'
 import last from 'it-last'
 import blockApi from './helpers/block.js'
 import randomBytes from 'it-buffer-stream'
-import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat.js'
+import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
 import { exporter, walkPath } from './../src/index.js'

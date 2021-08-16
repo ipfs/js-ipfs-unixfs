@@ -2,7 +2,7 @@ import mergeOptions from 'merge-options'
 import { sha256 } from 'multiformats/hashes/sha2'
 // @ts-ignore - no types available
 import mur from 'murmurhash3js-revisited'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string.js'
+import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
 
 mergeOptions.bind({ ignoreUndefined: true })
 

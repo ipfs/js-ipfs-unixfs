@@ -6,7 +6,7 @@ import * as rawCodec from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as Block from 'multiformats/block'
 import blockApi from './helpers/block.js'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { UnixFS } from 'ipfs-unixfs'
 
 const iter = async function * () {

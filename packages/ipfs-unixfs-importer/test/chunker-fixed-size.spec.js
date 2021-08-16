@@ -2,8 +2,8 @@
 import chunker from '../src/chunker/fixed-size.js'
 import { expect } from 'aegir/utils/chai.js'
 import all from 'it-all'
-import { fromString as uint8ArrayFromString } from '@vascosantos/uint8arrays/from-string'
-import { concat as uint8ArrayConcat } from '@vascosantos/uint8arrays/concat'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import defaultOptions from '../src/options.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 const rawFile = new Uint8Array(Math.pow(2, 20))

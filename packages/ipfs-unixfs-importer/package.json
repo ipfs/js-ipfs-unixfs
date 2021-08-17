@@ -64,7 +64,7 @@
     "multiformats": "^9.4.2",
     "murmurhash3js-revisited": "^3.0.0",
     "rabin-wasm": "^0.1.4",
-    "uint8arrays": "^3.0.0-rc.0"
+    "uint8arrays": "^3.0.0"
   },
   "types": "dist/src/index.d.ts",
   "eslintConfig": {

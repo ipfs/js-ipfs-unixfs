@@ -1,7 +1,5 @@
-'use strict'
-
-const errCode = require('err-code')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+import errCode from 'err-code'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
 /**
  * @typedef {import('../types').ChunkValidator} ChunkValidator
@@ -28,4 +26,4 @@ async function * validateChunks (source) {
   }
 }
 
-module.exports = validateChunks
+export default validateChunks

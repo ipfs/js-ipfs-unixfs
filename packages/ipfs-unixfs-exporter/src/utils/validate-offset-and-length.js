@@ -1,6 +1,4 @@
-'use strict'
-
-const errCode = require('err-code')
+import errCode from 'err-code'
 
 /**
  * @param {number} size
@@ -38,4 +36,4 @@ const validateOffsetAndLength = (size, offset, length) => {
   }
 }
 
-module.exports = validateOffsetAndLength
+export default validateOffsetAndLength

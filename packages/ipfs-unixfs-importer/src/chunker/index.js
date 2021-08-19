@@ -1,6 +1,4 @@
-'use strict'
-
-const errCode = require('err-code')
+import errCode from 'err-code'
 
 /**
  * @typedef {import('../types').ImporterOptions} ImporterOptions
@@ -8,11 +6,17 @@ const errCode = require('err-code')
  */
 
 /**
- * @type {{ [key: string]: Chunker }}
+ * @param {string} key
+ * @returns {Promise<Chunker|undefined>}
  */
-const chunkers = {
-  fixed: require('../chunker/fixed-size'),
-  rabin: require('../chunker/rabin')
+const importChunkers = async (key) => {
+  switch (key) {
+    case 'fixed':
+      return (await (import('./fixed-size.js'))).default
+    case 'rabin':
+      return (await (import('./rabin.js'))).default
+    default:
+  }
 }
 
 /**
@@ -20,8 +24,8 @@ const chunkers = {
  * @param {AsyncIterable<Uint8Array>} source
  * @param {import('../types').ImporterOptions} options
  */
-module.exports = (type, source, options) => {
-  const chunker = chunkers[type]
+module.exports = async (type, source, options) => {
+  const chunker = await importChunkers(type)
 
   if (!chunker) {
     throw errCode(new Error(`Unknkown chunker named ${type}`), 'ERR_UNKNOWN_CHUNKER')

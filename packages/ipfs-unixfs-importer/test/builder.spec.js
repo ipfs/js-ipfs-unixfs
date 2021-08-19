@@ -1,17 +1,15 @@
 /* eslint-env mocha */
-'use strict'
-
-const { expect } = require('aegir/utils/chai')
-const mh = require('multiformats/hashes/digest')
-const { sha256, sha512 } = require('multiformats/hashes/sha2')
-const { decode } = require('@ipld/dag-pb')
-const { UnixFS } = require('ipfs-unixfs')
-const builder = require('../src/dag-builder')
-const first = require('it-first')
-const blockApi = require('./helpers/block')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const defaultOptions = require('../src/options')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+import { expect } from 'aegir/utils/chai.js'
+import * as mh from 'multiformats/hashes/digest'
+import { sha256, sha512 } from 'multiformats/hashes/sha2'
+import { decode } from '@ipld/dag-pb'
+import { UnixFS } from 'ipfs-unixfs'
+import builder from '../src/dag-builder/index.js'
+import first from 'it-first'
+import blockApi from './helpers/block.js'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import defaultOptions from '../src/options.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 describe('builder', () => {
   const block = blockApi()

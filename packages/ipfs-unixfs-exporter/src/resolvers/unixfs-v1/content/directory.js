@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
  * @typedef {import('../../../types').UnixfsV1DirectoryContent} UnixfsV1DirectoryContent
@@ -31,4 +29,4 @@ const directoryContent = (cid, node, unixfs, path, resolve, depth, blockstore) =
   return yieldDirectoryContent
 }
 
-module.exports = directoryContent
+export default directoryContent

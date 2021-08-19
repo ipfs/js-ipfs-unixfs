@@ -1,12 +1,10 @@
-'use strict'
-
 /**
  * @param {Uint8Array} block
  * @param {number} blockStart
  * @param {number} requestedStart
  * @param {number} requestedEnd
  */
-module.exports = function extractDataFromBlock (block, blockStart, requestedStart, requestedEnd) {
+function extractDataFromBlock (block, blockStart, requestedStart, requestedEnd) {
   const blockLength = block.length
   const blockEnd = blockStart + blockLength
 
@@ -28,3 +26,5 @@ module.exports = function extractDataFromBlock (block, blockStart, requestedStar
 
   return block
 }
+
+export default extractDataFromBlock

@@ -1,10 +1,8 @@
-'use strict'
-
-const DirSharded = require('./dir-sharded')
-const DirFlat = require('./dir-flat')
+import DirSharded from './dir-sharded.js'
+import DirFlat from './dir-flat.js'
 
 /**
- * @typedef {import('./dir')} Dir
+ * @typedef {import('./dir').default} Dir
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  */
 
@@ -15,7 +13,7 @@ const DirFlat = require('./dir-flat')
  * @param {ImporterOptions} options
  * @returns {Promise<DirSharded>}
  */
-module.exports = async function flatToShard (child, dir, threshold, options) {
+async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
   if (dir instanceof DirFlat && dir.directChildrenCount() >= threshold) {
@@ -67,3 +65,5 @@ async function convertToShard (oldDir, options) {
 
   return newDir
 }
+
+export default flatToShard

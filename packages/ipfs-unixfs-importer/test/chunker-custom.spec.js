@@ -1,14 +1,13 @@
 /* eslint-env mocha */
-'use strict'
+import { importer } from '../src/index.js'
+import { expect } from 'aegir/utils/chai.js'
 
-const { importer } = require('../src')
-const { expect } = require('aegir/utils/chai')
-const rawCodec = require('multiformats/codecs/raw')
-const { sha256 } = require('multiformats/hashes/sha2')
-const Block = require('multiformats/block')
-const blockApi = require('./helpers/block')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const { UnixFS } = require('ipfs-unixfs')
+import * as rawCodec from 'multiformats/codecs/raw'
+import { sha256 } from 'multiformats/hashes/sha2'
+import * as Block from 'multiformats/block'
+import blockApi from './helpers/block.js'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { UnixFS } from 'ipfs-unixfs'
 
 const iter = async function * () {
   yield uint8ArrayFromString('one')

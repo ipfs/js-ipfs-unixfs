@@ -1,12 +1,11 @@
 /* eslint-env mocha */
-'use strict'
 
-const { expect } = require('aegir/utils/chai')
-const builder = require('../src/dag-builder')
-const all = require('it-all')
-const blockApi = require('./helpers/block')
-const defaultOptions = require('../src/options')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+import { expect } from 'aegir/utils/chai.js'
+import builder from '../src/dag-builder/index.js'
+import all from 'it-all'
+import blockApi from './helpers/block.js'
+import defaultOptions from '../src/options.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 describe('builder: onlyHash', () => {
   const block = blockApi()

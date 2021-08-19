@@ -1,10 +1,8 @@
 /* eslint-env mocha */
-'use strict'
+import { importer } from '../src/index.js'
 
-const { importer } = require('../src')
-
-const bufferStream = require('it-buffer-stream')
-const blockApi = require('./helpers/block')
+import bufferStream from 'it-buffer-stream'
+import blockApi from './helpers/block.js'
 
 const REPEATS = 10
 const FILE_SIZE = Math.pow(2, 20) * 500 // 500MB

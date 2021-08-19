@@ -1,9 +1,8 @@
 /* eslint-env mocha */
-'use strict'
 
-const { expect } = require('aegir/utils/chai')
-const builder = require('../src/dag-builder/file/trickle')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+import { expect } from 'aegir/utils/chai.js'
+import builder from '../src/dag-builder/file/trickle.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 /**
  * @param {number} max

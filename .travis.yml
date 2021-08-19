@@ -87,7 +87,10 @@ jobs:
       name: electron main
       addons:
         firefox: latest
-      script: npm run test -- -- -- -t electron-main
+      script: 
+        - npm run build
+        - npx lerna link # use publishConfig.directory
+        - npm run test -- -- -- -t electron-main -f dist/cjs/node-test/*js
 
     - stage: release
       # only run on changes to master

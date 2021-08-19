@@ -1,13 +1,11 @@
 /* eslint-env mocha */
-'use strict'
+import { importer } from '../src/index.js'
 
-const { importer } = require('../src')
-
-const { expect } = require('aegir/utils/chai')
-const randomByteStream = require('./helpers/finite-pseudorandom-byte-stream')
-const first = require('it-first')
-const blockApi = require('./helpers/block')
-const defaultOptions = require('../src/options')
+import { expect } from 'aegir/utils/chai.js'
+import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
+import first from 'it-first'
+import blockApi from './helpers/block.js'
+import defaultOptions from '../src/options.js'
 
 /** @type {('flat' | 'trickle' | 'balanced')[]} */
 const strategies = [

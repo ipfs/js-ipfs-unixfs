@@ -1,5 +1,3 @@
-'use strict'
-
 const toPathComponents = (path = '') => {
   // split on / unless escaped with \
   return (path
@@ -8,4 +6,4 @@ const toPathComponents = (path = '') => {
     .filter(Boolean)
 }
 
-module.exports = toPathComponents
+export default toPathComponents

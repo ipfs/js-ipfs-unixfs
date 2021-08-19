@@ -4,16 +4,17 @@
   "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
+  "type": "module",
   "browser": {
     "fs": false
   },
   "scripts": {
-    "prepare": "run-s prepare:*",
-    "prepare:proto": "pbjs -t static-module -w commonjs -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
+    "prepare": "aegir build",
+    "prepare:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
     "prepare:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
     "prepare:types": "aegir build --no-bundle",
     "test": "aegir test",
-    "build": "aegir build",
+    "build": "aegir build --esm-tests",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
@@ -35,14 +36,17 @@
     "npm": ">=7.0.0"
   },
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
+  "publishConfig": {
+    "directory": "dist"
+  },
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^34.0.0",
+    "aegir": "^35.0.1",
     "copy": "^0.3.2",
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
-    "uint8arrays": "^2.1.2",
+    "uint8arrays": "^3.0.0",
     "util": "^0.12.3"
   },
   "dependencies": {
@@ -50,12 +54,11 @@
     "protobufjs": "^6.10.2"
   },
   "types": "dist/src/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
   "eslintConfig": {
     "extends": "ipfs",
+    "parserOptions": {
+      "sourceType": "module"
+    },
     "ignorePatterns": [
       "src/unixfs.d.ts"
     ]

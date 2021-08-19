@@ -1,11 +1,10 @@
-'use strict'
-
 /**
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  * @typedef {import('./types').ImportResult} ImportResult
  * @typedef {import('./types').InProgressImportResult} InProgressImportResult
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('multiformats/cid').CID} CID
+ *
  * @typedef {object} DirProps
  * @property {boolean} root
  * @property {boolean} dir
@@ -20,7 +19,6 @@
  */
 class Dir {
   /**
-   *
    * @param {DirProps} props
    * @param {ImporterOptions} options
    */
@@ -70,4 +68,4 @@ class Dir {
   async * flush (blockstore) { }
 }
 
-module.exports = Dir
+export default Dir

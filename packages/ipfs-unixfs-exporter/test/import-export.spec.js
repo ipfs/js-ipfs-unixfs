@@ -1,18 +1,15 @@
 /* eslint-env mocha */
 /* eslint max-nested-callbacks: ["error", 5] */
-'use strict'
+import { expect } from 'aegir/utils/chai.js'
+import loadFixture from 'aegir/utils/fixtures.js'
+import blockApi from './helpers/block.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
-const { expect } = require('aegir/utils/chai')
-// @ts-ignore
-const loadFixture = require('aegir/utils/fixtures')
-// @ts-ignore
-const isNode = require('detect-node')
-const bigFile = loadFixture((isNode ? __dirname : 'test') + '/fixtures/1.2MiB.txt')
-const blockApi = require('./helpers/block')
-const asAsyncIterable = require('./helpers/as-async-iterable')
+import { importer } from 'ipfs-unixfs-importer'
+import { exporter } from '../src/index.js'
 
-const { importer } = require('ipfs-unixfs-importer')
-const { exporter } = require('../src')
+/** @type {Uint8Array} */
+const bigFile = loadFixture(('test') + '/fixtures/1.2MiB.txt')
 
 const strategies = [
   'flat',

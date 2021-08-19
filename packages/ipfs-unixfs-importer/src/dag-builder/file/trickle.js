@@ -1,6 +1,4 @@
-'use strict'
-
-const batch = require('it-batch')
+import batch from 'it-batch'
 
 /**
  * @typedef {import('ipfs-unixfs').UnixFS} UnixFS
@@ -14,7 +12,7 @@ const batch = require('it-batch')
 /**
  * @type {FileDAGBuilder}
  */
-module.exports = async function trickleStream (source, reduce, options) {
+async function trickleStream (source, reduce, options) {
   const root = new Root(options.layerRepeat)
   let iteration = 0
   let maxDepth = 1
@@ -46,6 +44,8 @@ module.exports = async function trickleStream (source, reduce, options) {
 
   return root.reduce(reduce)
 }
+
+export default trickleStream
 
 class SubTree {
   /**

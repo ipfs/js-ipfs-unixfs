@@ -1,9 +1,7 @@
-'use strict'
-
-const DirFlat = require('./dir-flat')
-const flatToShard = require('./flat-to-shard')
-const Dir = require('./dir')
-const toPathComponents = require('./utils/to-path-components')
+import DirFlat from './dir-flat.js'
+import flatToShard from './flat-to-shard.js'
+import Dir from './dir.js'
+import toPathComponents from './utils/to-path-components.js'
 
 /**
  * @typedef {import('./types').ImportResult} ImportResult
@@ -117,4 +115,4 @@ async function * treeBuilder (source, block, options) {
   }
 }
 
-module.exports = treeBuilder
+export default treeBuilder

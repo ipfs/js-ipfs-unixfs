@@ -1,12 +1,10 @@
-'use strict'
-
-const extractDataFromBlock = require('../../../utils/extract-data-from-block')
-const validateOffsetAndLength = require('../../../utils/validate-offset-and-length')
-const { UnixFS } = require('ipfs-unixfs')
-const errCode = require('err-code')
-const dagPb = require('@ipld/dag-pb')
-const dagCbor = require('@ipld/dag-cbor')
-const raw = require('multiformats/codecs/raw')
+import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
+import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
+import { UnixFS } from 'ipfs-unixfs'
+import errCode from 'err-code'
+import * as dagPb from '@ipld/dag-pb'
+import * as dagCbor from '@ipld/dag-cbor'
+import * as raw from 'multiformats/codecs/raw'
 
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
@@ -126,4 +124,4 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   return yieldFileContent
 }
 
-module.exports = fileContent
+export default fileContent

@@ -1,9 +1,7 @@
-'use strict'
-
-const errCode = require('err-code')
-const extractDataFromBlock = require('../utils/extract-data-from-block')
-const validateOffsetAndLength = require('../utils/validate-offset-and-length')
-const mh = require('multiformats/hashes/digest')
+import errCode from 'err-code'
+import extractDataFromBlock from '../utils/extract-data-from-block.js'
+import validateOffsetAndLength from '../utils/validate-offset-and-length.js'
+import * as mh from 'multiformats/hashes/digest'
 
 /**
  * @typedef {import('../types').ExporterOptions} ExporterOptions
@@ -52,4 +50,4 @@ const resolve = async (cid, name, path, toResolve, resolve, depth, blockstore, o
   }
 }
 
-module.exports = resolve
+export default resolve

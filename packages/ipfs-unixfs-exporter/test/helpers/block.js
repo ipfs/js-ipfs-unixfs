@@ -1,7 +1,48 @@
-'use strict'
+import errCode from 'err-code'
+import { BlockstoreAdapter } from 'interface-blockstore'
+import { base58btc } from 'multiformats/bases/base58'
 
-/** @type {() => import('interface-blockstore').Blockstore} */
-// @ts-expect-error no types for this deep import
-const block = require('ipfs-unixfs-importer/test/helpers/block')
+/**
+ * @typedef {import('multiformats/cid').CID} CID
+ */
 
-module.exports = block
+function createBlockApi () {
+  class MockBlockstore extends BlockstoreAdapter {
+    constructor () {
+      super()
+
+      /** @type {{[key: string]: Uint8Array}} */
+      this._blocks = {}
+    }
+
+    /**
+     * @param {CID} cid
+     * @param {Uint8Array} block
+     * @param {any} [options]
+     */
+    async put (cid, block, options = {}) {
+      this._blocks[base58btc.encode(cid.multihash.bytes)] = block
+    }
+
+    /**
+     * @param {CID} cid
+     * @param {any} [options]
+     */
+    async get (cid, options = {}) {
+      const bytes = this._blocks[base58btc.encode(cid.multihash.bytes)]
+
+      if (bytes === undefined) {
+        throw errCode(new Error(`Could not find data for CID '${cid}'`), 'ERR_NOT_FOUND')
+      }
+
+      return bytes
+    }
+  }
+
+  /** @type {import('interface-blockstore').Blockstore} */
+  const bs = new MockBlockstore()
+
+  return bs
+}
+
+export default createBlockApi

@@ -1,7 +1,5 @@
-'use strict'
-
-const parallelBatch = require('it-parallel-batch')
-const defaultOptions = require('./options')
+import parallelBatch from 'it-parallel-batch'
+import defaultOptions from './options.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -26,7 +24,7 @@ const defaultOptions = require('./options')
  * @param {Blockstore} blockstore
  * @param {UserImporterOptions} options
  */
-async function * importer (source, blockstore, options = {}) {
+export async function * importer (source, blockstore, options = {}) {
   const opts = defaultOptions(options)
 
   let dagBuilder
@@ -34,7 +32,7 @@ async function * importer (source, blockstore, options = {}) {
   if (typeof options.dagBuilder === 'function') {
     dagBuilder = options.dagBuilder
   } else {
-    dagBuilder = require('./dag-builder')
+    dagBuilder = (await (import('./dag-builder/index.js'))).default
   }
 
   let treeBuilder
@@ -42,7 +40,7 @@ async function * importer (source, blockstore, options = {}) {
   if (typeof options.treeBuilder === 'function') {
     treeBuilder = options.treeBuilder
   } else {
-    treeBuilder = require('./tree-builder')
+    treeBuilder = (await (import('./tree-builder.js'))).default
   }
 
   /** @type {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>} */
@@ -64,8 +62,4 @@ async function * importer (source, blockstore, options = {}) {
       size: entry.size
     }
   }
-}
-
-module.exports = {
-  importer
 }

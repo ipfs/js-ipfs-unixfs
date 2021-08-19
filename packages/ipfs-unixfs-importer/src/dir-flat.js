@@ -1,9 +1,7 @@
-'use strict'
-
-const { encode, prepare } = require('@ipld/dag-pb')
-const { UnixFS } = require('ipfs-unixfs')
-const Dir = require('./dir')
-const persist = require('./utils/persist')
+import { encode, prepare } from '@ipld/dag-pb'
+import { UnixFS } from 'ipfs-unixfs'
+import Dir from './dir.js'
+import persist from './utils/persist.js'
 
 /**
  * @typedef {import('./types').ImporterOptions} ImporterOptions
@@ -128,4 +126,4 @@ class DirFlat extends Dir {
   }
 }
 
-module.exports = DirFlat
+export default DirFlat

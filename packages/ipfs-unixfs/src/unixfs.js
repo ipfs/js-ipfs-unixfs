@@ -1,15 +1,13 @@
 /*eslint-disable*/
-"use strict";
-
-var $protobuf = require("protobufjs/minimal");
+import $protobuf from "protobufjs/minimal.js";
 
 // Common aliases
-var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
 // Exported root namespace
-var $root = $protobuf.roots["ipfs-unixfs"] || ($protobuf.roots["ipfs-unixfs"] = {});
+const $root = $protobuf.roots["ipfs-unixfs"] || ($protobuf.roots["ipfs-unixfs"] = {});
 
-$root.Data = (function() {
+export const Data = $root.Data = (() => {
 
     /**
      * Properties of a Data.
@@ -404,7 +402,7 @@ $root.Data = (function() {
      * @property {number} HAMTShard=5 HAMTShard value
      */
     Data.DataType = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
+        const valuesById = {}, values = Object.create(valuesById);
         values[valuesById[0] = "Raw"] = 0;
         values[valuesById[1] = "Directory"] = 1;
         values[valuesById[2] = "File"] = 2;
@@ -417,7 +415,7 @@ $root.Data = (function() {
     return Data;
 })();
 
-$root.UnixTime = (function() {
+export const UnixTime = $root.UnixTime = (() => {
 
     /**
      * Properties of an UnixTime.
@@ -585,7 +583,7 @@ $root.UnixTime = (function() {
     return UnixTime;
 })();
 
-$root.Metadata = (function() {
+export const Metadata = $root.Metadata = (() => {
 
     /**
      * Properties of a Metadata.
@@ -717,4 +715,4 @@ $root.Metadata = (function() {
     return Metadata;
 })();
 
-module.exports = $root;
+export { $root as default };

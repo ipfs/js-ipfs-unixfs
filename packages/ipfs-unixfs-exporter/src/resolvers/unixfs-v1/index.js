@@ -1,9 +1,11 @@
-'use strict'
+import errCode from 'err-code'
+import { UnixFS } from 'ipfs-unixfs'
+import findShardCid from '../../utils/find-cid-in-shard.js'
+import { decode } from '@ipld/dag-pb'
 
-const errCode = require('err-code')
-const { UnixFS } = require('ipfs-unixfs')
-const findShardCid = require('../../utils/find-cid-in-shard')
-const { decode } = require('@ipld/dag-pb')
+import contentFile from './content/file.js'
+import contentDirectory from './content/directory.js'
+import contentHamtShardedDirectory from './content/hamt-sharded-directory.js'
 
 /**
  * @typedef {import('../../types').Resolve} Resolve
@@ -26,10 +28,10 @@ const findLinkCid = (node, name) => {
  * @type {{ [key: string]: UnixfsV1Resolver }}
  */
 const contentExporters = {
-  raw: require('./content/file'),
-  file: require('./content/file'),
-  directory: require('./content/directory'),
-  'hamt-sharded-directory': require('./content/hamt-sharded-directory'),
+  raw: contentFile,
+  file: contentFile,
+  directory: contentDirectory,
+  'hamt-sharded-directory': contentHamtShardedDirectory,
   metadata: (cid, node, unixfs, path, resolve, depth, blockstore) => {
     return () => []
   },
@@ -109,4 +111,4 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blocks
   }
 }
 
-module.exports = unixFsResolver
+export default unixFsResolver

@@ -1,12 +1,10 @@
-'use strict'
-
 const REPEATABLE_CHUNK_SIZE = 300000
 
 /**
  * @param {number} maxSize
  * @param {number} seed
  */
-module.exports = async function * (maxSize, seed) {
+async function * stream (maxSize, seed) {
   const chunks = Math.ceil(maxSize / REPEATABLE_CHUNK_SIZE)
   let emitted = 0
   const buf = new Uint8Array(REPEATABLE_CHUNK_SIZE)
@@ -21,6 +19,8 @@ module.exports = async function * (maxSize, seed) {
     emitted++
   }
 }
+
+export default stream
 
 /**
  * @param {number} seed

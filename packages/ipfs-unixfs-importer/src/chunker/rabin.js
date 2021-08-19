@@ -1,10 +1,8 @@
-'use strict'
-
 // @ts-ignore
-const BufferList = require('bl/BufferList')
+import BufferList from 'bl/BufferList.js'
 // @ts-ignore
-const { create } = require('rabin-wasm')
-const errcode = require('err-code')
+import { create } from 'rabin-wasm'
+import errcode from 'err-code'
 
 /**
  * @typedef {object} RabinOptions
@@ -18,7 +16,7 @@ const errcode = require('err-code')
 /**
  * @type {import('../types').Chunker}
  */
-module.exports = async function * rabinChunker (source, options) {
+async function * rabinChunker (source, options) {
   let min, max, avg
 
   if (options.minChunkSize && options.maxChunkSize && options.avgChunkSize) {
@@ -58,6 +56,8 @@ module.exports = async function * rabinChunker (source, options) {
     yield chunk
   }
 }
+
+export default rabinChunker
 
 /**
  * @param {AsyncIterable<Uint8Array>} source

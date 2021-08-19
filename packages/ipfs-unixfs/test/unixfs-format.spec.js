@@ -1,22 +1,19 @@
 /* eslint-env mocha */
-'use strict'
 
-const { expect } = require('aegir/utils/chai')
+import { expect } from 'aegir/utils/chai.js'
 
 /** @type {(path: string) => Uint8Array} */
-// @ts-ignore
-const loadFixture = require('aegir/utils/fixtures')
+import loadFixture from 'aegir/utils/fixtures.js'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
-const { UnixFS } = require('../src')
+import { UnixFS } from '../src/index.js'
+import * as Pb from '../src/unixfs.js'
+const PBData = Pb.Data
 
 const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
 const file = loadFixture('test/fixtures/file.txt.unixfs')
 const symlink = loadFixture('test/fixtures/symlink.txt.unixfs')
-const {
-  Data: PBData
-} = require('../src/unixfs')
-const uint8ArrayFromString = require('uint8arrays/from-string')
 
 describe('unixfs-format', () => {
   it('defaults to file', () => {

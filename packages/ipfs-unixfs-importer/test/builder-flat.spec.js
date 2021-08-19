@@ -1,8 +1,7 @@
 /* eslint-env mocha */
-'use strict'
 
-const { expect } = require('aegir/utils/chai')
-const builder = require('../src/dag-builder/file/flat')
+import { expect } from 'aegir/utils/chai.js'
+import builder from '../src/dag-builder/file/flat.js'
 
 /**
  * @param {*} leaves

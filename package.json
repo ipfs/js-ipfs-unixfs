@@ -16,7 +16,8 @@
     "update-contributors": "aegir release --lint=false --test=false --bump=false --build=false --changelog=false --commit=false --tag=false --push=false --ghrelease=false --docs=false --publish=false"
   },
   "devDependencies": {
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "json": "^11.0.0"
   },
   "repository": {
     "type": "git",

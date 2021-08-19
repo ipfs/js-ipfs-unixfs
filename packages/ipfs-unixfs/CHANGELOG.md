@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@6.0.0...ipfs-unixfs@6.0.1) (2021-08-19)
+
+
+### Bug Fixes
+
+* types with ipjs build ([#165](https://github.com/ipfs/js-ipfs-unixfs/issues/165)) ([fea85b5](https://github.com/ipfs/js-ipfs-unixfs/commit/fea85b5e63f8c887bc4a2033baecd84b36cc53bf))
+
+
+
+
+
 # [6.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@5.0.0...ipfs-unixfs@6.0.0) (2021-08-19)
 
 

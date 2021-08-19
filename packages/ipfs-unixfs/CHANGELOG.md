@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@6.0.1...ipfs-unixfs@6.0.2) (2021-08-19)
+
+**Note:** Version bump only for package ipfs-unixfs
+
+
+
+
+
 ## [6.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@6.0.0...ipfs-unixfs@6.0.1) (2021-08-19)
 
 

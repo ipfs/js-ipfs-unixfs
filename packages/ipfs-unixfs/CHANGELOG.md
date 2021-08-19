@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@5.0.0...ipfs-unixfs@6.0.0) (2021-08-19)
+
+
+### chore
+
+* switch to ESM ([#161](https://github.com/ipfs/js-ipfs-unixfs/issues/161)) ([819267f](https://github.com/ipfs/js-ipfs-unixfs/commit/819267f64fe9d4afc89ef729d54d4d15c2e11820)), closes [skypackjs/skypack-cdn#171](https://github.com/skypackjs/skypack-cdn/issues/171)
+
+
+### BREAKING CHANGES
+
+* ./src/dir-sharded is not in the exports map so cannot be imported
+
+Co-authored-by: Alex Potsides <alex@achingbrain.net>
+
+
+
+
+
 # [5.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs@4.0.3...ipfs-unixfs@5.0.0) (2021-07-09)
 
 

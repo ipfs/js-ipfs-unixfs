@@ -39,7 +39,6 @@
     "JGAntunes <j.goncalo.antunes@gmail.com>",
     "Marcin Rataj <lidel@lidel.org>",
     "Richard Littauer <richard.littauer@gmail.com>",
-    "Bernard Mordan <bernard@tableflip.io>",
     "Vasco Santos <vasco.santos@moxy.studio>",
     "Mithgol <getgit@mithgol.ru>",
     "Irakli Gozalishvili <contact@gozala.io>",
@@ -47,8 +46,9 @@
     "Hector Sanjuan <code@hector.link>",
     "Francisco Baio Dias <xicombd@gmail.com>",
     "Diogo Silva <fsdiogo@gmail.com>",
+    "SahidMiller <SahidMiller@users.noreply.github.com>",
     "jbenet <juan@benet.ai>",
-    "SahidMiller <SahidMiller@users.noreply.github.com>"
+    "Bernard Mordan <bernard@tableflip.io>"
   ],
   "workspaces": [
     "packages/*"

@@ -15,7 +15,7 @@
     "prepare:types": "aegir build --no-bundle",
     "test": "aegir test",
     "build": "aegir build --esm-tests",
-    "postbuild": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
+    "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",

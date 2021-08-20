@@ -1,7 +1,7 @@
 {
   "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "types",
     "module": "es2020",
     "importsNotUsedAsValues": "preserve"
   },
@@ -16,6 +16,9 @@
   "references": [
     {
       "path": "../ipfs-unixfs"
+    },
+    {
+      "path": "../ipfs-unixfs-importer"
     }
   ]
 }

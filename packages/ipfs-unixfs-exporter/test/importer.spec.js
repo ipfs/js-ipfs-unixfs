@@ -1094,7 +1094,6 @@ describe('configuration', () => {
       path: 'path',
       content: asAsyncIterable(uint8ArrayFromString('content'))
     }], block, {
-      /** @type {import('ipfs-unixfs-importer').ChunkValidator} */
       chunkValidator: async function * (source) { // eslint-disable-line require-await
         validated = true
 
@@ -1106,7 +1105,6 @@ describe('configuration', () => {
           }
         }
       },
-      /** @type {import('ipfs-unixfs-importer').Chunker} */
       chunker: async function * (source) { // eslint-disable-line require-await
         chunked = true
         yield * source

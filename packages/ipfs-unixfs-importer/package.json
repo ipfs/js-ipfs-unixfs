@@ -9,9 +9,10 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build --no-bundle",
+    "prepare": "aegir build --no-bundle && cp -R types dist",
+    "pretest": "aegir build --esm-tests",
     "test": "aegir test",
-    "build": "aegir build --esm-tests",
+    "build": "aegir build && cp -R types dist",
     "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "@ipld/dag-pb": "^2.0.2",
+    "@multiformats/murmur3": "^1.0.3",
     "bl": "^5.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
@@ -63,11 +65,10 @@
     "it-parallel-batch": "^1.0.9",
     "merge-options": "^3.0.4",
     "multiformats": "^9.4.2",
-    "murmurhash3js-revisited": "^3.0.0",
     "rabin-wasm": "^0.1.4",
     "uint8arrays": "^3.0.0"
   },
-  "types": "dist/src/index.d.ts",
+  "types": "types/src/index.d.ts",
   "eslintConfig": {
     "extends": "ipfs",
     "parserOptions": {

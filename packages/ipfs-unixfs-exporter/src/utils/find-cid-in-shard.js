@@ -1,9 +1,7 @@
 
 import { Bucket, createHAMT } from 'hamt-sharding'
 import { decode } from '@ipld/dag-pb'
-// @ts-ignore - no types available
-import mur from 'murmurhash3js-revisited'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { murmur3128 } from '@multiformats/murmur3'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -18,7 +16,13 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
  * @param {Uint8Array} buf
  */
 const hashFn = async function (buf) {
-  return uint8ArrayFromString(mur.x64.hash128(buf), 'base16').slice(0, 8).reverse()
+  return (await murmur3128.encode(buf))
+    // Murmur3 outputs 128 bit but, accidentally, IPFS Go's
+    // implementation only uses the first 64, so we must do the same
+    // for parity..
+    .slice(0, 8)
+    // Invert buffer because that's how Go impl does it
+    .reverse()
 }
 
 /**

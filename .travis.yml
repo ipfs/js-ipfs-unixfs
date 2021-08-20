@@ -39,6 +39,7 @@ before_install:
   # allow windows to run scripts with node 14 and npm 7 (may not be necessary when node 14 is no longer lts)
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then npm config set script-shell c:/PROGRA~1/Git/bin/bash.exe ; fi
 
+before_script: npm run build
 script: npx nyc -s npm run test -- -- -- -t node --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
@@ -85,10 +86,7 @@ jobs:
 
     - stage: test
       name: electron main
-      addons:
-        firefox: latest
-      script: 
-        - npm run build
+      script:
         - npx lerna link # use publishConfig.directory
         - npm run test -- -- -- -t electron-main -f dist/cjs/node-test/*js
 

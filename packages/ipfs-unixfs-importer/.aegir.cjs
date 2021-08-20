@@ -32,5 +32,8 @@ module.exports = {
         buildConfig
       }
     }
+  },
+  ts: {
+    copyTo: 'types'
   }
 }

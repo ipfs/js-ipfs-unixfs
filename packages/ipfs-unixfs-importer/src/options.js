@@ -1,8 +1,6 @@
 import mergeOptions from 'merge-options'
 import { sha256 } from 'multiformats/hashes/sha2'
-// @ts-ignore - no types available
-import mur from 'murmurhash3js-revisited'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { murmur3128 } from '@multiformats/murmur3'
 
 mergeOptions.bind({ ignoreUndefined: true })
 
@@ -10,7 +8,7 @@ mergeOptions.bind({ ignoreUndefined: true })
  * @param {Uint8Array} buf
  */
 async function hamtHashFn (buf) {
-  return uint8ArrayFromString(mur.x64.hash128(buf), 'base16')
+  return (await murmur3128.encode(buf))
     // Murmur3 outputs 128 bit but, accidentally, IPFS Go's
     // implementation only uses the first 64, so we must do the same
     // for parity..

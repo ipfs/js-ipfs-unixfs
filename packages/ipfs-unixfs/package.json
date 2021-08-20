@@ -9,13 +9,12 @@
     "fs": false
   },
   "scripts": {
-    "prepare": "aegir build",
+    "prepare": "aegir build --no-bundle && cp -R types dist",
     "prepare:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
     "prepare:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
-    "prepare:types": "aegir build --no-bundle",
+    "pretest": "aegir build --esm-tests",
     "test": "aegir test",
-    "build": "aegir build --esm-tests",
-    "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
+    "build": "aegir build && cp -R types dist",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
@@ -54,7 +53,7 @@
     "err-code": "^3.0.1",
     "protobufjs": "^6.10.2"
   },
-  "types": "dist/src/index.d.ts",
+  "types": "types/src/index.d.ts",
   "eslintConfig": {
     "extends": "ipfs",
     "parserOptions": {

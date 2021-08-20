@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [9.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@9.0.2...ipfs-unixfs-importer@9.0.3) (2021-08-20)
+
+
+### Bug Fixes
+
+* publish with types in package.json ([#166](https://github.com/ipfs/js-ipfs-unixfs/issues/166)) ([0318c98](https://github.com/ipfs/js-ipfs-unixfs/commit/0318c98ebaefaefff959e71b7371a253ad44eebf))
+
+
+
+
+
 ## [9.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer@9.0.1...ipfs-unixfs-importer@9.0.2) (2021-08-19)
 
 **Note:** Version bump only for package ipfs-unixfs-importer

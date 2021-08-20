@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-importer",
-  "version": "9.0.2",
+  "version": "9.0.3",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
@@ -58,7 +58,7 @@
     "err-code": "^3.0.1",
     "hamt-sharding": "^2.0.0",
     "interface-blockstore": "^1.0.0",
-    "ipfs-unixfs": "^6.0.2",
+    "ipfs-unixfs": "^6.0.3",
     "it-all": "^1.0.5",
     "it-batch": "^1.0.8",
     "it-first": "^1.0.6",

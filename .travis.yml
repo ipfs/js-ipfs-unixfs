@@ -41,13 +41,13 @@ before_install:
 
 script: npx nyc -s npm run test -- -- -- -t node --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
+after_install: npm run build
 
 jobs:
   include:
     - stage: check
       name: linting
       script:
-        - npm run build
         - npm run lint
 
     - stage: check

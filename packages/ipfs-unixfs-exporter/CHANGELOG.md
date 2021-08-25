@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@7.0.3...ipfs-unixfs-exporter@7.0.4) (2021-08-25)
+
+
+### Bug Fixes
+
+* individual packages can use npm 6 ([#167](https://github.com/ipfs/js-ipfs-unixfs/issues/167)) ([2b429cc](https://github.com/ipfs/js-ipfs-unixfs/commit/2b429cc4c0e7362632d9288c58923f1c629d0cd0))
+
+
+
+
+
 ## [7.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter@7.0.2...ipfs-unixfs-exporter@7.0.3) (2021-08-20)
 
 

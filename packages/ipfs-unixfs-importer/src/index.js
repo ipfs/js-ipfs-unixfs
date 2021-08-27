@@ -1,5 +1,7 @@
 import parallelBatch from 'it-parallel-batch'
 import defaultOptions from './options.js'
+import dagBuilderFn from './dag-builder/index.js'
+import treeBuilderFn from './tree-builder.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -32,7 +34,7 @@ export async function * importer (source, blockstore, options = {}) {
   if (typeof options.dagBuilder === 'function') {
     dagBuilder = options.dagBuilder
   } else {
-    dagBuilder = (await (import('./dag-builder/index.js'))).default
+    dagBuilder = dagBuilderFn
   }
 
   let treeBuilder
@@ -40,7 +42,7 @@ export async function * importer (source, blockstore, options = {}) {
   if (typeof options.treeBuilder === 'function') {
     treeBuilder = options.treeBuilder
   } else {
-    treeBuilder = (await (import('./tree-builder.js'))).default
+    treeBuilder = treeBuilderFn
   }
 
   /** @type {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>} */

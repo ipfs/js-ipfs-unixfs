@@ -9,6 +9,7 @@ import * as dagPb from '@ipld/dag-pb'
 import dagFlat from './flat.js'
 import dagBalanced from './balanced.js'
 import dagTrickle from './trickle.js'
+import bufferImporterFn from './buffer-importer.js'
 
 /**
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
@@ -41,7 +42,7 @@ async function * buildFileBatch (file, blockstore, options) {
   if (typeof options.bufferImporter === 'function') {
     bufferImporter = options.bufferImporter
   } else {
-    bufferImporter = (await (import('./buffer-importer.js'))).default
+    bufferImporter = bufferImporterFn
   }
 
   for await (const entry of parallelBatch(bufferImporter(file, blockstore, options), options.blockWriteConcurrency)) {

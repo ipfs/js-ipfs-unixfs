@@ -1,6 +1,6 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import Dir from './dir.js'
+import { Dir, CID_V0, CID_V1 } from './dir.js'
 import persist from './utils/persist.js'
 
 /**
@@ -32,6 +32,7 @@ class DirFlat extends Dir {
   async put (name, value) {
     this.cid = undefined
     this.size = undefined
+    this.nodeSize = undefined
 
     this._children[name] = value
   }
@@ -66,6 +67,43 @@ class DirFlat extends Dir {
         child: this._children[key]
       }
     }
+  }
+
+  calculateNodeSize () {
+    if (this.nodeSize !== undefined) {
+      return this.nodeSize
+    }
+
+    const links = []
+
+    for (const name of Object.keys(this._children)) {
+      const child = this._children[name]
+      let size
+
+      if (child instanceof Dir) {
+        size = child.calculateNodeSize()
+      } else {
+        size = child.size
+      }
+
+      if (child.size != null && child.cid) {
+        links.push({
+          Name: name,
+          Tsize: size,
+          Hash: this.options.cidVersion === 0 ? CID_V0 : CID_V1
+        })
+      }
+    }
+
+    const unixfs = new UnixFS({
+      type: 'directory',
+      mtime: this.mtime,
+      mode: this.mode
+    })
+
+    this.nodeSize = encode(prepare({ Data: unixfs.marshal(), Links: links })).length
+
+    return this.nodeSize
   }
 
   /**

@@ -1,6 +1,6 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import Dir from './dir.js'
+import { Dir, CID_V0, CID_V1 } from './dir.js'
 import persist from './utils/persist.js'
 import { createHAMT, Bucket } from 'hamt-sharding'
 
@@ -35,6 +35,10 @@ class DirSharded extends Dir {
    * @param {InProgressImportResult | Dir} value
    */
   async put (name, value) {
+    this.cid = undefined
+    this.size = undefined
+    this.nodeSize = undefined
+
     await this._bucket.put(name, value)
   }
 
@@ -66,6 +70,16 @@ class DirSharded extends Dir {
     }
   }
 
+  calculateNodeSize () {
+    if (this.nodeSize !== undefined) {
+      return this.nodeSize
+    }
+
+    this.nodeSize = calculateSize(this._bucket, this, this.options)
+
+    return this.nodeSize
+  }
+
   /**
    * @param {Blockstore} blockstore
    * @returns {AsyncIterable<ImportResult>}
@@ -85,7 +99,7 @@ export default DirSharded
 /**
  * @param {Bucket<?>} bucket
  * @param {Blockstore} blockstore
- * @param {*} shardRoot
+ * @param {DirSharded | null} shardRoot
  * @param {ImporterOptions} options
  * @returns {AsyncIterable<ImportResult>}
  */
@@ -182,4 +196,77 @@ async function * flush (bucket, blockstore, shardRoot, options) {
     unixfs: dir,
     size
   }
+}
+
+/**
+ * @param {Bucket<?>} bucket
+ * @param {DirSharded | null} shardRoot
+ * @param {ImporterOptions} options
+ */
+function calculateSize (bucket, shardRoot, options) {
+  const children = bucket._children
+  const links = []
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children.get(i)
+
+    if (!child) {
+      continue
+    }
+
+    const labelPrefix = i.toString(16).toUpperCase().padStart(2, '0')
+
+    if (child instanceof Bucket) {
+      const size = calculateSize(child, null, options)
+
+      links.push({
+        Name: labelPrefix,
+        Tsize: size,
+        Hash: options.cidVersion === 0 ? CID_V0 : CID_V1
+      })
+    } else if (typeof child.value.flush === 'function') {
+      const dir = child.value
+      const size = dir.nodeSize()
+
+      links.push({
+        Name: labelPrefix + child.key,
+        Tsize: size,
+        Hash: options.cidVersion === 0 ? CID_V0 : CID_V1
+      })
+    } else {
+      const value = child.value
+
+      if (!value.cid) {
+        continue
+      }
+
+      const label = labelPrefix + child.key
+      const size = value.size
+
+      links.push({
+        Name: label,
+        Tsize: size,
+        Hash: value.cid
+      })
+    }
+  }
+
+  // go-ipfs uses little endian, that's why we have to
+  // reverse the bit field before storing it
+  const data = Uint8Array.from(children.bitField().reverse())
+  const dir = new UnixFS({
+    type: 'hamt-sharded-directory',
+    data,
+    fanout: bucket.tableSize(),
+    hashType: options.hamtHashCode,
+    mtime: shardRoot && shardRoot.mtime,
+    mode: shardRoot && shardRoot.mode
+  })
+
+  const buffer = encode(prepare({
+    Data: dir.marshal(),
+    Links: links
+  }))
+
+  return buffer.length
 }

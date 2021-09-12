@@ -1,6 +1,6 @@
 import DirFlat from './dir-flat.js'
 import flatToShard from './flat-to-shard.js'
-import Dir from './dir.js'
+import { Dir } from './dir.js'
 import toPathComponents from './utils/to-path-components.js'
 
 /**

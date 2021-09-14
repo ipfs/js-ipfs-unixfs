@@ -2,8 +2,6 @@ import mergeOptions from 'merge-options'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { murmur3128 } from '@multiformats/murmur3'
 
-mergeOptions.bind({ ignoreUndefined: true })
-
 /**
  * @param {Uint8Array} buf
  */
@@ -61,5 +59,6 @@ const defaultOptions = {
  * @returns {ImporterOptions}
  */
 export default (options = {}) => {
-  return mergeOptions(defaultOptions, options)
+  const defaults = mergeOptions.bind({ ignoreUndefined: true })
+  return defaults(defaultOptions, options)
 }

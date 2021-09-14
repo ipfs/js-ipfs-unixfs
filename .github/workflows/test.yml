@@ -20,7 +20,7 @@ jobs:
   test-node:
     needs: check
     runs-on: ${{ matrix.os }}
-    name: test ${{ matrix.project }} node ${{ matrix.node }}
+    name: test ${{ matrix.project }} node ${{ matrix.node }} ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]

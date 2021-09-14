@@ -1,0 +1,97 @@
+name: ci
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: 'packages/*/package-lock.json'
+    - run: npm install
+    - run: npm run build
+    - run: npm run lint
+    - run: npm run depcheck -- -- -- -p
+    - run: npm run depcheck -- -- -- -- --unused
+  test-node:
+    needs: check
+    runs-on: ${{ matrix.os }}
+    name: test ${{ matrix.project }} node ${{ matrix.node }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        node: [16]
+        project:
+          - ipfs-unixfs
+          - ipfs-unixfs-exporter
+          - ipfs-unixfs-importer
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+          cache-dependency-path: 'packages/*/package-lock.json'
+      - run: npm install
+      - run: npm run build
+      - run: npm run test -- --scope=${{ matrix.project }} -- -- --cov -t node
+  test-browser:
+    needs: check
+    runs-on: ubuntu-latest
+    name: test ${{ matrix.project }} ${{ matrix.browser }} ${{ matrix.type }}
+    strategy:
+      matrix:
+        project:
+          - ipfs-unixfs
+          - ipfs-unixfs-exporter
+          - ipfs-unixfs-importer
+        browser:
+          - chromium
+          - firefox
+        type:
+          - browser
+          - webworker
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: 'packages/*/package-lock.json'
+      - run: npm install
+      - run: npm run build
+      - run: npm run test -- --scope=${{ matrix.project }} -- -- -t ${{ matrix.type }} -- --browser ${{ matrix.browser }}
+  test-electron:
+    needs: check
+    runs-on: ubuntu-latest
+    name: test ${{ matrix.project }} ${{ matrix.type }}
+    strategy:
+      matrix:
+        project:
+          - ipfs-unixfs
+          - ipfs-unixfs-exporter
+          - ipfs-unixfs-importer
+        type:
+          - electron-main
+          - electron-renderer
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: 'packages/*/package-lock.json'
+      - run: npm install
+      - run: npm run build
+      - uses: GabrielBB/xvfb-action@v1
+        with:
+          run: npm run test -- --scope=${{ matrix.project }} -- -- -t ${{ matrix.type }} --bail

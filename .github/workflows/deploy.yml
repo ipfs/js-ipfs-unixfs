@@ -1,0 +1,37 @@
+name: deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish-rc:
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: 'packages/*/package-lock.json'
+      - name: configure Git User
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "@$GITHUB_ACTOR"
+      - name: Authenticate with Registry
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: release
+        run: npm run release:rc -- --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

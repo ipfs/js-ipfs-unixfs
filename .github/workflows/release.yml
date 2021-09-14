@@ -29,7 +29,10 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: release
-        run: npm run release:rc -- --yes
+        run: |
+          npm install
+          npm run build
+          npm run release:rc -- --yes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

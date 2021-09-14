@@ -17,7 +17,7 @@
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i assert"
+    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i assert -i interface-blockstore"
   },
   "repository": {
     "type": "git",
@@ -42,6 +42,7 @@
     "@types/mocha": "^8.2.1",
     "aegir": "^35.0.1",
     "assert": "^2.0.0",
+    "blockstore-core": "^1.0.2",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
     "events": "^3.3.0",

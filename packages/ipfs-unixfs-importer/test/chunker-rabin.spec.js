@@ -7,11 +7,20 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import defaultOptions from '../src/options.js'
+import { isElectronRenderer } from 'wherearewe'
 
 const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)
 
 describe('chunker: rabin', function () {
   this.timeout(30000)
+
+  if (isElectronRenderer) {
+    it('Does not work on the electron renderer thread - https://github.com/hugomrdias/rabin-wasm/issues/127', function () {
+      this.skip()
+    })
+
+    return
+  }
 
   it('chunks non flat buffers', async () => {
     const b1 = new Uint8Array(2 * 256)

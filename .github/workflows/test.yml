@@ -84,6 +84,7 @@ jobs:
           node-version: 16
       - run: npm install
       - run: npm run build
+      - run: npx lerna link # use publishConfig.directory
       - uses: GabrielBB/xvfb-action@v1
         with:
           run: npm run test -- --scope=${{ matrix.project }} -- -- -t ${{ matrix.type }} --bail -f ./dist/cjs/node-test/*.spec.js

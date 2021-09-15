@@ -1,4 +1,4 @@
-name: ci
+name: Test
 on:
   pull_request:
     branches:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,7 +21,7 @@ jobs:
   test-node:
     needs: check
     runs-on: ${{ matrix.os }}
-    name: test ${{ matrix.project }} node ${{ matrix.node }} ${{ matrix.os }}
+    name: Test ${{ matrix.project }} node ${{ matrix.node }} ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
@@ -41,7 +42,7 @@ jobs:
   test-browser:
     needs: check
     runs-on: ubuntu-latest
-    name: test ${{ matrix.project }} ${{ matrix.browser }} ${{ matrix.type }}
+    name: Test ${{ matrix.project }} ${{ matrix.browser }} ${{ matrix.type }}
     strategy:
       matrix:
         project:
@@ -66,7 +67,7 @@ jobs:
   test-electron:
     needs: check
     runs-on: ubuntu-latest
-    name: test ${{ matrix.project }} ${{ matrix.type }}
+    name: Test ${{ matrix.project }} ${{ matrix.type }}
     strategy:
       matrix:
         project:

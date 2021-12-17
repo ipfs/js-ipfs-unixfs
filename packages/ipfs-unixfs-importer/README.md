@@ -18,7 +18,7 @@
 - [Usage](#usage)
   - [Example](#example)
     - [API](#api)
-    - [const stream = importer(source, ipld [, options])](#const-stream--importersource-ipld--options)
+    - [const stream = importer(source, blockstore [, options])](#const-stream--importersource-blockstore--options)
 - [Overriding internals](#overriding-internals)
 - [Contribute](#contribute)
 - [License](#license)
@@ -45,7 +45,11 @@ Let's create a little directory to import:
 And write the importing logic:
 
 ```js
-const { importer } = require('ipfs-unixfs-importer')
+import { importer } from 'ipfs-unixfs-importer'
+import { MemoryBlockstore } from 'blockstore-core/memory'
+
+// Where the blocks will be stored
+const blockstore = new MemoryBlockstore()
 
 // Import path /tmp/foo/bar
 const source = [{
@@ -56,9 +60,7 @@ const source = [{
   content: fs.createReadStream(file2)
 }]
 
-// You need to create and pass an ipld-resolve instance
-// https://github.com/ipld/js-ipld-resolver
-for await (const entry of importer(source, ipld, options)) {
+for await (const entry of importer(source, blockstore, options)) {
   console.info(entry)
 }
 ```
@@ -91,10 +93,10 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 #### API
 
 ```js
-const { importer } = require('ipfs-unixfs-importer')
+import { importer } from 'ipfs-unixfs-importer'
 ```
 
-#### const stream = importer(source, ipld [, options])
+#### const stream = importer(source, blockstore [, options])
 
 The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
 
@@ -109,9 +111,9 @@ The `importer` function returns an async iterator takes a source async iterator 
 
 `stream` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-`ipld` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver)
+`blockstore` is an instance of a [blockstore][]
 
-The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
+The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-dag-pb) created nodes.
 
 `options` is an JavaScript option that might include the following keys:
 
@@ -150,20 +152,20 @@ Several aspects of the importer are overridable by specifying functions as part 
   - It should yield `Buffer` objects constructed from the `source` or throw an `Error`
 - `chunker` (function): Optional function that supports the signature `async function * (source, options)` where `source` is an async generator and `options` is an options object
   - It should yield `Buffer` objects.
-- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, ipld, options)`
-  - This function should read `Buffer`s from `source` and persist them using `ipld.put` or similar
+- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, blockstore, options)`
+  - This function should read `Buffer`s from `source` and persist them using `blockstore.put` or similar
   - `entry` is the `{ path, content }` entry, where `entry.content` is an async generator that yields Buffers
   - It should yield functions that return a Promise that resolves to an object with the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
   - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `blockWriteConcurrency` option (default: 10)
-- `dagBuilder` (function): Optional function that supports the signature `async function * (source, ipld, options)`
+- `dagBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
   - This function should read `{ path, content }` entries from `source` and turn them into DAGs
   - It should yield a `function` that returns a `Promise` that resolves to `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `node` is a `DAGNode`.
   - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `fileImportConcurrency` option (default: 50)
-- `treeBuilder` (function): Optional function that supports the signature `async function * (source, ipld, options)`
+- `treeBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
   - This function should read `{ cid, path, unixfs, node }` entries from `source` and place them in a directory structure
   - It should yield an object with the properties `{ cid, path, unixfs, size }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `size` is a `Number`.
 
-[ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
+[blockstore]: https://github.com/ipfs/js-ipfs-interfaces/tree/master/packages/interface-blockstore#readme
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
 [IPLD]: https://github.com/ipld/js-ipld
 [CID]: https://github.com/multiformats/js-cid

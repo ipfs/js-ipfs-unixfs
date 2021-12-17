@@ -21,13 +21,13 @@
   - [Usage](#usage)
     - [Example](#example)
       - [API](#api)
-    - [`exporter(cid, ipld, options)`](#exportercid-ipld-options)
+    - [`exporter(cid, blockstore, options)`](#exportercid-blockstore-options)
       - [UnixFSEntry](#unixfsentry)
       - [Raw entries](#raw-entries)
       - [CBOR entries](#cbor-entries)
       - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
-    - [`walkPath(cid, ipld)`](#walkpathcid-ipld)
-    - [`recursive(cid, ipld)`](#recursivecid-ipld)
+    - [`walkPath(cid, blockstore)`](#walkpathcid-blockstore)
+    - [`recursive(cid, blockstore)`](#recursivecid-blockstore)
   - [Contribute](#contribute)
   - [License](#license)
 
@@ -43,21 +43,24 @@
 
 ```js
 // import a file and export it again
-const { importer } = require('ipfs-unixfs-importer')
-const { exporter } = require('ipfs-unixfs-exporter')
+import { importer } from 'ipfs-unixfs-importer'
+import { exporter } from 'ipfs-unixfs-exporter'
+import { MemoryBlockstore } from 'blockstore-core/memory'
 
+// Should contain the blocks we are trying to export
+const blockstore = new MemoryBlockstore()
 const files = []
 
 for await (const file of importer([{
   path: '/foo/bar.txt',
   content: new Uint8Array([0, 1, 2, 3])
-}], ipld)) {
+}], blockstore)) {
   files.push(file)
 }
 
 console.info(files[0].cid) // Qmbaz
 
-const entry = await exporter(files[0].cid, ipld)
+const entry = await exporter(files[0].cid, blockstore)
 
 console.info(entry.cid) // Qmqux
 console.info(entry.path) // Qmbaz/foo/bar.txt
@@ -80,12 +83,12 @@ console.info(bytes) // 0, 1, 2, 3
 #### API
 
 ```js
-const { exporter } = require('ipfs-unixfs-exporter')
+import { exporter } from 'ipfs-unixfs-exporter'
 ```
 
-### `exporter(cid, ipld, options)`
+### `exporter(cid, blockstore, options)`
 
-Uses the given [ipld](https://github.com/ipld/js-ipld) instance to fetch an IPFS node by it's CID.
+Uses the given [blockstore][] instance to fetch an IPFS node by it's CID.
 
 Returns a Promise which resolves to a `UnixFSEntry`.
 
@@ -202,32 +205,32 @@ for await (const entry of dir.content({
 // `entries` contains the first 5 files/directories in the directory
 ```
 
-### `walkPath(cid, ipld)`
+### `walkPath(cid, blockstore)`
 
 `walkPath` will return an async iterator that yields entries for all segments in a path:
 
 ```javascript
-const { walkPath } = require('ipfs-unixfs-exporter')
+import { walkPath } from 'ipfs-unixfs-exporter'
 
 const entries = []
 
-for await (const entry of walkPath('Qmfoo/foo/bar/baz.txt', ipld)) {
+for await (const entry of walkPath('Qmfoo/foo/bar/baz.txt', blockstore)) {
   entries.push(entry)
 }
 
 // entries contains 4x `entry` objects
 ```
 
-### `recursive(cid, ipld)`
+### `recursive(cid, blockstore)`
 
 `recursive` will return an async iterator that yields all entries beneath a given CID or IPFS path, as well as the containing directory.
 
 ```javascript
-const { recursive } = require('ipfs-unixfs-exporter')
+import { recursive } from 'ipfs-unixfs-exporter'
 
 const entries = []
 
-for await (const child of recursive('Qmfoo/foo/bar', ipld)) {
+for await (const child of recursive('Qmfoo/foo/bar', blockstore)) {
   entries.push(entry)
 }
 
@@ -235,9 +238,8 @@ for await (const child of recursive('Qmfoo/foo/bar', ipld)) {
 ```
 
 [dag API]: https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DAG.md
-[ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
+[blockstore]: https://github.com/ipfs/js-ipfs-interfaces/tree/master/packages/interface-blockstore#readme
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
-[pull-stream]: https://www.npmjs.com/package/pull-stream
 
 ## Contribute
 

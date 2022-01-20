@@ -40,7 +40,7 @@
     "directory": "dist"
   },
   "devDependencies": {
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^9.1.0",
     "aegir": "^35.0.1",
     "copy": "^0.3.2",
     "mkdirp": "^1.0.4",

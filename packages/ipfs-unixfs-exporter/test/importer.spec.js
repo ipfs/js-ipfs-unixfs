@@ -1045,6 +1045,34 @@ strategies.forEach((strategy) => {
       const node2 = await exporter(entries[1].cid, block)
       expect(node2).to.have.nested.property('unixfs.mode', 0o0755)
     })
+
+    it('should only add metadata to the root node of a file', async () => {
+      this.timeout(60 * 1000)
+
+      const mtime = { secs: 5000, nsecs: 0 }
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: asAsyncIterable(bigFile),
+        mtime
+      }], block))
+
+      const root = await exporter(entries[0].cid, block)
+      expect(root).to.have.deep.nested.property('unixfs.mtime', mtime)
+
+      if (root.node instanceof Uint8Array) {
+        throw new Error('Root node was not large enough to have children')
+      }
+
+      const child = await exporter(root.node.Links[0].Hash, block)
+
+      if (child.type !== 'file') {
+        throw new Error('Child node was wrong type')
+      }
+
+      expect(child).to.have.property('unixfs')
+      expect(child).to.not.have.nested.property('unixfs.mtime')
+    })
   })
 })
 

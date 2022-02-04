@@ -30,9 +30,7 @@ async function * bufferImporter (file, block, options) {
       } else {
         unixfs = new UnixFS({
           type: options.leafType,
-          data: buffer,
-          mtime: file.mtime,
-          mode: file.mode
+          data: buffer
         })
 
         buffer = dagPb.encode({

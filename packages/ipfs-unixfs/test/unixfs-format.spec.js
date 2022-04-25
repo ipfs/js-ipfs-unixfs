@@ -393,7 +393,7 @@ describe('unixfs-format', () => {
       new UnixFS({
         type: 'bananas'
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
       done()
     }
@@ -405,7 +405,7 @@ describe('unixfs-format', () => {
 
     try {
       entry.marshal()
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
       done()
     }

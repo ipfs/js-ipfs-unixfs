@@ -96,7 +96,7 @@ describe('chunker: rabin', function () {
     try {
       await all(chunker(asAsyncIterable([]), opts))
       throw new Error('Should have thrown')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_INVALID_MIN_CHUNK_SIZE')
     }
   })
@@ -111,7 +111,7 @@ describe('chunker: rabin', function () {
       // @ts-expect-error invalid opts
       await all(chunker(asAsyncIterable([]), opts))
       throw new Error('Should have thrown')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_INVALID_AVG_CHUNK_SIZE')
     }
   })

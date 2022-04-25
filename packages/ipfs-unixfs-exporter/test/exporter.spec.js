@@ -587,7 +587,7 @@ describe('exporter', () => {
         length
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Length must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -606,7 +606,7 @@ describe('exporter', () => {
         offset
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Offset must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -625,7 +625,7 @@ describe('exporter', () => {
         offset
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Offset must be less than the file size')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -689,7 +689,7 @@ describe('exporter', () => {
         offset: -1
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Offset must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -730,7 +730,7 @@ describe('exporter', () => {
         offset: 2,
         length: -1
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Length must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -742,7 +742,7 @@ describe('exporter', () => {
         file: Uint8Array.from([0, 1, 2, 3, 4]),
         offset: 200
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Offset must be less than the file size')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -821,7 +821,7 @@ describe('exporter', () => {
 
     try {
       await exporter(hash, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
@@ -967,7 +967,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}/baz`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NO_PROP')
     }
   })
@@ -994,7 +994,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NO_RESOLVER')
     }
   })
@@ -1006,7 +1006,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}/lol`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
@@ -1021,7 +1021,7 @@ describe('exporter', () => {
 
     try {
       await exporter(dagpbCid, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })
@@ -1055,7 +1055,7 @@ describe('exporter', () => {
 
     try {
       await all(exported.content())
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })

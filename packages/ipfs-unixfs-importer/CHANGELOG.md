@@ -1,3 +1,18 @@
+## [ipfs-unixfs-importer-v9.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v9.0.6...ipfs-unixfs-importer-v9.0.7) (2022-04-26)
+
+
+### Bug Fixes
+
+* do not add metadata to leaves ([#193](https://github.com/ipfs/js-ipfs-unixfs/issues/193)) ([f5d3a67](https://github.com/ipfs/js-ipfs-unixfs/commit/f5d3a670e163632913229a1b75ec12a2d6847326))
+* don't split paths on `^` characters ([#192](https://github.com/ipfs/js-ipfs-unixfs/issues/192)) ([9a69908](https://github.com/ipfs/js-ipfs-unixfs/commit/9a699082fcfc6f14304628f7c49d47c55b089745))
+
+
+### Trivial Changes
+
+* switch to auto-release ([#208](https://github.com/ipfs/js-ipfs-unixfs/issues/208)) ([99386e6](https://github.com/ipfs/js-ipfs-unixfs/commit/99386e61979214e8ef79915800a6ed7154938342))
+* switch to gh actions ([#175](https://github.com/ipfs/js-ipfs-unixfs/issues/175)) ([395852b](https://github.com/ipfs/js-ipfs-unixfs/commit/395852bdff00f0dfda299ad1d35ed1bee0386d9c))
+* update readmes ([#188](https://github.com/ipfs/js-ipfs-unixfs/issues/188)) ([273a141](https://github.com/ipfs/js-ipfs-unixfs/commit/273a141b5ee3805bd0ef2dc8ed7870f8c6c8a820))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.

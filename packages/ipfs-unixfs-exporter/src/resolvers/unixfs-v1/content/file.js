@@ -41,7 +41,7 @@ async function * emitBytes (blockstore, node, start, end, streamPosition = 0, op
 
   try {
     file = UnixFS.unmarshal(node.Data)
-  } catch (err) {
+  } catch (/** @type {any} */ err) {
     throw errCode(err, 'ERR_NOT_UNIXFS')
   }
 

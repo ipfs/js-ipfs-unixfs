@@ -381,7 +381,7 @@ strategies.forEach((strategy) => {
           content: 7
         }], block, options))
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
       }
     })
@@ -398,7 +398,7 @@ strategies.forEach((strategy) => {
           }
         }], block, options))
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
       }
     })
@@ -670,7 +670,7 @@ strategies.forEach((strategy) => {
         await block.get(file.cid)
 
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_NOT_FOUND')
       }
     })

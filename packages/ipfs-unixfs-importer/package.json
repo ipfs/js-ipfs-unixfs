@@ -2,45 +2,174 @@
   "name": "ipfs-unixfs-importer",
   "version": "9.0.6",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
-  "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
-  "main": "src/index.js",
+  "license": "Apache-2.0 OR MIT",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-importer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
+  },
+  "keywords": [
+    "IPFS"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
   "type": "module",
-  "browser": {
-    "fs": false
+  "types": "types/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "types/*",
+        "types/src/*"
+      ],
+      "types/*": [
+        "types/*",
+        "types/src/*"
+      ]
+    }
+  },
+  "files": [
+    "*",
+    "!**/*.tsbuildinfo",
+    "!**/browser-test",
+    "!**/node-test"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
+    }
+  },
+  "eslintConfig": {
+    "extends": "ipfs",
+    "parserOptions": {
+      "sourceType": "module"
+    }
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "breaking": true,
+              "release": "major"
+            },
+            {
+              "revert": true,
+              "release": "patch"
+            },
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "release": "patch"
+            },
+            {
+              "type": "chore",
+              "release": "patch"
+            },
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "test",
+              "release": "patch"
+            },
+            {
+              "scope": "no-release",
+              "release": false
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "Features"
+              },
+              {
+                "type": "fix",
+                "section": "Bug Fixes"
+              },
+              {
+                "type": "chore",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "docs",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "test",
+                "section": "Tests"
+              }
+            ]
+          }
+        }
+      ],
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "dist"
+        }
+      ],
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   },
   "scripts": {
     "prepare": "aegir build --no-bundle && cp -R types dist",
     "pretest": "aegir build --esm-tests",
     "test": "aegir test",
+    "test:node": "aegir test -t node --cov",
+    "test:chrome": "aegir test -t browser --cov",
+    "test:firefox": "aegir test -t browser -- --browser firefox",
     "build": "aegir build && cp -R types dist",
     "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
     "clean": "rimraf ./dist",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s npm run test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i assert"
+    "de-pcheck": "aegir dep-check -i @types/mocha -i nyc -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i assert",
+    "release": "semantic-release"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
-  },
-  "keywords": [
-    "IPFS"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
-  },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
-  },
-  "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
-  "publishConfig": {
-    "directory": "dist"
+  "dependencies": {
+    "@ipld/dag-pb": "^2.0.2",
+    "@multiformats/murmur3": "^1.0.3",
+    "bl": "^5.0.0",
+    "err-code": "^3.0.1",
+    "hamt-sharding": "^2.0.0",
+    "interface-blockstore": "^1.0.0",
+    "ipfs-unixfs": "^6.0.0",
+    "it-all": "^1.0.5",
+    "it-batch": "^1.0.8",
+    "it-first": "^1.0.6",
+    "it-parallel-batch": "^1.0.9",
+    "merge-options": "^3.0.4",
+    "multiformats": "^9.4.2",
+    "rabin-wasm": "^0.1.4",
+    "uint8arrays": "^3.0.0"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^35.0.1",
+    "aegir": "^36.2.3",
     "assert": "^2.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",
@@ -52,28 +181,11 @@
     "util": "^0.12.3",
     "wherearewe": "^1.0.0"
   },
-  "dependencies": {
-    "@ipld/dag-pb": "^2.0.2",
-    "@multiformats/murmur3": "^1.0.3",
-    "bl": "^5.0.0",
-    "err-code": "^3.0.1",
-    "hamt-sharding": "^2.0.0",
-    "interface-blockstore": "^1.0.0",
-    "ipfs-unixfs": "^6.0.6",
-    "it-all": "^1.0.5",
-    "it-batch": "^1.0.8",
-    "it-first": "^1.0.6",
-    "it-parallel-batch": "^1.0.9",
-    "merge-options": "^3.0.4",
-    "multiformats": "^9.4.2",
-    "rabin-wasm": "^0.1.4",
-    "uint8arrays": "^3.0.0"
+  "browser": {
+    "fs": false
   },
-  "types": "types/src/index.d.ts",
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "sourceType": "module"
-    }
+  "main": "src/index.js",
+  "publishConfig": {
+    "directory": "dist"
   }
 }

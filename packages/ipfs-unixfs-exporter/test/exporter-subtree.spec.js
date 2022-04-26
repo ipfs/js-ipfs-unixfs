@@ -95,7 +95,7 @@ describe('exporter subtree', () => {
 
     try {
       await exporter(`${imported.cid}/doesnotexist`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })

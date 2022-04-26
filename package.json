@@ -2,59 +2,39 @@
   "name": "js-ipfs-unixfs",
   "version": "1.0.0",
   "description": "JS implementation of the IPFS UnixFS",
-  "scripts": {
-    "reset": "lerna run clean && rimraf packages/*/node_modules node_modules packages/*/package-lock.json package-lock.json",
-    "test": "lerna run test",
-    "coverage": "lerna run coverage",
-    "prepare": "lerna run prepare",
-    "build": "lerna run build",
-    "clean": "lerna run clean",
-    "lint": "lerna run lint",
-    "depcheck": "lerna run depcheck",
-    "release": "npm run update-contributors && lerna publish",
-    "release:rc": "lerna publish --canary --preid rc --dist-tag next",
-    "update-contributors": "aegir release --lint=false --test=false --bump=false --build=false --changelog=false --commit=false --tag=false --push=false --ghrelease=false --docs=false --publish=false"
-  },
-  "devDependencies": {
-    "lerna": "^4.0.0"
-  },
+  "license": "Apache-2.0 OR MIT",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
   },
+  "bugs": {
+    "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
   "private": true,
-  "contributors": [
-    "achingbrain <alex@achingbrain.net>",
-    "David Dias <daviddias.p@gmail.com>",
-    "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
-    "Stephen Whitmore <stephen.whitmore@gmail.com>",
-    "Alan Shaw <alan@tableflip.io>",
-    "Pedro Teixeira <i@pgte.me>",
-    "nginnever <ginneversource@gmail.com>",
-    "Volker Mische <volker.mische@gmail.com>",
-    "Hugo Dias <hugomrdias@gmail.com>",
-    "Vasco Santos <vasco.santos@moxy.studio>",
-    "Richard Schneider <makaretu@gmail.com>",
-    "Dan Ordille <dordille@gmail.com>",
-    "ᴠɪᴄᴛᴏʀ ʙᴊᴇʟᴋʜᴏʟᴍ <victorbjelkholm@gmail.com>",
-    "JGAntunes <j.goncalo.antunes@gmail.com>",
-    "Marcin Rataj <lidel@lidel.org>",
-    "Richard Littauer <richard.littauer@gmail.com>",
-    "SahidMiller <SahidMiller@users.noreply.github.com>",
-    "Mithgol <getgit@mithgol.ru>",
-    "Irakli Gozalishvili <contact@gozala.io>",
-    "Arpit Agarwal <atvanguard@users.noreply.github.com>",
-    "Hector Sanjuan <code@hector.link>",
-    "Francisco Baio Dias <xicombd@gmail.com>",
-    "Diogo Silva <fsdiogo@gmail.com>",
-    "jbenet <juan@benet.ai>",
-    "Bernard Mordan <bernard@tableflip.io>"
-  ],
+  "scripts": {
+    "reset": "lerna run clean && rimraf ./node_modules ./package-lock.json packages/*/node_modules packages/*/package-lock.json packages/*/dist",
+    "test": "lerna run --concurrency 1 test -- --",
+    "test:node": "lerna run --concurrency 1 test:node -- --",
+    "test:chrome": "lerna run --concurrency 1 test:chrome -- --",
+    "test:chrome-webworker": "lerna --concurrency 1 run test:chrome-webworker -- --",
+    "test:firefox": "lerna run --concurrency 1 test:firefox -- --",
+    "test:firefox-webworker": "lerna run --concurrency 1 test:firefox-webworker -- --",
+    "test:electron-main": "lerna run --concurrency 1 test:electron-main -- --",
+    "test:electron-renderer": "lerna run --concurrency 1 test:electron-renderer -- --",
+    "build": "lerna run build",
+    "lint": "lerna run lint",
+    "dep-check": "lerna run dep-check",
+    "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo"
+  },
+  "dependencies": {
+    "lerna": "^4.0.0"
+  },
   "workspaces": [
     "packages/*"
-  ],
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=7.0.0"
-  }
+  ]
 }

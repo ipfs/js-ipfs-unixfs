@@ -151,7 +151,7 @@
     "release": "semantic-release"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^6.0.4",
+    "@ipld/dag-cbor": "^7.0.1",
     "@ipld/dag-pb": "^2.0.2",
     "@multiformats/murmur3": "^1.0.3",
     "err-code": "^3.0.1",

@@ -169,7 +169,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^8.2.1",
-    "aegir": "^36.2.3",
+    "aegir": "^37.0.15",
     "assert": "^2.0.0",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",

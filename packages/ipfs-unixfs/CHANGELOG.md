@@ -1,3 +1,11 @@
+## [ipfs-unixfs-v6.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.6...ipfs-unixfs-v6.0.7) (2022-04-26)
+
+
+### Trivial Changes
+
+* switch to auto-release ([#208](https://github.com/ipfs/js-ipfs-unixfs/issues/208)) ([99386e6](https://github.com/ipfs/js-ipfs-unixfs/commit/99386e61979214e8ef79915800a6ed7154938342))
+* update readmes ([#188](https://github.com/ipfs/js-ipfs-unixfs/issues/188)) ([273a141](https://github.com/ipfs/js-ipfs-unixfs/commit/273a141b5ee3805bd0ef2dc8ed7870f8c6c8a820))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.

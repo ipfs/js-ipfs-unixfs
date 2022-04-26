@@ -159,7 +159,7 @@
     "protobufjs": "^6.10.2"
   },
   "devDependencies": {
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^9.1.1",
     "aegir": "^36.2.3",
     "copy": "^0.3.2",
     "mkdirp": "^1.0.4",

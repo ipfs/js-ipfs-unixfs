@@ -78,7 +78,7 @@ const reduce = (file, blockstore, options) => {
     if (leaves.length === 1 && leaves[0].single && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (leaf.cid.code === rawCodec.code && (file.mtime !== undefined || file.mode !== undefined)) {
+      if (file.mtime !== undefined || file.mode !== undefined) {
         // only one leaf node which is a buffer - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
         let buffer = await blockstore.get(leaf.cid)

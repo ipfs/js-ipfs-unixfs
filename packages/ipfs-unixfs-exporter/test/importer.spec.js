@@ -1073,6 +1073,24 @@ strategies.forEach((strategy) => {
       expect(child).to.have.property('unixfs')
       expect(child).to.not.have.nested.property('unixfs.mtime')
     })
+
+    it('should add metadata to the root node of a small file without raw leaves', async () => {
+      this.timeout(60 * 1000)
+
+      const mode = 511
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: asAsyncIterable(smallFile),
+        mode
+      }], block, {
+        rawLeaves: false
+      }))
+
+      const root = await exporter(entries[0].cid, block)
+
+      expect(root).to.have.nested.property('unixfs.mode', 511)
+    })
   })
 })
 

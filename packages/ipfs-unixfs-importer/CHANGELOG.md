@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v9.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v9.0.7...ipfs-unixfs-importer-v9.0.8) (2022-05-04)
+
+
+### Bug Fixes
+
+* metadata on small files without raw leaves ([#212](https://github.com/ipfs/js-ipfs-unixfs/issues/212)) ([bef09cd](https://github.com/ipfs/js-ipfs-unixfs/commit/bef09cdb143808305d7947f57eba3aac33298c23))
+
 ## [ipfs-unixfs-importer-v9.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v9.0.6...ipfs-unixfs-importer-v9.0.7) (2022-04-26)
 
 

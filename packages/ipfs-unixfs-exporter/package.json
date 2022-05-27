@@ -20,18 +20,6 @@
   },
   "type": "module",
   "types": "types/src/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*",
-        "types/src/*"
-      ],
-      "types/*": [
-        "types/*",
-        "types/src/*"
-      ]
-    }
-  },
   "files": [
     "*",
     "!**/*.tsbuildinfo",
@@ -144,7 +132,7 @@
     "test:firefox": "aegir test -t browser -- --browser firefox",
     "build": "aegir build && cp -R types dist",
     "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist ./types",
     "lint": "aegir ts -p check && aegir lint",
     "dep-check": "aegir dep-check -i @types/sinon -i nyc -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i interface-blockstore",
     "release": "semantic-release"

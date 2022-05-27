@@ -20,18 +20,6 @@
   },
   "type": "module",
   "types": "types/src/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "types/*",
-        "types/src/*"
-      ],
-      "types/*": [
-        "types/*",
-        "types/src/*"
-      ]
-    }
-  },
   "files": [
     "*",
     "!**/*.tsbuildinfo",
@@ -148,7 +136,7 @@
     "test:chrome": "aegir test -t browser --cov",
     "test:firefox": "aegir test -t browser -- --browser firefox",
     "build": "aegir build && cp -R types dist",
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist ./types",
     "lint": "aegir ts -p check && aegir lint",
     "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
     "dep-check": "aegir dep-check -i mkdirp -i @types/mocha -i nyc -i npm-run-all -i copy -i util",

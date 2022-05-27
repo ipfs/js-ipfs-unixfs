@@ -1,3 +1,10 @@
+## [ipfs-unixfs-v6.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.7...ipfs-unixfs-v6.0.8) (2022-05-27)
+
+
+### Bug Fixes
+
+* update deps ([#220](https://github.com/ipfs/js-ipfs-unixfs/issues/220)) ([08e851e](https://github.com/ipfs/js-ipfs-unixfs/commit/08e851e9c0dedf15f3a737157978a767343334f0))
+
 ## [ipfs-unixfs-v6.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.6...ipfs-unixfs-v6.0.7) (2022-04-26)
 
 

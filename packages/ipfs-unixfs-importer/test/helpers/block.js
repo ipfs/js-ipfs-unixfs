@@ -1,5 +1,5 @@
 import errCode from 'err-code'
-import { BlockstoreAdapter } from 'interface-blockstore'
+import { BaseBlockstore } from 'blockstore-core'
 import { base58btc } from 'multiformats/bases/base58'
 
 /**
@@ -7,7 +7,7 @@ import { base58btc } from 'multiformats/bases/base58'
  */
 
 function createBlockApi () {
-  class MockBlockstore extends BlockstoreAdapter {
+  class MockBlockstore extends BaseBlockstore {
     constructor () {
       super()
 

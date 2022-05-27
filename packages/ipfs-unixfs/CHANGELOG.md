@@ -1,3 +1,15 @@
+## [ipfs-unixfs-v6.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.8...ipfs-unixfs-v6.0.9) (2022-05-27)
+
+
+### Bug Fixes
+
+* remove typesVersions from package.json ([#219](https://github.com/ipfs/js-ipfs-unixfs/issues/219)) ([465670e](https://github.com/ipfs/js-ipfs-unixfs/commit/465670eab2e707b14b14047e2da4ede23590196e)), closes [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214) [#161](https://github.com/ipfs/js-ipfs-unixfs/issues/161) [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214)
+
+
+### Trivial Changes
+
+* update dep-check command ([#221](https://github.com/ipfs/js-ipfs-unixfs/issues/221)) ([5802bd3](https://github.com/ipfs/js-ipfs-unixfs/commit/5802bd366768e1a024fad30e4190aed866f5c9ec))
+
 ## [ipfs-unixfs-v6.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.7...ipfs-unixfs-v6.0.8) (2022-05-27)
 
 

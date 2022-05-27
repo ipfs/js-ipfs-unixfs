@@ -1,3 +1,11 @@
+## [ipfs-unixfs-exporter-v7.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.8...ipfs-unixfs-exporter-v7.0.9) (2022-05-27)
+
+
+### Trivial Changes
+
+* bump @ipld/dag-cbor from 6.0.15 to 7.0.2 ([#216](https://github.com/ipfs/js-ipfs-unixfs/issues/216)) ([daeb686](https://github.com/ipfs/js-ipfs-unixfs/commit/daeb68612ab2491f5906a5cb7a9c25fec0b3ce57))
+* bump sinon from 11.1.2 to 14.0.0 ([#213](https://github.com/ipfs/js-ipfs-unixfs/issues/213)) ([5ab15c1](https://github.com/ipfs/js-ipfs-unixfs/commit/5ab15c18a412d18fddc18cacc6b0c775320cb814))
+
 ## [ipfs-unixfs-exporter-v7.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.7...ipfs-unixfs-exporter-v7.0.8) (2022-05-04)
 
 

@@ -32,7 +32,7 @@
     "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo"
   },
   "dependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^5.0.0"
   },
   "workspaces": [
     "packages/*"

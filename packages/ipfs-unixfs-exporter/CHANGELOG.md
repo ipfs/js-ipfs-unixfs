@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v7.0.10](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.9...ipfs-unixfs-exporter-v7.0.10) (2022-05-27)
+
+
+### Bug Fixes
+
+* update deps ([#220](https://github.com/ipfs/js-ipfs-unixfs/issues/220)) ([08e851e](https://github.com/ipfs/js-ipfs-unixfs/commit/08e851e9c0dedf15f3a737157978a767343334f0))
+
 ## [ipfs-unixfs-exporter-v7.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.8...ipfs-unixfs-exporter-v7.0.9) (2022-05-27)
 
 

@@ -155,7 +155,7 @@
     "uint8arrays": "^3.0.0"
   },
   "devDependencies": {
-    "aegir": "^36.2.3",
+    "aegir": "^37.3.0",
     "assert": "^2.0.0",
     "blockstore-core": "^1.0.5",
     "copy": "^0.3.2",

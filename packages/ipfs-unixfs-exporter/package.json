@@ -152,7 +152,7 @@
   "devDependencies": {
     "@types/sinon": "^10.0.0",
     "abort-controller": "^3.0.0",
-    "aegir": "^36.2.3",
+    "aegir": "^37.4.1",
     "blockstore-core": "^1.0.5",
     "copy": "^0.3.2",
     "crypto-browserify": "^3.12.0",

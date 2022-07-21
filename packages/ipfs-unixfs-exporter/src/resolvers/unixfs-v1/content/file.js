@@ -97,6 +97,70 @@ async function * emitBytes (blockstore, node, start, end, streamPosition = 0, op
 }
 
 /**
+ * @param {Blockstore} blockstore
+ * @param {PBNode} node
+ * @param {number} streamPosition
+ * @param {ExporterOptions} options
+ * @returns {AsyncIterable<Uint8Array>}
+ */
+async function * emitAllBytes (blockstore, node, streamPosition = 0, options) {
+  if (node instanceof Uint8Array) {
+    const buf = extractDataFromBlock(node, streamPosition, streamPosition, streamPosition + node.length)
+    if (buf.length) {
+      yield buf
+    }
+    streamPosition += buf.length
+    return streamPosition
+  }
+
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+  }
+
+  let file
+  try {
+    file = UnixFS.unmarshal(node.Data)
+  } catch (err) {
+    throw errCode(err, 'ERR_NOT_UNIXFS')
+  }
+
+  if (file.data && file.data.length) {
+    const buf = extractDataFromBlock(file.data, streamPosition, streamPosition, streamPosition + file.data.length)
+    if (buf.length) {
+      yield buf
+    }
+    streamPosition += file.data.length
+  }
+
+  const blocks = await Promise.all(node.Links.map(l => blockstore.get(l.Hash, { signal: options.signal })))
+  for (let i = 0; i < node.Links.length; i++) {
+    const childLink = node.Links[i]
+    const childEnd = streamPosition + file.blockSizes[i]
+    const block = blocks[i]
+
+    let child
+    switch (childLink.Hash.code) {
+      case dagPb.code:
+        child = await dagPb.decode(block)
+        break
+      case raw.code:
+        child = block
+        break
+      case dagCbor.code:
+        child = await dagCbor.decode(block)
+        break
+      default:
+        throw Error(`Unsupported codec: ${childLink.Hash.code}`)
+    }
+    for await (const buf of emitAllBytes(blockstore, child, streamPosition, options)) {
+      streamPosition += buf.length
+      yield buf
+    }
+    streamPosition = childEnd
+  }
+}
+
+/**
  * @type {import('../').UnixfsV1Resolver}
  */
 const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -115,10 +179,13 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
       length
     } = validateOffsetAndLength(fileSize, options.offset, options.length)
 
-    const start = offset
-    const end = offset + length
-
-    return emitBytes(blockstore, node, start, end, 0, options)
+    if (offset === 0 && length === fileSize) {
+      return emitAllBytes(blockstore, node, 0, options)
+    } else {
+      const start = offset
+      const end = offset + length
+      return emitBytes(blockstore, node, start, end, 0, options)
+    }
   }
 
   return yieldFileContent

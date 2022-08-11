@@ -1,3 +1,15 @@
+## [ipfs-unixfs-importer-v10.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v9.0.10...ipfs-unixfs-importer-v10.0.0) (2022-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* This module used to be dual published as CJS/ESM, now it is just ESM
+
+### Dependencies
+
+* update aegir to 37.x.x ([#243](https://github.com/ipfs/js-ipfs-unixfs/issues/243)) ([9fccb7c](https://github.com/ipfs/js-ipfs-unixfs/commit/9fccb7c4bf989c052ba67ab2c9280273aecfda36))
+* update hamt-sharding to 3.0.0 ([#244](https://github.com/ipfs/js-ipfs-unixfs/issues/244)) ([50a7607](https://github.com/ipfs/js-ipfs-unixfs/commit/50a7607d1876dab0b34dfe79704688f01ce1d449))
+
 ## [ipfs-unixfs-importer-v9.0.10](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v9.0.9...ipfs-unixfs-importer-v9.0.10) (2022-05-27)
 
 

@@ -1,3 +1,14 @@
+## [ipfs-unixfs-v7.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.9...ipfs-unixfs-v7.0.0) (2022-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* This module used to be dual published as CJS/ESM, now it is just ESM
+
+### Dependencies
+
+* update aegir to 37.x.x ([#243](https://github.com/ipfs/js-ipfs-unixfs/issues/243)) ([9fccb7c](https://github.com/ipfs/js-ipfs-unixfs/commit/9fccb7c4bf989c052ba67ab2c9280273aecfda36))
+
 ## [ipfs-unixfs-v6.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.8...ipfs-unixfs-v6.0.9) (2022-05-27)
 
 

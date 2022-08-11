@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import * as mh from 'multiformats/hashes/digest'
 import { sha256, sha512 } from 'multiformats/hashes/sha2'
 import { decode } from '@ipld/dag-pb'

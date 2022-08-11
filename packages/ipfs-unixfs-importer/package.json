@@ -19,15 +19,32 @@
     "npm": ">=7.0.0"
   },
   "type": "module",
-  "types": "types/src/index.d.ts",
+  "types": "./dist/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "*",
+        "dist/*",
+        "dist/src/*",
+        "dist/src/*/index"
+      ],
+      "src/*": [
+        "*",
+        "dist/*",
+        "dist/src/*",
+        "dist/src/*/index"
+      ]
+    }
+  },
   "files": [
-    "*",
-    "!**/*.tsbuildinfo",
-    "!**/browser-test",
-    "!**/node-test"
+    "src",
+    "dist",
+    "!dist/test",
+    "!**/*.tsbuildinfo"
   ],
   "exports": {
     ".": {
+      "types": "./dist/src/index.d.ts",
       "import": "./src/index.js"
     }
   },
@@ -64,15 +81,15 @@
               "release": "patch"
             },
             {
-              "type": "chore",
-              "release": "patch"
-            },
-            {
               "type": "docs",
               "release": "patch"
             },
             {
               "type": "test",
+              "release": "patch"
+            },
+            {
+              "type": "deps",
               "release": "patch"
             },
             {
@@ -102,7 +119,11 @@
               },
               {
                 "type": "docs",
-                "section": "Trivial Changes"
+                "section": "Documentation"
+              },
+              {
+                "type": "deps",
+                "section": "Dependencies"
               },
               {
                 "type": "test",
@@ -113,29 +134,21 @@
         }
       ],
       "@semantic-release/changelog",
-      [
-        "@semantic-release/npm",
-        {
-          "pkgRoot": "dist"
-        }
-      ],
+      "@semantic-release/npm",
       "@semantic-release/github",
       "@semantic-release/git"
     ]
   },
   "scripts": {
-    "prepare": "aegir build --no-bundle && cp -R types dist",
-    "pretest": "aegir build --esm-tests",
     "test": "aegir test",
     "test:node": "aegir test -t node --cov",
     "test:chrome": "aegir test -t browser --cov",
     "test:firefox": "aegir test -t browser -- --browser firefox",
-    "build": "aegir build && cp -R types dist",
-    "preleaseOnly": "npx json -I -f dist/package.json -e this.types='\"src/index.d.ts\"'",
-    "clean": "rimraf ./dist ./types",
-    "lint": "aegir ts -p check && aegir lint",
-    "dep-check": "aegir dep-check -i rimraf -i copy -i util -i crypto-browserify -i events -i readable-stream -i assert -i interface-blockstore",
-    "release": "semantic-release"
+    "build": "aegir build",
+    "clean": "aegir clean",
+    "lint": "aegir lint",
+    "dep-check": "aegir dep-check -i interface-blockstore",
+    "release": "aegir release"
   },
   "dependencies": {
     "@ipld/dag-pb": "^2.0.2",
@@ -155,23 +168,13 @@
     "uint8arrays": "^3.0.0"
   },
   "devDependencies": {
-    "aegir": "^36.2.3",
+    "aegir": "^37.5.0",
     "assert": "^2.0.0",
     "blockstore-core": "^1.0.5",
-    "copy": "^0.3.2",
-    "crypto-browserify": "^3.12.0",
-    "events": "^3.3.0",
     "it-buffer-stream": "^2.0.0",
-    "readable-stream": "^3.6.0",
-    "rimraf": "^3.0.2",
-    "util": "^0.12.3",
     "wherearewe": "^1.0.0"
   },
   "browser": {
     "fs": false
-  },
-  "main": "src/index.js",
-  "publishConfig": {
-    "directory": "dist"
   }
 }

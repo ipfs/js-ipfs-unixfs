@@ -1,15 +1,14 @@
 {
   "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
-    "outDir": "types"
+    "outDir": "dist",
+    "emitDeclarationOnly": true
   },
   "include": [
     "src",
     "test"
   ],
   "exclude": [
-    "dist",
-    "node_modules",
     "src/unixfs.js"
   ]
 }

@@ -2,7 +2,7 @@
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter } from '../src/index.js'
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import all from 'it-all'
 import last from 'it-last'
 import blockApi from './helpers/block.js'

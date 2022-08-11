@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter } from '../src/index.js'

@@ -1,33 +1,35 @@
 # ipfs-unixfs-importer <!-- omit in toc -->
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
-[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
-[![Build Status](https://flat.badgen.net/travis/ipfs/js-ipfs-unixfs)](https://travis-ci.com/ipfs/js-ipfs-unixfs)
-[![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
+[![ipfs.io](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io)
+[![IRC](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
+[![Discord](https://img.shields.io/discord/806902334369824788?style=flat-square)](https://discord.gg/ipfs)
+[![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
+[![CI](https://img.shields.io/github/workflow/status/ipfs/js-ipfs-unixfs/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml)
 
-> JavaScript implementation of the layout and chunking mechanisms used by IPFS to handle Files
+> JavaScript implementation of the UnixFs importer used by IPFS
+
+## Table of contents <!-- omit in toc -->
+
+- [Install](#install)
+- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
+- [Usage](#usage)
+  - [Example](#example)
+    - [API](#api)
+    - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
+- [Overriding internals](#overriding-internals)
+- [Contribute](#contribute)
+- [License](#license)
+- [Contribute](#contribute-1)
+
+## Install
+
+```console
+$ npm i ipfs-unixfs-importer
+```
 
 ## Lead Maintainer <!-- omit in toc -->
 
 [Alex Potsides](https://github.com/achingbrain)
-
-## Table of Contents <!-- omit in toc -->
-
-- [Install](#install)
-- [Usage](#usage)
-  - [Example](#example)
-    - [API](#api)
-    - [const stream = importer(source, blockstore [, options])](#const-stream--importersource-blockstore--options)
-- [Overriding internals](#overriding-internals)
-- [Contribute](#contribute)
-- [License](#license)
-
-## Install
-
-```
-> npm install ipfs-unixfs-importer
-```
 
 ## Usage
 
@@ -96,7 +98,7 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 import { importer } from 'ipfs-unixfs-importer'
 ```
 
-#### const stream = importer(source, blockstore [, options])
+#### const stream = importer(source, blockstore \[, options])
 
 The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
 
@@ -137,7 +139,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
-- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
+- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, *including* it's version)
 - `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
 - `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
 - `blockWriteConcurrency` (positive integer, defaults to 10) How many blocks to hash and write to the block store concurrently. For small numbers of large files this should be high (e.g. 50).
@@ -166,8 +168,11 @@ Several aspects of the importer are overridable by specifying functions as part 
   - It should yield an object with the properties `{ cid, path, unixfs, size }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `size` is a `Number`.
 
 [blockstore]: https://github.com/ipfs/js-ipfs-interfaces/tree/master/packages/interface-blockstore#readme
+
 [UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
+
 [IPLD]: https://github.com/ipld/js-ipld
+
 [CID]: https://github.com/multiformats/js-cid
 
 ## Contribute
@@ -180,4 +185,15 @@ This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/c
 
 ## License
 
-[MIT](LICENSE)
+Licensed under either of
+
+- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+
+## Contribute
+
+Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs-importer/issues)!
+
+This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
+
+[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/CONTRIBUTING.md)

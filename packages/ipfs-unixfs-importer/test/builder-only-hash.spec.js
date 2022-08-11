@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import builder from '../src/dag-builder/index.js'
 import all from 'it-all'
 import blockApi from './helpers/block.js'

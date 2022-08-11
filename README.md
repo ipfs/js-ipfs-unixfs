@@ -1,13 +1,29 @@
-# ipfs-unixfs <!-- omit in toc -->
+# js-ipfs-unixfs <!-- omit in toc -->
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
-[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
-[![Travis CI](https://flat.badgen.net/travis/ipfs/js-ipfs-unixfs)](https://travis-ci.com/ipfs/js-ipfs-unixfs)
-[![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
-[![Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
+[![ipfs.io](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io)
+[![IRC](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
+[![Discord](https://img.shields.io/discord/806902334369824788?style=flat-square)](https://discord.gg/ipfs)
+[![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
+[![CI](https://img.shields.io/github/workflow/status/ipfs/js-ipfs-unixfs/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml)
 
-> JavaScript implementation of IPFS' UnixFS (a representation of a Unix file system on top of a MerkleDAG)
+> JS implementation of the IPFS UnixFS
+
+## Table of contents <!-- omit in toc -->
+
+- [Structure](#structure)
+- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
+- [Development](#development)
+  - [Publishing new versions](#publishing-new-versions)
+  - [Using prerelease versions](#using-prerelease-versions)
+- [Contribute](#contribute)
+- [License](#license)
+- [Contribute](#contribute-1)
+
+## Structure
+
+- [`/packages/ipfs-unixfs`](./packages/ipfs-unixfs) JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)
+- [`/packages/ipfs-unixfs-exporter`](./packages/ipfs-unixfs-exporter) JavaScript implementation of the UnixFs exporter used by IPFS
+- [`/packages/ipfs-unixfs-importer`](./packages/ipfs-unixfs-importer) JavaScript implementation of the UnixFs importer used by IPFS
 
 The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
 
@@ -15,22 +31,9 @@ The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/s
 
 [Alex Potsides](https://github.com/achingbrain)
 
-## Table of Contents <!-- omit in toc -->
-
-- [Structure](#structure)
-- [Development](#development)
-  - [Publishing new versions](#publishing-new-versions)
-  - [Using prerelease versions](#using-prerelease-versions)
-- [Contribute](#contribute)
-- [License](#license)
-
-## Structure
-
-This project is broken into several modules, their purposes are:
-
-* [`/packages/ipfs-unixfs`](./packages/ipfs-unixfs) Serialization/deserialization of UnixFS objects to protocol buffers
-* [`/packages/ipfs-unixfs-importer`](./packages/ipfs-unixfs-importer) Builds DAGs from files and directories
-* [`/packages/ipfs-unixfs-exporter`](./packages/ipfs-unixfs-exporter) Exports DAGs
+- [`/packages/ipfs-unixfs`](./packages/ipfs-unixfs) Serialization/deserialization of UnixFS objects to protocol buffers
+- [`/packages/ipfs-unixfs-importer`](./packages/ipfs-unixfs-importer) Builds DAGs from files and directories
+- [`/packages/ipfs-unixfs-exporter`](./packages/ipfs-unixfs-exporter) Exports DAGs
 
 ## Development
 
@@ -64,4 +67,15 @@ This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/c
 
 ## License
 
-[MIT](LICENSE)
+Licensed under either of
+
+- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+
+## Contribute
+
+Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs-importer/issues)!
+
+This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
+
+[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/CONTRIBUTING.md)

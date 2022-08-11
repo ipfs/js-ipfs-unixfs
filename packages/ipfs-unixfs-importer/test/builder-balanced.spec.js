@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import builder from '../src/dag-builder/file/balanced.js'
 import { CID } from 'multiformats/cid'
 import defaultOptions from '../src/options.js'

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import toPathComponents from '../src/utils/to-path-components.js'
 
 describe('toPathComponents', () => {

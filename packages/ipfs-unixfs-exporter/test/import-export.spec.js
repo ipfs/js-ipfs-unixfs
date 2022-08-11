@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* eslint max-nested-callbacks: ["error", 5] */
-import { expect } from 'aegir/utils/chai.js'
-import loadFixture from 'aegir/utils/fixtures.js'
+import { expect } from 'aegir/chai'
+import loadFixture from 'aegir/fixtures'
 import blockApi from './helpers/block.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 

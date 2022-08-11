@@ -63,7 +63,7 @@ const toPrefix = (position) => {
 }
 
 /**
- * @param {import('hamt-sharding').Bucket.BucketPosition<boolean>} position
+ * @param {import('hamt-sharding').BucketPosition<boolean>} position
  */
 const toBucketPath = (position) => {
   let bucket = position.bucket

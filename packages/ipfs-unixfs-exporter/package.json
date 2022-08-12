@@ -156,7 +156,7 @@
     "@multiformats/murmur3": "^1.0.3",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
-    "interface-blockstore": "^2.0.3",
+    "interface-blockstore": "^3.0.0",
     "ipfs-unixfs": "^6.0.0",
     "it-last": "^1.0.5",
     "multiformats": "^9.4.2",

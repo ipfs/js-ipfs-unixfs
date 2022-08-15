@@ -166,7 +166,7 @@
     "@types/sinon": "^10.0.0",
     "abort-controller": "^3.0.0",
     "aegir": "^37.5.0",
-    "blockstore-core": "^1.0.5",
+    "blockstore-core": "^2.0.1",
     "crypto-browserify": "^3.12.0",
     "ipfs-unixfs-importer": "^9.0.0",
     "it-all": "^1.0.5",

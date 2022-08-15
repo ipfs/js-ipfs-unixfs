@@ -172,7 +172,7 @@
     "assert": "^2.0.0",
     "blockstore-core": "^1.0.5",
     "it-buffer-stream": "^2.0.0",
-    "wherearewe": "^1.0.0"
+    "wherearewe": "^2.0.1"
   },
   "browser": {
     "fs": false

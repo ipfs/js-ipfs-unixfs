@@ -3,7 +3,6 @@ import validateOffsetAndLength from '../../../utils/validate-offset-and-length.j
 import { UnixFS } from 'ipfs-unixfs'
 import errCode from 'err-code'
 import * as dagPb from '@ipld/dag-pb'
-import * as dagCbor from '@ipld/dag-cbor'
 import * as raw from 'multiformats/codecs/raw'
 
 /**
@@ -12,7 +11,7 @@ import * as raw from 'multiformats/codecs/raw'
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  *
  * @param {Blockstore} blockstore
- * @param {PBNode} node
+ * @param {PBNode | Uint8Array} node
  * @param {number} start
  * @param {number} end
  * @param {number} streamPosition
@@ -76,9 +75,6 @@ async function * emitBytes (blockstore, node, start, end, streamPosition = 0, op
           break
         case raw.code:
           child = block
-          break
-        case dagCbor.code:
-          child = await dagCbor.decode(block)
           break
         default:
           throw Error(`Unsupported codec: ${childLink.Hash.code}`)

@@ -12,6 +12,7 @@ logs
 *.log
 
 coverage
+.coverage
 *.lcov
 
 # Runtime data

@@ -1107,7 +1107,7 @@ describe('configuration', () => {
       path: 'path',
       content: 'content'
     }], block, {
-      /** @type {import('ipfs-unixfs-importer/src/types').DAGBuilder} */
+      /** @type {import('ipfs-unixfs-importer').DAGBuilder} */
       dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         yield function () {
           return Promise.resolve({
@@ -1118,7 +1118,7 @@ describe('configuration', () => {
           })
         }
       },
-      /** @type {import('ipfs-unixfs-importer/src/types').TreeBuilder} */
+      /** @type {import('ipfs-unixfs-importer').TreeBuilder} */
       treeBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         builtTree = true
         yield * source

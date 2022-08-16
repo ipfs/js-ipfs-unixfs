@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.0...ipfs-unixfs-exporter-v8.0.1) (2022-08-16)
+
+
+### Bug Fixes
+
+* update types import path and deps ([#248](https://github.com/ipfs/js-ipfs-unixfs/issues/248)) ([2edd327](https://github.com/ipfs/js-ipfs-unixfs/commit/2edd327bbe25880a83a8ea00963a22e3f9fa4449))
+
 ## [ipfs-unixfs-exporter-v8.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.11...ipfs-unixfs-exporter-v8.0.0) (2022-08-11)
 
 

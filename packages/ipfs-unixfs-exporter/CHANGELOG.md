@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.3...ipfs-unixfs-exporter-v8.0.4) (2022-08-17)
+
+
+### Bug Fixes
+
+* yield buf after reading length to make it safe to use with worker transfer ([eeeda23](https://github.com/ipfs/js-ipfs-unixfs/commit/eeeda2397ccd2ccebb1de5f34af126d697ac80f5))
+
 ## [ipfs-unixfs-exporter-v8.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.2...ipfs-unixfs-exporter-v8.0.3) (2022-08-17)
 
 

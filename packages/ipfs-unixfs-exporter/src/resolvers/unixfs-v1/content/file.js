@@ -137,6 +137,10 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
       length
     } = validateOffsetAndLength(fileSize, options.offset, options.length)
 
+    if (length === 0) {
+      return
+    }
+
     const queue = pushable({
       objectMode: true
     })

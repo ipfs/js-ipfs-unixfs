@@ -686,6 +686,14 @@ describe('exporter', () => {
     expect(data).to.deep.equal(bigFile)
   })
 
+  it('reads an empty file', async () => {
+    const data = await addAndReadTestFile({
+      file: new Uint8Array()
+    })
+
+    expect(data).to.have.property('byteLength', 0)
+  })
+
   it('returns an empty stream for dir', async () => {
     const imported = await first(importer([{
       path: 'empty'

@@ -153,15 +153,17 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
     let read = 0
 
     for await (const buf of queue) {
-      if (buf != null) {
-        yield buf
-
-        read += buf.byteLength
-
-        if (read === length) {
-          queue.end()
-        }
+      if (buf == null) {
+        continue
       }
+
+      read += buf.byteLength
+
+      if (read === length) {
+        queue.end()
+      }
+
+      yield buf
     }
   }
 

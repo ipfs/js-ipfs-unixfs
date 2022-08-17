@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.2...ipfs-unixfs-exporter-v8.0.3) (2022-08-17)
+
+
+### Bug Fixes
+
+* handle empty files again ([4c1b9f6](https://github.com/ipfs/js-ipfs-unixfs/commit/4c1b9f666a77ffc2bc9f5fbaa6342257052d6e62))
+
 ## [ipfs-unixfs-exporter-v8.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.1...ipfs-unixfs-exporter-v8.0.2) (2022-08-17)
 
 

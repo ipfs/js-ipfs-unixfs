@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.1...ipfs-unixfs-exporter-v8.0.2) (2022-08-17)
+
+
+### Bug Fixes
+
+* parallelise loading of dag-pb links when exporting ([#249](https://github.com/ipfs/js-ipfs-unixfs/issues/249)) ([862d63b](https://github.com/ipfs/js-ipfs-unixfs/commit/862d63bc4e158187ff6fb97c680b8886e0d2001a)), closes [#237](https://github.com/ipfs/js-ipfs-unixfs/issues/237)
+
 ## [ipfs-unixfs-exporter-v8.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.0...ipfs-unixfs-exporter-v8.0.1) (2022-08-16)
 
 

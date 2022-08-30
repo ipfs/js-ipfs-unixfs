@@ -81,10 +81,7 @@ const toBucketPath = (position) => {
 }
 
 /**
- * @typedef {object} ShardTraversalContext
- * @property {number} hamtDepth
- * @property {Bucket<boolean>} rootBucket
- * @property {Bucket<boolean>} lastBucket
+ * @typedef {import('../types').ShardTraversalContext} ShardTraversalContext
  *
  * @param {PBNode} node
  * @param {string} name

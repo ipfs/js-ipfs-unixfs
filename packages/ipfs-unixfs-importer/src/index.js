@@ -25,6 +25,7 @@ import treeBuilderFn from './tree-builder.js'
  * @param {AsyncIterable<ImportCandidate> | Iterable<ImportCandidate> | ImportCandidate} source
  * @param {Blockstore} blockstore
  * @param {UserImporterOptions} options
+ * @returns {AsyncGenerator<ImportResult, void, unknown>}
  */
 export async function * importer (source, blockstore, options = {}) {
   const opts = defaultOptions(options)

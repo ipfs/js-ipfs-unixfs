@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.4...ipfs-unixfs-exporter-v8.0.5) (2022-08-31)
+
+
+### Bug Fixes
+
+* specify return type of the importer to generate correct types ([#251](https://github.com/ipfs/js-ipfs-unixfs/issues/251)) ([3343366](https://github.com/ipfs/js-ipfs-unixfs/commit/33433660a1f762d3e9b9a431cfb956136821cfb1)), closes [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214)
+
 ## [ipfs-unixfs-exporter-v8.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.3...ipfs-unixfs-exporter-v8.0.4) (2022-08-17)
 
 

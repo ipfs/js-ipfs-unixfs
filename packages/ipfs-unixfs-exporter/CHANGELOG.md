@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v8.0.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.5...ipfs-unixfs-exporter-v8.0.6) (2022-09-21)
+
+
+### Bug Fixes
+
+* prevent OOM on very deep DAGs ([#253](https://github.com/ipfs/js-ipfs-unixfs/issues/253)) ([62494bf](https://github.com/ipfs/js-ipfs-unixfs/commit/62494bf8cdea7b7ea430a6517c526798bc01b747))
+
 ## [ipfs-unixfs-exporter-v8.0.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.4...ipfs-unixfs-exporter-v8.0.5) (2022-08-31)
 
 

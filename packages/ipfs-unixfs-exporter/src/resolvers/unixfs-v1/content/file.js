@@ -8,6 +8,7 @@ import { pushable } from 'it-pushable'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
+import PQueue from 'p-queue'
 
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
@@ -19,14 +20,15 @@ import map from 'it-map'
 /**
  * @param {Blockstore} blockstore
  * @param {PBNode | Uint8Array} node
- * @param {import('it-pushable').Pushable<Uint8Array | undefined>} queue
+ * @param {import('it-pushable').Pushable<Uint8Array>} queue
  * @param {number} streamPosition
  * @param {number} start
  * @param {number} end
+ * @param {PQueue} walkQueue
  * @param {ExporterOptions} options
  * @returns {Promise<void>}
  */
-async function walkDAG (blockstore, node, queue, streamPosition, start, end, options) {
+async function walkDAG (blockstore, node, queue, streamPosition, start, end, walkQueue, options) {
   // a `raw` node
   if (node instanceof Uint8Array) {
     queue.push(extractDataFromBlock(node, streamPosition, start, end))
@@ -100,19 +102,23 @@ async function walkDAG (blockstore, node, queue, streamPosition, start, end, opt
     }),
     async (source) => {
       for await (const { link, block, blockStart } of source) {
+        /** @type {PBNode | Uint8Array} */
         let child
         switch (link.Hash.code) {
           case dagPb.code:
-            child = await dagPb.decode(block)
+            child = dagPb.decode(block)
             break
           case raw.code:
             child = block
             break
           default:
-            throw errCode(new Error(`Unsupported codec: ${link.Hash.code}`), 'ERR_NOT_UNIXFS')
+            queue.end(errCode(new Error(`Unsupported codec: ${link.Hash.code}`), 'ERR_NOT_UNIXFS'))
+            return
         }
 
-        await walkDAG(blockstore, child, queue, blockStart, start, end, options)
+        walkQueue.add(async () => {
+          await walkDAG(blockstore, child, queue, blockStart, start, end, walkQueue, options)
+        })
       }
     }
   )
@@ -141,14 +147,20 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
       return
     }
 
-    const queue = pushable({
-      objectMode: true
+    // use a queue to walk the DAG instead of recursion to ensure very deep DAGs
+    // don't overflow the stack
+    const walkQueue = new PQueue({
+      concurrency: 1
+    })
+    const queue = pushable()
+
+    walkQueue.add(async () => {
+      await walkDAG(blockstore, node, queue, 0, offset, offset + length, walkQueue, options)
     })
 
-    walkDAG(blockstore, node, queue, 0, offset, offset + length, options)
-      .catch(err => {
-        queue.end(err)
-      })
+    walkQueue.on('error', error => {
+      queue.end(error)
+    })
 
     let read = 0
 

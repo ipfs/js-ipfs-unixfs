@@ -163,7 +163,7 @@
     "it-first": "^1.0.6",
     "it-parallel-batch": "^1.0.9",
     "merge-options": "^3.0.4",
-    "multiformats": "^9.4.2",
+    "multiformats": "^10.0.0",
     "rabin-wasm": "^0.1.4",
     "uint8arrays": "^3.0.0"
   },

@@ -165,7 +165,7 @@
     "merge-options": "^3.0.4",
     "multiformats": "^9.4.2",
     "rabin-wasm": "^0.1.4",
-    "uint8arrays": "^3.0.0"
+    "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
     "aegir": "^37.5.0",

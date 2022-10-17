@@ -171,7 +171,7 @@
     "aegir": "^37.5.0",
     "assert": "^2.0.0",
     "blockstore-core": "^2.0.1",
-    "it-buffer-stream": "^2.0.0",
+    "it-buffer-stream": "^3.0.0",
     "wherearewe": "^2.0.1"
   },
   "browser": {

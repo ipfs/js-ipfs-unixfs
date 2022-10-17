@@ -176,7 +176,7 @@
     "delay": "^5.0.0",
     "ipfs-unixfs-importer": "^10.0.0",
     "it-all": "^1.0.5",
-    "it-buffer-stream": "^2.0.0",
+    "it-buffer-stream": "^3.0.0",
     "it-first": "^1.0.6",
     "merge-options": "^3.0.4",
     "native-abort-controller": "^1.0.3",

@@ -159,7 +159,7 @@
     "interface-blockstore": "^3.0.0",
     "ipfs-unixfs": "^7.0.0",
     "it-all": "^1.0.5",
-    "it-batch": "^1.0.8",
+    "it-batch": "^2.0.0",
     "it-first": "^1.0.6",
     "it-parallel-batch": "^1.0.9",
     "merge-options": "^3.0.4",

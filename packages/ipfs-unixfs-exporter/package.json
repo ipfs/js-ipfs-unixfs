@@ -162,7 +162,7 @@
     "it-parallel": "^2.0.1",
     "it-pipe": "^2.0.4",
     "it-pushable": "^3.1.0",
-    "it-map": "^1.0.6",
+    "it-map": "^2.0.0",
     "p-queue": "^7.3.0",
     "multiformats": "^9.4.2",
     "uint8arrays": "^3.0.0"

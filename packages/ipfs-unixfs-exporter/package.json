@@ -151,21 +151,21 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^7.0.2",
-    "@ipld/dag-pb": "^2.0.2",
-    "@multiformats/murmur3": "^1.0.3",
+    "@ipld/dag-cbor": "^8.0.0",
+    "@ipld/dag-pb": "^3.0.0",
+    "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
     "interface-blockstore": "^3.0.0",
     "ipfs-unixfs": "^7.0.0",
-    "it-last": "^1.0.5",
-    "it-parallel": "^2.0.1",
+    "it-last": "^2.0.0",
+    "it-map": "^2.0.0",
+    "it-parallel": "^3.0.0",
     "it-pipe": "^2.0.4",
     "it-pushable": "^3.1.0",
-    "it-map": "^1.0.6",
+    "multiformats": "^10.0.0",
     "p-queue": "^7.3.0",
-    "multiformats": "^9.4.2",
-    "uint8arrays": "^3.0.0"
+    "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
     "@types/sinon": "^10.0.0",
@@ -175,9 +175,9 @@
     "crypto-browserify": "^3.12.0",
     "delay": "^5.0.0",
     "ipfs-unixfs-importer": "^10.0.0",
-    "it-all": "^1.0.5",
-    "it-buffer-stream": "^2.0.0",
-    "it-first": "^1.0.6",
+    "it-all": "^2.0.0",
+    "it-buffer-stream": "^3.0.0",
+    "it-first": "^2.0.0",
     "merge-options": "^3.0.4",
     "native-abort-controller": "^1.0.3",
     "sinon": "^14.0.0"

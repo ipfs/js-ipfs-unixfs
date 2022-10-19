@@ -1,5 +1,5 @@
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
-import type { CID, CIDVersion } from 'multiformats/cid'
+import type { CID, Version as CIDVersion } from 'multiformats/cid'
 import type { MultihashHasher } from 'multiformats/hashes/interface'
 import type { BlockCodec } from 'multiformats/codecs/interface'
 import type { Blockstore } from 'interface-blockstore'

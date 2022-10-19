@@ -1,5 +1,4 @@
-// @ts-ignore
-import BufferList from 'bl/BufferList.js'
+import { Uint8ArrayList } from 'uint8arraylist'
 // @ts-ignore
 import { create } from 'rabin-wasm'
 import errcode from 'err-code'
@@ -65,7 +64,7 @@ export default rabinChunker
  */
 async function * rabin (source, options) {
   const r = await create(options.bits, options.min, options.max, options.window)
-  const buffers = new BufferList()
+  const buffers = new Uint8ArrayList()
 
   for await (const chunk of source) {
     buffers.append(chunk)
@@ -82,6 +81,6 @@ async function * rabin (source, options) {
   }
 
   if (buffers.length) {
-    yield buffers.slice(0)
+    yield buffers.subarray(0)
   }
 }

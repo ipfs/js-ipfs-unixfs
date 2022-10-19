@@ -164,7 +164,7 @@
     "it-pushable": "^3.1.0",
     "it-map": "^1.0.6",
     "p-queue": "^7.3.0",
-    "multiformats": "^9.4.2",
+    "multiformats": "^10.0.2",
     "uint8arrays": "^3.0.0"
   },
   "devDependencies": {

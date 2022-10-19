@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v11.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v11.0.0...ipfs-unixfs-importer-v11.0.1) (2022-10-19)
+
+
+### Dependencies
+
+* update sibling deps ([#268](https://github.com/ipfs/js-ipfs-unixfs/issues/268)) ([7dac8b5](https://github.com/ipfs/js-ipfs-unixfs/commit/7dac8b5b4916aaf553d045293ee53177fbaf5044))
+
 ## [ipfs-unixfs-importer-v11.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v10.0.2...ipfs-unixfs-importer-v11.0.0) (2022-10-19)
 
 

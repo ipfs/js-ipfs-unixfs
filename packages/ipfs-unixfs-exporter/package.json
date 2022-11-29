@@ -180,7 +180,7 @@
     "it-first": "^2.0.0",
     "merge-options": "^3.0.4",
     "native-abort-controller": "^1.0.3",
-    "sinon": "^14.0.0"
+    "sinon": "^15.0.0"
   },
   "browser": {
     "fs": false

@@ -1,3 +1,15 @@
+## [ipfs-unixfs-exporter-v9.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v9.0.1...ipfs-unixfs-exporter-v9.0.2) (2022-12-15)
+
+
+### Trivial Changes
+
+* update project config ([#274](https://github.com/ipfs/js-ipfs-unixfs/issues/274)) ([4d9a4fd](https://github.com/ipfs/js-ipfs-unixfs/commit/4d9a4fd690e54cc72d2b985357932aaf22413ec7))
+
+
+### Dependencies
+
+* **dev:** bump sinon from 14.0.2 to 15.0.0 ([#272](https://github.com/ipfs/js-ipfs-unixfs/issues/272)) ([73559d2](https://github.com/ipfs/js-ipfs-unixfs/commit/73559d23d483d004a60a96803a8404f1e8956a05))
+
 ## [ipfs-unixfs-exporter-v9.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v9.0.0...ipfs-unixfs-exporter-v9.0.1) (2022-10-19)
 
 

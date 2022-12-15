@@ -10,15 +10,14 @@
 ## Table of contents <!-- omit in toc -->
 
 - [Install](#install)
-- [Lead Maintainer](#lead-maintainer)
-- [Usage](#usage)
-  - [Example](#example)
-    - [API](#api)
+  - [Browser `<script>` tag](#browser-script-tag)
+- [Example](#example)
+- [API](#api)
   - [`exporter(cid, blockstore, options)`](#exportercid-blockstore-options)
-    - [UnixFSEntry](#unixfsentry)
-    - [Raw entries](#raw-entries)
-    - [CBOR entries](#cbor-entries)
-    - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
+  - [UnixFSEntry](#unixfsentry)
+  - [Raw entries](#raw-entries)
+  - [CBOR entries](#cbor-entries)
+  - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
   - [`walkPath(cid, blockstore)`](#walkpathcid-blockstore)
   - [`recursive(cid, blockstore)`](#recursivecid-blockstore)
 - [Contribute](#contribute)
@@ -31,13 +30,15 @@
 $ npm i ipfs-unixfs-exporter
 ```
 
-## Lead Maintainer
+### Browser `<script>` tag
 
-[Alex Potsides](https://github.com/achingbrain)
+Loading this module through a script tag will make it's exports available as `IpfsUnixfsExporter` in the global namespace.
 
-## Usage
+```html
+<script src="https://unpkg.com/ipfs-unixfs-exporter/dist/index.min.js"></script>
+```
 
-### Example
+## Example
 
 ```js
 // import a file and export it again
@@ -78,7 +79,7 @@ for await (const buf of entry.content()) {
 console.info(bytes) // 0, 1, 2, 3
 ```
 
-#### API
+## API
 
 ```js
 import { exporter } from 'ipfs-unixfs-exporter'
@@ -94,7 +95,7 @@ Returns a Promise which resolves to a `UnixFSEntry`.
 
 - `signal` ([AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)): Used to cancel any network requests that are initiated as a result of this export
 
-#### UnixFSEntry
+### UnixFSEntry
 
 ```javascript
 {
@@ -127,7 +128,7 @@ if (entry.type === 'directory') {
 }
 ```
 
-#### Raw entries
+### Raw entries
 
 Entries with a `raw` codec `CID` return raw entries:
 
@@ -151,7 +152,7 @@ for await (const chunk of entry.content()) {
 
 Unless you an options object containing `offset` and `length` keys as an argument to `entry.content()`, `chunk` will be equal to `entry.node`.
 
-#### CBOR entries
+### CBOR entries
 
 Entries with a `dag-cbor` codec `CID` return JavaScript object entries:
 
@@ -167,7 +168,7 @@ Entries with a `dag-cbor` codec `CID` return JavaScript object entries:
 
 There is no `content` function for a `CBOR` node.
 
-#### `entry.content({ offset, length })`
+### `entry.content({ offset, length })`
 
 When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
 

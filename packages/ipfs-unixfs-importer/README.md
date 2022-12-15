@@ -10,11 +10,10 @@
 ## Table of contents <!-- omit in toc -->
 
 - [Install](#install)
-- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
-- [Usage](#usage)
-  - [Example](#example)
-    - [API](#api)
-    - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
+  - [Browser `<script>` tag](#browser-script-tag)
+- [Example](#example)
+- [API](#api)
+  - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
 - [Overriding internals](#overriding-internals)
 - [Contribute](#contribute)
 - [License](#license)
@@ -26,13 +25,15 @@
 $ npm i ipfs-unixfs-importer
 ```
 
-## Lead Maintainer <!-- omit in toc -->
+### Browser `<script>` tag
 
-[Alex Potsides](https://github.com/achingbrain)
+Loading this module through a script tag will make it's exports available as `IpfsUnixfsImporter` in the global namespace.
 
-## Usage
+```html
+<script src="https://unpkg.com/ipfs-unixfs-importer/dist/index.min.js"></script>
+```
 
-### Example
+## Example
 
 Let's create a little directory to import:
 
@@ -91,13 +92,13 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 }
 ```
 
-#### API
+## API
 
 ```js
 import { importer } from 'ipfs-unixfs-importer'
 ```
 
-#### const stream = importer(source, blockstore \[, options])
+### const stream = importer(source, blockstore \[, options])
 
 The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
 

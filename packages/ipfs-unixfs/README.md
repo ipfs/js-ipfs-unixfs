@@ -10,22 +10,20 @@
 ## Table of contents <!-- omit in toc -->
 
 - [Install](#install)
-- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
+  - [Browser `<script>` tag](#browser-script-tag)
+- [Spec](#spec)
   - [Use in Node.js](#use-in-nodejs)
   - [Use in a browser with browserify, webpack or any other bundler](#use-in-a-browser-with-browserify-webpack-or-any-other-bundler)
-  - [Use in a browser Using a script tag](#use-in-a-browser-using-a-script-tag)
-- [Usage](#usage)
-  - [Examples](#examples)
-    - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
-    - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
-- [API](#api)
-  - - [UnixFS Data Structure](#unixfs-data-structure)
-    - [create an unixfs Data element](#create-an-unixfs-data-element)
-    - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
-    - [get total fileSize](#get-total-filesize)
-    - [marshal and unmarshal](#marshal-and-unmarshal)
-    - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
-    - [has an mtime been set?](#has-an-mtime-been-set)
+- [Examples](#examples)
+  - [Create a file composed by several blocks](#create-a-file-composed-by-several-blocks)
+  - [Create a directory that contains several files](#create-a-directory-that-contains-several-files)
+  - [UnixFS Data Structure](#unixfs-data-structure)
+  - [create an unixfs Data element](#create-an-unixfs-data-element)
+  - [add and remove a block size to the block size list](#add-and-remove-a-block-size-to-the-block-size-list)
+  - [get total fileSize](#get-total-filesize)
+  - [marshal and unmarshal](#marshal-and-unmarshal)
+  - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
+  - [has an mtime been set?](#has-an-mtime-been-set)
 - [Contribute](#contribute)
 - [License](#license)
 - [Contribute](#contribute-1)
@@ -36,15 +34,17 @@
 $ npm i ipfs-unixfs
 ```
 
-The UnixFS spec can be found inside the [ipfs/specs repository](http://github.com/ipfs/specs)
+### Browser `<script>` tag
 
-## Lead Maintainer <!-- omit in toc -->
+Loading this module through a script tag will make it's exports available as `IpfsUnixfs` in the global namespace.
 
-[Alex Potsides](https://github.com/achingbrain)
-
-```sh
-> npm i ipfs-unixfs
+```html
+<script src="https://unpkg.com/ipfs-unixfs/dist/index.min.js"></script>
 ```
+
+## Spec
+
+The UnixFS spec can be found inside the [ipfs/specs repository](http://github.com/ipfs/specs)
 
 ### Use in Node.js
 
@@ -60,21 +60,9 @@ The code published to npm that gets loaded on require is in fact a ES5 transpile
 import { UnixFS } from 'ipfs-unixfs'
 ```
 
-### Use in a browser Using a script tag
+## Examples
 
-Loading this module through a script tag will make the `UnixFS` obj available in the global namespace.
-
-```html
-<script src="https://npmcdn.com/ipfs-unixfs/dist/index.min.js"></script>
-<!-- OR -->
-<script src="https://npmcdn.com/ipfs-unixfs/dist/index.js"></script>
-```
-
-## Usage
-
-### Examples
-
-#### Create a file composed by several blocks
+### Create a file composed by several blocks
 
 ```JavaScript
 const data = new UnixFS({ type: 'file' })
@@ -83,7 +71,7 @@ data.addBlockSize(256)
 // ...
 ```
 
-#### Create a directory that contains several files
+### Create a directory that contains several files
 
 Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.
 
@@ -91,9 +79,7 @@ Creating a directory that contains several files is achieve by creating a unixfs
 const data = new UnixFS({ type: 'directory' })
 ```
 
-## API
-
-#### UnixFS Data Structure
+### UnixFS Data Structure
 
 ```protobuf
 syntax = "proto2";
@@ -128,7 +114,7 @@ message Metadata {
 }
 ```
 
-#### create an unixfs Data element
+### create an unixfs Data element
 
 ```JavaScript
 const data = new UnixFS([options])
@@ -148,7 +134,7 @@ const data = new UnixFS([options])
 - mode (Number, default `0644` for files, `0755` for directories/hamt-sharded-directories) file mode
 - mtime (`Date`, `{ secs, nsecs }`, `{ Seconds, FractionalNanoseconds }`, `[ secs, nsecs ]`): The modification time of this node
 
-#### add and remove a block size to the block size list
+### add and remove a block size to the block size list
 
 ```JavaScript
 data.addBlockSize(<size in bytes>)
@@ -158,20 +144,20 @@ data.addBlockSize(<size in bytes>)
 data.removeBlockSize(<index>)
 ```
 
-#### get total fileSize
+### get total fileSize
 
 ```JavaScript
 data.fileSize() // => size in bytes
 ```
 
-#### marshal and unmarshal
+### marshal and unmarshal
 
 ```javascript
 const marshaled = data.marshal()
 const unmarshaled = Unixfs.unmarshal(marshaled)
 ```
 
-#### is this UnixFS entry a directory?
+### is this UnixFS entry a directory?
 
 ```JavaScript
 const dir = new Data({ type: 'directory' })
@@ -181,7 +167,7 @@ const file = new Data({ type: 'file' })
 file.isDirectory() // false
 ```
 
-#### has an mtime been set?
+### has an mtime been set?
 
 If no modification time has been set, no `mtime` property will be present on the `Data` instance:
 

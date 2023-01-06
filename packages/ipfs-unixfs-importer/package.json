@@ -151,18 +151,18 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-pb": "^3.0.0",
+    "@ipld/dag-pb": "^4.0.0",
     "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
-    "interface-blockstore": "^3.0.0",
+    "interface-blockstore": "^4.0.0",
     "ipfs-unixfs": "^8.0.0",
     "it-all": "^2.0.0",
     "it-batch": "^2.0.0",
     "it-first": "^2.0.0",
     "it-parallel-batch": "^2.0.0",
     "merge-options": "^3.0.4",
-    "multiformats": "^10.0.0",
+    "multiformats": "^11.0.0",
     "rabin-wasm": "^0.1.4",
     "uint8arraylist": "^2.3.3",
     "uint8arrays": "^4.0.2"
@@ -170,11 +170,14 @@
   "devDependencies": {
     "aegir": "^37.5.0",
     "assert": "^2.0.0",
-    "blockstore-core": "^2.0.1",
+    "blockstore-core": "^3.0.0",
     "it-buffer-stream": "^3.0.0",
     "wherearewe": "^2.0.1"
   },
   "browser": {
     "fs": false
+  },
+  "typedoc": {
+    "entryPoint": "./src/index.js"
   }
 }

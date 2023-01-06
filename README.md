@@ -3,7 +3,7 @@
 [![ipfs.tech](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](https://ipfs.tech)
 [![Discuss](https://img.shields.io/discourse/https/discuss.ipfs.tech/posts.svg?style=flat-square)](https://discuss.ipfs.tech)
 [![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
-[![CI](https://img.shields.io/github/workflow/status/ipfs/js-ipfs-unixfs/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ipfs/js-ipfs-unixfs/js-test-and-release.yml?branch=master\&style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml?query=branch%3Amaster)
 
 > JS implementation of the IPFS UnixFS
 
@@ -14,9 +14,9 @@
 - [Development](#development)
   - [Publishing new versions](#publishing-new-versions)
   - [Using prerelease versions](#using-prerelease-versions)
-- [Contribute](#contribute)
+- [API Docs](#api-docs)
 - [License](#license)
-- [Contribute](#contribute-1)
+- [Contribute](#contribute)
 
 ## Structure
 
@@ -56,13 +56,9 @@ Any changed packages from each successful build of master are published to npm a
 
 Canary builds only consider changes to packages in the last built commit so changes to the root config files should not result in new prereleases being published to npm.
 
-## Contribute
+## API Docs
 
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
+- <https://ipfs.github.io/js-ipfs-unixfs>
 
 ## License
 

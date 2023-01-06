@@ -1,3 +1,24 @@
+## [ipfs-unixfs-importer-v12.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v11.0.1...ipfs-unixfs-importer-v12.0.0) (2023-01-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* update dependencies (#278)
+
+### Bug Fixes
+
+* update dependencies ([#278](https://github.com/ipfs/js-ipfs-unixfs/issues/278)) ([0e1e3d3](https://github.com/ipfs/js-ipfs-unixfs/commit/0e1e3d37b2fe6c6fe96d0c851a53d6eb413d8fbd))
+
+
+### Trivial Changes
+
+* update project config ([#274](https://github.com/ipfs/js-ipfs-unixfs/issues/274)) ([4d9a4fd](https://github.com/ipfs/js-ipfs-unixfs/commit/4d9a4fd690e54cc72d2b985357932aaf22413ec7))
+
+
+### Dependencies
+
+* update sibling dependencies ([d853c0e](https://github.com/ipfs/js-ipfs-unixfs/commit/d853c0ee16afc38b887130c1a8e891664982e048))
+
 ## [ipfs-unixfs-importer-v11.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v11.0.0...ipfs-unixfs-importer-v11.0.1) (2022-10-19)
 
 

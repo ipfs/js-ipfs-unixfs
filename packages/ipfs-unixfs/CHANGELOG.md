@@ -1,3 +1,19 @@
+## [ipfs-unixfs-v9.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v8.0.0...ipfs-unixfs-v9.0.0) (2023-01-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* update dependencies (#278)
+
+### Bug Fixes
+
+* update dependencies ([#278](https://github.com/ipfs/js-ipfs-unixfs/issues/278)) ([0e1e3d3](https://github.com/ipfs/js-ipfs-unixfs/commit/0e1e3d37b2fe6c6fe96d0c851a53d6eb413d8fbd))
+
+
+### Trivial Changes
+
+* update project config ([#274](https://github.com/ipfs/js-ipfs-unixfs/issues/274)) ([4d9a4fd](https://github.com/ipfs/js-ipfs-unixfs/commit/4d9a4fd690e54cc72d2b985357932aaf22413ec7))
+
 ## [ipfs-unixfs-v8.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v7.0.0...ipfs-unixfs-v8.0.0) (2022-10-19)
 
 

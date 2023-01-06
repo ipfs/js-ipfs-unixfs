@@ -24,9 +24,8 @@
   - [marshal and unmarshal](#marshal-and-unmarshal)
   - [is this UnixFS entry a directory?](#is-this-unixfs-entry-a-directory)
   - [has an mtime been set?](#has-an-mtime-been-set)
-- [Contribute](#contribute)
 - [License](#license)
-- [Contribute](#contribute-1)
+- [Contribute](#contribute)
 
 ## Install
 
@@ -180,14 +179,6 @@ Object.prototype.hasOwnProperty.call(file, 'mtime') // false
 const dir = new Data({ type: 'dir', mtime: new Date() })
 dir.mtime // { secs: Number, nsecs: Number }
 ```
-
-## Contribute
-
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
 
 ## License
 

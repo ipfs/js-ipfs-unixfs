@@ -15,9 +15,8 @@
 - [API](#api)
   - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
 - [Overriding internals](#overriding-internals)
-- [Contribute](#contribute)
 - [License](#license)
-- [Contribute](#contribute-1)
+- [Contribute](#contribute)
 
 ## Install
 
@@ -166,14 +165,6 @@ Several aspects of the importer are overridable by specifying functions as part 
 - `treeBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
   - This function should read `{ cid, path, unixfs, node }` entries from `source` and place them in a directory structure
   - It should yield an object with the properties `{ cid, path, unixfs, size }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `size` is a `Number`.
-
-## Contribute
-
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs-importer/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
 
 ## License
 

@@ -20,9 +20,8 @@
   - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
   - [`walkPath(cid, blockstore)`](#walkpathcid-blockstore)
   - [`recursive(cid, blockstore)`](#recursivecid-blockstore)
-- [Contribute](#contribute)
 - [License](#license)
-- [Contribute](#contribute-1)
+- [Contribute](#contribute)
 
 ## Install
 
@@ -235,14 +234,6 @@ for await (const child of recursive('Qmfoo/foo/bar', blockstore)) {
 
 // entries contains all children of the `Qmfoo/foo/bar` directory and it's children
 ```
-
-## Contribute
-
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs-exporter/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
 
 ## License
 

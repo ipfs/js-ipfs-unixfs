@@ -10,13 +10,11 @@
 ## Table of contents <!-- omit in toc -->
 
 - [Structure](#structure)
-- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
 - [Development](#development)
   - [Publishing new versions](#publishing-new-versions)
   - [Using prerelease versions](#using-prerelease-versions)
-- [Contribute](#contribute)
 - [License](#license)
-- [Contribute](#contribute-1)
+- [Contribute](#contribute)
 
 ## Structure
 
@@ -55,14 +53,6 @@ See the scripts section of the root [`package.json`](./package.json) for more co
 Any changed packages from each successful build of master are published to npm as canary builds under the npm tag `next`.
 
 Canary builds only consider changes to packages in the last built commit so changes to the root config files should not result in new prereleases being published to npm.
-
-## Contribute
-
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
 
 ## License
 

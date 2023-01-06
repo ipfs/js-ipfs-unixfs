@@ -1,0 +1,284 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>ipfs-unixfs | Documentation</title><meta name="description" content="Documentation for Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base="..">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">Documentation</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb">
+<li><a href="../modules.html">Documentation</a></li>
+<li><a href="ipfs_unixfs.html">ipfs-unixfs</a></li></ul>
+<h1>Module ipfs-unixfs - v9.0.0</h1></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs/src/index.js#L1">ipfs-unixfs/src/index.js:1</a></li></ul></aside>
+<section class="tsd-panel-group">
+<section class="tsd-panel tsd-typography">
+<a href="#ipfs-unixfs-" id="ipfs-unixfs-" style="color: inherit; text-decoration: none;">
+  <h1>ipfs-unixfs <!-- omit in toc --></h1>
+</a>
+<p><a href="https://ipfs.tech"><img src="https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square" alt="ipfs.tech"></a>
+<a href="https://discuss.ipfs.tech"><img src="https://img.shields.io/discourse/https/discuss.ipfs.tech/posts.svg?style=flat-square" alt="Discuss"></a>
+<a href="https://codecov.io/gh/ipfs/js-ipfs-unixfs"><img src="https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square" alt="codecov"></a>
+<a href="https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml?query=branch%3Amaster"><img src="https://img.shields.io/github/actions/workflow/status/ipfs/js-ipfs-unixfs/js-test-and-release.yml?branch=master&style=flat-square" alt="CI"></a></p>
+<blockquote>
+<p>JavaScript implementation of IPFS&#39; unixfs (a Unix FileSystem representation on top of a MerkleDAG)</p>
+</blockquote>
+
+<a href="#table-of-contents-" id="table-of-contents-" style="color: inherit; text-decoration: none;">
+  <h2>Table of contents <!-- omit in toc --></h2>
+</a>
+<ul>
+<li><a href="#install">Install</a><ul>
+<li><a href="#browser-script-tag">Browser <code>&lt;script&gt;</code> tag</a></li>
+</ul>
+</li>
+<li><a href="#spec">Spec</a><ul>
+<li><a href="#use-in-nodejs">Use in Node.js</a></li>
+<li><a href="#use-in-a-browser-with-browserify-webpack-or-any-other-bundler">Use in a browser with browserify, webpack or any other bundler</a></li>
+</ul>
+</li>
+<li><a href="#examples">Examples</a><ul>
+<li><a href="#create-a-file-composed-by-several-blocks">Create a file composed by several blocks</a></li>
+<li><a href="#create-a-directory-that-contains-several-files">Create a directory that contains several files</a></li>
+<li><a href="#unixfs-data-structure">UnixFS Data Structure</a></li>
+<li><a href="#create-an-unixfs-data-element">create an unixfs Data element</a></li>
+<li><a href="#add-and-remove-a-block-size-to-the-block-size-list">add and remove a block size to the block size list</a></li>
+<li><a href="#get-total-filesize">get total fileSize</a></li>
+<li><a href="#marshal-and-unmarshal">marshal and unmarshal</a></li>
+<li><a href="#is-this-unixfs-entry-a-directory">is this UnixFS entry a directory?</a></li>
+<li><a href="#has-an-mtime-been-set">has an mtime been set?</a></li>
+</ul>
+</li>
+<li><a href="#api-docs">API Docs</a></li>
+<li><a href="#license">License</a></li>
+<li><a href="#contribute">Contribute</a></li>
+</ul>
+
+<a href="#install" id="install" style="color: inherit; text-decoration: none;">
+  <h2>Install</h2>
+</a>
+<pre><code class="language-console">$ npm i ipfs-unixfs
+</code></pre>
+
+<a href="#browser-ltscriptgt-tag" id="browser-ltscriptgt-tag" style="color: inherit; text-decoration: none;">
+  <h3>Browser <code>&lt;script&gt;</code> tag</h3>
+</a>
+<p>Loading this module through a script tag will make it&#39;s exports available as <code>IpfsUnixfs</code> in the global namespace.</p>
+<pre><code class="language-html"><span class="hl-0">&lt;</span><span class="hl-1">script</span><span class="hl-2"> </span><span class="hl-3">src</span><span class="hl-2">=</span><span class="hl-4">&quot;https://unpkg.com/ipfs-unixfs/dist/index.min.js&quot;</span><span class="hl-0">&gt;&lt;/</span><span class="hl-1">script</span><span class="hl-0">&gt;</span>
+</code></pre>
+
+<a href="#spec" id="spec" style="color: inherit; text-decoration: none;">
+  <h2>Spec</h2>
+</a>
+<p>The UnixFS spec can be found inside the <a href="http://github.com/ipfs/specs">ipfs/specs repository</a></p>
+
+<a href="#use-in-nodejs" id="use-in-nodejs" style="color: inherit; text-decoration: none;">
+  <h3>Use in Node.js</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-5">import</span><span class="hl-6"> { </span><span class="hl-7">UnixFS</span><span class="hl-6"> } </span><span class="hl-5">from</span><span class="hl-6"> </span><span class="hl-8">&#39;ipfs-unixfs&#39;</span>
+</code></pre>
+
+<a href="#use-in-a-browser-with-browserify-webpack-or-any-other-bundler" id="use-in-a-browser-with-browserify-webpack-or-any-other-bundler" style="color: inherit; text-decoration: none;">
+  <h3>Use in a browser with browserify, webpack or any other bundler</h3>
+</a>
+<p>The code published to npm that gets loaded on require is in fact a ES5 transpiled version with the right shims added. This means that you can require it and use with your favourite bundler without having to adjust asset management process.</p>
+<pre><code class="language-JavaScript"><span class="hl-5">import</span><span class="hl-6"> { </span><span class="hl-7">UnixFS</span><span class="hl-6"> } </span><span class="hl-5">from</span><span class="hl-6"> </span><span class="hl-8">&#39;ipfs-unixfs&#39;</span>
+</code></pre>
+
+<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+  <h2>Examples</h2>
+</a>
+
+<a href="#create-a-file-composed-by-several-blocks" id="create-a-file-composed-by-several-blocks" style="color: inherit; text-decoration: none;">
+  <h3>Create a file composed by several blocks</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">data</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">UnixFS</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;file&#39;</span><span class="hl-6"> })</span><br/><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">addBlockSize</span><span class="hl-6">(</span><span class="hl-12">256</span><span class="hl-6">) </span><span class="hl-13">// add the size of each block</span><br/><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">addBlockSize</span><span class="hl-6">(</span><span class="hl-12">256</span><span class="hl-6">)</span><br/><span class="hl-13">// ...</span>
+</code></pre>
+
+<a href="#create-a-directory-that-contains-several-files" id="create-a-directory-that-contains-several-files" style="color: inherit; text-decoration: none;">
+  <h3>Create a directory that contains several files</h3>
+</a>
+<p>Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.</p>
+<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">data</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">UnixFS</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;directory&#39;</span><span class="hl-6"> })</span>
+</code></pre>
+
+<a href="#unixfs-data-structure" id="unixfs-data-structure" style="color: inherit; text-decoration: none;">
+  <h3>UnixFS Data Structure</h3>
+</a>
+<pre><code class="language-protobuf">syntax = &quot;proto2&quot;;
+
+message Data {
+  enum DataType {
+    Raw = 0;
+    Directory = 1;
+    File = 2;
+    Metadata = 3;
+    Symlink = 4;
+    HAMTShard = 5;
+  }
+
+  required DataType Type = 1;
+  optional bytes Data = 2;
+  optional uint64 filesize = 3;
+  repeated uint64 blocksizes = 4;
+  optional uint64 hashType = 5;
+  optional uint64 fanout = 6;
+  optional uint32 mode = 7;
+  optional UnixTime mtime = 8;
+}
+
+message UnixTime {
+  required int64 Seconds = 1;
+  optional fixed32 FractionalNanoseconds = 2;
+}
+
+message Metadata {
+  optional string MimeType = 1;
+}
+</code></pre>
+
+<a href="#create-an-unixfs-data-element" id="create-an-unixfs-data-element" style="color: inherit; text-decoration: none;">
+  <h3>create an unixfs Data element</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">data</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">UnixFS</span><span class="hl-6">([</span><span class="hl-7">options</span><span class="hl-6">])</span>
+</code></pre>
+<p><code>options</code> is an optional object argument that might include the following keys:</p>
+<ul>
+<li>type (string, default <code>file</code>): The type of UnixFS entry.  Can be:<ul>
+<li><code>raw</code></li>
+<li><code>directory</code></li>
+<li><code>file</code></li>
+<li><code>metadata</code></li>
+<li><code>symlink</code></li>
+<li><code>hamt-sharded-directory</code></li>
+</ul>
+</li>
+<li>data (Uint8Array): The optional data field for this node</li>
+<li>blockSizes (Array, default: <code>[]</code>): If this is a <code>file</code> node that is made up of multiple blocks, <code>blockSizes</code> is a list numbers that represent the size of the file chunks stored in each child node. It is used to calculate the total file size.</li>
+<li>mode (Number, default <code>0644</code> for files, <code>0755</code> for directories/hamt-sharded-directories) file mode</li>
+<li>mtime (<code>Date</code>, <code>{ secs, nsecs }</code>, <code>{ Seconds, FractionalNanoseconds }</code>, <code>[ secs, nsecs ]</code>): The modification time of this node</li>
+</ul>
+
+<a href="#add-and-remove-a-block-size-to-the-block-size-list" id="add-and-remove-a-block-size-to-the-block-size-list" style="color: inherit; text-decoration: none;">
+  <h3>add and remove a block size to the block size list</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">addBlockSize</span><span class="hl-6">(</span><span class="hl-0">&lt;</span><span class="hl-1">size</span><span class="hl-6"> </span><span class="hl-3">in</span><span class="hl-6"> </span><span class="hl-3">bytes</span><span class="hl-0">&gt;</span><span class="hl-6">)</span>
+</code></pre>
+<pre><code class="language-JavaScript"><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">removeBlockSize</span><span class="hl-6">(</span><span class="hl-0">&lt;</span><span class="hl-1">index</span><span class="hl-0">&gt;</span><span class="hl-6">)</span>
+</code></pre>
+
+<a href="#get-total-filesize" id="get-total-filesize" style="color: inherit; text-decoration: none;">
+  <h3>get total fileSize</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">fileSize</span><span class="hl-6">() </span><span class="hl-13">// =&gt; size in bytes</span>
+</code></pre>
+
+<a href="#marshal-and-unmarshal" id="marshal-and-unmarshal" style="color: inherit; text-decoration: none;">
+  <h3>marshal and unmarshal</h3>
+</a>
+<pre><code class="language-javascript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">marshaled</span><span class="hl-6"> = </span><span class="hl-7">data</span><span class="hl-6">.</span><span class="hl-11">marshal</span><span class="hl-6">()</span><br/><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">unmarshaled</span><span class="hl-6"> = </span><span class="hl-7">Unixfs</span><span class="hl-6">.</span><span class="hl-11">unmarshal</span><span class="hl-6">(</span><span class="hl-7">marshaled</span><span class="hl-6">)</span>
+</code></pre>
+
+<a href="#is-this-unixfs-entry-a-directory" id="is-this-unixfs-entry-a-directory" style="color: inherit; text-decoration: none;">
+  <h3>is this UnixFS entry a directory?</h3>
+</a>
+<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">dir</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">Data</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;directory&#39;</span><span class="hl-6"> })</span><br/><span class="hl-7">dir</span><span class="hl-6">.</span><span class="hl-11">isDirectory</span><span class="hl-6">() </span><span class="hl-13">// true</span><br/><br/><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">file</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">Data</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;file&#39;</span><span class="hl-6"> })</span><br/><span class="hl-7">file</span><span class="hl-6">.</span><span class="hl-11">isDirectory</span><span class="hl-6">() </span><span class="hl-13">// false</span>
+</code></pre>
+
+<a href="#has-an-mtime-been-set" id="has-an-mtime-been-set" style="color: inherit; text-decoration: none;">
+  <h3>has an mtime been set?</h3>
+</a>
+<p>If no modification time has been set, no <code>mtime</code> property will be present on the <code>Data</code> instance:</p>
+<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">file</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">Data</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;file&#39;</span><span class="hl-6"> })</span><br/><span class="hl-7">file</span><span class="hl-6">.</span><span class="hl-7">mtime</span><span class="hl-6"> </span><span class="hl-13">// undefined</span><br/><br/><span class="hl-14">Object</span><span class="hl-6">.</span><span class="hl-7">prototype</span><span class="hl-6">.</span><span class="hl-7">hasOwnProperty</span><span class="hl-6">.</span><span class="hl-11">call</span><span class="hl-6">(</span><span class="hl-7">file</span><span class="hl-6">, </span><span class="hl-8">&#39;mtime&#39;</span><span class="hl-6">) </span><span class="hl-13">// false</span><br/><br/><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">dir</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">Data</span><span class="hl-6">({ </span><span class="hl-7">type:</span><span class="hl-6"> </span><span class="hl-8">&#39;dir&#39;</span><span class="hl-6">, </span><span class="hl-7">mtime:</span><span class="hl-6"> </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">Date</span><span class="hl-6">() })</span><br/><span class="hl-7">dir</span><span class="hl-6">.</span><span class="hl-7">mtime</span><span class="hl-6"> </span><span class="hl-13">// { secs: Number, nsecs: Number }</span>
+</code></pre>
+
+<a href="#api-docs" id="api-docs" style="color: inherit; text-decoration: none;">
+  <h2>API Docs</h2>
+</a>
+<ul>
+<li><a href="https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs.html">https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs.html</a></li>
+</ul>
+
+<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+  <h2>License</h2>
+</a>
+<p>Licensed under either of</p>
+<ul>
+<li>Apache 2.0, (<a href="LICENSE-APACHE">LICENSE-APACHE</a> / <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>)</li>
+<li>MIT (<a href="LICENSE-MIT">LICENSE-MIT</a> / <a href="http://opensource.org/licenses/MIT">http://opensource.org/licenses/MIT</a>)</li>
+</ul>
+
+<a href="#contribute" id="contribute" style="color: inherit; text-decoration: none;">
+  <h2>Contribute</h2>
+</a>
+<p>Contributions welcome! Please check out <a href="https://github.com/ipfs/js-ipfs-unixfs/issues">the issues</a>.</p>
+<p>Also see our <a href="https://github.com/ipfs/community/blob/master/CONTRIBUTING_JS.md">contributing document</a> for more information on how we work, and about contributing in general.</p>
+<p>Please be aware that all interactions related to this repo are subject to the IPFS <a href="https://github.com/ipfs/community/blob/master/code-of-conduct.md">Code of Conduct</a>.</p>
+<p>Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.</p>
+<p><a href="https://github.com/ipfs/community/blob/master/CONTRIBUTING.md"><img src="https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif" alt=""></a></p>
+</section></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<h3 class="tsd-index-heading uppercase">Index</h3>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Classes</h3>
+<div class="tsd-index-list"><a href="../classes/ipfs_unixfs.UnixFS.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg><span>UnixFS</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Interfaces</h3>
+<div class="tsd-index-list"><a href="../interfaces/ipfs_unixfs.Mtime.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Mtime</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Type Aliases</h3>
+<div class="tsd-index-list"><a href="../types/ipfs_unixfs.MtimeLike.html" class="tsd-index-link tsd-kind-type-alias tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Mtime<wbr/>Like</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Functions</h3>
+<div class="tsd-index-list"><a href="../functions/ipfs_unixfs.parseMode.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg><span>parse<wbr/>Mode</span></a>
+<a href="../functions/ipfs_unixfs.parseMtime.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>parse<wbr/>Mtime</span></a>
+</div></section></section></section></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current"><a href="../modules.html">Documentation</a>
+<ul>
+<li class="current selected tsd-kind-module"><a href="ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v9.0.0</a></li>
+<li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v10.0.0</a>
+<ul>
+<li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.html">&lt;internal&gt;</a>
+<ul>
+<li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_index_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/index&quot;</a></li>
+<li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_types_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/types&quot;</a></li></ul></li></ul></li>
+<li class="tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v12.0.0</a>
+<ul>
+<li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_importer._internal_.html">&lt;internal&gt;</a></li></ul></li></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/ipfs_unixfs.UnixFS.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>UnixFS</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs.Mtime.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Mtime</a></li>
+<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="../types/ipfs_unixfs.MtimeLike.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Mtime<wbr/>Like</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs.parseMode.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>parse<wbr/>Mode</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs.parseMtime.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>parse<wbr/>Mtime</a></li></ul></nav></div></div>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>

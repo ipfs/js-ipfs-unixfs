@@ -167,5 +167,8 @@
   },
   "browser": {
     "fs": false
+  },
+  "typedoc": {
+    "entryPoint": "./src/index.js"
   }
 }

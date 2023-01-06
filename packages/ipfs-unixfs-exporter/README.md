@@ -3,7 +3,7 @@
 [![ipfs.tech](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](https://ipfs.tech)
 [![Discuss](https://img.shields.io/discourse/https/discuss.ipfs.tech/posts.svg?style=flat-square)](https://discuss.ipfs.tech)
 [![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
-[![CI](https://img.shields.io/github/workflow/status/ipfs/js-ipfs-unixfs/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ipfs/js-ipfs-unixfs/js-test-and-release.yml?branch=master\&style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml?query=branch%3Amaster)
 
 > JavaScript implementation of the UnixFs exporter used by IPFS
 
@@ -20,6 +20,7 @@
   - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
   - [`walkPath(cid, blockstore)`](#walkpathcid-blockstore)
   - [`recursive(cid, blockstore)`](#recursivecid-blockstore)
+- [API Docs](#api-docs)
 - [License](#license)
 - [Contribute](#contribute)
 
@@ -234,6 +235,10 @@ for await (const child of recursive('Qmfoo/foo/bar', blockstore)) {
 
 // entries contains all children of the `Qmfoo/foo/bar` directory and it's children
 ```
+
+## API Docs
+
+- <https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs_exporter.html>
 
 ## License
 

@@ -3,16 +3,18 @@
 [![ipfs.tech](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](https://ipfs.tech)
 [![Discuss](https://img.shields.io/discourse/https/discuss.ipfs.tech/posts.svg?style=flat-square)](https://discuss.ipfs.tech)
 [![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
-[![CI](https://img.shields.io/github/workflow/status/ipfs/js-ipfs-unixfs/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ipfs/js-ipfs-unixfs/js-test-and-release.yml?branch=master\&style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml?query=branch%3Amaster)
 
 > JS implementation of the IPFS UnixFS
 
 ## Table of contents <!-- omit in toc -->
 
 - [Structure](#structure)
+- [Lead Maintainer <!-- omit in toc -->](#lead-maintainer----omit-in-toc---)
 - [Development](#development)
   - [Publishing new versions](#publishing-new-versions)
   - [Using prerelease versions](#using-prerelease-versions)
+- [API Docs](#api-docs)
 - [License](#license)
 - [Contribute](#contribute)
 
@@ -53,6 +55,10 @@ See the scripts section of the root [`package.json`](./package.json) for more co
 Any changed packages from each successful build of master are published to npm as canary builds under the npm tag `next`.
 
 Canary builds only consider changes to packages in the last built commit so changes to the root config files should not result in new prereleases being published to npm.
+
+## API Docs
+
+- <https://ipfs.github.io/js-ipfs-unixfs>
 
 ## License
 

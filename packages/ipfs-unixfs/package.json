@@ -161,7 +161,7 @@
     "protobufjs": "^7.0.0"
   },
   "devDependencies": {
-    "aegir": "^37.5.0",
+    "aegir": "^38.1.2",
     "protobufjs-cli": "^1.0.0",
     "uint8arrays": "^4.0.2"
   },

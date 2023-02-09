@@ -14,7 +14,7 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">Documentation</a></li>
 <li><a href="ipfs_unixfs_importer.html">ipfs-unixfs-importer</a></li></ul>
-<h1>Module ipfs-unixfs-importer - v12.0.0</h1></div><aside class="tsd-sources">
+<h1>Module ipfs-unixfs-importer - v12.0.1</h1></div><aside class="tsd-sources">
 <ul>
 <li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.js#L1">ipfs-unixfs-importer/src/index.js:1</a></li></ul></aside>
 <section class="tsd-panel-group">
@@ -66,7 +66,7 @@
   <h2>Example</h2>
 </a>
 <p>Let&#39;s create a little directory to import:</p>
-<pre><code class="language-sh"><span class="hl-6">&gt; </span><span class="hl-11">cd</span><span class="hl-6"> /tmp</span><br/><span class="hl-6">&gt; mkdir foo</span><br/><span class="hl-6">&gt; </span><span class="hl-11">echo</span><span class="hl-6"> </span><span class="hl-8">&#39;hello&#39;</span><span class="hl-6"> &gt; foo/bar</span><br/><span class="hl-6">&gt; </span><span class="hl-11">echo</span><span class="hl-6"> </span><span class="hl-8">&#39;world&#39;</span><span class="hl-6"> &gt; foo/quux</span>
+<pre><code class="language-sh"><span class="hl-6">&gt; cd /tmp</span><br/><span class="hl-6">&gt; mkdir foo</span><br/><span class="hl-6">&gt; echo </span><span class="hl-8">&#39;hello&#39;</span><span class="hl-6"> &gt; foo/bar</span><br/><span class="hl-6">&gt; echo </span><span class="hl-8">&#39;world&#39;</span><span class="hl-6"> &gt; foo/quux</span>
 </code></pre>
 <p>And write the importing logic:</p>
 <pre><code class="language-js"><span class="hl-5">import</span><span class="hl-6"> { </span><span class="hl-7">importer</span><span class="hl-6"> } </span><span class="hl-5">from</span><span class="hl-6"> </span><span class="hl-8">&#39;ipfs-unixfs-importer&#39;</span><br/><span class="hl-5">import</span><span class="hl-6"> { </span><span class="hl-7">MemoryBlockstore</span><span class="hl-6"> } </span><span class="hl-5">from</span><span class="hl-6"> </span><span class="hl-8">&#39;blockstore-core/memory&#39;</span><br/><br/><span class="hl-13">// Where the blocks will be stored</span><br/><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">blockstore</span><span class="hl-6"> = </span><span class="hl-9">new</span><span class="hl-6"> </span><span class="hl-11">MemoryBlockstore</span><span class="hl-6">()</span><br/><br/><span class="hl-13">// Import path /tmp/foo/bar</span><br/><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">source</span><span class="hl-6"> = [{</span><br/><span class="hl-6">  </span><span class="hl-7">path:</span><span class="hl-6"> </span><span class="hl-8">&#39;/tmp/foo/bar&#39;</span><span class="hl-6">,</span><br/><span class="hl-6">  </span><span class="hl-7">content:</span><span class="hl-6"> </span><span class="hl-7">fs</span><span class="hl-6">.</span><span class="hl-11">createReadStream</span><span class="hl-6">(</span><span class="hl-7">file</span><span class="hl-6">)</span><br/><span class="hl-6">}, {</span><br/><span class="hl-6">  </span><span class="hl-7">path:</span><span class="hl-6"> </span><span class="hl-8">&#39;/tmp/foo/quxx&#39;</span><span class="hl-6">,</span><br/><span class="hl-6">  </span><span class="hl-7">content:</span><span class="hl-6"> </span><span class="hl-7">fs</span><span class="hl-6">.</span><span class="hl-11">createReadStream</span><span class="hl-6">(</span><span class="hl-7">file2</span><span class="hl-6">)</span><br/><span class="hl-6">}]</span><br/><br/><span class="hl-5">for</span><span class="hl-6"> </span><span class="hl-5">await</span><span class="hl-6"> (</span><span class="hl-9">const</span><span class="hl-6"> </span><span class="hl-10">entry</span><span class="hl-6"> </span><span class="hl-9">of</span><span class="hl-6"> </span><span class="hl-11">importer</span><span class="hl-6">(</span><span class="hl-7">source</span><span class="hl-6">, </span><span class="hl-7">blockstore</span><span class="hl-6">, </span><span class="hl-7">options</span><span class="hl-6">)) {</span><br/><span class="hl-6">  </span><span class="hl-7">console</span><span class="hl-6">.</span><span class="hl-11">info</span><span class="hl-6">(</span><span class="hl-7">entry</span><span class="hl-6">)</span><br/><span class="hl-6">}</span>
@@ -230,14 +230,14 @@
 <ul>
 <li class="current"><a href="../modules.html">Documentation</a>
 <ul>
-<li class="tsd-kind-module"><a href="ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v9.0.0</a></li>
-<li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v10.0.0</a>
+<li class="tsd-kind-module"><a href="ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v9.0.1</a></li>
+<li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v10.0.1</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.html">&lt;internal&gt;</a>
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_index_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/index&quot;</a></li>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_types_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/types&quot;</a></li></ul></li></ul></li>
-<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v12.0.0</a>
+<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v12.0.1</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_importer._internal_.html">&lt;internal&gt;</a></li></ul></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">

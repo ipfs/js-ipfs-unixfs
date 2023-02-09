@@ -45,7 +45,7 @@ describe('exporter sharded', function () {
    */
   const createShardWithFiles = async (files) => {
     const result = await last(importer(files, block, {
-      shardSplitThreshold: SHARD_SPLIT_THRESHOLD,
+      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
       wrapWithDirectory: true
     }))
 
@@ -60,7 +60,8 @@ describe('exporter sharded', function () {
     /** @type {{ [key: string]: { content: Uint8Array, cid?: CID }}} */
     const files = {}
 
-    for (let i = 0; i < (SHARD_SPLIT_THRESHOLD + 1); i++) {
+    // needs to result in a block that is larger than SHARD_SPLIT_THRESHOLD bytes
+    for (let i = 0; i < 100; i++) {
       files[`file-${Math.random()}.txt`] = {
         content: uint8ArrayConcat(await all(randomBytes(100)))
       }
@@ -71,7 +72,7 @@ describe('exporter sharded', function () {
       content: asAsyncIterable(files[path].content)
     })), block, {
       wrapWithDirectory: true,
-      shardSplitThreshold: SHARD_SPLIT_THRESHOLD
+      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD
     }))
 
     const dirCid = imported.pop()?.cid

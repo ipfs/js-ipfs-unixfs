@@ -169,9 +169,9 @@
   },
   "devDependencies": {
     "aegir": "^38.1.2",
-    "assert": "^2.0.0",
     "blockstore-core": "^3.0.0",
     "it-buffer-stream": "^3.0.0",
+    "it-last": "^2.0.0",
     "wherearewe": "^2.0.1"
   },
   "browser": {

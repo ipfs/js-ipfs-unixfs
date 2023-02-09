@@ -1,6 +1,6 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import Dir from './dir.js'
+import { Dir, CID_V0, CID_V1 } from './dir.js'
 import persist from './utils/persist.js'
 
 /**
@@ -21,8 +21,8 @@ class DirFlat extends Dir {
   constructor (props, options) {
     super(props, options)
 
-    /** @type {{ [key: string]: InProgressImportResult | Dir }} */
-    this._children = {}
+    /** @type {Map<string, InProgressImportResult | Dir>} */
+    this._children = new Map()
   }
 
   /**
@@ -32,19 +32,20 @@ class DirFlat extends Dir {
   async put (name, value) {
     this.cid = undefined
     this.size = undefined
+    this.nodeSize = undefined
 
-    this._children[name] = value
+    this._children.set(name, value)
   }
 
   /**
    * @param {string} name
    */
   get (name) {
-    return Promise.resolve(this._children[name])
+    return Promise.resolve(this._children.get(name))
   }
 
   childCount () {
-    return Object.keys(this._children).length
+    return this._children.size
   }
 
   directChildrenCount () {
@@ -52,20 +53,34 @@ class DirFlat extends Dir {
   }
 
   onlyChild () {
-    return this._children[Object.keys(this._children)[0]]
+    return this._children.values().next().value
   }
 
   async * eachChildSeries () {
-    const keys = Object.keys(this._children)
-
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-
+    for (const [key, child] of this._children.entries()) {
       yield {
-        key: key,
-        child: this._children[key]
+        key,
+        child
       }
     }
+  }
+
+  estimateNodeSize () {
+    if (this.nodeSize !== undefined) {
+      return this.nodeSize
+    }
+
+    this.nodeSize = 0
+
+    // estimate size only based on DAGLink name and CID byte lengths
+    // https://github.com/ipfs/go-unixfsnode/blob/37b47f1f917f1b2f54c207682f38886e49896ef9/data/builder/directory.go#L81-L96
+    for (const [name, child] of this._children.entries()) {
+      if (child.size != null && child.cid) {
+        this.nodeSize += name.length + (this.options.cidVersion === 1 ? CID_V1.bytes.byteLength : CID_V0.bytes.byteLength)
+      }
+    }
+
+    return this.nodeSize
   }
 
   /**
@@ -73,12 +88,9 @@ class DirFlat extends Dir {
    * @returns {AsyncIterable<ImportResult>}
    */
   async * flush (block) {
-    const children = Object.keys(this._children)
     const links = []
 
-    for (let i = 0; i < children.length; i++) {
-      let child = this._children[children[i]]
-
+    for (let [name, child] of this._children.entries()) {
       if (child instanceof Dir) {
         for await (const entry of child.flush(block)) {
           child = entry
@@ -89,7 +101,7 @@ class DirFlat extends Dir {
 
       if (child.size != null && child.cid) {
         links.push({
-          Name: children[i],
+          Name: name,
           Tsize: child.size,
           Hash: child.cid
         })

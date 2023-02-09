@@ -25,7 +25,7 @@ const DEFAULT_FILE_MODE = parseInt('0644', 8)
 const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 
 /**
- * @param {string | number | undefined} [mode]
+ * @param {string | number | null | undefined} [mode]
  */
 export function parseMode (mode) {
   if (mode == null) {
@@ -161,7 +161,7 @@ class UnixFS {
    * @param {number} [options.hashType]
    * @param {number} [options.fanout]
    * @param {MtimeLike | null} [options.mtime]
-   * @param {number | string} [options.mode]
+   * @param {number | string | null} [options.mode]
    */
   constructor (options = {
     type: 'file'

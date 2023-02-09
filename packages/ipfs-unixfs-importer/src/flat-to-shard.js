@@ -2,7 +2,7 @@ import DirSharded from './dir-sharded.js'
 import DirFlat from './dir-flat.js'
 
 /**
- * @typedef {import('./dir').default} Dir
+ * @typedef {import('./dir').Dir} Dir
  * @typedef {import('./types').ImporterOptions} ImporterOptions
  */
 
@@ -16,7 +16,7 @@ import DirFlat from './dir-flat.js'
 async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
-  if (dir instanceof DirFlat && dir.directChildrenCount() >= threshold) {
+  if (dir instanceof DirFlat && dir.estimateNodeSize() > threshold) {
     newDir = await convertToShard(dir, options)
   }
 

@@ -724,7 +724,7 @@ strategies.forEach((strategy) => {
       const options = {
         cidVersion: 1,
         // Ensures we use DirSharded for the data below
-        shardSplitThreshold: 3
+        shardSplitThresholdBytes: 3
       }
 
       const files = await all(importer(inputFiles.map(file => ({
@@ -941,7 +941,7 @@ strategies.forEach((strategy) => {
       }, {
         path: '/foo/qux'
       }], block, {
-        shardSplitThreshold: 0
+        shardSplitThresholdBytes: 0
       }))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))

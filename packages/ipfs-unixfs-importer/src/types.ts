@@ -57,7 +57,7 @@ export interface UserImporterOptions {
   leafType?: 'file' | 'raw'
   cidVersion?: CIDVersion
   progress?: ProgressHandler
-  shardSplitThreshold?: number
+  shardSplitThresholdBytes?: number
   fileImportConcurrency?: number
   blockWriteConcurrency?: number
   minChunkSize?: number
@@ -90,7 +90,7 @@ export interface ImporterOptions {
   leafType: 'file' | 'raw'
   cidVersion: CIDVersion
   progress: ProgressHandler
-  shardSplitThreshold: number
+  shardSplitThresholdBytes: number
   fileImportConcurrency: number
   blockWriteConcurrency: number
   minChunkSize: number

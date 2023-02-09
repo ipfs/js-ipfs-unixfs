@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v12.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v12.0.0...ipfs-unixfs-importer-v12.0.1) (2023-02-09)
+
+
+### Dependencies
+
+* bump aegir from 37.12.1 to 38.1.2 ([#281](https://github.com/ipfs/js-ipfs-unixfs/issues/281)) ([ee4784e](https://github.com/ipfs/js-ipfs-unixfs/commit/ee4784ea5a6fc805019ad6f9b742aac7d33c0bb3))
+
 ## [ipfs-unixfs-importer-v12.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v11.0.1...ipfs-unixfs-importer-v12.0.0) (2023-01-06)
 
 

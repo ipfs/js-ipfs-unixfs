@@ -157,7 +157,7 @@
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
     "interface-blockstore": "^4.0.0",
-    "ipfs-unixfs": "^9.0.0",
+    "ipfs-unixfs": "^10.0.0",
     "it-last": "^2.0.0",
     "it-map": "^2.0.0",
     "it-parallel": "^3.0.0",

@@ -1,3 +1,19 @@
+## [ipfs-unixfs-importer-v13.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v12.0.1...ipfs-unixfs-importer-v13.0.0) (2023-02-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* the `shardSplitThreshold` option has changed to `shardSplitThresholdBytes` and reflects a DAGNode size where sharding might kick in
+
+### Features
+
+* auto-shard based on node size ([#171](https://github.com/ipfs/js-ipfs-unixfs/issues/171)) ([6ef187f](https://github.com/ipfs/js-ipfs-unixfs/commit/6ef187f44f4cfac8efed50dde52fe555a3eea397)), closes [#149](https://github.com/ipfs/js-ipfs-unixfs/issues/149)
+
+
+### Dependencies
+
+* update sibling dependencies ([1a37705](https://github.com/ipfs/js-ipfs-unixfs/commit/1a377055647cfd0263f9b31a2613f72944333bc0))
+
 ## [ipfs-unixfs-importer-v12.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v12.0.0...ipfs-unixfs-importer-v12.0.1) (2023-02-09)
 
 

@@ -1,3 +1,14 @@
+## [ipfs-unixfs-v10.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v9.0.1...ipfs-unixfs-v10.0.0) (2023-02-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* the `shardSplitThreshold` option has changed to `shardSplitThresholdBytes` and reflects a DAGNode size where sharding might kick in
+
+### Features
+
+* auto-shard based on node size ([#171](https://github.com/ipfs/js-ipfs-unixfs/issues/171)) ([6ef187f](https://github.com/ipfs/js-ipfs-unixfs/commit/6ef187f44f4cfac8efed50dde52fe555a3eea397)), closes [#149](https://github.com/ipfs/js-ipfs-unixfs/issues/149)
+
 ## [ipfs-unixfs-v9.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v9.0.0...ipfs-unixfs-v9.0.1) (2023-02-09)
 
 

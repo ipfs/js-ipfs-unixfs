@@ -34,7 +34,7 @@ async function addToTree (elem, tree, options) {
 
     if (last) {
       await parent.put(pathElem, elem)
-      tree = await flatToShard(null, parent, options.shardSplitThreshold, options)
+      tree = await flatToShard(null, parent, options.shardSplitThresholdBytes, options)
     } else {
       let dir = await parent.get(pathElem)
 

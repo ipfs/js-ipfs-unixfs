@@ -26,7 +26,7 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(content)
       }], block, {
-        shardSplitThreshold: Infinity // never shard
+        shardSplitThresholdBytes: Infinity // never shard
       }))
 
       expect(nodes.length).to.equal(2)
@@ -62,7 +62,7 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(uint8ArrayFromString('i have the best bytes'))
       }], block, {
-        shardSplitThreshold: 0 // always shard
+        shardSplitThresholdBytes: 0 // always shard
       }))
 
       expect(nodes.length).to.equal(2)
@@ -84,7 +84,7 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
-        shardSplitThreshold: Infinity // never shard
+        shardSplitThresholdBytes: Infinity // never shard
       }))
 
       const nonShardedHash = nodes[1].cid
@@ -121,7 +121,7 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
-        shardSplitThreshold: 0 // always shard
+        shardSplitThresholdBytes: 0 // always shard
       }))
 
       const shardedHash = nodes[1].cid

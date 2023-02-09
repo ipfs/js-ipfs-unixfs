@@ -120,7 +120,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 `options` is an JavaScript option that might include the following keys:
 
 - `wrapWithDirectory` (boolean, defaults to false): if true, a wrapping node will be created
-- `shardSplitThreshold` (positive integer, defaults to 256KiB): if the serialized node is larger than this it will be converted to a HAMT sharded directory
+- `shardSplitThresholdBytes` (positive integer, defaults to 256KiB): if the serialized node is larger than this it will be converted to a HAMT sharded directory
 - `chunker` (string, defaults to `"fixed"`): the chunking strategy. Supports:
   - `fixed`
   - `rabin`

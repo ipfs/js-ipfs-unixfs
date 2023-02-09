@@ -34,7 +34,7 @@ const defaultOptions = {
   cidVersion: 0,
   progress: () => () => {},
   // https://github.com/ipfs/go-ipfs/pull/8114/files#diff-eec963b47a6e1080d9d8023b4e438e6e3591b4154f7379a7e728401d2055374aR319
-  shardSplitThreshold: 262144,
+  shardSplitThresholdBytes: 262144,
   fileImportConcurrency: 50,
   blockWriteConcurrency: 10,
   minChunkSize: 262144,

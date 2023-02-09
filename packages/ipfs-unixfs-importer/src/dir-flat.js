@@ -21,8 +21,8 @@ class DirFlat extends Dir {
   constructor (props, options) {
     super(props, options)
 
-    /** @type {{ [key: string]: InProgressImportResult | Dir }} */
-    this._children = {}
+    /** @type {Map<string, InProgressImportResult | Dir>} */
+    this._children = new Map()
   }
 
   /**
@@ -34,18 +34,18 @@ class DirFlat extends Dir {
     this.size = undefined
     this.nodeSize = undefined
 
-    this._children[name] = value
+    this._children.set(name, value)
   }
 
   /**
    * @param {string} name
    */
   get (name) {
-    return Promise.resolve(this._children[name])
+    return Promise.resolve(this._children.get(name))
   }
 
   childCount () {
-    return Object.keys(this._children).length
+    return this._children.size
   }
 
   directChildrenCount () {
@@ -53,18 +53,14 @@ class DirFlat extends Dir {
   }
 
   onlyChild () {
-    return this._children[Object.keys(this._children)[0]]
+    return this._children.values().next().value
   }
 
   async * eachChildSeries () {
-    const keys = Object.keys(this._children)
-
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-
+    for (const [key, child] of this._children.entries()) {
       yield {
-        key: key,
-        child: this._children[key]
+        key,
+        child
       }
     }
   }
@@ -76,8 +72,7 @@ class DirFlat extends Dir {
 
     const links = []
 
-    for (const name of Object.keys(this._children)) {
-      const child = this._children[name]
+    for (const [name, child] of this._children.entries()) {
       let size
 
       if (child instanceof Dir) {
@@ -111,12 +106,9 @@ class DirFlat extends Dir {
    * @returns {AsyncIterable<ImportResult>}
    */
   async * flush (block) {
-    const children = Object.keys(this._children)
     const links = []
 
-    for (let i = 0; i < children.length; i++) {
-      let child = this._children[children[i]]
-
+    for (let [name, child] of this._children.entries()) {
       if (child instanceof Dir) {
         for await (const entry of child.flush(block)) {
           child = entry
@@ -127,7 +119,7 @@ class DirFlat extends Dir {
 
       if (child.size != null && child.cid) {
         links.push({
-          Name: children[i],
+          Name: name,
           Tsize: child.size,
           Hash: child.cid
         })

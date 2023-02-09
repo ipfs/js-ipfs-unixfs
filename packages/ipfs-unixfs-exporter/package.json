@@ -169,17 +169,14 @@
   },
   "devDependencies": {
     "@types/sinon": "^10.0.0",
-    "abort-controller": "^3.0.0",
     "aegir": "^38.1.2",
     "blockstore-core": "^3.0.0",
-    "crypto-browserify": "^3.12.0",
     "delay": "^5.0.0",
     "ipfs-unixfs-importer": "^12.0.0",
     "it-all": "^2.0.0",
     "it-buffer-stream": "^3.0.0",
     "it-first": "^2.0.0",
     "merge-options": "^3.0.4",
-    "native-abort-controller": "^1.0.3",
     "sinon": "^15.0.0"
   },
   "browser": {

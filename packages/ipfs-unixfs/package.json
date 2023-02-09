@@ -1,59 +1,53 @@
 {
   "name": "ipfs-unixfs",
-  "version": "6.0.6",
+  "version": "9.0.0",
   "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
-  "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
-  "main": "src/index.js",
-  "type": "module",
-  "browser": {
-    "fs": false
-  },
-  "scripts": {
-    "prepare": "aegir build --no-bundle && cp -R types dist",
-    "prepare:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
-    "prepare:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
-    "pretest": "aegir build --esm-tests",
-    "test": "aegir test",
-    "build": "aegir build && cp -R types dist",
-    "clean": "rimraf ./dist",
-    "lint": "aegir ts -p check && aegir lint",
-    "coverage": "nyc -s aegir test -t node && nyc report --reporter=html",
-    "depcheck": "aegir dep-check -i mkdirp -i @types/mocha -i nyc -i npm-run-all -i copy -i util"
-  },
+  "license": "Apache-2.0 OR MIT",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
   },
-  "keywords": [
-    "IPFS"
-  ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ipfs/js-ipfs-unixfs/issues"
   },
+  "keywords": [
+    "IPFS"
+  ],
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
   },
-  "homepage": "https://github.com/ipfs/js-ipfs-unixfs#readme",
-  "publishConfig": {
-    "directory": "dist"
+  "type": "module",
+  "types": "./dist/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "*",
+        "dist/*",
+        "dist/src/*",
+        "dist/src/*/index"
+      ],
+      "src/*": [
+        "*",
+        "dist/*",
+        "dist/src/*",
+        "dist/src/*/index"
+      ]
+    }
   },
-  "devDependencies": {
-    "@types/mocha": "^8.2.1",
-    "aegir": "^35.0.1",
-    "copy": "^0.3.2",
-    "mkdirp": "^1.0.4",
-    "npm-run-all": "^4.1.5",
-    "nyc": "^15.0.0",
-    "uint8arrays": "^3.0.0",
-    "util": "^0.12.3"
+  "files": [
+    "src",
+    "dist",
+    "!dist/test",
+    "!**/*.tsbuildinfo"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./src/index.js"
+    }
   },
-  "dependencies": {
-    "err-code": "^3.0.1",
-    "protobufjs": "^6.10.2"
-  },
-  "types": "types/src/index.d.ts",
   "eslintConfig": {
     "extends": "ipfs",
     "parserOptions": {
@@ -62,5 +56,119 @@
     "ignorePatterns": [
       "src/unixfs.d.ts"
     ]
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "breaking": true,
+              "release": "major"
+            },
+            {
+              "revert": true,
+              "release": "patch"
+            },
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "release": "patch"
+            },
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "test",
+              "release": "patch"
+            },
+            {
+              "type": "deps",
+              "release": "patch"
+            },
+            {
+              "scope": "no-release",
+              "release": false
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "Features"
+              },
+              {
+                "type": "fix",
+                "section": "Bug Fixes"
+              },
+              {
+                "type": "chore",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "docs",
+                "section": "Documentation"
+              },
+              {
+                "type": "deps",
+                "section": "Dependencies"
+              },
+              {
+                "type": "test",
+                "section": "Tests"
+              }
+            ]
+          }
+        }
+      ],
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
+  },
+  "scripts": {
+    "generate": "npm run generate:proto && generate:proto-types",
+    "generate:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
+    "generate:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
+    "test": "aegir test",
+    "test:node": "aegir test -t node --cov",
+    "test:chrome": "aegir test -t browser --cov",
+    "test:firefox": "aegir test -t browser -- --browser firefox",
+    "build": "aegir build",
+    "clean": "aegir clean",
+    "lint": "aegir lint",
+    "dep-check": "aegir dep-check",
+    "release": "aegir release"
+  },
+  "dependencies": {
+    "err-code": "^3.0.1",
+    "protobufjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "aegir": "^37.5.0",
+    "protobufjs-cli": "^1.0.0",
+    "uint8arrays": "^4.0.2"
+  },
+  "browser": {
+    "fs": false
+  },
+  "typedoc": {
+    "entryPoint": "./src/index.js"
   }
 }

@@ -1,3 +1,68 @@
+## [ipfs-unixfs-v9.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v8.0.0...ipfs-unixfs-v9.0.0) (2023-01-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* update dependencies (#278)
+
+### Bug Fixes
+
+* update dependencies ([#278](https://github.com/ipfs/js-ipfs-unixfs/issues/278)) ([0e1e3d3](https://github.com/ipfs/js-ipfs-unixfs/commit/0e1e3d37b2fe6c6fe96d0c851a53d6eb413d8fbd))
+
+
+### Trivial Changes
+
+* update project config ([#274](https://github.com/ipfs/js-ipfs-unixfs/issues/274)) ([4d9a4fd](https://github.com/ipfs/js-ipfs-unixfs/commit/4d9a4fd690e54cc72d2b985357932aaf22413ec7))
+
+## [ipfs-unixfs-v8.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v7.0.0...ipfs-unixfs-v8.0.0) (2022-10-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* CIDs returned are instances from `multiformats@10.x.x` and not `multiformats@9.x.x`
+
+### Dependencies
+
+* update multiformats to 10.x.x and all @ipld/* modules ([#265](https://github.com/ipfs/js-ipfs-unixfs/issues/265)) ([7a12568](https://github.com/ipfs/js-ipfs-unixfs/commit/7a1256835d85ab9e4f40dd954217d32fdb241517))
+
+## [ipfs-unixfs-v7.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.9...ipfs-unixfs-v7.0.0) (2022-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* This module used to be dual published as CJS/ESM, now it is just ESM
+
+### Dependencies
+
+* update aegir to 37.x.x ([#243](https://github.com/ipfs/js-ipfs-unixfs/issues/243)) ([9fccb7c](https://github.com/ipfs/js-ipfs-unixfs/commit/9fccb7c4bf989c052ba67ab2c9280273aecfda36))
+
+## [ipfs-unixfs-v6.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.8...ipfs-unixfs-v6.0.9) (2022-05-27)
+
+
+### Bug Fixes
+
+* remove typesVersions from package.json ([#219](https://github.com/ipfs/js-ipfs-unixfs/issues/219)) ([465670e](https://github.com/ipfs/js-ipfs-unixfs/commit/465670eab2e707b14b14047e2da4ede23590196e)), closes [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214) [#161](https://github.com/ipfs/js-ipfs-unixfs/issues/161) [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214)
+
+
+### Trivial Changes
+
+* update dep-check command ([#221](https://github.com/ipfs/js-ipfs-unixfs/issues/221)) ([5802bd3](https://github.com/ipfs/js-ipfs-unixfs/commit/5802bd366768e1a024fad30e4190aed866f5c9ec))
+
+## [ipfs-unixfs-v6.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.7...ipfs-unixfs-v6.0.8) (2022-05-27)
+
+
+### Bug Fixes
+
+* update deps ([#220](https://github.com/ipfs/js-ipfs-unixfs/issues/220)) ([08e851e](https://github.com/ipfs/js-ipfs-unixfs/commit/08e851e9c0dedf15f3a737157978a767343334f0))
+
+## [ipfs-unixfs-v6.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v6.0.6...ipfs-unixfs-v6.0.7) (2022-04-26)
+
+
+### Trivial Changes
+
+* switch to auto-release ([#208](https://github.com/ipfs/js-ipfs-unixfs/issues/208)) ([99386e6](https://github.com/ipfs/js-ipfs-unixfs/commit/99386e61979214e8ef79915800a6ed7154938342))
+* update readmes ([#188](https://github.com/ipfs/js-ipfs-unixfs/issues/188)) ([273a141](https://github.com/ipfs/js-ipfs-unixfs/commit/273a141b5ee3805bd0ef2dc8ed7870f8c6c8a820))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.

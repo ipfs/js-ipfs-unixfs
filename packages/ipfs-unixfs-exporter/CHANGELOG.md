@@ -1,3 +1,151 @@
+## [ipfs-unixfs-exporter-v10.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v9.0.2...ipfs-unixfs-exporter-v10.0.0) (2023-01-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* update dependencies (#278)
+
+### Bug Fixes
+
+* update dependencies ([#278](https://github.com/ipfs/js-ipfs-unixfs/issues/278)) ([0e1e3d3](https://github.com/ipfs/js-ipfs-unixfs/commit/0e1e3d37b2fe6c6fe96d0c851a53d6eb413d8fbd))
+
+
+### Dependencies
+
+* update sibling dependencies ([1d0baea](https://github.com/ipfs/js-ipfs-unixfs/commit/1d0baeafa3e7008dc1c89431aac6ee92e51fb544))
+* update sibling dependencies ([d853c0e](https://github.com/ipfs/js-ipfs-unixfs/commit/d853c0ee16afc38b887130c1a8e891664982e048))
+
+## [ipfs-unixfs-exporter-v9.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v9.0.1...ipfs-unixfs-exporter-v9.0.2) (2022-12-15)
+
+
+### Trivial Changes
+
+* update project config ([#274](https://github.com/ipfs/js-ipfs-unixfs/issues/274)) ([4d9a4fd](https://github.com/ipfs/js-ipfs-unixfs/commit/4d9a4fd690e54cc72d2b985357932aaf22413ec7))
+
+
+### Dependencies
+
+* **dev:** bump sinon from 14.0.2 to 15.0.0 ([#272](https://github.com/ipfs/js-ipfs-unixfs/issues/272)) ([73559d2](https://github.com/ipfs/js-ipfs-unixfs/commit/73559d23d483d004a60a96803a8404f1e8956a05))
+
+## [ipfs-unixfs-exporter-v9.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v9.0.0...ipfs-unixfs-exporter-v9.0.1) (2022-10-19)
+
+
+### Dependencies
+
+* update sibling deps ([#268](https://github.com/ipfs/js-ipfs-unixfs/issues/268)) ([7dac8b5](https://github.com/ipfs/js-ipfs-unixfs/commit/7dac8b5b4916aaf553d045293ee53177fbaf5044))
+
+## [ipfs-unixfs-exporter-v9.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.6...ipfs-unixfs-exporter-v9.0.0) (2022-10-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* CIDs returned are instances from `multiformats@10.x.x` and not `multiformats@9.x.x`
+
+### Dependencies
+
+* update multiformats to 10.x.x and all @ipld/* modules ([#265](https://github.com/ipfs/js-ipfs-unixfs/issues/265)) ([7a12568](https://github.com/ipfs/js-ipfs-unixfs/commit/7a1256835d85ab9e4f40dd954217d32fdb241517))
+
+## [ipfs-unixfs-exporter-v8.0.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.5...ipfs-unixfs-exporter-v8.0.6) (2022-09-21)
+
+
+### Bug Fixes
+
+* prevent OOM on very deep DAGs ([#253](https://github.com/ipfs/js-ipfs-unixfs/issues/253)) ([62494bf](https://github.com/ipfs/js-ipfs-unixfs/commit/62494bf8cdea7b7ea430a6517c526798bc01b747))
+
+## [ipfs-unixfs-exporter-v8.0.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.4...ipfs-unixfs-exporter-v8.0.5) (2022-08-31)
+
+
+### Bug Fixes
+
+* specify return type of the importer to generate correct types ([#251](https://github.com/ipfs/js-ipfs-unixfs/issues/251)) ([3343366](https://github.com/ipfs/js-ipfs-unixfs/commit/33433660a1f762d3e9b9a431cfb956136821cfb1)), closes [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214)
+
+## [ipfs-unixfs-exporter-v8.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.3...ipfs-unixfs-exporter-v8.0.4) (2022-08-17)
+
+
+### Bug Fixes
+
+* yield buf after reading length to make it safe to use with worker transfer ([eeeda23](https://github.com/ipfs/js-ipfs-unixfs/commit/eeeda2397ccd2ccebb1de5f34af126d697ac80f5))
+
+## [ipfs-unixfs-exporter-v8.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.2...ipfs-unixfs-exporter-v8.0.3) (2022-08-17)
+
+
+### Bug Fixes
+
+* handle empty files again ([4c1b9f6](https://github.com/ipfs/js-ipfs-unixfs/commit/4c1b9f666a77ffc2bc9f5fbaa6342257052d6e62))
+
+## [ipfs-unixfs-exporter-v8.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.1...ipfs-unixfs-exporter-v8.0.2) (2022-08-17)
+
+
+### Bug Fixes
+
+* parallelise loading of dag-pb links when exporting ([#249](https://github.com/ipfs/js-ipfs-unixfs/issues/249)) ([862d63b](https://github.com/ipfs/js-ipfs-unixfs/commit/862d63bc4e158187ff6fb97c680b8886e0d2001a)), closes [#237](https://github.com/ipfs/js-ipfs-unixfs/issues/237)
+
+## [ipfs-unixfs-exporter-v8.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v8.0.0...ipfs-unixfs-exporter-v8.0.1) (2022-08-16)
+
+
+### Bug Fixes
+
+* update types import path and deps ([#248](https://github.com/ipfs/js-ipfs-unixfs/issues/248)) ([2edd327](https://github.com/ipfs/js-ipfs-unixfs/commit/2edd327bbe25880a83a8ea00963a22e3f9fa4449))
+
+## [ipfs-unixfs-exporter-v8.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.11...ipfs-unixfs-exporter-v8.0.0) (2022-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* This module used to be dual published as CJS/ESM, now it is just ESM
+
+### Dependencies
+
+* update aegir to 37.x.x ([#243](https://github.com/ipfs/js-ipfs-unixfs/issues/243)) ([9fccb7c](https://github.com/ipfs/js-ipfs-unixfs/commit/9fccb7c4bf989c052ba67ab2c9280273aecfda36))
+* update hamt-sharding to 3.0.0 ([#244](https://github.com/ipfs/js-ipfs-unixfs/issues/244)) ([50a7607](https://github.com/ipfs/js-ipfs-unixfs/commit/50a7607d1876dab0b34dfe79704688f01ce1d449))
+
+## [ipfs-unixfs-exporter-v7.0.11](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.10...ipfs-unixfs-exporter-v7.0.11) (2022-05-27)
+
+
+### Bug Fixes
+
+* remove typesVersions from package.json ([#219](https://github.com/ipfs/js-ipfs-unixfs/issues/219)) ([465670e](https://github.com/ipfs/js-ipfs-unixfs/commit/465670eab2e707b14b14047e2da4ede23590196e)), closes [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214) [#161](https://github.com/ipfs/js-ipfs-unixfs/issues/161) [#214](https://github.com/ipfs/js-ipfs-unixfs/issues/214)
+
+
+### Trivial Changes
+
+* update dep-check command ([#221](https://github.com/ipfs/js-ipfs-unixfs/issues/221)) ([5802bd3](https://github.com/ipfs/js-ipfs-unixfs/commit/5802bd366768e1a024fad30e4190aed866f5c9ec))
+
+## [ipfs-unixfs-exporter-v7.0.10](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.9...ipfs-unixfs-exporter-v7.0.10) (2022-05-27)
+
+
+### Bug Fixes
+
+* update deps ([#220](https://github.com/ipfs/js-ipfs-unixfs/issues/220)) ([08e851e](https://github.com/ipfs/js-ipfs-unixfs/commit/08e851e9c0dedf15f3a737157978a767343334f0))
+
+## [ipfs-unixfs-exporter-v7.0.9](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.8...ipfs-unixfs-exporter-v7.0.9) (2022-05-27)
+
+
+### Trivial Changes
+
+* bump @ipld/dag-cbor from 6.0.15 to 7.0.2 ([#216](https://github.com/ipfs/js-ipfs-unixfs/issues/216)) ([daeb686](https://github.com/ipfs/js-ipfs-unixfs/commit/daeb68612ab2491f5906a5cb7a9c25fec0b3ce57))
+* bump sinon from 11.1.2 to 14.0.0 ([#213](https://github.com/ipfs/js-ipfs-unixfs/issues/213)) ([5ab15c1](https://github.com/ipfs/js-ipfs-unixfs/commit/5ab15c18a412d18fddc18cacc6b0c775320cb814))
+
+## [ipfs-unixfs-exporter-v7.0.8](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.7...ipfs-unixfs-exporter-v7.0.8) (2022-05-04)
+
+
+### Bug Fixes
+
+* metadata on small files without raw leaves ([#212](https://github.com/ipfs/js-ipfs-unixfs/issues/212)) ([bef09cd](https://github.com/ipfs/js-ipfs-unixfs/commit/bef09cdb143808305d7947f57eba3aac33298c23))
+
+## [ipfs-unixfs-exporter-v7.0.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v7.0.6...ipfs-unixfs-exporter-v7.0.7) (2022-04-26)
+
+
+### Bug Fixes
+
+* do not add metadata to leaves ([#193](https://github.com/ipfs/js-ipfs-unixfs/issues/193)) ([f5d3a67](https://github.com/ipfs/js-ipfs-unixfs/commit/f5d3a670e163632913229a1b75ec12a2d6847326))
+
+
+### Trivial Changes
+
+* switch to auto-release ([#208](https://github.com/ipfs/js-ipfs-unixfs/issues/208)) ([99386e6](https://github.com/ipfs/js-ipfs-unixfs/commit/99386e61979214e8ef79915800a6ed7154938342))
+* update readmes ([#188](https://github.com/ipfs/js-ipfs-unixfs/issues/188)) ([273a141](https://github.com/ipfs/js-ipfs-unixfs/commit/273a141b5ee3805bd0ef2dc8ed7870f8c6c8a820))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.

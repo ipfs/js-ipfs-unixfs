@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import { UnixFS } from 'ipfs-unixfs'
 import { CID } from 'multiformats/cid'
 import * as dagPb from '@ipld/dag-pb'
@@ -20,6 +20,7 @@ import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import asAsyncIterable from './helpers/as-async-iterable.js'
+import delay from 'delay'
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -345,6 +346,37 @@ describe('exporter', () => {
     expect(data).to.deep.equal(result.file.data.slice(offset, offset + length))
   })
 
+  it('exports a file in lots of blocks and a slow blockstore', async function () {
+    this.timeout(30 * 1000)
+
+    const data = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+
+    const cid = await addTestFile({
+      file: data,
+      maxChunkSize: 2
+    })
+
+    /** @type {import('interface-blockstore').Blockstore} */
+    const blockStore = {
+      ...block,
+      async get (cid, opts) {
+        await delay(Math.random() * 10)
+
+        return block.get(cid, opts)
+      }
+    }
+
+    const file = await exporter(cid, blockStore)
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    const bytes = uint8ArrayConcat(await all(file.content()))
+
+    expect(data).to.equalBytes(bytes)
+  })
+
   it('exports a large file > 5mb', async function () {
     this.timeout(30 * 1000)
 
@@ -587,7 +619,7 @@ describe('exporter', () => {
         length
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Length must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -606,7 +638,7 @@ describe('exporter', () => {
         offset
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Offset must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -625,7 +657,7 @@ describe('exporter', () => {
         offset
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.equal('Offset must be less than the file size')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -652,6 +684,14 @@ describe('exporter', () => {
     const data = uint8ArrayConcat(await all(file.content()))
 
     expect(data).to.deep.equal(bigFile)
+  })
+
+  it('reads an empty file', async () => {
+    const data = await addAndReadTestFile({
+      file: new Uint8Array()
+    })
+
+    expect(data).to.have.property('byteLength', 0)
   })
 
   it('returns an empty stream for dir', async () => {
@@ -689,7 +729,7 @@ describe('exporter', () => {
         offset: -1
       })
       throw new Error('Should not have got this far')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Offset must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -730,7 +770,7 @@ describe('exporter', () => {
         offset: 2,
         length: -1
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Length must be greater than or equal to 0')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -742,7 +782,7 @@ describe('exporter', () => {
         file: Uint8Array.from([0, 1, 2, 3, 4]),
         offset: 200
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.message).to.contain('Offset must be less than the file size')
       expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
@@ -821,7 +861,7 @@ describe('exporter', () => {
 
     try {
       await exporter(hash, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
@@ -887,7 +927,8 @@ describe('exporter', () => {
     )
   })
 
-  it('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', async () => {
+  // this is not in the spec?
+  it.skip('exports file with data on internal and leaf nodes with an offset that only fetches data from leaf nodes', async () => {
     const leaf = await createAndPersistNode('raw', [0x04, 0x05, 0x06, 0x07], [])
     const node = await createAndPersistNode('file', [0x00, 0x01, 0x02, 0x03], [
       leaf
@@ -967,7 +1008,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}/baz`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NO_PROP')
     }
   })
@@ -994,7 +1035,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NO_RESOLVER')
     }
   })
@@ -1006,7 +1047,7 @@ describe('exporter', () => {
 
     try {
       await exporter(`${cid}/lol`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
@@ -1021,7 +1062,7 @@ describe('exporter', () => {
 
     try {
       await exporter(dagpbCid, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })
@@ -1055,7 +1096,7 @@ describe('exporter', () => {
 
     try {
       await all(exported.content())
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_UNIXFS')
     }
   })

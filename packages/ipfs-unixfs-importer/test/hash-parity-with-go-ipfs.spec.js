@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import { importer } from '../src/index.js'
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
 import first from 'it-first'
 import blockApi from './helpers/block.js'

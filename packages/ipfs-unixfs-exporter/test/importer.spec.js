@@ -3,11 +3,11 @@
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter, recursive } from '../src/index.js'
 import extend from 'merge-options'
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { UnixFS, parseMtime } from 'ipfs-unixfs'
 import collectLeafCids from './helpers/collect-leaf-cids.js'
-import loadFixture from 'aegir/utils/fixtures.js'
+import loadFixture from 'aegir/fixtures'
 import all from 'it-all'
 import first from 'it-first'
 import blockApi from './helpers/block.js'
@@ -381,7 +381,7 @@ strategies.forEach((strategy) => {
           content: 7
         }], block, options))
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
       }
     })
@@ -398,7 +398,7 @@ strategies.forEach((strategy) => {
           }
         }], block, options))
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_INVALID_CONTENT')
       }
     })
@@ -670,7 +670,7 @@ strategies.forEach((strategy) => {
         await block.get(file.cid)
 
         throw new Error('No error was thrown')
-      } catch (err) {
+      } catch (/** @type {any} */ err) {
         expect(err.code).to.equal('ERR_NOT_FOUND')
       }
     })
@@ -1045,6 +1045,52 @@ strategies.forEach((strategy) => {
       const node2 = await exporter(entries[1].cid, block)
       expect(node2).to.have.nested.property('unixfs.mode', 0o0755)
     })
+
+    it('should only add metadata to the root node of a file', async () => {
+      this.timeout(60 * 1000)
+
+      const mtime = { secs: 5000, nsecs: 0 }
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: asAsyncIterable(bigFile),
+        mtime
+      }], block))
+
+      const root = await exporter(entries[0].cid, block)
+      expect(root).to.have.deep.nested.property('unixfs.mtime', mtime)
+
+      if (root.node instanceof Uint8Array) {
+        throw new Error('Root node was not large enough to have children')
+      }
+
+      const child = await exporter(root.node.Links[0].Hash, block)
+
+      if (child.type !== 'file') {
+        throw new Error('Child node was wrong type')
+      }
+
+      expect(child).to.have.property('unixfs')
+      expect(child).to.not.have.nested.property('unixfs.mtime')
+    })
+
+    it('should add metadata to the root node of a small file without raw leaves', async () => {
+      this.timeout(60 * 1000)
+
+      const mode = 511
+
+      const entries = await all(importer([{
+        path: '/foo/file1.txt',
+        content: asAsyncIterable(smallFile),
+        mode
+      }], block, {
+        rawLeaves: false
+      }))
+
+      const root = await exporter(entries[0].cid, block)
+
+      expect(root).to.have.nested.property('unixfs.mode', 511)
+    })
   })
 })
 
@@ -1061,7 +1107,7 @@ describe('configuration', () => {
       path: 'path',
       content: 'content'
     }], block, {
-      /** @type {import('ipfs-unixfs-importer/src/types').DAGBuilder} */
+      /** @type {import('ipfs-unixfs-importer').DAGBuilder} */
       dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         yield function () {
           return Promise.resolve({
@@ -1072,7 +1118,7 @@ describe('configuration', () => {
           })
         }
       },
-      /** @type {import('ipfs-unixfs-importer/src/types').TreeBuilder} */
+      /** @type {import('ipfs-unixfs-importer').TreeBuilder} */
       treeBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
         builtTree = true
         yield * source

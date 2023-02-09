@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import { UnixFS } from 'ipfs-unixfs'
 import all from 'it-all'
 import last from 'it-last'

@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 
 /** @type {(path: string) => Uint8Array} */
-import loadFixture from 'aegir/utils/fixtures.js'
+import loadFixture from 'aegir/fixtures'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
 import { UnixFS } from '../src/index.js'
@@ -393,7 +393,7 @@ describe('unixfs-format', () => {
       new UnixFS({
         type: 'bananas'
       })
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
       done()
     }
@@ -405,7 +405,7 @@ describe('unixfs-format', () => {
 
     try {
       entry.marshal()
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err).to.have.property('code', 'ERR_INVALID_TYPE')
       done()
     }

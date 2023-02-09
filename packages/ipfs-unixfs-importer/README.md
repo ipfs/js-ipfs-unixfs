@@ -1,37 +1,39 @@
 # ipfs-unixfs-importer <!-- omit in toc -->
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
-[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
-[![Build Status](https://flat.badgen.net/travis/ipfs/js-ipfs-unixfs)](https://travis-ci.com/ipfs/js-ipfs-unixfs)
-[![Codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
+[![ipfs.tech](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](https://ipfs.tech)
+[![Discuss](https://img.shields.io/discourse/https/discuss.ipfs.tech/posts.svg?style=flat-square)](https://discuss.ipfs.tech)
+[![codecov](https://img.shields.io/codecov/c/github/ipfs/js-ipfs-unixfs.svg?style=flat-square)](https://codecov.io/gh/ipfs/js-ipfs-unixfs)
+[![CI](https://img.shields.io/github/actions/workflow/status/ipfs/js-ipfs-unixfs/js-test-and-release.yml?branch=master\&style=flat-square)](https://github.com/ipfs/js-ipfs-unixfs/actions/workflows/js-test-and-release.yml?query=branch%3Amaster)
 
-> JavaScript implementation of the layout and chunking mechanisms used by IPFS to handle Files
+> JavaScript implementation of the UnixFs importer used by IPFS
 
-## Lead Maintainer <!-- omit in toc -->
-
-[Alex Potsides](https://github.com/achingbrain)
-
-## Table of Contents <!-- omit in toc -->
+## Table of contents <!-- omit in toc -->
 
 - [Install](#install)
-- [Usage](#usage)
-  - [Example](#example)
-    - [API](#api)
-    - [const stream = importer(source, ipld [, options])](#const-stream--importersource-ipld--options)
+  - [Browser `<script>` tag](#browser-script-tag)
+- [Example](#example)
+- [API](#api)
+  - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
 - [Overriding internals](#overriding-internals)
-- [Contribute](#contribute)
+- [API Docs](#api-docs)
 - [License](#license)
+- [Contribute](#contribute)
 
 ## Install
 
-```
-> npm install ipfs-unixfs-importer
+```console
+$ npm i ipfs-unixfs-importer
 ```
 
-## Usage
+### Browser `<script>` tag
 
-### Example
+Loading this module through a script tag will make it's exports available as `IpfsUnixfsImporter` in the global namespace.
+
+```html
+<script src="https://unpkg.com/ipfs-unixfs-importer/dist/index.min.js"></script>
+```
+
+## Example
 
 Let's create a little directory to import:
 
@@ -45,7 +47,11 @@ Let's create a little directory to import:
 And write the importing logic:
 
 ```js
-const { importer } = require('ipfs-unixfs-importer')
+import { importer } from 'ipfs-unixfs-importer'
+import { MemoryBlockstore } from 'blockstore-core/memory'
+
+// Where the blocks will be stored
+const blockstore = new MemoryBlockstore()
 
 // Import path /tmp/foo/bar
 const source = [{
@@ -56,9 +62,7 @@ const source = [{
   content: fs.createReadStream(file2)
 }]
 
-// You need to create and pass an ipld-resolve instance
-// https://github.com/ipld/js-ipld-resolver
-for await (const entry of importer(source, ipld, options)) {
+for await (const entry of importer(source, blockstore, options)) {
   console.info(entry)
 }
 ```
@@ -88,13 +92,13 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 }
 ```
 
-#### API
+## API
 
 ```js
-const { importer } = require('ipfs-unixfs-importer')
+import { importer } from 'ipfs-unixfs-importer'
 ```
 
-#### const stream = importer(source, ipld [, options])
+### const stream = importer(source, blockstore \[, options])
 
 The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
 
@@ -109,9 +113,9 @@ The `importer` function returns an async iterator takes a source async iterator 
 
 `stream` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
 
-`ipld` is an instance of the [`IPLD Resolver`](https://github.com/ipld/js-ipld-resolver)
+`blockstore` is an instance of a [blockstore][]
 
-The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-ipld-dag-pb) created nodes.
+The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-dag-pb) created nodes.
 
 `options` is an JavaScript option that might include the following keys:
 
@@ -135,7 +139,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 - `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
 - `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
 - `hashAlg` (string): multihash hashing algorithm to use
-- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, _including_ it's version)
+- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, *including* it's version)
 - `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
 - `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
 - `blockWriteConcurrency` (positive integer, defaults to 10) How many blocks to hash and write to the block store concurrently. For small numbers of large files this should be high (e.g. 50).
@@ -150,32 +154,46 @@ Several aspects of the importer are overridable by specifying functions as part 
   - It should yield `Buffer` objects constructed from the `source` or throw an `Error`
 - `chunker` (function): Optional function that supports the signature `async function * (source, options)` where `source` is an async generator and `options` is an options object
   - It should yield `Buffer` objects.
-- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, ipld, options)`
-  - This function should read `Buffer`s from `source` and persist them using `ipld.put` or similar
+- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, blockstore, options)`
+  - This function should read `Buffer`s from `source` and persist them using `blockstore.put` or similar
   - `entry` is the `{ path, content }` entry, where `entry.content` is an async generator that yields Buffers
   - It should yield functions that return a Promise that resolves to an object with the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
   - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `blockWriteConcurrency` option (default: 10)
-- `dagBuilder` (function): Optional function that supports the signature `async function * (source, ipld, options)`
+- `dagBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
   - This function should read `{ path, content }` entries from `source` and turn them into DAGs
   - It should yield a `function` that returns a `Promise` that resolves to `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `node` is a `DAGNode`.
   - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `fileImportConcurrency` option (default: 50)
-- `treeBuilder` (function): Optional function that supports the signature `async function * (source, ipld, options)`
+- `treeBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
   - This function should read `{ cid, path, unixfs, node }` entries from `source` and place them in a directory structure
   - It should yield an object with the properties `{ cid, path, unixfs, size }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `size` is a `Number`.
 
-[ipld-resolver instance]: https://github.com/ipld/js-ipld-resolver
-[UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
-[IPLD]: https://github.com/ipld/js-ipld
-[CID]: https://github.com/multiformats/js-cid
+## API Docs
 
-## Contribute
-
-Feel free to join in. All welcome. Open an [issue](https://github.com/ipfs/js-ipfs-unixfs-importer/issues)!
-
-This repository falls under the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
-
-[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/contributing.md)
+- <https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs_importer.html>
 
 ## License
 
-[MIT](LICENSE)
+Licensed under either of
+
+- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+
+## Contribute
+
+Contributions welcome! Please check out [the issues](https://github.com/ipfs/js-ipfs-unixfs/issues).
+
+Also see our [contributing document](https://github.com/ipfs/community/blob/master/CONTRIBUTING_JS.md) for more information on how we work, and about contributing in general.
+
+Please be aware that all interactions related to this repo are subject to the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+[![](https://cdn.rawgit.com/jbenet/contribute-ipfs-gif/master/img/contribute.gif)](https://github.com/ipfs/community/blob/master/CONTRIBUTING.md)
+
+[blockstore]: https://github.com/ipfs/js-ipfs-interfaces/tree/master/packages/interface-blockstore#readme
+
+[UnixFS]: https://github.com/ipfs/specs/tree/master/unixfs
+
+[IPLD]: https://github.com/ipld/js-ipld
+
+[CID]: https://github.com/multiformats/js-cid

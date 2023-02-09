@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import last from 'it-last'
@@ -95,7 +95,7 @@ describe('exporter subtree', () => {
 
     try {
       await exporter(`${imported.cid}/doesnotexist`, block)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })

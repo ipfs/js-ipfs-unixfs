@@ -3,97 +3,125 @@ import validateOffsetAndLength from '../../../utils/validate-offset-and-length.j
 import { UnixFS } from 'ipfs-unixfs'
 import errCode from 'err-code'
 import * as dagPb from '@ipld/dag-pb'
-import * as dagCbor from '@ipld/dag-cbor'
 import * as raw from 'multiformats/codecs/raw'
+import { pushable } from 'it-pushable'
+import parallel from 'it-parallel'
+import { pipe } from 'it-pipe'
+import map from 'it-map'
+import PQueue from 'p-queue'
 
 /**
  * @typedef {import('../../../types').ExporterOptions} ExporterOptions
  * @typedef {import('interface-blockstore').Blockstore} Blockstore
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
- *
+ * @typedef {import('@ipld/dag-pb').PBLink} PBLink
+ */
+
+/**
  * @param {Blockstore} blockstore
- * @param {PBNode} node
+ * @param {PBNode | Uint8Array} node
+ * @param {import('it-pushable').Pushable<Uint8Array>} queue
+ * @param {number} streamPosition
  * @param {number} start
  * @param {number} end
- * @param {number} streamPosition
+ * @param {PQueue} walkQueue
  * @param {ExporterOptions} options
- * @returns {AsyncIterable<Uint8Array>}
+ * @returns {Promise<void>}
  */
-async function * emitBytes (blockstore, node, start, end, streamPosition = 0, options) {
+async function walkDAG (blockstore, node, queue, streamPosition, start, end, walkQueue, options) {
   // a `raw` node
   if (node instanceof Uint8Array) {
-    const buf = extractDataFromBlock(node, streamPosition, start, end)
+    queue.push(extractDataFromBlock(node, streamPosition, start, end))
 
-    if (buf.length) {
-      yield buf
-    }
-
-    streamPosition += buf.length
-
-    return streamPosition
+    return
   }
 
   if (node.Data == null) {
     throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
   }
 
+  /** @type {UnixFS} */
   let file
 
   try {
     file = UnixFS.unmarshal(node.Data)
-  } catch (err) {
+  } catch (/** @type {any} */ err) {
     throw errCode(err, 'ERR_NOT_UNIXFS')
   }
 
   // might be a unixfs `raw` node or have data on intermediate nodes
-  if (file.data && file.data.length) {
-    const buf = extractDataFromBlock(file.data, streamPosition, start, end)
+  if (file.data != null) {
+    const data = file.data
+    const buf = extractDataFromBlock(data, streamPosition, start, end)
 
-    if (buf.length) {
-      yield buf
-    }
+    queue.push(buf)
 
-    streamPosition += file.data.length
+    streamPosition += buf.byteLength
   }
 
-  let childStart = streamPosition
+  /** @type {Array<{ link: PBLink, blockStart: number }>} */
+  const childOps = []
 
-  // work out which child nodes contain the requested data
   for (let i = 0; i < node.Links.length; i++) {
     const childLink = node.Links[i]
-    const childEnd = streamPosition + file.blockSizes[i]
+    const childStart = streamPosition // inclusive
+    const childEnd = childStart + file.blockSizes[i] // exclusive
 
     if ((start >= childStart && start < childEnd) || // child has offset byte
-        (end > childStart && end <= childEnd) || // child has end byte
+        (end >= childStart && end <= childEnd) || // child has end byte
         (start < childStart && end > childEnd)) { // child is between offset and end bytes
-      const block = await blockstore.get(childLink.Hash, {
-        signal: options.signal
+      childOps.push({
+        link: childLink,
+        blockStart: streamPosition
       })
-      let child
-      switch (childLink.Hash.code) {
-        case dagPb.code:
-          child = await dagPb.decode(block)
-          break
-        case raw.code:
-          child = block
-          break
-        case dagCbor.code:
-          child = await dagCbor.decode(block)
-          break
-        default:
-          throw Error(`Unsupported codec: ${childLink.Hash.code}`)
-      }
-
-      for await (const buf of emitBytes(blockstore, child, start, end, streamPosition, options)) {
-        streamPosition += buf.length
-
-        yield buf
-      }
     }
 
     streamPosition = childEnd
-    childStart = childEnd + 1
+
+    if (streamPosition > end) {
+      break
+    }
   }
+
+  await pipe(
+    childOps,
+    (source) => map(source, (op) => {
+      return async () => {
+        const block = await blockstore.get(op.link.Hash, {
+          signal: options.signal
+        })
+
+        return {
+          ...op,
+          block
+        }
+      }
+    }),
+    (source) => parallel(source, {
+      ordered: true
+    }),
+    async (source) => {
+      for await (const { link, block, blockStart } of source) {
+        /** @type {PBNode | Uint8Array} */
+        let child
+        switch (link.Hash.code) {
+          case dagPb.code:
+            child = dagPb.decode(block)
+            break
+          case raw.code:
+            child = block
+            break
+          default:
+            queue.end(errCode(new Error(`Unsupported codec: ${link.Hash.code}`), 'ERR_NOT_UNIXFS'))
+            return
+        }
+
+        walkQueue.add(async () => {
+          await walkDAG(blockstore, child, queue, blockStart, start, end, walkQueue, options)
+        })
+      }
+    }
+  )
 }
 
 /**
@@ -103,7 +131,7 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   /**
    * @param {ExporterOptions} options
    */
-  function yieldFileContent (options = {}) {
+  async function * yieldFileContent (options = {}) {
     const fileSize = unixfs.fileSize()
 
     if (fileSize === undefined) {
@@ -115,10 +143,40 @@ const fileContent = (cid, node, unixfs, path, resolve, depth, blockstore) => {
       length
     } = validateOffsetAndLength(fileSize, options.offset, options.length)
 
-    const start = offset
-    const end = offset + length
+    if (length === 0) {
+      return
+    }
 
-    return emitBytes(blockstore, node, start, end, 0, options)
+    // use a queue to walk the DAG instead of recursion to ensure very deep DAGs
+    // don't overflow the stack
+    const walkQueue = new PQueue({
+      concurrency: 1
+    })
+    const queue = pushable()
+
+    walkQueue.add(async () => {
+      await walkDAG(blockstore, node, queue, 0, offset, offset + length, walkQueue, options)
+    })
+
+    walkQueue.on('error', error => {
+      queue.end(error)
+    })
+
+    let read = 0
+
+    for await (const buf of queue) {
+      if (buf == null) {
+        continue
+      }
+
+      read += buf.byteLength
+
+      if (read === length) {
+        queue.end()
+      }
+
+      yield buf
+    }
   }
 
   return yieldFileContent

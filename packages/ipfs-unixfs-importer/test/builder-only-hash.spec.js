@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import builder from '../src/dag-builder/index.js'
 import all from 'it-all'
 import blockApi from './helpers/block.js'
@@ -25,7 +25,7 @@ describe('builder: onlyHash', () => {
       await block.get((await nodes[0]()).cid)
 
       throw new Error('Should have errored')
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })

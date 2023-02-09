@@ -59,7 +59,7 @@ const unixFsResolver = async (cid, name, path, toResolve, resolve, depth, blocks
 
   try {
     unixfs = UnixFS.unmarshal(node.Data)
-  } catch (err) {
+  } catch (/** @type {any} */ err) {
     // non-UnixFS dag-pb node? It could happen.
     throw errCode(err, 'ERR_NOT_UNIXFS')
   }

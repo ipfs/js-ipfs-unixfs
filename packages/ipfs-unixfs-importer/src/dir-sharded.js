@@ -70,7 +70,7 @@ class DirSharded extends Dir {
     }
   }
 
-  calculateNodeSize () {
+  estimateNodeSize () {
     if (this.nodeSize !== undefined) {
       return this.nodeSize
     }

@@ -73,7 +73,7 @@ export class Dir {
   /**
    * @returns {number}
    */
-  calculateNodeSize () {
+  estimateNodeSize () {
     return 0
   }
 }

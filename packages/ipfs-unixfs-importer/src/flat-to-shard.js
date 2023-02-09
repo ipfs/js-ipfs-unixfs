@@ -16,7 +16,7 @@ import DirFlat from './dir-flat.js'
 async function flatToShard (child, dir, threshold, options) {
   let newDir = dir
 
-  if (dir instanceof DirFlat && dir.calculateNodeSize() > threshold) {
+  if (dir instanceof DirFlat && dir.estimateNodeSize() > threshold) {
     newDir = await convertToShard(dir, options)
   }
 

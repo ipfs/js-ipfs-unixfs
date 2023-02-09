@@ -79,9 +79,7 @@ describe('go-ipfs auto-sharding interop', function () {
   it('uses the same shard threshold as go-unixfsnode (under threshold)', async function () {
     const result = await last(importer(buildSource(threshold), block, {
       cidVersion: 1,
-      rawLeaves: true,
-      // TODO: https://github.com/ipfs/js-ipfs-unixfs/pull/171#issuecomment-1423893967
-      shardSplitThresholdBytes: 512000
+      rawLeaves: true
     }))
 
     if (!result) {

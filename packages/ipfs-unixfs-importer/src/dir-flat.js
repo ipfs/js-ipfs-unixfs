@@ -65,38 +65,20 @@ class DirFlat extends Dir {
     }
   }
 
-  calculateNodeSize () {
+  estimateNodeSize () {
     if (this.nodeSize !== undefined) {
       return this.nodeSize
     }
 
-    const links = []
+    this.nodeSize = 0
 
+    // estimate size only based on DAGLink name and CID byte lengths
+    // https://github.com/ipfs/go-unixfsnode/blob/37b47f1f917f1b2f54c207682f38886e49896ef9/data/builder/directory.go#L81-L96
     for (const [name, child] of this._children.entries()) {
-      let size
-
-      if (child instanceof Dir) {
-        size = child.calculateNodeSize()
-      } else {
-        size = child.size
-      }
-
       if (child.size != null && child.cid) {
-        links.push({
-          Name: name,
-          Tsize: size,
-          Hash: this.options.cidVersion === 0 ? CID_V0 : CID_V1
-        })
+        this.nodeSize += name.length + (this.options.cidVersion === 1 ? CID_V1.bytes.byteLength : CID_V0.bytes.byteLength)
       }
     }
-
-    const unixfs = new UnixFS({
-      type: 'directory',
-      mtime: this.mtime,
-      mode: this.mode
-    })
-
-    this.nodeSize = encode(prepare({ Data: unixfs.marshal(), Links: links })).length
 
     return this.nodeSize
   }

@@ -14,7 +14,7 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">Documentation</a></li>
 <li><a href="ipfs_unixfs_importer.html">ipfs-unixfs-importer</a></li></ul>
-<h1>Module ipfs-unixfs-importer - v12.0.1</h1></div><aside class="tsd-sources">
+<h1>Module ipfs-unixfs-importer - v13.0.0</h1></div><aside class="tsd-sources">
 <ul>
 <li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.js#L1">ipfs-unixfs-importer/src/index.js:1</a></li></ul></aside>
 <section class="tsd-panel-group">
@@ -93,7 +93,7 @@
 <p><code>options</code> is an JavaScript option that might include the following keys:</p>
 <ul>
 <li><code>wrapWithDirectory</code> (boolean, defaults to false): if true, a wrapping node will be created</li>
-<li><code>shardSplitThreshold</code> (positive integer, defaults to 1000): the number of directory entries above which we decide to use a sharding directory builder (instead of the default flat one)</li>
+<li><code>shardSplitThresholdBytes</code> (positive integer, defaults to 256KiB): if the serialized node is larger than this it might be converted to a HAMT sharded directory</li>
 <li><code>chunker</code> (string, defaults to <code>&quot;fixed&quot;</code>): the chunking strategy. Supports:<ul>
 <li><code>fixed</code></li>
 <li><code>rabin</code></li>
@@ -230,14 +230,14 @@
 <ul>
 <li class="current"><a href="../modules.html">Documentation</a>
 <ul>
-<li class="tsd-kind-module"><a href="ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v9.0.1</a></li>
-<li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v10.0.1</a>
+<li class="tsd-kind-module"><a href="ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v10.0.0</a></li>
+<li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v11.0.0</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.html">&lt;internal&gt;</a>
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_index_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/index&quot;</a></li>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.__home_runner_work_js_ipfs_unixfs_js_ipfs_unixfs_packages_ipfs_unixfs_dist_src_types_.html">&quot;/home/runner/work/js-<wbr/>ipfs-<wbr/>unixfs/js-<wbr/>ipfs-<wbr/>unixfs/packages/ipfs-<wbr/>unixfs/dist/src/types&quot;</a></li></ul></li></ul></li>
-<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v12.0.1</a>
+<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v13.0.0</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_importer._internal_.html">&lt;internal&gt;</a></li></ul></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">

@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs#readme",

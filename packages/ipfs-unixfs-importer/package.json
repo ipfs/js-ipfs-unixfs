@@ -148,7 +148,7 @@
     "merge-options": "^3.0.4",
     "multiformats": "^11.0.0",
     "rabin-wasm": "^0.1.4",
-    "uint8arraylist": "^2.3.3",
+    "uint8arraylist": "^2.4.3",
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {

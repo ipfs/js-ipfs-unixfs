@@ -20,22 +20,6 @@
   },
   "type": "module",
   "types": "./dist/src/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ],
-      "src/*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",
@@ -45,7 +29,7 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./dist/src/index.js"
     }
   },
   "eslintConfig": {
@@ -143,9 +127,7 @@
     ]
   },
   "scripts": {
-    "generate": "npm run generate:proto && generate:proto-types",
-    "generate:proto": "pbjs -t static-module -w es6 -r ipfs-unixfs --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/unixfs.js ./src/unixfs.proto",
-    "generate:proto-types": "pbts -o src/unixfs.d.ts src/unixfs.js",
+    "generate": "protons src/unixfs.proto",
     "test": "aegir test",
     "test:node": "aegir test -t node --cov",
     "test:chrome": "aegir test -t browser --cov",
@@ -153,16 +135,17 @@
     "build": "aegir build",
     "clean": "aegir clean",
     "lint": "aegir lint",
-    "dep-check": "aegir dep-check",
+    "dep-check": "aegir dep-check -i protons",
     "release": "aegir release"
   },
   "dependencies": {
     "err-code": "^3.0.1",
-    "protobufjs": "^7.0.0"
+    "protons-runtime": "^5.0.0",
+    "uint8arraylist": "^2.4.3"
   },
   "devDependencies": {
     "aegir": "^38.1.2",
-    "protobufjs-cli": "^1.0.0",
+    "protons": "^7.0.2",
     "uint8arrays": "^4.0.2"
   },
   "browser": {

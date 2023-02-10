@@ -20,22 +20,6 @@
   },
   "type": "module",
   "types": "./dist/src/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ],
-      "src/*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",
@@ -45,7 +29,7 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./dist/src/index.js"
     }
   },
   "eslintConfig": {
@@ -171,6 +155,7 @@
     "aegir": "^38.1.2",
     "blockstore-core": "^3.0.0",
     "it-buffer-stream": "^3.0.0",
+    "it-drain": "^2.0.0",
     "it-last": "^2.0.0",
     "wherearewe": "^2.0.1"
   },

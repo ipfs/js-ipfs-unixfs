@@ -311,7 +311,7 @@ export async function importContent (content: ImportCandidate, blockstore: Block
  * ```
  */
 export async function importBytes (buf: ImportContent, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
-  return importContent({
+  return await importContent({
     content: buf
   }, blockstore, options)
 }
@@ -338,7 +338,7 @@ export async function importBytes (buf: ImportContent, blockstore: Blockstore, o
  * ```
  */
 export async function importByteStream (bufs: ByteStream, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
-  return importContent({
+  return await importContent({
     content: bufs
   }, blockstore, options)
 }

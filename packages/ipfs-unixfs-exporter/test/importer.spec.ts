@@ -216,7 +216,7 @@ const checkLeafNodeTypes = async (blockstore: Blockstore, options: Partial<Impor
   })
 }
 
-const checkNodeLinks = async (blockstore: Blockstore, options: Partial<Partial<ImporterOptions>>, expected: any): Promise<void> => {
+const checkNodeLinks = async (blockstore: Blockstore, options: Partial<ImporterOptions>, expected: any): Promise<void> => {
   for await (const file of importer([{
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(100).fill(1))
@@ -346,8 +346,10 @@ strategies.forEach((strategy) => {
     }
 
     const block = new MemoryBlockstore()
-    const options: Partial<Partial<ImporterOptions>> = {
-      layout
+    const options: Partial<ImporterOptions> = {
+      layout,
+      rawLeaves: false,
+      cidVersion: 0
     }
 
     if (strategy === 'trickle') {
@@ -676,10 +678,11 @@ strategies.forEach((strategy) => {
         createInputFile('foo/bar', 262144 + 21)
       ]
 
-      const options: Partial<Partial<ImporterOptions>> = {
+      const options: Partial<ImporterOptions> = {
         cidVersion: 1,
         // Ensures we use DirSharded for the data below
-        shardSplitThresholdBytes: 3
+        shardSplitThresholdBytes: 3,
+        rawLeaves: false
       }
 
       const files = await all(importer(inputFiles.map(file => ({
@@ -718,25 +721,29 @@ strategies.forEach((strategy) => {
 
     it('imports file with raw leaf nodes when specified', async () => {
       await checkLeafNodeTypes(block, {
-        leafType: 'raw'
+        leafType: 'raw',
+        rawLeaves: false
       }, 'raw')
     })
 
     it('imports file with file leaf nodes when specified', async () => {
       await checkLeafNodeTypes(block, {
-        leafType: 'file'
+        leafType: 'file',
+        rawLeaves: false
       }, 'file')
     })
 
     it('reduces file to single node when specified', async () => {
       await checkNodeLinks(block, {
-        reduceSingleLeafToSelf: true
+        reduceSingleLeafToSelf: true,
+        rawLeaves: false
       }, 0)
     })
 
     it('does not reduce file to single node when overidden by options', async () => {
       await checkNodeLinks(block, {
-        reduceSingleLeafToSelf: false
+        reduceSingleLeafToSelf: false,
+        rawLeaves: false
       }, 1)
     })
 
@@ -1005,7 +1012,9 @@ strategies.forEach((strategy) => {
         path: '/foo/file1.txt',
         content: asAsyncIterable(bigFile),
         mtime
-      }], block))
+      }], block, {
+        rawLeaves: false
+      }))
 
       const root = await exporter(entries[0].cid, block)
       expect(root).to.have.deep.nested.property('unixfs.mtime', mtime)

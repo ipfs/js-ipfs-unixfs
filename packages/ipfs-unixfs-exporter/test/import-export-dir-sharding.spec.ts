@@ -22,7 +22,9 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(content)
       }], block, {
-        shardSplitThresholdBytes: Infinity // never shard
+        shardSplitThresholdBytes: Infinity, // never shard
+        rawLeaves: false,
+        cidVersion: 0
       }))
 
       expect(nodes.length).to.equal(2)
@@ -80,7 +82,9 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
-        shardSplitThresholdBytes: Infinity // never shard
+        shardSplitThresholdBytes: Infinity, // never shard
+        rawLeaves: false,
+        cidVersion: 0
       }))
 
       const nonShardedHash = nodes[1].cid
@@ -117,7 +121,9 @@ describe('builder: directory sharding', () => {
         path: 'a/b',
         content: asAsyncIterable(uint8ArrayFromString(content))
       }], block, {
-        shardSplitThresholdBytes: 0 // always shard
+        shardSplitThresholdBytes: 0, // always shard
+        rawLeaves: false,
+        cidVersion: 0
       }))
 
       const shardedHash = nodes[1].cid
@@ -185,7 +191,10 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const nodes = await all(importer(source, block))
+      const nodes = await all(importer(source, block, {
+        rawLeaves: false,
+        cidVersion: 0
+      }))
 
       expect(nodes.length).to.equal(maxDirs + 1) // files plus the containing directory
 
@@ -245,7 +254,10 @@ describe('builder: directory sharding', () => {
         }
       }
 
-      const node = await last(importer(source, block))
+      const node = await last(importer(source, block, {
+        rawLeaves: false,
+        cidVersion: 0
+      }))
 
       if (node == null) {
         throw new Error('Nothing imported')

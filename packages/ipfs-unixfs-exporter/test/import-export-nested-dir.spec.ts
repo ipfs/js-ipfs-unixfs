@@ -32,7 +32,10 @@ describe('import and export: directory', () => {
       content: asAsyncIterable(uint8ArrayFromString('cream'))
     }]
 
-    const files = await all(importer(source, block))
+    const files = await all(importer(source, block, {
+      rawLeaves: false,
+      cidVersion: 0
+    }))
 
     expect(files.map(normalizeNode).sort(byPath)).to.be.eql([{
       path: 'a/b/h',

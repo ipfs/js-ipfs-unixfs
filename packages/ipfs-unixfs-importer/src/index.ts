@@ -220,8 +220,8 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
 
   const wrapWithDirectory = options.wrapWithDirectory ?? false
   const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? 262144
-  const cidVersion = options.cidVersion ?? 0
-  const rawLeaves = options.rawLeaves ?? false
+  const cidVersion = options.cidVersion ?? 1
+  const rawLeaves = options.rawLeaves ?? true
   const leafType = options.leafType ?? 'file'
   const fileImportConcurrency = options.fileImportConcurrency ?? 50
   const blockWriteConcurrency = options.blockWriteConcurrency ?? 10

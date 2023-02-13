@@ -1,20 +1,33 @@
 import { encode, PBLink, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import { Dir, CID_V0, CID_V1, DirProps } from './dir.js'
-import { persist } from './utils/persist.js'
+import { persist, PersistOptions } from './utils/persist.js'
 import { createHAMT, Bucket, BucketChild } from 'hamt-sharding'
-import type { ImporterOptions, ImportResult, InProgressImportResult } from './index.js'
+import { murmur3128 } from '@multiformats/murmur3'
+import type { ImportResult, InProgressImportResult } from './index.js'
 import type { Blockstore } from 'interface-blockstore'
+
+async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
+  return (await murmur3128.encode(buf))
+    // Murmur3 outputs 128 bit but, accidentally, IPFS Go's
+    // implementation only uses the first 64, so we must do the same
+    // for parity..
+    .slice(0, 8)
+    // Invert buffer because that's how Go impl does it
+    .reverse()
+}
+
+const HAMT_HASH_CODE = BigInt(0x22)
 
 class DirSharded extends Dir {
   private readonly _bucket: Bucket<InProgressImportResult | Dir>
 
-  constructor (props: DirProps, options: ImporterOptions) {
+  constructor (props: DirProps, options: PersistOptions) {
     super(props, options)
 
     this._bucket = createHAMT({
-      hashFn: options.hamtHashFn,
-      bits: options.hamtBucketBits
+      hashFn: hamtHashFn,
+      bits: 8
     })
   }
 
@@ -73,7 +86,7 @@ class DirSharded extends Dir {
 
 export default DirSharded
 
-async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore: Blockstore, shardRoot: DirSharded | null, options: ImporterOptions): AsyncIterable<ImportResult> {
+async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore: Blockstore, shardRoot: DirSharded | null, options: PersistOptions): AsyncIterable<ImportResult> {
   const children = bucket._children
   const links: PBLink[] = []
   let childrenSize = 0n
@@ -152,7 +165,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
     type: 'hamt-sharded-directory',
     data,
     fanout: BigInt(bucket.tableSize()),
-    hashType: options.hamtHashCode,
+    hashType: HAMT_HASH_CODE,
     mtime: shardRoot?.mtime,
     mode: shardRoot?.mode
   })
@@ -176,7 +189,7 @@ function isDir (obj: any): obj is Dir {
   return typeof obj.flush === 'function'
 }
 
-function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, options: ImporterOptions): number {
+function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, options: PersistOptions): number {
   const children = bucket._children
   const links: PBLink[] = []
 
@@ -231,7 +244,7 @@ function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, optio
     type: 'hamt-sharded-directory',
     data,
     fanout: BigInt(bucket.tableSize()),
-    hashType: options.hamtHashCode,
+    hashType: HAMT_HASH_CODE,
     mtime: shardRoot?.mtime,
     mode: shardRoot?.mode
   })

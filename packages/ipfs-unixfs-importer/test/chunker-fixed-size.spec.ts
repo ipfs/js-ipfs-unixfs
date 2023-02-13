@@ -5,7 +5,6 @@ import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import defaultOptions from '../src/options.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const rawFile = new Uint8Array(Math.pow(2, 20))
@@ -22,10 +21,9 @@ describe('chunker: fixed size', function () {
     b2.fill('b'.charCodeAt(0))
     b3.fill('c'.charCodeAt(0))
 
-    const chunks = await all(fixedSize(asAsyncIterable([b1, b2, b3]), {
-      ...defaultOptions(),
-      maxChunkSize: 256
-    }))
+    const chunks = await all(fixedSize({
+      chunkSize: 256
+    })(asAsyncIterable([b1, b2, b3])))
 
     expect(chunks).to.have.length(8)
     chunks.forEach((chunk) => {
@@ -40,10 +38,9 @@ describe('chunker: fixed size', function () {
     for (let i = 0; i < (256 * 12); i++) {
       input.push(buf)
     }
-    const chunks = await all(fixedSize(asAsyncIterable(input), {
-      ...defaultOptions(),
-      maxChunkSize: 256
-    }))
+    const chunks = await all(fixedSize({
+      chunkSize: 256
+    })(asAsyncIterable(input)))
 
     expect(chunks).to.have.length(12)
     chunks.forEach((chunk) => {
@@ -53,10 +50,9 @@ describe('chunker: fixed size', function () {
 
   it('256 KiB chunks', async () => {
     const KiB256 = 262144
-    const chunks = await all(fixedSize(asAsyncIterable([rawFile]), {
-      ...defaultOptions(),
-      maxChunkSize: KiB256
-    }))
+    const chunks = await all(fixedSize({
+      chunkSize: KiB256
+    })(asAsyncIterable([rawFile])))
 
     expect(chunks).to.have.length(4)
     chunks.forEach((chunk) => {
@@ -68,10 +64,9 @@ describe('chunker: fixed size', function () {
     const KiB256 = 262144
     const file = uint8ArrayConcat([rawFile, uint8ArrayFromString('hello')])
 
-    const chunks = await all(fixedSize(asAsyncIterable([file]), {
-      ...defaultOptions(),
-      maxChunkSize: KiB256
-    }))
+    const chunks = await all(fixedSize({
+      chunkSize: KiB256
+    })(asAsyncIterable([file])))
 
     expect(chunks).to.have.length(5)
     let counter = 0

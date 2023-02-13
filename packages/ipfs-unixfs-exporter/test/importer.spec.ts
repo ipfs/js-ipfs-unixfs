@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { importer, UserImporterOptions } from 'ipfs-unixfs-importer'
+import { importer, ImporterOptions } from 'ipfs-unixfs-importer'
 import { exporter, recursive } from '../src/index.js'
 import extend from 'merge-options'
 import { expect } from 'aegir/chai'
@@ -19,6 +19,8 @@ import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { decode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
+import { balanced, FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
+import { fixedSize } from 'ipfs-unixfs-importer/chunker'
 
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 const smallFile = loadFixture('test/fixtures/200Bytes.txt')
@@ -180,7 +182,7 @@ const strategyOverrides = {
   }
 }
 
-const checkLeafNodeTypes = async (blockstore: Blockstore, options: UserImporterOptions, expected: any): Promise<void> => {
+const checkLeafNodeTypes = async (blockstore: Blockstore, options: Partial<ImporterOptions>, expected: any): Promise<void> => {
   const file = await first(importer([{
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(262144 + 5).fill(1))
@@ -214,7 +216,7 @@ const checkLeafNodeTypes = async (blockstore: Blockstore, options: UserImporterO
   })
 }
 
-const checkNodeLinks = async (blockstore: Blockstore, options: UserImporterOptions, expected: any): Promise<void> => {
+const checkNodeLinks = async (blockstore: Blockstore, options: Partial<Partial<ImporterOptions>>, expected: any): Promise<void> => {
   for await (const file of importer([{
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(100).fill(1))
@@ -331,9 +333,21 @@ strategies.forEach((strategy) => {
   describe('importer: ' + strategy, function () {
     this.timeout(30 * 1000)
 
+    let layout: FileLayout
+
+    if (strategy === 'balanced') {
+      layout = balanced()
+    } else if (strategy === 'flat') {
+      layout = flat()
+    } else if (strategy === 'trickle') {
+      layout = trickle()
+    } else {
+      throw new Error('Unknown strategy')
+    }
+
     const block = new MemoryBlockstore()
-    const options: UserImporterOptions = {
-      strategy
+    const options: Partial<Partial<ImporterOptions>> = {
+      layout
     }
 
     if (strategy === 'trickle') {
@@ -618,34 +632,16 @@ strategies.forEach((strategy) => {
       }
     })
 
-    it('will not write to disk if passed "onlyHash" option', async () => {
-      const content = String(Math.random() + Date.now())
-      const files = await all(importer([{
-        path: content + '.txt',
-        content: asAsyncIterable(uint8ArrayFromString(content))
-      }], block, {
-        onlyHash: true
-      }))
-
-      const file = files[0]
-      expect(file).to.exist()
-
-      try {
-        await block.get(file.cid)
-
-        throw new Error('No error was thrown')
-      } catch (err: any) {
-        expect(err.code).to.equal('ERR_NOT_FOUND')
-      }
-    })
-
     it('will call an optional progress function', async () => {
-      const maxChunkSize = 2048
+      const chunkSize = 2048
       const path = '1.2MiB.txt'
+      const progress = sinon.stub()
 
-      const options = {
-        progress: sinon.spy(),
-        maxChunkSize
+      const options: Partial<ImporterOptions> = {
+        progress,
+        chunker: fixedSize({
+          chunkSize
+        })
       }
 
       await all(importer([{
@@ -653,8 +649,8 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block, options))
 
-      expect(options.progress.called).to.equal(true)
-      expect(options.progress.args[0]).to.deep.equal([maxChunkSize, path])
+      expect(progress.called).to.equal(true)
+      expect(progress.args[0]).to.deep.equal([chunkSize, path])
     })
 
     it('will import files with CID version 1', async () => {
@@ -680,7 +676,7 @@ strategies.forEach((strategy) => {
         createInputFile('foo/bar', 262144 + 21)
       ]
 
-      const options: UserImporterOptions = {
+      const options: Partial<Partial<ImporterOptions>> = {
         cidVersion: 1,
         // Ensures we use DirSharded for the data below
         shardSplitThresholdBytes: 3
@@ -1062,7 +1058,7 @@ describe('configuration', () => {
       content: 'content'
     }], block, {
       /** @type {import('ipfs-unixfs-importer').DAGBuilder} */
-      dagBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
+      dagBuilder: async function * (source, block) { // eslint-disable-line require-await
         yield async function () {
           return await Promise.resolve({
             cid,
@@ -1073,7 +1069,7 @@ describe('configuration', () => {
         }
       },
       /** @type {import('ipfs-unixfs-importer').TreeBuilder} */
-      treeBuilder: async function * (source, block, opts) { // eslint-disable-line require-await
+      treeBuilder: async function * (source, block) { // eslint-disable-line require-await
         builtTree = true
         yield * source
       }

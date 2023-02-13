@@ -22,6 +22,9 @@ import asAsyncIterable from './helpers/as-async-iterable.js'
 import delay from 'delay'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
+import { balanced, FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
+import type { Chunker } from 'ipfs-unixfs-importer/chunker'
+import { fixedSize } from 'ipfs-unixfs-importer/chunker'
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -56,24 +59,24 @@ describe('exporter', () => {
     return { file, node, cid }
   }
 
-  async function addTestFile (options: { file: Uint8Array, strategy?: 'balanced' | 'flat' | 'trickle', path?: string, maxChunkSize?: number, rawLeaves?: boolean }): Promise<CID> {
-    const { file, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves } = options
+  async function addTestFile (options: { file: Uint8Array, layout?: FileLayout, chunker?: Chunker, path?: string, rawLeaves?: boolean }): Promise<CID> {
+    const { file, path = '/foo', layout, chunker, rawLeaves } = options
 
     const result = await all(importer([{
       path,
       content: asAsyncIterable(file)
     }], block, {
-      strategy,
-      rawLeaves,
-      maxChunkSize
+      layout,
+      chunker,
+      rawLeaves
     }))
 
     return result[0].cid
   }
 
-  async function addAndReadTestFile (options: { file: Uint8Array, offset?: number, length?: number, strategy?: 'balanced' | 'flat' | 'trickle', path?: string, maxChunkSize?: number, rawLeaves?: boolean }): Promise<Uint8Array> {
-    const { file, offset, length, strategy = 'balanced', path = '/foo', maxChunkSize, rawLeaves } = options
-    const cid = await addTestFile({ file, strategy, path, maxChunkSize, rawLeaves })
+  async function addAndReadTestFile (options: { file: Uint8Array, offset?: number, length?: number, layout?: FileLayout, chunker?: Chunker, path?: string, rawLeaves?: boolean }): Promise<Uint8Array> {
+    const { file, offset, length, layout, path = '/foo', chunker, rawLeaves } = options
+    const cid = await addTestFile({ file, layout, path, chunker, rawLeaves })
     const entry = await exporter(cid, block)
 
     if (entry.type !== 'file' && entry.type !== 'raw') {
@@ -85,7 +88,7 @@ describe('exporter', () => {
     })))
   }
 
-  async function checkBytesThatSpanBlocks (strategy: 'balanced' | 'flat' | 'trickle'): Promise<void> {
+  async function checkBytesThatSpanBlocks (layout: FileLayout): Promise<void> {
     const bytesInABlock = 262144
     const bytes = new Uint8Array(bytesInABlock + 100)
 
@@ -97,7 +100,7 @@ describe('exporter', () => {
       file: bytes,
       offset: bytesInABlock - 1,
       length: 3,
-      strategy
+      layout
     })
 
     expect(data).to.deep.equal(Uint8Array.from([1, 2, 3]))
@@ -319,7 +322,9 @@ describe('exporter', () => {
 
     const cid = await addTestFile({
       file: data,
-      maxChunkSize: 2
+      chunker: fixedSize({
+        chunkSize: 2
+      })
     })
 
     // @ts-expect-error incomplete implementation
@@ -661,7 +666,7 @@ describe('exporter', () => {
   })
 
   it('returns an empty stream for dir', async () => {
-    const imported = await first(importer([{
+    const imported = await all(importer([{
       path: 'empty'
     }], block))
 
@@ -669,7 +674,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const dir = await exporter(imported.cid, block)
+    const dir = await exporter(imported[0].cid, block)
 
     if (dir.type !== 'directory') {
       throw new Error('Unexpected type')
@@ -771,7 +776,9 @@ describe('exporter', () => {
       file: bigFile,
       offset: 0,
       length: bigFile.length,
-      maxChunkSize: 1024
+      chunker: fixedSize({
+        chunkSize: 1024
+      })
     })
 
     expect(data).to.deep.equal(bigFile)
@@ -786,7 +793,9 @@ describe('exporter', () => {
 
     const cid = await addTestFile({
       file: bigFile,
-      maxChunkSize: 1024
+      chunker: fixedSize({
+        chunkSize: 1024
+      })
     })
     const file = await exporter(cid, block)
 
@@ -810,15 +819,15 @@ describe('exporter', () => {
   })
 
   it('reads bytes with an offset and a length that span blocks using balanced layout', async () => {
-    await checkBytesThatSpanBlocks('balanced')
+    await checkBytesThatSpanBlocks(balanced())
   })
 
   it('reads bytes with an offset and a length that span blocks using flat layout', async () => {
-    await checkBytesThatSpanBlocks('flat')
+    await checkBytesThatSpanBlocks(flat())
   })
 
   it('reads bytes with an offset and a length that span blocks using trickle layout', async () => {
-    await checkBytesThatSpanBlocks('trickle')
+    await checkBytesThatSpanBlocks(trickle())
   })
 
   it('fails on non existent hash', async () => {

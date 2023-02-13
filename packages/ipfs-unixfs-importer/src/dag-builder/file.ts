@@ -1,36 +1,23 @@
-import errCode from 'err-code'
 import { UnixFS } from 'ipfs-unixfs'
-import { persist } from '../../utils/persist.js'
-import { encode, prepare } from '@ipld/dag-pb'
+import { persist } from '../utils/persist.js'
+import { encode, PBLink, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
-import * as dagPb from '@ipld/dag-pb'
-
-import { flat } from './flat.js'
-import { balanced } from './balanced.js'
-import { trickle } from './trickle.js'
-import { bufferImporter } from './buffer-importer.js'
-import type { File, FileDAGBuilder, ImporterOptions, InProgressImportResult, Reducer, UnixFSV1DagBuilder } from '../../index.js'
+import type { BufferImporter, File, InProgressImportResult } from '../index.js'
 import type { Blockstore } from 'interface-blockstore'
+import type { FileLayout, Reducer } from '../layout/index.js'
+import type { Version } from 'multiformats/cid'
 
-const dagBuilders: Record<string, FileDAGBuilder> = {
-  flat,
-  balanced,
-  trickle
+interface BuildFileBatchOptions {
+  bufferImporter: BufferImporter
+  blockWriteConcurrency: number
 }
 
-async function * buildFileBatch (file: File, blockstore: Blockstore, options: ImporterOptions): AsyncGenerator<InProgressImportResult> {
+async function * buildFileBatch (file: File, blockstore: Blockstore, options: BuildFileBatchOptions): AsyncGenerator<InProgressImportResult> {
   let count = -1
-  let previous
-  let importer
+  let previous: InProgressImportResult | undefined
 
-  if (typeof options.bufferImporter === 'function') {
-    importer = options.bufferImporter
-  } else {
-    importer = bufferImporter
-  }
-
-  for await (const entry of parallelBatch(importer(file, blockstore, options), options.blockWriteConcurrency)) {
+  for await (const entry of parallelBatch(options.bufferImporter(file, blockstore), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -38,7 +25,7 @@ async function * buildFileBatch (file: File, blockstore: Blockstore, options: Im
       continue
     } else if (count === 1 && (previous != null)) {
       yield previous
-      previous = null
+      previous = undefined
     }
 
     yield entry
@@ -50,7 +37,13 @@ async function * buildFileBatch (file: File, blockstore: Blockstore, options: Im
   }
 }
 
-const reduce = (file: File, blockstore: Blockstore, options: ImporterOptions): Reducer => {
+interface ReduceOptions {
+  reduceSingleLeafToSelf: boolean
+  cidVersion: Version
+  signal?: AbortSignal
+}
+
+const reduce = (file: File, blockstore: Blockstore, options: ReduceOptions): Reducer => {
   const reducer: Reducer = async function (leaves) {
     if (leaves.length === 1 && leaves[0]?.single === true && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
@@ -90,8 +83,6 @@ const reduce = (file: File, blockstore: Blockstore, options: ImporterOptions): R
         // }
         leaf.cid = await persist(buffer, blockstore, {
           ...options,
-          codec: dagPb,
-          hasher: options.hasher,
           cidVersion: options.cidVersion
         })
         leaf.size = BigInt(buffer.length)
@@ -101,7 +92,8 @@ const reduce = (file: File, blockstore: Blockstore, options: ImporterOptions): R
         cid: leaf.cid,
         path: file.path,
         unixfs: leaf.unixfs,
-        size: leaf.size
+        size: leaf.size,
+        originalPath: leaf.originalPath
       }
     }
 
@@ -112,7 +104,7 @@ const reduce = (file: File, blockstore: Blockstore, options: ImporterOptions): R
       mode: file.mode
     })
 
-    const links: dagPb.PBLink[] = leaves
+    const links: PBLink[] = leaves
       .filter(leaf => {
         if (leaf.cid.code === rawCodec.code && leaf.size > 0) {
           return true
@@ -162,19 +154,18 @@ const reduce = (file: File, blockstore: Blockstore, options: ImporterOptions): R
       cid,
       path: file.path,
       unixfs: f,
-      size: BigInt(buffer.length + node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0))
+      size: BigInt(buffer.length + node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0)),
+      originalPath: file.originalPath
     }
   }
 
   return reducer
 }
 
-export const fileBuilder: UnixFSV1DagBuilder<File> = async (file, block, options) => {
-  const dagBuilder = dagBuilders[options.strategy]
+export interface FileBuilderOptions extends BuildFileBatchOptions, ReduceOptions {
+  layout: FileLayout
+}
 
-  if (dagBuilder == null) {
-    throw errCode(new Error(`Unknown importer build strategy name: ${options.strategy}`), 'ERR_BAD_STRATEGY')
-  }
-
-  return await dagBuilder(buildFileBatch(file, block, options), reduce(file, block, options), options)
+export const fileBuilder = async (file: File, block: Blockstore, options: FileBuilderOptions): Promise<InProgressImportResult> => {
+  return await options.layout(buildFileBatch(file, block, options), reduce(file, block, options))
 }

@@ -1,10 +1,10 @@
-import { dirBuilder } from './dir.js'
-import { fileBuilder } from './file/index.js'
+import { dirBuilder, DirBuilderOptions } from './dir.js'
+import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import { rabin } from '../chunker/rabin.js'
-import { fixedSize } from '../chunker/fixed-size.js'
-import { validateChunks } from './validate-chunks.js'
-import type { Chunker, ChunkValidator, DAGBuilder, Directory, File } from '../index.js'
+import type { Directory, File, ImportCandidate, InProgressImportResult } from '../index.js'
+import type { Blockstore } from 'interface-blockstore'
+import type { ChunkValidator } from './validate-chunks.js'
+import type { Chunker } from '../chunker/index.js'
 
 function isIterable (thing: any): thing is Iterable<any> {
   return Symbol.iterator in thing
@@ -34,56 +34,53 @@ function contentAsAsyncIterable (content: Uint8Array | AsyncIterable<Uint8Array>
   throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
 }
 
-export const dagBuilder: DAGBuilder = async function * (source, blockstore, options) {
-  for await (const entry of source) {
-    if (entry.path != null) {
-      if (entry.path.substring(0, 2) === './') {
-        options.wrapWithDirectory = true
+export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions {
+  chunker: Chunker
+  chunkValidator: ChunkValidator
+  wrapWithDirectory: boolean
+}
+
+export type ImporterSourceStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
+
+export interface DAGBuilder {
+  (source: ImporterSourceStream, blockstore: Blockstore): AsyncIterable<() => Promise<InProgressImportResult>>
+}
+
+export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
+  return async function * dagBuilder (source, blockstore) {
+    for await (const entry of source) {
+      let originalPath: string | undefined
+
+      if (entry.path != null) {
+        originalPath = entry.path
+        entry.path = entry.path
+          .split('/')
+          .filter(path => path != null && path !== '.')
+          .join('/')
       }
 
-      entry.path = entry.path
-        .split('/')
-        .filter(path => path != null && path !== '.')
-        .join('/')
-    }
+      if (entry.content != null) {
+        const file: File = {
+          path: entry.path,
+          mtime: entry.mtime,
+          mode: entry.mode,
+          content: options.chunker(options.chunkValidator(contentAsAsyncIterable(entry.content))),
+          originalPath
+        }
 
-    if (entry.content != null) {
-      let chunker: Chunker
+        yield async () => await fileBuilder(file, blockstore, options)
+      } else if (entry.path != null) {
+        const dir: Directory = {
+          path: entry.path,
+          mtime: entry.mtime,
+          mode: entry.mode,
+          originalPath
+        }
 
-      if (typeof options.chunker === 'function') {
-        chunker = options.chunker
-      } else if (options.chunker === 'rabin') {
-        chunker = rabin
+        yield async () => await dirBuilder(dir, blockstore, options)
       } else {
-        chunker = fixedSize
+        throw new Error('Import candidate must have content or path or both')
       }
-
-      let chunkValidator: ChunkValidator
-
-      if (typeof options.chunkValidator === 'function') {
-        chunkValidator = options.chunkValidator
-      } else {
-        chunkValidator = validateChunks
-      }
-
-      const file: File = {
-        path: entry.path,
-        mtime: entry.mtime,
-        mode: entry.mode,
-        content: chunker(chunkValidator(contentAsAsyncIterable(entry.content), options), options)
-      }
-
-      yield async () => await fileBuilder(file, blockstore, options)
-    } else if (entry.path != null) {
-      const dir: Directory = {
-        path: entry.path,
-        mtime: entry.mtime,
-        mode: entry.mode
-      }
-
-      yield async () => await dirBuilder(dir, blockstore, options)
-    } else {
-      throw new Error('Import candidate must have content or path or both')
     }
   }
 }

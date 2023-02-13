@@ -1,9 +1,13 @@
 import type { UnixFS } from 'ipfs-unixfs'
 import batch from 'it-batch'
 import type { CID } from 'multiformats/cid'
-import type { FileDAGBuilder, InProgressImportResult, Reducer } from '../../index.js'
+import type { InProgressImportResult } from '../index.js'
+import type { FileLayout, Reducer } from '../layout/index.js'
 
-export interface TrickleDagNode {
+const DEFAULT_LAYER_REPEAT = 4
+const DEFAULT_MAX_CHILDREN_PER_NODE = 174
+
+interface TrickleDagNode {
   children: InProgressImportResult[]
   depth: number
   maxDepth: number
@@ -15,35 +19,48 @@ export interface TrickleDagNode {
   unixfs?: UnixFS
 }
 
-export const trickle: FileDAGBuilder = async function (source, reduce, options) {
-  const root = new Root(options.layerRepeat)
-  let iteration = 0
-  let maxDepth = 1
-  let subTree: SubTree = root
+export interface TrickleOptions {
+  layerRepeat?: number
+  maxChildrenPerNode?: number
+}
 
-  for await (const layer of batch(source, options.maxChildrenPerNode)) {
-    if (subTree.isFull()) {
-      if (subTree !== root) {
-        root.addChild(await subTree.reduce(reduce))
+/**
+ * @see https://github.com/ipfs/specs/pull/57#issuecomment-265205384
+ */
+export function trickle (options?: TrickleOptions): FileLayout {
+  const layerRepeat = options?.layerRepeat ?? DEFAULT_LAYER_REPEAT
+  const maxChildrenPerNode = options?.maxChildrenPerNode ?? DEFAULT_MAX_CHILDREN_PER_NODE
+
+  return async function trickleLayout (source, reduce): Promise<InProgressImportResult> {
+    const root = new Root(layerRepeat)
+    let iteration = 0
+    let maxDepth = 1
+    let subTree: SubTree = root
+
+    for await (const layer of batch(source, maxChildrenPerNode)) {
+      if (subTree.isFull()) {
+        if (subTree !== root) {
+          root.addChild(await subTree.reduce(reduce))
+        }
+
+        if (iteration > 0 && iteration % layerRepeat === 0) {
+          maxDepth++
+        }
+
+        subTree = new SubTree(maxDepth, layerRepeat, iteration)
+
+        iteration++
       }
 
-      if (iteration > 0 && iteration % options.layerRepeat === 0) {
-        maxDepth++
-      }
-
-      subTree = new SubTree(maxDepth, options.layerRepeat, iteration)
-
-      iteration++
+      subTree.append(layer)
     }
 
-    subTree.append(layer)
-  }
+    if (subTree != null && subTree !== root) {
+      root.addChild(await subTree.reduce(reduce))
+    }
 
-  if (subTree != null && subTree !== root) {
-    root.addChild(await subTree.reduce(reduce))
+    return await root.reduce(reduce)
   }
-
-  return await root.reduce(reduce)
 }
 
 class SubTree {

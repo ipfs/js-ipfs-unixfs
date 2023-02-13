@@ -37,7 +37,8 @@ describe('exporter sharded', function () {
   const createShardWithFiles = async (files: Array<{ path: string, content: AsyncIterable<Uint8Array> }>): Promise<CID> => {
     const result = await last(importer(files, block, {
       shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
-      wrapWithDirectory: true
+      wrapWithDirectory: true,
+      rawLeaves: false
     }))
 
     if (result == null) {
@@ -62,7 +63,8 @@ describe('exporter sharded', function () {
       content: asAsyncIterable(files[path].content)
     })), block, {
       wrapWithDirectory: true,
-      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD
+      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
+      rawLeaves: false
     }))
 
     const dirCid = imported.pop()?.cid
@@ -108,7 +110,7 @@ describe('exporter sharded', function () {
       const dirFile = dirFiles[i]
 
       if (dirFile.type !== 'file') {
-        throw new Error('Expected file')
+        throw new Error('Expected file, was ' + dirFile.type)
       }
 
       const data = uint8ArrayConcat(await all(dirFile.content()))

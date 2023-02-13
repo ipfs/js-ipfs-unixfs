@@ -24,7 +24,10 @@ describe('exporter subtree', () => {
     }, {
       path: './level-1/200Bytes.txt',
       content: asAsyncIterable(content)
-    }], block))
+    }], block, {
+      rawLeaves: false,
+      cidVersion: 0
+    }))
 
     if (imported == null) {
       throw new Error('Nothing imported')

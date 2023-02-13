@@ -1,7 +1,8 @@
 import type { Blockstore } from 'interface-blockstore'
 import type { Mtime, UnixFS } from 'ipfs-unixfs'
 import { CID } from 'multiformats/cid'
-import type { ImporterOptions, ImportResult, InProgressImportResult } from './index.js'
+import type { ImportResult, InProgressImportResult } from './index.js'
+import type { PersistOptions } from './utils/persist.js'
 
 export interface DirProps {
   root: boolean
@@ -16,8 +17,8 @@ export interface DirProps {
   mtime?: Mtime
 }
 
-export class Dir {
-  public options: ImporterOptions
+export abstract class Dir {
+  public options: PersistOptions
   public root: boolean
   public dir: boolean
   public path: string
@@ -32,7 +33,7 @@ export class Dir {
   public size?: number
   public nodeSize?: number
 
-  constructor (props: DirProps, options: ImporterOptions) {
+  constructor (props: DirProps, options: PersistOptions) {
     this.options = options ?? {}
 
     this.root = props.root
@@ -47,19 +48,12 @@ export class Dir {
     this.mtime = props.mtime
   }
 
-  async put (name: string, value: InProgressImportResult | Dir): Promise<void> { }
-
-  async get (name: string): Promise<InProgressImportResult | Dir | undefined> {
-    return await Promise.resolve(this)
-  }
-
-  async * eachChildSeries (): AsyncIterable<{ key: string, child: InProgressImportResult | Dir }> { }
-
-  async * flush (blockstore: Blockstore): AsyncGenerator<ImportResult> { }
-
-  estimateNodeSize (): number {
-    return 0
-  }
+  abstract put (name: string, value: InProgressImportResult | Dir): Promise<void>
+  abstract get (name: string): Promise<InProgressImportResult | Dir | undefined>
+  abstract eachChildSeries (): AsyncIterable<{ key: string, child: InProgressImportResult | Dir }>
+  abstract flush (blockstore: Blockstore): AsyncGenerator<ImportResult>
+  abstract estimateNodeSize (): number
+  abstract childCount (): number
 }
 
 // we use these to calculate the node size to use as a check for whether a directory

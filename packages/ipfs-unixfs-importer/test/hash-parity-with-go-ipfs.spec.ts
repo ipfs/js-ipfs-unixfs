@@ -1,30 +1,31 @@
 /* eslint-env mocha */
 
-import { importer } from '../src/index.js'
+import { importer, ImporterOptions } from '../src/index.js'
 import { expect } from 'aegir/chai'
 import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
 import first from 'it-first'
 import last from 'it-last'
 import { MemoryBlockstore } from 'blockstore-core'
-import defaultOptions from '../src/options.js'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { balanced, FileLayout, flat, trickle } from '../src/layout/index.js'
 
-const strategies: Array<'flat' | 'trickle' | 'balanced'> = [
-  'flat',
-  'trickle',
-  'balanced'
-]
+const strategies: Record<'flat' | 'trickle' | 'balanced', FileLayout> = {
+  flat: flat(),
+  trickle: trickle(),
+  balanced: balanced()
+}
 
-const expectedHashes = {
+const expectedHashes: Record<string, string> = {
   flat: 'QmeJ9FRWKnXZQiX5CM1E8j4gpGbg6otpgajThqsbnBpoyD',
   balanced: 'QmRdPboiJQoZ5cdazR9a8vGqdJvWg6M5bfdtUSKNHpuscj',
   trickle: 'QmdZcefqMZ3tzdS4CRBN5s1c67eS3nQzN8TNXFBYfgofoy'
 }
 
-strategies.forEach(strategy => {
-  const options = {
-    ...defaultOptions(),
-    strategy
+Object.entries(strategies).forEach(([strategy, layout]) => {
+  const options: Partial<ImporterOptions> = {
+    layout,
+    cidVersion: 0,
+    rawLeaves: false
   }
 
   if (strategy === 'trickle') {

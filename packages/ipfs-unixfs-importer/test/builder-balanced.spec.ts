@@ -1,9 +1,8 @@
 /* eslint-env mocha */
 
 import { expect } from 'aegir/chai'
-import { balanced } from '../src/dag-builder/file/balanced.js'
+import { balanced } from '../src/layout/balanced.js'
 import { CID } from 'multiformats/cid'
-import defaultOptions from '../src/options.js'
 import type { InProgressImportResult } from '../src/index.js'
 
 async function reduce (leaves: InProgressImportResult[]): Promise<InProgressImportResult> {
@@ -18,7 +17,6 @@ async function reduce (leaves: InProgressImportResult[]): Promise<InProgressImpo
 }
 
 const options = {
-  ...defaultOptions(),
   maxChildrenPerNode: 3
 }
 
@@ -29,9 +27,9 @@ describe('builder: balanced', () => {
       size: 0n
     }]
 
-    const result = await balanced((async function * () {
+    const result = await balanced(options)((async function * () {
       yield * source
-    }()), reduce, options)
+    }()), reduce)
 
     expect(result).to.deep.equal(source[0])
   })
@@ -48,9 +46,9 @@ describe('builder: balanced', () => {
       size: 0n
     }]
 
-    const result = await balanced((async function * () {
+    const result = await balanced(options)((async function * () {
       yield * source
-    }()), reduce, options)
+    }()), reduce)
 
     expect(result).to.deep.equal({
       children: source
@@ -61,9 +59,9 @@ describe('builder: balanced', () => {
     const source = [1, 2, 3, 4]
 
     // @ts-expect-error
-    const result = await balanced((async function * () {
+    const result = await balanced(options)((async function * () {
       yield * source
-    }()), reduce, options)
+    }()), reduce)
 
     expect(result).to.deep.equal({
       children: [{
@@ -78,9 +76,9 @@ describe('builder: balanced', () => {
     const source = [1, 2, 3, 4, 5, 6, 7]
 
     // @ts-expect-error
-    const result = await balanced((async function * () {
+    const result = await balanced(options)((async function * () {
       yield * source
-    }()), reduce, options)
+    }()), reduce)
 
     expect(result).to.deep.equal({
       children: [{

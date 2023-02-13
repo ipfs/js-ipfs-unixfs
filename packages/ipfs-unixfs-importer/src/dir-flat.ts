@@ -2,13 +2,13 @@ import { encode, PBNode, prepare } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import { UnixFS } from 'ipfs-unixfs'
 import { Dir, CID_V0, CID_V1, DirProps } from './dir.js'
-import type { ImporterOptions, ImportResult, InProgressImportResult } from './index.js'
-import { persist } from './utils/persist.js'
+import type { ImportResult, InProgressImportResult } from './index.js'
+import { persist, PersistOptions } from './utils/persist.js'
 
 export class DirFlat extends Dir {
   private readonly _children: Map<string, InProgressImportResult | Dir>
 
-  constructor (props: DirProps, options: ImporterOptions) {
+  constructor (props: DirProps, options: PersistOptions) {
     super(props, options)
 
     this._children = new Map()

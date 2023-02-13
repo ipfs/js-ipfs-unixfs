@@ -2,18 +2,15 @@ import { DirFlat } from './dir-flat.js'
 import { flatToShard } from './flat-to-shard.js'
 import { Dir } from './dir.js'
 import { toPathComponents } from './utils/to-path-components.js'
-import type { ImporterOptions, ImportResult, InProgressImportResult, TreeBuilder } from './index.js'
+import type { ImportResult, InProgressImportResult, TreeBuilder } from './index.js'
 import type { Blockstore } from 'interface-blockstore'
+import type { PersistOptions } from './utils/persist.js'
 
-/**
- * @typedef {import('./types').ImportResult} ImportResult
- * @typedef {import('./types').InProgressImportResult} InProgressImportResult
- * @typedef {import('./types').ImporterOptions} ImporterOptions
- * @typedef {import('interface-blockstore').Blockstore} Blockstore
- * @typedef {(source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore, options: ImporterOptions) => AsyncIterable<ImportResult>} TreeBuilder
- */
+export interface AddToTreeOptions extends PersistOptions {
+  shardSplitThresholdBytes: number
+}
 
-async function addToTree (elem: InProgressImportResult, tree: Dir, options: ImporterOptions): Promise<Dir> {
+async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddToTreeOptions): Promise<Dir> {
   const pathElems = toPathComponents(elem.path ?? '')
   const lastIndex = pathElems.length - 1
   let parent = tree
@@ -70,36 +67,58 @@ async function * flushAndYield (tree: Dir | InProgressImportResult, blockstore: 
   yield * tree.flush(blockstore)
 }
 
-export const treeBuilder: TreeBuilder = async function * treeBuilder (source, block, options) {
-  let tree: Dir = new DirFlat({
-    root: true,
-    dir: true,
-    path: '',
-    dirty: true,
-    flat: true
-  }, options)
+export interface TreeBuilderOptions extends AddToTreeOptions {
+  wrapWithDirectory: boolean
+}
 
-  for await (const entry of source) {
-    if (entry == null) {
-      continue
-    }
+export function defaultTreeBuilder (options: TreeBuilderOptions): TreeBuilder {
+  return async function * treeBuilder (source, block) {
+    let tree: Dir = new DirFlat({
+      root: true,
+      dir: true,
+      path: '',
+      dirty: true,
+      flat: true
+    }, options)
 
-    tree = await addToTree(entry, tree, options)
+    let rootDir: string | undefined
+    let singleRoot = false
 
-    if (entry.unixfs == null || !entry.unixfs.isDirectory()) {
-      yield entry
-    }
-  }
-
-  if (options.wrapWithDirectory) {
-    yield * flushAndYield(tree, block)
-  } else {
-    for await (const unwrapped of tree.eachChildSeries()) {
-      if (unwrapped == null) {
+    for await (const entry of source) {
+      if (entry == null) {
         continue
       }
 
-      yield * flushAndYield(unwrapped.child, block)
+      // if all paths are from the same root directory, we should
+      // wrap them all in that root directory
+      const dir = `${entry.originalPath ?? ''}`.split('/')[0]
+
+      if (dir != null && dir !== '') {
+        if (rootDir == null) {
+          rootDir = dir
+          singleRoot = true
+        } else if (rootDir !== dir) {
+          singleRoot = false
+        }
+      }
+
+      tree = await addToTree(entry, tree, options)
+
+      if (entry.unixfs == null || !entry.unixfs.isDirectory()) {
+        yield entry
+      }
+    }
+
+    if (options.wrapWithDirectory || (singleRoot && tree.childCount() > 1)) {
+      yield * flushAndYield(tree, block)
+    } else {
+      for await (const unwrapped of tree.eachChildSeries()) {
+        if (unwrapped == null) {
+          continue
+        }
+
+        yield * flushAndYield(unwrapped.child, block)
+      }
     }
   }
 }

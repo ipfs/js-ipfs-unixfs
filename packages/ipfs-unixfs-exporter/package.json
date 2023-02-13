@@ -167,6 +167,6 @@
     "fs": false
   },
   "typedoc": {
-    "entryPoint": "./src/index.js"
+    "entryPoint": "./src/index.ts"
   }
 }

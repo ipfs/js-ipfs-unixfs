@@ -1,9 +1,9 @@
 import DirSharded from './dir-sharded.js'
 import { DirFlat } from './dir-flat.js'
 import type { Dir } from './dir.js'
-import type { ImporterOptions } from './index.js'
+import type { PersistOptions } from './utils/persist.js'
 
-export async function flatToShard (child: Dir | null, dir: Dir, threshold: number, options: ImporterOptions): Promise<DirSharded> {
+export async function flatToShard (child: Dir | null, dir: Dir, threshold: number, options: PersistOptions): Promise<DirSharded> {
   let newDir = dir
 
   if (dir instanceof DirFlat && dir.estimateNodeSize() > threshold) {
@@ -32,7 +32,7 @@ export async function flatToShard (child: Dir | null, dir: Dir, threshold: numbe
   return newDir
 }
 
-async function convertToShard (oldDir: DirFlat, options: ImporterOptions): Promise<DirSharded> {
+async function convertToShard (oldDir: DirFlat, options: PersistOptions): Promise<DirSharded> {
   const newDir = new DirSharded({
     root: oldDir.root,
     dir: true,

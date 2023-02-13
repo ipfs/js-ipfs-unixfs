@@ -37,7 +37,7 @@ describe('custom chunker', function () {
       content
     }], block, {
       chunker: source => source,
-      bufferImporter: async function * (file, block, options) {
+      bufferImporter: async function * (file, block) {
         for await (const item of file.content) {
           yield async () => await put(item)
         }
@@ -50,7 +50,9 @@ describe('custom chunker', function () {
   it('keeps custom chunking', async () => {
     const content = iter()
     for await (const part of importer([{ path: 'test', content }], block, {
-      chunker: source => source
+      chunker: source => source,
+      rawLeaves: false,
+      cidVersion: 0
     })) {
       expect(part.size).to.equal(116n)
     }

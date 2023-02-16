@@ -29,12 +29,13 @@
     "clean": "aegir run clean",
     "build": "aegir run build",
     "lint": "aegir run lint",
+    "generate": "aegir run generate",
     "docs": "NODE_OPTIONS=--max_old_space_size=4096 aegir docs",
     "docs:no-publish": "npm run docs -- --publish false",
     "dep-check": "aegir run dep-check",
     "release": "npm run docs:no-publish && aegir run release && npm run docs"
   },
-  "dependencies": {
+  "devDependencies": {
     "aegir": "^38.1.2"
   },
   "workspaces": [

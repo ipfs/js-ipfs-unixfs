@@ -14,7 +14,9 @@
 - [Example](#example)
 - [API](#api)
   - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
-- [Overriding internals](#overriding-internals)
+  - [const result = await importContent(content, blockstore \[, options\])](#const-result--await-importcontentcontent-blockstore--options)
+  - [const result = await importBytes(buf, blockstore \[, options\])](#const-result--await-importbytesbuf-blockstore--options)
+  - [const result = await importByteStream(source, blockstore \[, options\])](#const-result--await-importbytestreamsource-blockstore--options)
 - [API Docs](#api-docs)
 - [License](#license)
 - [Contribute](#contribute)
@@ -95,7 +97,7 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 ## API
 
 ```js
-import { importer } from 'ipfs-unixfs-importer'
+import { importer, importContent, importBytes } from 'ipfs-unixfs-importer'
 ```
 
 ### const stream = importer(source, blockstore \[, options])
@@ -117,55 +119,17 @@ The `importer` function returns an async iterator takes a source async iterator 
 
 The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-dag-pb) created nodes.
 
-`options` is an JavaScript option that might include the following keys:
+### const result = await importContent(content, blockstore \[, options])
 
-- `wrapWithDirectory` (boolean, defaults to false): if true, a wrapping node will be created
-- `shardSplitThresholdBytes` (positive integer, defaults to 256KiB): if the serialized node is larger than this it might be converted to a HAMT sharded directory
-- `chunker` (string, defaults to `"fixed"`): the chunking strategy. Supports:
-  - `fixed`
-  - `rabin`
-- `avgChunkSize` (positive integer, defaults to `262144`): the average chunk size (rabin chunker only)
-- `minChunkSize` (positive integer): the minimum chunk size (rabin chunker only)
-- `maxChunkSize` (positive integer, defaults to `262144`): the maximum chunk size
-- `strategy` (string, defaults to `"balanced"`): the DAG builder strategy name. Supports:
-  - `flat`: flat list of chunks
-  - `balanced`: builds a balanced tree
-  - `trickle`: builds [a trickle tree](https://github.com/ipfs/specs/pull/57#issuecomment-265205384)
-- `maxChildrenPerNode` (positive integer, defaults to `174`): the maximum children per node for the `balanced` and `trickle` DAG builder strategies
-- `layerRepeat` (positive integer, defaults to 4): (only applicable to the `trickle` DAG builder strategy). The maximum repetition of parent nodes for each layer of the tree.
-- `reduceSingleLeafToSelf` (boolean, defaults to `true`): optimization for, when reducing a set of nodes with one node, reduce it to that node.
-- `hamtHashFn` (async function(string) Buffer): a function that hashes file names to create HAMT shards
-- `hamtBucketBits` (positive integer, defaults to `8`): the number of bits at each bucket of the HAMT
-- `progress` (function): a function that will be called with the byte length of chunks as a file is added to ipfs.
-- `onlyHash` (boolean, defaults to false): Only chunk and hash - do not write to disk
-- `hashAlg` (string): multihash hashing algorithm to use
-- `cidVersion` (integer, default 0): the CID version to use when storing the data (storage keys are based on the CID, *including* it's version)
-- `rawLeaves` (boolean, defaults to false): When a file would span multiple DAGNodes, if this is true the leaf nodes will not be wrapped in `UnixFS` protobufs and will instead contain the raw file bytes
-- `leafType` (string, defaults to `'file'`) what type of UnixFS node leaves should be - can be `'file'` or `'raw'` (ignored when `rawLeaves` is `true`)
-- `blockWriteConcurrency` (positive integer, defaults to 10) How many blocks to hash and write to the block store concurrently. For small numbers of large files this should be high (e.g. 50).
-- `fileImportConcurrency` (number, defaults to 50) How many files to import concurrently. For large numbers of small files this should be high (e.g. 50).
+A convenience function for importing a single file or directory.
 
-## Overriding internals
+### const result = await importBytes(buf, blockstore \[, options])
 
-Several aspects of the importer are overridable by specifying functions as part of the options object with these keys:
+A convenience function for importing a single Uint8Array.
 
-- `chunkValidator` (function): Optional function that supports the signature `async function * (source, options)`
-  - This function takes input from the `content` field of imported entries. It should transform them into `Buffer`s, throwing an error if it cannot.
-  - It should yield `Buffer` objects constructed from the `source` or throw an `Error`
-- `chunker` (function): Optional function that supports the signature `async function * (source, options)` where `source` is an async generator and `options` is an options object
-  - It should yield `Buffer` objects.
-- `bufferImporter` (function): Optional function that supports the signature `async function * (entry, blockstore, options)`
-  - This function should read `Buffer`s from `source` and persist them using `blockstore.put` or similar
-  - `entry` is the `{ path, content }` entry, where `entry.content` is an async generator that yields Buffers
-  - It should yield functions that return a Promise that resolves to an object with the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
-  - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `blockWriteConcurrency` option (default: 10)
-- `dagBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
-  - This function should read `{ path, content }` entries from `source` and turn them into DAGs
-  - It should yield a `function` that returns a `Promise` that resolves to `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `node` is a `DAGNode`.
-  - Values will be pulled from this generator in parallel - the amount of parallelisation is controlled by the `fileImportConcurrency` option (default: 50)
-- `treeBuilder` (function): Optional function that supports the signature `async function * (source, blockstore, options)`
-  - This function should read `{ cid, path, unixfs, node }` entries from `source` and place them in a directory structure
-  - It should yield an object with the properties `{ cid, path, unixfs, size }` where `cid` is a `CID`, `path` is a string, `unixfs` is a UnixFS entry and `size` is a `Number`.
+### const result = await importByteStream(source, blockstore \[, options])
+
+A convenience function for importing a single stream of Uint8Arrays.
 
 ## API Docs
 

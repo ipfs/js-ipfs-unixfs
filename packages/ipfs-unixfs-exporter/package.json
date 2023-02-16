@@ -20,22 +20,6 @@
   },
   "type": "module",
   "types": "./dist/src/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ],
-      "src/*": [
-        "*",
-        "dist/*",
-        "dist/src/*",
-        "dist/src/*/index"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",
@@ -45,7 +29,7 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./dist/src/index.js"
     }
   },
   "eslintConfig": {
@@ -183,6 +167,6 @@
     "fs": false
   },
   "typedoc": {
-    "entryPoint": "./src/index.js"
+    "entryPoint": "./src/index.ts"
   }
 }

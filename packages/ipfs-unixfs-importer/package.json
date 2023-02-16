@@ -45,7 +45,15 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./dist/src/index.js"
+    },
+    "./chunker": {
+      "types": "./dist/src/chunker/index.d.ts",
+      "import": "./dist/src/chunker/index.js"
+    },
+    "./layout": {
+      "types": "./dist/src/layout/index.d.ts",
+      "import": "./dist/src/layout/index.js"
     }
   },
   "eslintConfig": {
@@ -161,16 +169,16 @@
     "it-batch": "^2.0.0",
     "it-first": "^2.0.0",
     "it-parallel-batch": "^2.0.0",
-    "merge-options": "^3.0.4",
     "multiformats": "^11.0.0",
     "rabin-wasm": "^0.1.4",
-    "uint8arraylist": "^2.3.3",
+    "uint8arraylist": "^2.4.3",
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
     "aegir": "^38.1.2",
     "blockstore-core": "^3.0.0",
     "it-buffer-stream": "^3.0.0",
+    "it-drain": "^2.0.0",
     "it-last": "^2.0.0",
     "wherearewe": "^2.0.1"
   },
@@ -178,6 +186,6 @@
     "fs": false
   },
   "typedoc": {
-    "entryPoint": "./src/index.js"
+    "entryPoint": "./src/index.ts"
   }
 }

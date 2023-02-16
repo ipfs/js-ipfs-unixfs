@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 message Data {
   enum DataType {
@@ -10,7 +10,7 @@ message Data {
     HAMTShard = 5;
   }
 
-  required DataType Type = 1;
+  optional DataType Type = 1;
   optional bytes Data = 2;
   optional uint64 filesize = 3;
   repeated uint64 blocksizes = 4;
@@ -21,7 +21,7 @@ message Data {
 }
 
 message UnixTime {
-  required int64 Seconds = 1;
+  optional int64 Seconds = 1;
   optional fixed32 FractionalNanoseconds = 2;
 }
 

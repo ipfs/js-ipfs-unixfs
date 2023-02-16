@@ -1,3 +1,20 @@
+## [ipfs-unixfs-exporter-v12.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v11.0.0...ipfs-unixfs-exporter-v12.0.0) (2023-02-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* The options object now accepts preconfigured instances of chunkers and file layouts - these can be imported from this module - see https://github.com/ipfs/js-ipfs-unixfs/pull/283 for more
+
+### Features
+
+* accept pre-configured import components as options instead of options for components ([#283](https://github.com/ipfs/js-ipfs-unixfs/issues/283)) ([5a38d01](https://github.com/ipfs/js-ipfs-unixfs/commit/5a38d0126457926d1c17aeee75700565b400e4cf))
+
+
+### Dependencies
+
+* update sibling dependencies ([c59954c](https://github.com/ipfs/js-ipfs-unixfs/commit/c59954c64933ee330cd40746d0fa720de83b6ea3))
+* update sibling dependencies ([b4f6fc8](https://github.com/ipfs/js-ipfs-unixfs/commit/b4f6fc83245bc99223704ce918fd4db691221412))
+
 ## [ipfs-unixfs-exporter-v11.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v10.0.1...ipfs-unixfs-exporter-v11.0.0) (2023-02-09)
 
 

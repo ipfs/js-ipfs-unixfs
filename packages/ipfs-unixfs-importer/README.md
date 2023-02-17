@@ -15,7 +15,7 @@
 - [API](#api)
   - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
   - [const result = await importFile(content, blockstore \[, options\])](#const-result--await-importfilecontent-blockstore--options)
-  - [const result = await importDir(content, blockstore \[, options\])](#const-result--await-importdircontent-blockstore--options)
+  - [const result = await importDirectory(content, blockstore \[, options\])](#const-result--await-importdirectorycontent-blockstore--options)
   - [const result = await importBytes(buf, blockstore \[, options\])](#const-result--await-importbytesbuf-blockstore--options)
   - [const result = await importByteStream(source, blockstore \[, options\])](#const-result--await-importbytestreamsource-blockstore--options)
 - [API Docs](#api-docs)
@@ -124,7 +124,7 @@ The input's file paths and directory structure will be preserved in the [`dag-pb
 
 A convenience function for importing a single file or directory.
 
-### const result = await importDir(content, blockstore \[, options])
+### const result = await importDirectory(content, blockstore \[, options])
 
 A convenience function for importing a directory - note this is non-recursive, to import recursively use the [importer](#const-stream--importersource-blockstore--options) function.
 

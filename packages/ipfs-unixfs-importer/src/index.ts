@@ -276,7 +276,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
  * @example
  *
  * ```typescript
- * import { importOne } from 'ipfs-unixfs-importer'
+ * import { importFile } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core'
  *
  * // store blocks in memory, other blockstores are available
@@ -308,7 +308,7 @@ export async function importFile (content: FileCandidate, blockstore: Blockstore
  * @example
  *
  * ```typescript
- * import { importOne } from 'ipfs-unixfs-importer'
+ * import { importDirectory } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core'
  *
  * // store blocks in memory, other blockstores are available
@@ -318,10 +318,10 @@ export async function importFile (content: FileCandidate, blockstore: Blockstore
  *   path: './foo.txt'
  * }
  *
- * const entry = await importDir(input, blockstore)
+ * const entry = await importDirectory(input, blockstore)
  * ```
  */
-export async function importDir (content: DirectoryCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importDirectory (content: DirectoryCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
@@ -338,7 +338,7 @@ export async function importDir (content: DirectoryCandidate, blockstore: Blocks
  * @example
  *
  * ```typescript
- * import { importOne } from 'ipfs-unixfs-importer'
+ * import { importBytes } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core'
  *
  * // store blocks in memory, other blockstores are available
@@ -362,7 +362,7 @@ export async function importBytes (buf: ImportContent, blockstore: Blockstore, o
  * @example
  *
  * ```typescript
- * import { importOne } from 'ipfs-unixfs-importer'
+ * import { importByteStream } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core'
  *
  * // store blocks in memory, other blockstores are available

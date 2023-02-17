@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v14.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v14.0.0...ipfs-unixfs-importer-v14.0.1) (2023-02-17)
+
+
+### Bug Fixes
+
+* export importFile and importDirectory function ([#284](https://github.com/ipfs/js-ipfs-unixfs/issues/284)) ([4b83a19](https://github.com/ipfs/js-ipfs-unixfs/commit/4b83a19a19157dd996c62f51cca063a11a6196b1))
+
 ## [ipfs-unixfs-importer-v14.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v13.0.0...ipfs-unixfs-importer-v14.0.0) (2023-02-16)
 
 

@@ -14,7 +14,7 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">Documentation</a></li>
 <li><a href="ipfs_unixfs_importer.html">ipfs-unixfs-importer</a></li></ul>
-<h1>Module ipfs-unixfs-importer - v14.0.0</h1></div><aside class="tsd-sources">
+<h1>Module ipfs-unixfs-importer - v14.0.1</h1></div><aside class="tsd-sources">
 <ul>
 <li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L1">ipfs-unixfs-importer/src/index.ts:1</a></li></ul></aside>
 <section class="tsd-panel-group">
@@ -41,7 +41,8 @@
 <li><a href="#example">Example</a></li>
 <li><a href="#api">API</a><ul>
 <li><a href="#const-stream--importersource-blockstore--options">const stream = importer(source, blockstore [, options])</a></li>
-<li><a href="#const-result--await-importcontentcontent-blockstore--options">const result = await importContent(content, blockstore [, options])</a></li>
+<li><a href="#const-result--await-importfilecontent-blockstore--options">const result = await importFile(content, blockstore [, options])</a></li>
+<li><a href="#const-result--await-importdirectorycontent-blockstore--options">const result = await importDirectory(content, blockstore [, options])</a></li>
 <li><a href="#const-result--await-importbytesbuf-blockstore--options">const result = await importBytes(buf, blockstore [, options])</a></li>
 <li><a href="#const-result--await-importbytestreamsource-blockstore--options">const result = await importByteStream(source, blockstore [, options])</a></li>
 </ul>
@@ -80,7 +81,7 @@
 <a href="#api" id="api" style="color: inherit; text-decoration: none;">
   <h2>API</h2>
 </a>
-<pre><code class="language-js"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">importer</span><span class="hl-0">, </span><span class="hl-8">importContent</span><span class="hl-0">, </span><span class="hl-8">importBytes</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;ipfs-unixfs-importer&#39;</span>
+<pre><code class="language-js"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">importer</span><span class="hl-0">, </span><span class="hl-8">importFile</span><span class="hl-0">, </span><span class="hl-8">importDir</span><span class="hl-0">, </span><span class="hl-8">importBytes</span><span class="hl-0">, </span><span class="hl-8">importByteStream</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;ipfs-unixfs-importer&#39;</span>
 </code></pre>
 
 <a href="#const-stream--importersource-blockstore--options" id="const-stream--importersource-blockstore--options" style="color: inherit; text-decoration: none;">
@@ -93,10 +94,15 @@
 <p><code>blockstore</code> is an instance of a <a href="https://github.com/ipfs/js-ipfs-interfaces/tree/master/packages/interface-blockstore#readme">blockstore</a></p>
 <p>The input&#39;s file paths and directory structure will be preserved in the <a href="https://github.com/ipld/js-dag-pb"><code>dag-pb</code></a> created nodes.</p>
 
-<a href="#const-result--await-importcontentcontent-blockstore--options" id="const-result--await-importcontentcontent-blockstore--options" style="color: inherit; text-decoration: none;">
-  <h3>const result = await importContent(content, blockstore [, options])</h3>
+<a href="#const-result--await-importfilecontent-blockstore--options" id="const-result--await-importfilecontent-blockstore--options" style="color: inherit; text-decoration: none;">
+  <h3>const result = await importFile(content, blockstore [, options])</h3>
 </a>
 <p>A convenience function for importing a single file or directory.</p>
+
+<a href="#const-result--await-importdirectorycontent-blockstore--options" id="const-result--await-importdirectorycontent-blockstore--options" style="color: inherit; text-decoration: none;">
+  <h3>const result = await importDirectory(content, blockstore [, options])</h3>
+</a>
+<p>A convenience function for importing a directory - note this is non-recursive, to import recursively use the <a href="#const-stream--importersource-blockstore--options">importer</a> function.</p>
 
 <a href="#const-result--await-importbytesbuf-blockstore--options" id="const-result--await-importbytesbuf-blockstore--options" style="color: inherit; text-decoration: none;">
   <h3>const result = await importBytes(buf, blockstore [, options])</h3>
@@ -144,9 +150,10 @@
 <h3 class="tsd-index-heading">Interfaces</h3>
 <div class="tsd-index-list"><a href="../interfaces/ipfs_unixfs_importer.BufferImporter.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Buffer<wbr/>Importer</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.Directory.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Directory</span></a>
+<a href="../interfaces/ipfs_unixfs_importer.DirectoryCandidate.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Directory<wbr/>Candidate</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.File.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>File</span></a>
+<a href="../interfaces/ipfs_unixfs_importer.FileCandidate.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>File<wbr/>Candidate</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.HamtHashFn.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Hamt<wbr/>Hash<wbr/>Fn</span></a>
-<a href="../interfaces/ipfs_unixfs_importer.ImportCandidate.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Import<wbr/>Candidate</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.ImportResult.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Import<wbr/>Result</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.ImporterOptions.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Importer<wbr/>Options</span></a>
 <a href="../interfaces/ipfs_unixfs_importer.InProgressImportResult.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>In<wbr/>Progress<wbr/>Import<wbr/>Result</span></a>
@@ -156,6 +163,7 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Type Aliases</h3>
 <div class="tsd-index-list"><a href="../types/ipfs_unixfs_importer.ByteStream.html" class="tsd-index-link tsd-kind-type-alias tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Byte<wbr/>Stream</span></a>
+<a href="../types/ipfs_unixfs_importer.ImportCandidate.html" class="tsd-index-link tsd-kind-type-alias tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Import<wbr/>Candidate</span></a>
 <a href="../types/ipfs_unixfs_importer.ImportCandidateStream.html" class="tsd-index-link tsd-kind-type-alias tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Import<wbr/>Candidate<wbr/>Stream</span></a>
 <a href="../types/ipfs_unixfs_importer.ImportContent.html" class="tsd-index-link tsd-kind-type-alias tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Import<wbr/>Content</span></a>
 </div></section>
@@ -163,7 +171,8 @@
 <h3 class="tsd-index-heading">Functions</h3>
 <div class="tsd-index-list"><a href="../functions/ipfs_unixfs_importer.importByteStream.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg><span>import<wbr/>Byte<wbr/>Stream</span></a>
 <a href="../functions/ipfs_unixfs_importer.importBytes.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>import<wbr/>Bytes</span></a>
-<a href="../functions/ipfs_unixfs_importer.importContent-1.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>import<wbr/>Content</span></a>
+<a href="../functions/ipfs_unixfs_importer.importDirectory.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>import<wbr/>Directory</span></a>
+<a href="../functions/ipfs_unixfs_importer.importFile.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>import<wbr/>File</span></a>
 <a href="../functions/ipfs_unixfs_importer.importer.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>importer</span></a>
 </div></section></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -191,26 +200,29 @@
 <li class="tsd-kind-module"><a href="ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v12.0.0</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_exporter._internal_.html">&lt;internal&gt;</a></li></ul></li>
-<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v14.0.0</a>
+<li class="current selected tsd-kind-module"><a href="ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v14.0.1</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="ipfs_unixfs_importer._internal_.html">&lt;internal&gt;</a></li></ul></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">
 <ul>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.BufferImporter.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Buffer<wbr/>Importer</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.Directory.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Directory</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.DirectoryCandidate.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Directory<wbr/>Candidate</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.File.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>File</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.FileCandidate.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>File<wbr/>Candidate</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.HamtHashFn.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Hamt<wbr/>Hash<wbr/>Fn</a></li>
-<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.ImportCandidate.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Import<wbr/>Candidate</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.ImportResult.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Import<wbr/>Result</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.ImporterOptions.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Importer<wbr/>Options</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.InProgressImportResult.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>In<wbr/>Progress<wbr/>Import<wbr/>Result</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.ProgressHandler.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Progress<wbr/>Handler</a></li>
 <li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/ipfs_unixfs_importer.TreeBuilder.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Tree<wbr/>Builder</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="../types/ipfs_unixfs_importer.ByteStream.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Byte<wbr/>Stream</a></li>
+<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="../types/ipfs_unixfs_importer.ImportCandidate.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Import<wbr/>Candidate</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="../types/ipfs_unixfs_importer.ImportCandidateStream.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Import<wbr/>Candidate<wbr/>Stream</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="../types/ipfs_unixfs_importer.ImportContent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Import<wbr/>Content</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importByteStream.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>import<wbr/>Byte<wbr/>Stream</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importBytes.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>import<wbr/>Bytes</a></li>
-<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importContent-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>import<wbr/>Content</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importDirectory.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>import<wbr/>Directory</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importFile.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>import<wbr/>File</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/ipfs_unixfs_importer.importer.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>importer</a></li></ul></nav></div></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

@@ -1,7 +1,7 @@
 import { dirBuilder, DirBuilderOptions } from './dir.js'
 import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import type { Directory, File, ImportCandidate, InProgressImportResult } from '../index.js'
+import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult } from '../index.js'
 import type { Blockstore } from 'interface-blockstore'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
@@ -59,7 +59,7 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           .join('/')
       }
 
-      if (entry.content != null) {
+      if (isFileCandidate(entry)) {
         const file: File = {
           path: entry.path,
           mtime: entry.mtime,
@@ -83,4 +83,8 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
       }
     }
   }
+}
+
+function isFileCandidate (entry: any): entry is FileCandidate {
+  return entry.content != null
 }

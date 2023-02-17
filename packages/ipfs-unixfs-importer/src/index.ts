@@ -16,12 +16,20 @@ import type { AwaitIterable } from 'blockstore-core/base'
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
 
-export interface ImportCandidate {
+export interface FileCandidate {
   path?: string
-  content?: ImportContent
+  content: ImportContent
   mtime?: Mtime
   mode?: number
 }
+
+export interface DirectoryCandidate {
+  path: string
+  mtime?: Mtime
+  mode?: number
+}
+
+export type ImportCandidate = FileCandidate | DirectoryCandidate
 
 export interface File {
   content: AsyncIterable<Uint8Array>
@@ -180,7 +188,7 @@ export interface ImporterOptions {
   chunkValidator?: ChunkValidator
 }
 
-export type ImportCandidateStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
+export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
 
 /**
  * The importer creates UnixFS DAGs and stores the blocks that make
@@ -210,7 +218,7 @@ export type ImportCandidateStream = AsyncIterable<ImportCandidate> | Iterable<Im
  * ```
  */
 export async function * importer (source: ImportCandidateStream, blockstore: Blockstore, options: ImporterOptions = {}): AsyncGenerator<ImportResult, void, unknown> {
-  let candidates: AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
+  let candidates: AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
 
   if (Symbol.asyncIterator in source || Symbol.iterator in source) {
     candidates = source
@@ -261,8 +269,8 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
 }
 
 /**
- * `importContent` is similar to `importer` except it accepts a single
- * `ImportCandidate` and returns a promise of a single `ImportResult`
+ * `importFile` is similar to `importer` except it accepts a single
+ * `FileCandidate` and returns a promise of a single `ImportResult`
  * instead of a stream of results.
  *
  * @example
@@ -274,15 +282,46 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
  * // store blocks in memory, other blockstores are available
  * const blockstore = new MemoryBlockstore()
  *
- * const input = {
+ * const input: FileCandidate = {
  *   path: './foo.txt',
  *   content: Uint8Array.from([0, 1, 2, 3, 4])
  * }
  *
- * const entry = await importContent(input, blockstore)
+ * const entry = await importFile(input, blockstore)
  * ```
  */
-export async function importContent (content: ImportCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importFile (content: FileCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+  const result = await first(importer([content], blockstore, options))
+
+  if (result == null) {
+    throw errcode(new Error('Nothing imported'), 'ERR_INVALID_PARAMS')
+  }
+
+  return result
+}
+
+/**
+ * `importDir` is similar to `importer` except it accepts a single
+ * `DirectoryCandidate` and returns a promise of a single `ImportResult`
+ * instead of a stream of results.
+ *
+ * @example
+ *
+ * ```typescript
+ * import { importOne } from 'ipfs-unixfs-importer'
+ * import { MemoryBlockstore } from 'blockstore-core'
+ *
+ * // store blocks in memory, other blockstores are available
+ * const blockstore = new MemoryBlockstore()
+ *
+ * const input: DirectoryCandidate = {
+ *   path: './foo.txt'
+ * }
+ *
+ * const entry = await importDir(input, blockstore)
+ * ```
+ */
+export async function importDir (content: DirectoryCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
@@ -311,7 +350,7 @@ export async function importContent (content: ImportCandidate, blockstore: Block
  * ```
  */
 export async function importBytes (buf: ImportContent, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
-  return await importContent({
+  return await importFile({
     content: buf
   }, blockstore, options)
 }
@@ -338,7 +377,7 @@ export async function importBytes (buf: ImportContent, blockstore: Blockstore, o
  * ```
  */
 export async function importByteStream (bufs: ByteStream, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
-  return await importContent({
+  return await importFile({
     content: bufs
   }, blockstore, options)
 }

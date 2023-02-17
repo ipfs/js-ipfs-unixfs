@@ -14,7 +14,8 @@
 - [Example](#example)
 - [API](#api)
   - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
-  - [const result = await importContent(content, blockstore \[, options\])](#const-result--await-importcontentcontent-blockstore--options)
+  - [const result = await importFile(content, blockstore \[, options\])](#const-result--await-importfilecontent-blockstore--options)
+  - [const result = await importDir(content, blockstore \[, options\])](#const-result--await-importdircontent-blockstore--options)
   - [const result = await importBytes(buf, blockstore \[, options\])](#const-result--await-importbytesbuf-blockstore--options)
   - [const result = await importByteStream(source, blockstore \[, options\])](#const-result--await-importbytestreamsource-blockstore--options)
 - [API Docs](#api-docs)
@@ -97,7 +98,7 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 ## API
 
 ```js
-import { importer, importContent, importBytes } from 'ipfs-unixfs-importer'
+import { importer, importFile, importDir, importBytes, importByteStream } from 'ipfs-unixfs-importer'
 ```
 
 ### const stream = importer(source, blockstore \[, options])
@@ -119,9 +120,13 @@ The `importer` function returns an async iterator takes a source async iterator 
 
 The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-dag-pb) created nodes.
 
-### const result = await importContent(content, blockstore \[, options])
+### const result = await importFile(content, blockstore \[, options])
 
 A convenience function for importing a single file or directory.
+
+### const result = await importDir(content, blockstore \[, options])
+
+A convenience function for importing a directory - note this is non-recursive, to import recursively use the [importer](#const-stream--importersource-blockstore--options) function.
 
 ### const result = await importBytes(buf, blockstore \[, options])
 

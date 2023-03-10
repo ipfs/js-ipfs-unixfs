@@ -2,8 +2,7 @@ import { DirFlat } from './dir-flat.js'
 import { flatToShard } from './flat-to-shard.js'
 import { Dir } from './dir.js'
 import { toPathComponents } from './utils/to-path-components.js'
-import type { ImportResult, InProgressImportResult, TreeBuilder } from './index.js'
-import type { Blockstore } from 'interface-blockstore'
+import type { ImportResult, InProgressImportResult, TreeBuilder, Blockstore } from './index.js'
 import type { PersistOptions } from './utils/persist.js'
 
 export interface AddToTreeOptions extends PersistOptions {

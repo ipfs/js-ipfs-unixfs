@@ -1,7 +1,6 @@
-import type { Blockstore } from 'interface-blockstore'
+import type { Blockstore, ImportResult, InProgressImportResult } from './index.js'
 import type { Mtime, UnixFS } from 'ipfs-unixfs'
 import { CID } from 'multiformats/cid'
-import type { ImportResult, InProgressImportResult } from './index.js'
 import type { PersistOptions } from './utils/persist.js'
 
 export interface DirProps {

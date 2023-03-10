@@ -1,8 +1,7 @@
 import { dirBuilder, DirBuilderOptions } from './dir.js'
 import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult } from '../index.js'
-import type { Blockstore } from 'interface-blockstore'
+import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult, Blockstore } from '../index.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
 

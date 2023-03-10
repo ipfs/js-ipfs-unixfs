@@ -131,7 +131,7 @@
     "build": "aegir build",
     "clean": "aegir clean",
     "lint": "aegir lint",
-    "dep-check": "aegir dep-check -i interface-blockstore",
+    "dep-check": "aegir dep-check",
     "release": "aegir release"
   },
   "dependencies": {
@@ -140,7 +140,7 @@
     "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
-    "interface-blockstore": "^4.0.0",
+    "interface-blockstore": "^4.0.1",
     "ipfs-unixfs": "^11.0.0",
     "it-filter": "^2.0.0",
     "it-last": "^2.0.0",

@@ -1,3 +1,7 @@
+import parallel from 'it-parallel'
+import { pipe } from 'it-pipe'
+import map from 'it-map'
+import filter from 'it-filter'
 import type { ExporterOptions, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
 
 const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -6,13 +10,19 @@ const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, de
     const length = options.length ?? node.Links.length
     const links = node.Links.slice(offset, length)
 
-    for (const link of links) {
-      const result = await resolve(link.Hash, link.Name ?? '', `${path}/${link.Name ?? ''}`, [], depth + 1, blockstore, options)
-
-      if (result.entry != null) {
-        yield result.entry
-      }
-    }
+    yield * pipe(
+      links,
+      source => map(source, link => {
+        return async () => {
+          const linkName = link.Name ?? ''
+          const linkPath = `${path}/${linkName}`
+          const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
+          return result.entry
+        }
+      }),
+      source => parallel(source, { ordered: true }),
+      source => filter(source, entry => entry != null)
+    )
   }
 
   return yieldDirectoryContent

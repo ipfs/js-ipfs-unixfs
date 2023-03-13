@@ -3,7 +3,7 @@ import { DAGBuilder, defaultDagBuilder } from './dag-builder/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
-import type { Blockstore } from 'interface-blockstore'
+import type { Blockstore as InterfaceBlockstore } from 'interface-blockstore'
 import { ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
 import { fixedSize } from './chunker/fixed-size.js'
 import type { Chunker } from './chunker/index.js'
@@ -15,6 +15,12 @@ import type { AwaitIterable } from 'blockstore-core/base'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
+
+export interface BlockstoreOptions {
+  signal?: AbortSignal
+}
+
+export type Blockstore = Pick<InterfaceBlockstore, 'has' | 'put' | 'get'>
 
 export interface FileCandidate {
   path?: string

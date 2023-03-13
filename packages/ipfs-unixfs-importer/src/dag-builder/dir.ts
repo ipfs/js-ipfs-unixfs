@@ -1,8 +1,7 @@
 import { UnixFS } from 'ipfs-unixfs'
 import { persist } from '../utils/persist.js'
 import { encode, prepare } from '@ipld/dag-pb'
-import type { Directory, InProgressImportResult } from '../index.js'
-import type { Blockstore } from 'interface-blockstore'
+import type { Directory, InProgressImportResult, Blockstore } from '../index.js'
 import type { Version } from 'multiformats/cid'
 
 export interface DirBuilderOptions {

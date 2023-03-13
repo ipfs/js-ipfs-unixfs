@@ -4,7 +4,7 @@ import resolve from './resolvers/index.js'
 import last from 'it-last'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { PBNode } from '@ipld/dag-pb'
-import type { Blockstore } from 'interface-blockstore'
+import type { Blockstore as InterfaceBlockstore } from 'interface-blockstore'
 import type { Bucket } from 'hamt-sharding'
 
 export interface ExporterOptions {
@@ -78,6 +78,12 @@ export interface ShardTraversalContext {
   rootBucket: Bucket<boolean>
   lastBucket: Bucket<boolean>
 }
+
+export interface BlockstoreOptions {
+  signal?: AbortSignal
+}
+
+export type Blockstore = Pick<InterfaceBlockstore, 'has' | 'put' | 'get'>
 
 const toPathComponents = (path: string = ''): string[] => {
   // split on / unless escaped with \

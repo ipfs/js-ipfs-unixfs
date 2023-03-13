@@ -3,8 +3,7 @@ import { persist } from '../utils/persist.js'
 import { encode, PBLink, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
-import type { BufferImporter, File, InProgressImportResult } from '../index.js'
-import type { Blockstore } from 'interface-blockstore'
+import type { BufferImporter, File, InProgressImportResult, Blockstore } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { Version } from 'multiformats/cid'
 
@@ -49,9 +48,9 @@ const reduce = (file: File, blockstore: Blockstore, options: ReduceOptions): Red
       const leaf = leaves[0]
 
       if (file.mtime !== undefined || file.mode !== undefined) {
-        // only one leaf node which is a buffer - we have metadata so convert it into a
+        // only one leaf node which is a raw leaf - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        let buffer = await blockstore.get(leaf.cid)
+        let buffer = await blockstore.get(leaf.cid, options)
 
         leaf.unixfs = new UnixFS({
           type: 'file',

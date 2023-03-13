@@ -2,8 +2,7 @@
 import { Bucket, BucketPosition, createHAMT } from 'hamt-sharding'
 import { decode, PBLink, PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import type { Blockstore } from 'interface-blockstore'
-import type { ExporterOptions, ShardTraversalContext } from '../index.js'
+import type { ExporterOptions, ShardTraversalContext, Blockstore } from '../index.js'
 import type { CID } from 'multiformats/cid'
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js

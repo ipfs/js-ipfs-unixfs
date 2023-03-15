@@ -12,7 +12,6 @@ export interface ExporterOptions extends ProgressOptions {
   offset?: number
   length?: number
   signal?: AbortSignal
-  timeout?: number
 }
 
 export interface Exportable<T> {

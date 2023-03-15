@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.1...ipfs-unixfs-exporter-v13.0.2) (2023-03-15)
+
+
+### Bug Fixes
+
+* remove unused timeout option from exporter ([#296](https://github.com/ipfs/js-ipfs-unixfs/issues/296)) ([bcb38a7](https://github.com/ipfs/js-ipfs-unixfs/commit/bcb38a7320dd2d6f411e36851df3395f53ff7059))
+
 ## [ipfs-unixfs-exporter-v13.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.0...ipfs-unixfs-exporter-v13.0.1) (2023-03-15)
 
 

@@ -32,10 +32,10 @@ export interface BufferImporterOptions extends ProgressOptions<BufferImportProgr
 }
 
 export function defaultBufferImporter (options: BufferImporterOptions): BufferImporter {
-  return async function * bufferImporter (file, block) {
-    for await (let buffer of file.content) {
+  return async function * bufferImporter (file, blockstore) {
+    for await (let block of file.content) {
       yield async () => {
-        options.onProgress?.(new CustomProgressEvent<ImportProgressData>('unixfs:importer:progress', { bytes: buffer.length, path: file.path }))
+        options.onProgress?.(new CustomProgressEvent<ImportProgressData>('unixfs:importer:progress', { bytes: block.byteLength, path: file.path }))
         let unixfs
 
         const opts: PersistOptions = {
@@ -50,19 +50,20 @@ export function defaultBufferImporter (options: BufferImporterOptions): BufferIm
         } else {
           unixfs = new UnixFS({
             type: options.leafType,
-            data: buffer
+            data: block
           })
 
-          buffer = dagPb.encode({
+          block = dagPb.encode({
             Data: unixfs.marshal(),
             Links: []
           })
         }
 
         return {
-          cid: await persist(buffer, block, opts),
+          cid: await persist(block, blockstore, opts),
           unixfs,
-          size: BigInt(buffer.length)
+          size: BigInt(block.length),
+          block
         }
       }
     }

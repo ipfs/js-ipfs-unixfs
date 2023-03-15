@@ -19,7 +19,7 @@ describe('custom chunker', function () {
   const block = new MemoryBlockstore()
 
   const fromPartsTest = (content: AsyncIterable<Uint8Array>, size: bigint) => async () => {
-    const put = async (buf: Uint8Array): Promise<{ cid: CID, size: bigint, unixfs: UnixFS }> => {
+    const put = async (buf: Uint8Array): Promise<{ cid: CID, size: bigint, unixfs: UnixFS, block: Uint8Array }> => {
       const encodedBlock = await Block.encode({
         value: buf,
         codec: rawCodec,
@@ -29,7 +29,8 @@ describe('custom chunker', function () {
       return {
         cid: encodedBlock.cid,
         size: BigInt(buf.length),
-        unixfs: new UnixFS()
+        unixfs: new UnixFS(),
+        block: buf
       }
     }
 

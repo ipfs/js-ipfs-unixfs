@@ -1,6 +1,7 @@
 import { encode, PBNode, prepare } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import { UnixFS } from 'ipfs-unixfs'
+import type { CID } from 'multiformats/cid'
 import { Dir, CID_V0, CID_V1, DirProps } from './dir.js'
 import type { ImportResult, InProgressImportResult } from './index.js'
 import { persist, PersistOptions } from './utils/persist.js'
@@ -68,20 +69,22 @@ export class DirFlat extends Dir {
   async * flush (block: Blockstore): AsyncGenerator<ImportResult> {
     const links = []
 
-    for (let [name, child] of this._children.entries()) {
+    for (const [name, child] of this._children.entries()) {
+      let result: { size?: bigint | number, cid?: CID } = child
+
       if (child instanceof Dir) {
         for await (const entry of child.flush(block)) {
-          child = entry
+          result = entry
 
-          yield child
+          yield entry
         }
       }
 
-      if (child.size != null && (child.cid != null)) {
+      if (result.size != null && (result.cid != null)) {
         links.push({
           Name: name,
-          Tsize: Number(child.size),
-          Hash: child.cid
+          Tsize: Number(result.size),
+          Hash: result.cid
         })
       }
     }

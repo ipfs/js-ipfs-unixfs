@@ -3,7 +3,7 @@ import { persist } from '../utils/persist.js'
 import { encode, PBLink, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
-import type { BufferImporter, File, InProgressImportResult, Blockstore } from '../index.js'
+import type { BufferImporter, File, InProgressImportResult, Blockstore, SingleBlockImportResult } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { Version } from 'multiformats/cid'
 import type { ProgressOptions } from 'progress-events'
@@ -15,24 +15,37 @@ interface BuildFileBatchOptions {
 
 async function * buildFileBatch (file: File, blockstore: Blockstore, options: BuildFileBatchOptions): AsyncGenerator<InProgressImportResult> {
   let count = -1
-  let previous: InProgressImportResult | undefined
+  let previous: SingleBlockImportResult | undefined
 
   for await (const entry of parallelBatch(options.bufferImporter(file, blockstore), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
-      previous = entry
+      // cache the first entry if case there aren't any more
+      previous = {
+        ...entry,
+        single: true
+      }
+
       continue
     } else if (count === 1 && (previous != null)) {
-      yield previous
+      // we have the second block of a multiple block import so yield the first
+      yield {
+        ...previous,
+        block: undefined,
+        single: undefined
+      }
       previous = undefined
     }
 
-    yield entry
+    // yield the second or later block of a multiple block import
+    yield {
+      ...entry,
+      block: undefined
+    }
   }
 
   if (previous != null) {
-    previous.single = true
     yield previous
   }
 }
@@ -43,49 +56,32 @@ interface ReduceOptions extends ProgressOptions {
   signal?: AbortSignal
 }
 
+function isSingleBlockImport (result: any): result is SingleBlockImportResult {
+  return result.single === true
+}
+
 const reduce = (file: File, blockstore: Blockstore, options: ReduceOptions): Reducer => {
   const reducer: Reducer = async function (leaves) {
-    if (leaves.length === 1 && leaves[0]?.single === true && options.reduceSingleLeafToSelf) {
+    if (leaves.length === 1 && isSingleBlockImport(leaves[0]) && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
 
-      if (file.mtime !== undefined || file.mode !== undefined) {
+      if (isSingleBlockImport(leaf) && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a raw leaf - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
-        let buffer = await blockstore.get(leaf.cid, options)
-
         leaf.unixfs = new UnixFS({
           type: 'file',
           mtime: file.mtime,
           mode: file.mode,
-          data: buffer
+          data: leaf.block
         })
 
-        buffer = encode(prepare({ Data: leaf.unixfs.marshal() }))
+        leaf.block = encode(prepare({ Data: leaf.unixfs.marshal() }))
 
-        // // TODO vmx 2021-03-26: This is what the original code does, it checks
-        // // the multihash of the original leaf node and uses then the same
-        // // hasher. i wonder if that's really needed or if we could just use
-        // // the hasher from `options.hasher` instead.
-        // const multihash = mh.decode(leaf.cid.multihash.bytes)
-        // let hasher
-        // switch multihash {
-        //   case sha256.code {
-        //     hasher = sha256
-        //     break;
-        //   }
-        //   //case identity.code {
-        //   //  hasher = identity
-        //   //  break;
-        //   //}
-        //   default: {
-        //     throw new Error(`Unsupported hasher "${multihash}"`)
-        //   }
-        // }
-        leaf.cid = await persist(buffer, blockstore, {
+        leaf.cid = await persist(leaf.block, blockstore, {
           ...options,
           cidVersion: options.cidVersion
         })
-        leaf.size = BigInt(buffer.length)
+        leaf.size = BigInt(leaf.block.length)
       }
 
       return {
@@ -147,15 +143,16 @@ const reduce = (file: File, blockstore: Blockstore, options: ReduceOptions): Red
       Data: f.marshal(),
       Links: links
     }
-    const buffer = encode(prepare(node))
-    const cid = await persist(buffer, blockstore, options)
+    const block = encode(prepare(node))
+    const cid = await persist(block, blockstore, options)
 
     return {
       cid,
       path: file.path,
       unixfs: f,
-      size: BigInt(buffer.length + node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0)),
-      originalPath: file.originalPath
+      size: BigInt(block.length + node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0)),
+      originalPath: file.originalPath,
+      block
     }
   }
 

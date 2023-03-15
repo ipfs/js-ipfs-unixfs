@@ -634,13 +634,13 @@ strategies.forEach((strategy) => {
       }
     })
 
-    it('will call an optional progress function', async () => {
+    it('will call an optional onProgress function', async () => {
       const chunkSize = 2048
       const path = '1.2MiB.txt'
-      const progress = sinon.stub()
+      const onProgress = sinon.stub()
 
       const options: Partial<ImporterOptions> = {
-        progress,
+        onProgress,
         chunker: fixedSize({
           chunkSize
         })
@@ -651,8 +651,9 @@ strategies.forEach((strategy) => {
         content: asAsyncIterable(bigFile)
       }], block, options))
 
-      expect(progress.called).to.equal(true)
-      expect(progress.args[0]).to.deep.equal([chunkSize, path])
+      expect(onProgress.called).to.equal(true)
+      expect(onProgress.getCall(0).args[0]).to.have.property('type', 'unixfs:importer:progress')
+      expect(onProgress.getCall(0).args[0]).to.have.deep.property('detail', { bytes: chunkSize, path })
     })
 
     it('will import files with CID version 1', async () => {

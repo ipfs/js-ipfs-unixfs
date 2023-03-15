@@ -4,7 +4,7 @@ import * as dagCbor from '@ipld/dag-cbor'
 import type { Resolver } from '../index.js'
 
 const resolve: Resolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
-  const block = await blockstore.get(cid)
+  const block = await blockstore.get(cid, options)
   const object = dagCbor.decode<any>(block)
   let subObject = object
   let subPath = path

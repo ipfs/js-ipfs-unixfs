@@ -24,7 +24,8 @@ describe('builder: balanced', () => {
   it('reduces one value into itself', async () => {
     const source = [{
       cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
-      size: 0n
+      size: 0n,
+      block: Uint8Array.from([])
     }]
 
     const result = await balanced(options)((async function * () {
@@ -37,13 +38,16 @@ describe('builder: balanced', () => {
   it('reduces 3 values into parent', async () => {
     const source = [{
       cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
-      size: 0n
+      size: 0n,
+      block: Uint8Array.from([])
     }, {
       cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
-      size: 0n
+      size: 0n,
+      block: Uint8Array.from([])
     }, {
       cid: CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'),
-      size: 0n
+      size: 0n,
+      block: Uint8Array.from([])
     }]
 
     const result = await balanced(options)((async function * () {

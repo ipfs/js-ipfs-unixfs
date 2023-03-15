@@ -17,15 +17,16 @@ export const dirBuilder = async (dir: Directory, blockstore: Blockstore, options
     mode: dir.mode
   })
 
-  const buffer = encode(prepare({ Data: unixfs.marshal() }))
-  const cid = await persist(buffer, blockstore, options)
+  const block = encode(prepare({ Data: unixfs.marshal() }))
+  const cid = await persist(block, blockstore, options)
   const path = dir.path
 
   return {
     cid,
     path,
     unixfs,
-    size: BigInt(buffer.length),
-    originalPath: dir.originalPath
+    size: BigInt(block.length),
+    originalPath: dir.originalPath,
+    block
   }
 }

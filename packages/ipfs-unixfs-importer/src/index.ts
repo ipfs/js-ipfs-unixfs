@@ -17,11 +17,7 @@ import type { ProgressOptions } from 'progress-events'
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
 
-export interface BlockstoreOptions {
-  signal?: AbortSignal
-}
-
-export type Blockstore = Pick<InterfaceBlockstore, 'has' | 'put' | 'get'>
+export type Blockstore = Pick<InterfaceBlockstore, 'put'>
 
 export interface FileCandidate {
   path?: string
@@ -60,14 +56,25 @@ export interface ImportResult {
   unixfs?: UnixFS
 }
 
-export interface InProgressImportResult extends ImportResult {
-  single?: boolean
+export interface MultipleBlockImportResult extends ImportResult {
   originalPath?: string
+}
+
+export interface SingleBlockImportResult extends ImportResult {
+  single: true
+  originalPath?: string
+  block: Uint8Array
+}
+
+export type InProgressImportResult = SingleBlockImportResult | MultipleBlockImportResult
+
+export interface BufferImporterResult extends ImportResult {
+  block: Uint8Array
 }
 
 export interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
 export interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore): AsyncIterable<ImportResult> }
-export interface BufferImporter { (file: File, blockstore: Blockstore): AsyncIterable<() => Promise<InProgressImportResult>> }
+export interface BufferImporter { (file: File, blockstore: Blockstore): AsyncIterable<() => Promise<BufferImporterResult>> }
 
 export type ImportProgressEvents =
   BufferImportProgressEvents

@@ -79,11 +79,7 @@ export interface ShardTraversalContext {
   lastBucket: Bucket<boolean>
 }
 
-export interface BlockstoreOptions {
-  signal?: AbortSignal
-}
-
-export type Blockstore = Pick<InterfaceBlockstore, 'has' | 'put' | 'get'>
+export type Blockstore = Pick<InterfaceBlockstore, 'get'>
 
 const toPathComponents = (path: string = ''): string[] => {
   // split on / unless escaped with \

@@ -22,9 +22,11 @@
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
-<li><span class="target">ImporterOptions</span></li></ul></section><aside class="tsd-sources">
+<li><a href="https://achingbrain.github.io/progress-events/interfaces/ProgressOptions.html" class="tsd-signature-type external" target="_blank">ProgressOptions</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/ipfs_unixfs_importer.ImportProgressEvents.html" class="tsd-signature-type" data-tsd-kind="Type alias">ImportProgressEvents</a><span class="tsd-signature-symbol">&gt;</span>
+<ul class="tsd-hierarchy">
+<li><span class="target">ImporterOptions</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L75">ipfs-unixfs-importer/src/index.ts:75</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L78">ipfs-unixfs-importer/src/index.ts:78</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -41,7 +43,6 @@
 <a href="ipfs_unixfs_importer.ImporterOptions.html#fileImportConcurrency" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>file<wbr/>Import<wbr/>Concurrency?</span></a>
 <a href="ipfs_unixfs_importer.ImporterOptions.html#layout" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>layout?</span></a>
 <a href="ipfs_unixfs_importer.ImporterOptions.html#leafType" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>leaf<wbr/>Type?</span></a>
-<a href="ipfs_unixfs_importer.ImporterOptions.html#progress" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>progress?</span></a>
 <a href="ipfs_unixfs_importer.ImporterOptions.html#rawLeaves" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>raw<wbr/>Leaves?</span></a>
 <a href="ipfs_unixfs_importer.ImporterOptions.html#reduceSingleLeafToSelf" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>reduce<wbr/>Single<wbr/>Leaf<wbr/>To<wbr/>Self?</span></a>
 <a href="ipfs_unixfs_importer.ImporterOptions.html#shardSplitThresholdBytes" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>shard<wbr/>Split<wbr/>Threshold<wbr/>Bytes?</span></a>
@@ -57,7 +58,7 @@
 numbers of large files this should be high (e.g. 50). Default: 50</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L129">ipfs-unixfs-importer/src/index.ts:129</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L126">ipfs-unixfs-importer/src/index.ts:126</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="bufferImporter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>buffer<wbr/>Importer</span><a href="#bufferImporter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">buffer<wbr/>Importer<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer.BufferImporter.html" class="tsd-signature-type" data-tsd-kind="Interface">BufferImporter</a></div>
@@ -72,7 +73,7 @@ Values will be pulled from this generator in parallel - the amount of
 parallelisation is controlled by the <code>blockWriteConcurrency</code> option (default: 10)</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L184">ipfs-unixfs-importer/src/index.ts:184</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L181">ipfs-unixfs-importer/src/index.ts:181</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="chunkValidator" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>chunk<wbr/>Validator</span><a href="#chunkValidator" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">chunk<wbr/>Validator<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer._internal_.ChunkValidator.html" class="tsd-signature-type" data-tsd-kind="Interface">ChunkValidator</a></div>
@@ -83,7 +84,7 @@ It should yield <code>Buffer</code> objects constructed from the <code>source</c
 <code>Error</code></p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L194">ipfs-unixfs-importer/src/index.ts:194</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L191">ipfs-unixfs-importer/src/index.ts:191</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="chunker" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>chunker</span><a href="#chunker" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">chunker<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer._internal_.Chunker.html" class="tsd-signature-type" data-tsd-kind="Interface">Chunker</a></div>
@@ -91,14 +92,14 @@ It should yield <code>Buffer</code> objects constructed from the <code>source</c
 for available chunkers. Default: fixedSize</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L141">ipfs-unixfs-importer/src/index.ts:141</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L138">ipfs-unixfs-importer/src/index.ts:138</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="cidVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>cid<wbr/>Version</span><a href="#cidVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">cid<wbr/>Version<span class="tsd-signature-symbol">?:</span> <a href="https://multiformats.github.io/js-multiformats/types/index.Version.html" class="tsd-signature-type external" target="_blank">Version</a></div>
 <div class="tsd-comment tsd-typography"><p>the CID version to use when storing the data. Default: 1</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L105">ipfs-unixfs-importer/src/index.ts:105</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L108">ipfs-unixfs-importer/src/index.ts:108</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="dagBuilder" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>dag<wbr/>Builder</span><a href="#dagBuilder" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">dag<wbr/>Builder<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer._internal_.DAGBuilder.html" class="tsd-signature-type" data-tsd-kind="Interface">DAGBuilder</a></div>
@@ -112,7 +113,7 @@ Values will be pulled from this generator in parallel - the amount of parallelis
 is controlled by the <code>fileImportConcurrency</code> option (default: 50)</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L160">ipfs-unixfs-importer/src/index.ts:160</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L157">ipfs-unixfs-importer/src/index.ts:157</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="fileImportConcurrency" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>file<wbr/>Import<wbr/>Concurrency</span><a href="#fileImportConcurrency" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">file<wbr/>Import<wbr/>Concurrency<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -120,7 +121,7 @@ is controlled by the <code>fileImportConcurrency</code> option (default: 50)</p>
 should be high (e.g. 50). Default: 10</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L123">ipfs-unixfs-importer/src/index.ts:123</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L120">ipfs-unixfs-importer/src/index.ts:120</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="layout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>layout</span><a href="#layout" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">layout<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer._internal_.FileLayout.html" class="tsd-signature-type" data-tsd-kind="Interface">FileLayout</a></div>
@@ -128,7 +129,7 @@ should be high (e.g. 50). Default: 10</p>
 <a href="./src/layout/index.ts">./src/layout/index.ts</a> for available layouts. Default: balanced</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L147">ipfs-unixfs-importer/src/index.ts:147</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L144">ipfs-unixfs-importer/src/index.ts:144</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="leafType" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>leaf<wbr/>Type</span><a href="#leafType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">leaf<wbr/>Type<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;file&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;raw&quot;</span></div>
@@ -140,15 +141,7 @@ of <code>&#39;raw&#39;</code> UnixFS leaves and <code>reduceSingleLeafToSelf: fa
 are plain Uint8Arrays without a UnixFS/Protobuf wrapper.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L100">ipfs-unixfs-importer/src/index.ts:100</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="progress" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>progress</span><a href="#progress" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">progress<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer.ProgressHandler.html" class="tsd-signature-type" data-tsd-kind="Interface">ProgressHandler</a></div>
-<div class="tsd-comment tsd-typography"><p>A function that will be called with the byte length of chunks as a file
-is added to ipfs.</p>
-</div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L111">ipfs-unixfs-importer/src/index.ts:111</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L103">ipfs-unixfs-importer/src/index.ts:103</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="rawLeaves" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>raw<wbr/>Leaves</span><a href="#rawLeaves" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">raw<wbr/>Leaves<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -157,7 +150,7 @@ will not be wrapped in <code>UnixFS</code> protobufs and will instead contain th
 raw file bytes. Default: true</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L81">ipfs-unixfs-importer/src/index.ts:81</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L84">ipfs-unixfs-importer/src/index.ts:84</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="reduceSingleLeafToSelf" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>reduce<wbr/>Single<wbr/>Leaf<wbr/>To<wbr/>Self</span><a href="#reduceSingleLeafToSelf" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">reduce<wbr/>Single<wbr/>Leaf<wbr/>To<wbr/>Self<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -166,7 +159,7 @@ the file data in the root node along with the UnixFS metadata instead of
 in a leaf node which would then require additional I/O to load. Default: true</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L88">ipfs-unixfs-importer/src/index.ts:88</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L91">ipfs-unixfs-importer/src/index.ts:91</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="shardSplitThresholdBytes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>shard<wbr/>Split<wbr/>Threshold<wbr/>Bytes</span><a href="#shardSplitThresholdBytes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">shard<wbr/>Split<wbr/>Threshold<wbr/>Bytes<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -174,7 +167,7 @@ in a leaf node which would then require additional I/O to load. Default: true</p
 sharded directory. Default: 256KiB</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L117">ipfs-unixfs-importer/src/index.ts:117</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L114">ipfs-unixfs-importer/src/index.ts:114</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="treeBuilder" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>tree<wbr/>Builder</span><a href="#treeBuilder" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">tree<wbr/>Builder<span class="tsd-signature-symbol">?:</span> <a href="ipfs_unixfs_importer.TreeBuilder.html" class="tsd-signature-type" data-tsd-kind="Interface">TreeBuilder</a></div>
@@ -185,7 +178,7 @@ It should yield an object with the properties <code>{ cid, path, unixfs, size }<
 <code>cid</code> is a <code>CID</code>, <code>path</code> is a string, <code>unixfs</code> is a UnixFS entry and <code>size</code> is a <code>Number</code>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L170">ipfs-unixfs-importer/src/index.ts:170</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L167">ipfs-unixfs-importer/src/index.ts:167</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="wrapWithDirectory" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>wrap<wbr/>With<wbr/>Directory</span><a href="#wrapWithDirectory" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">wrap<wbr/>With<wbr/>Directory<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -193,7 +186,7 @@ It should yield an object with the properties <code>{ cid, path, unixfs, size }<
 will correspond to the CID of the final entry yielded. Default: false</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L135">ipfs-unixfs-importer/src/index.ts:135</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/ipfs/js-ipfs-unixfs/blob/master/packages/ipfs-unixfs-importer/src/index.ts#L132">ipfs-unixfs-importer/src/index.ts:132</a></li></ul></aside></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -216,10 +209,10 @@ will correspond to the CID of the final entry yielded. Default: false</p>
 <li class="current"><a href="../modules.html">Documentation</a>
 <ul>
 <li class="tsd-kind-module"><a href="../modules/ipfs_unixfs.html">ipfs-<wbr/>unixfs -<wbr/> v11.0.0</a></li>
-<li class="tsd-kind-module"><a href="../modules/ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v13.0.0</a>
+<li class="tsd-kind-module"><a href="../modules/ipfs_unixfs_exporter.html">ipfs-<wbr/>unixfs-<wbr/>exporter -<wbr/> v13.0.1</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="../modules/ipfs_unixfs_exporter._internal_.html">&lt;internal&gt;</a></li></ul></li>
-<li class="current tsd-kind-module"><a href="../modules/ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v15.0.0</a>
+<li class="current tsd-kind-module"><a href="../modules/ipfs_unixfs_importer.html">ipfs-<wbr/>unixfs-<wbr/>importer -<wbr/> v15.0.1</a>
 <ul>
 <li class="tsd-kind-module tsd-parent-kind-module"><a href="../modules/ipfs_unixfs_importer._internal_.html">&lt;internal&gt;</a></li></ul></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">
@@ -235,7 +228,6 @@ will correspond to the CID of the final entry yielded. Default: false</p>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#fileImportConcurrency" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>file<wbr/>Import<wbr/>Concurrency?</a></li>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#layout" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>layout?</a></li>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#leafType" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>leaf<wbr/>Type?</a></li>
-<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#progress" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>progress?</a></li>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#rawLeaves" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>raw<wbr/>Leaves?</a></li>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#reduceSingleLeafToSelf" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>reduce<wbr/>Single<wbr/>Leaf<wbr/>To<wbr/>Self?</a></li>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="ipfs_unixfs_importer.ImporterOptions.html#shardSplitThresholdBytes" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>shard<wbr/>Split<wbr/>Threshold<wbr/>Bytes?</a></li>

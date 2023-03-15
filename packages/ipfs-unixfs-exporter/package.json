@@ -157,7 +157,7 @@
     "aegir": "^38.1.2",
     "blockstore-core": "^4.0.1",
     "delay": "^5.0.0",
-    "ipfs-unixfs-importer": "^14.0.0",
+    "ipfs-unixfs-importer": "^15.0.0",
     "it-all": "^2.0.0",
     "it-buffer-stream": "^3.0.0",
     "it-first": "^2.0.0",

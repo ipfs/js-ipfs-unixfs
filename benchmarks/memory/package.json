@@ -29,10 +29,12 @@
     "clean": "aegir clean",
     "lint": "aegir lint",
     "dep-check": "aegir dep-check",
-    "start": "npm run build && node --expose-gc ./dist/src/index.js"
+    "start": "npm run build && node --expose-gc ./dist/test/index.spec.js"
   },
   "devDependencies": {
     "aegir": "^38.1.2",
-    "tinybench": "^2.4.0"
+    "blockstore-fs": "^1.0.0",
+    "ipfs-unixfs-importer": "../../packages/ipfs-unixfs-importer",
+    "it-drain": "^2.0.1"
   }
 }

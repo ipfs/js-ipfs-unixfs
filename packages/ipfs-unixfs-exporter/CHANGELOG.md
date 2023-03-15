@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.0...ipfs-unixfs-exporter-v13.0.1) (2023-03-15)
+
+
+### Bug Fixes
+
+* pass onProgress option to blockstore ([#294](https://github.com/ipfs/js-ipfs-unixfs/issues/294)) ([3bfb34d](https://github.com/ipfs/js-ipfs-unixfs/commit/3bfb34d8e660404c89e39925ad053c940bf176ce))
+
 ## [ipfs-unixfs-exporter-v13.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v12.0.2...ipfs-unixfs-exporter-v13.0.0) (2023-03-15)
 
 

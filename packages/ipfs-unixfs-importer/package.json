@@ -164,7 +164,8 @@
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
     "ipfs-unixfs": "^11.0.0",
-    "interface-blockstore": "^4.0.1",
+    "interface-blockstore": "^5.0.0",
+    "interface-store": "^4.0.0",
     "it-all": "^2.0.0",
     "it-batch": "^2.0.0",
     "it-first": "^2.0.0",
@@ -176,7 +177,7 @@
   },
   "devDependencies": {
     "aegir": "^38.1.2",
-    "blockstore-core": "^3.0.0",
+    "blockstore-core": "^4.0.1",
     "it-buffer-stream": "^3.0.0",
     "it-drain": "^2.0.0",
     "it-last": "^2.0.0",

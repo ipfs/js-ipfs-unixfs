@@ -140,7 +140,7 @@
     "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.0",
-    "interface-blockstore": "^4.0.1",
+    "interface-blockstore": "^5.0.0",
     "ipfs-unixfs": "^11.0.0",
     "it-filter": "^2.0.0",
     "it-last": "^2.0.0",
@@ -155,7 +155,7 @@
   "devDependencies": {
     "@types/sinon": "^10.0.0",
     "aegir": "^38.1.2",
-    "blockstore-core": "^3.0.0",
+    "blockstore-core": "^4.0.1",
     "delay": "^5.0.0",
     "ipfs-unixfs-importer": "^14.0.0",
     "it-all": "^2.0.0",

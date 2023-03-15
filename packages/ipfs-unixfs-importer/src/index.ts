@@ -11,7 +11,7 @@ import { balanced, FileLayout } from './layout/index.js'
 import { defaultBufferImporter } from './dag-builder/buffer-importer.js'
 import first from 'it-first'
 import errcode from 'err-code'
-import type { AwaitIterable } from 'blockstore-core/base'
+import type { AwaitIterable } from 'interface-store'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array

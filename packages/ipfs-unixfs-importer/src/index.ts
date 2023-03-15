@@ -8,10 +8,11 @@ import { ChunkValidator, defaultChunkValidator } from './dag-builder/validate-ch
 import { fixedSize } from './chunker/fixed-size.js'
 import type { Chunker } from './chunker/index.js'
 import { balanced, FileLayout } from './layout/index.js'
-import { defaultBufferImporter } from './dag-builder/buffer-importer.js'
+import { BufferImportProgressEvents, defaultBufferImporter } from './dag-builder/buffer-importer.js'
 import first from 'it-first'
 import errcode from 'err-code'
 import type { AwaitIterable } from 'interface-store'
+import type { ProgressOptions } from 'progress-events'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
@@ -64,15 +65,17 @@ export interface InProgressImportResult extends ImportResult {
   originalPath?: string
 }
 
-export interface ProgressHandler { (chunkSize: number, path?: string): void }
 export interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
 export interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore): AsyncIterable<ImportResult> }
 export interface BufferImporter { (file: File, blockstore: Blockstore): AsyncIterable<() => Promise<InProgressImportResult>> }
 
+export type ImportProgressEvents =
+  BufferImportProgressEvents
+
 /**
  * Options to control the importer's behaviour
  */
-export interface ImporterOptions {
+export interface ImporterOptions extends ProgressOptions<ImportProgressEvents> {
   /**
    * When a file would span multiple DAGNodes, if this is true the leaf nodes
    * will not be wrapped in `UnixFS` protobufs and will instead contain the
@@ -103,12 +106,6 @@ export interface ImporterOptions {
    * the CID version to use when storing the data. Default: 1
    */
   cidVersion?: CIDVersion
-
-  /**
-   * A function that will be called with the byte length of chunks as a file
-   * is added to ipfs.
-   */
-  progress?: ProgressHandler
 
   /**
    * If the serialized node is larger than this it might be converted to a HAMT
@@ -252,16 +249,18 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
       cidVersion,
       rawLeaves,
       leafType,
-      progress: options.progress
+      onProgress: options.onProgress
     }),
     blockWriteConcurrency,
     reduceSingleLeafToSelf,
-    cidVersion
+    cidVersion,
+    onProgress: options.onProgress
   })
   const buildTree: TreeBuilder = options.treeBuilder ?? defaultTreeBuilder({
     wrapWithDirectory,
     shardSplitThresholdBytes,
-    cidVersion
+    cidVersion,
+    onProgress: options.onProgress
   })
 
   for await (const entry of buildTree(parallelBatch(buildDag(candidates, blockstore), fileImportConcurrency), blockstore)) {

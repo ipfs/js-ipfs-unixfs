@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { importer } from '../src/index.js'
+import { importer, ImporterOptions } from '../src/index.js'
 import bufferStream from 'it-buffer-stream'
 import { MemoryBlockstore } from 'blockstore-core'
 import drain from 'it-drain'
@@ -32,9 +32,9 @@ describe.skip('benchmark', function () {
       let lastDate = Date.now()
       let lastPercent = 0
 
-      const options = {
-        progress: (prog: number) => {
-          read += prog
+      const options: Partial<ImporterOptions> = {
+        onProgress: (evt) => {
+          read += evt.detail.bytes
 
           const percent = Math.round((read / size) * 100)
 

@@ -27,7 +27,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
           return { entries: result.entry == null ? [] : [result.entry] }
         } else {
           // descend into subshard
-          const block = await blockstore.get(link.Hash)
+          const block = await blockstore.get(link.Hash, options)
           node = decode(block)
 
           return { entries: listDirectory(node, path, resolve, depth, blockstore, options) }

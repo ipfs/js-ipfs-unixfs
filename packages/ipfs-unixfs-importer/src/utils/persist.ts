@@ -4,8 +4,9 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import type { Blockstore } from '../index.js'
 import type { BlockCodec } from 'multiformats/codecs/interface'
 import type { Version as CIDVersion } from 'multiformats/cid'
+import type { ProgressOptions } from 'progress-events'
 
-export interface PersistOptions {
+export interface PersistOptions extends ProgressOptions {
   codec?: BlockCodec<any, any>
   cidVersion: CIDVersion
   signal?: AbortSignal
@@ -19,9 +20,7 @@ export const persist = async (buffer: Uint8Array, blockstore: Blockstore, option
   const multihash = await sha256.digest(buffer)
   const cid = CID.create(options.cidVersion, options.codec.code, multihash)
 
-  await blockstore.put(cid, buffer, {
-    signal: options.signal
-  })
+  await blockstore.put(cid, buffer, options)
 
   return cid
 }

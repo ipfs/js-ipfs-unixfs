@@ -72,9 +72,7 @@ async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array,
     childOps,
     (source) => map(source, (op) => {
       return async () => {
-        const block = await blockstore.get(op.link.Hash, {
-          signal: options.signal
-        })
+        const block = await blockstore.get(op.link.Hash, options)
 
         return {
           ...op,

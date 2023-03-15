@@ -6,6 +6,7 @@ import * as rawCodec from 'multiformats/codecs/raw'
 import type { BufferImporter, File, InProgressImportResult, Blockstore } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { Version } from 'multiformats/cid'
+import type { ProgressOptions } from 'progress-events'
 
 interface BuildFileBatchOptions {
   bufferImporter: BufferImporter
@@ -36,7 +37,7 @@ async function * buildFileBatch (file: File, blockstore: Blockstore, options: Bu
   }
 }
 
-interface ReduceOptions {
+interface ReduceOptions extends ProgressOptions {
   reduceSingleLeafToSelf: boolean
   cidVersion: Version
   signal?: AbortSignal

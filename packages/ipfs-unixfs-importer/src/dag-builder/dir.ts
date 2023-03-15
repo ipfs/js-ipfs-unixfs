@@ -3,8 +3,9 @@ import { persist } from '../utils/persist.js'
 import { encode, prepare } from '@ipld/dag-pb'
 import type { Directory, InProgressImportResult, Blockstore } from '../index.js'
 import type { Version } from 'multiformats/cid'
+import type { ProgressOptions } from 'progress-events'
 
-export interface DirBuilderOptions {
+export interface DirBuilderOptions extends ProgressOptions {
   cidVersion: Version
   signal?: AbortSignal
 }

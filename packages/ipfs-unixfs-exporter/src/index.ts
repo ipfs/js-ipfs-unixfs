@@ -6,8 +6,9 @@ import type { UnixFS } from 'ipfs-unixfs'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore as InterfaceBlockstore } from 'interface-blockstore'
 import type { Bucket } from 'hamt-sharding'
+import type { ProgressOptions } from 'progress-events'
 
-export interface ExporterOptions {
+export interface ExporterOptions extends ProgressOptions {
   offset?: number
   length?: number
   signal?: AbortSignal

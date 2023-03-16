@@ -159,6 +159,7 @@
     "blockstore-core": "^4.0.1",
     "delay": "^5.0.0",
     "ipfs-unixfs-importer": "^15.0.0",
+    "iso-random-stream": "^2.0.2",
     "it-all": "^2.0.0",
     "it-buffer-stream": "^3.0.0",
     "it-first": "^2.0.0",

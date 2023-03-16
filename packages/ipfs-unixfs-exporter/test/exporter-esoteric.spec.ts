@@ -211,4 +211,154 @@ describe('exporter esoteric DAGs', () => {
     const data = uint8ArrayConcat(await all(exported.content()))
     expect(data).to.deep.equal(buf)
   })
+
+  it('errors on DAG with blocksizes that are too large', async () => {
+    const leaves = await Promise.all([
+      randomBytes(5),
+      randomBytes(3),
+      randomBytes(6)
+    ].map(async buf => {
+      return {
+        cid: await storeBlock(buf, raw.code),
+        buf
+      }
+    }))
+
+    const unixfs = new UnixFS({
+      type: 'file',
+      blockSizes: [
+        BigInt(leaves[0].buf.byteLength),
+        BigInt(leaves[1].buf.byteLength + 5), // this is wrong
+        BigInt(leaves[2].buf.byteLength)
+      ]
+    })
+
+    const rootNode = {
+      Data: unixfs.marshal(),
+      Links: [{
+        Name: '',
+        Hash: leaves[0].cid,
+        Tsize: leaves[0].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[1].cid,
+        Tsize: leaves[1].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[2].cid,
+        Tsize: leaves[2].buf.byteLength
+      }]
+    }
+
+    const rootBuf = dagPb.encode(rootNode)
+    const rootCid = await storeBlock(rootBuf, dagPb.code)
+    const exported = await exporter(rootCid, block)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    await expect(all(exported.content())).to.eventually.be.rejected
+      .with.property('code', 'ERR_UNDER_READ')
+  })
+
+  it('errors on DAG with blocksizes that are too small', async () => {
+    const leaves = await Promise.all([
+      randomBytes(5),
+      randomBytes(3),
+      randomBytes(6)
+    ].map(async buf => {
+      return {
+        cid: await storeBlock(buf, raw.code),
+        buf
+      }
+    }))
+
+    const unixfs = new UnixFS({
+      type: 'file',
+      blockSizes: [
+        BigInt(leaves[0].buf.byteLength),
+        BigInt(leaves[1].buf.byteLength - 2), // this is wrong
+        BigInt(leaves[2].buf.byteLength)
+      ]
+    })
+
+    const rootNode = {
+      Data: unixfs.marshal(),
+      Links: [{
+        Name: '',
+        Hash: leaves[0].cid,
+        Tsize: leaves[0].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[1].cid,
+        Tsize: leaves[1].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[2].cid,
+        Tsize: leaves[2].buf.byteLength
+      }]
+    }
+
+    const rootBuf = dagPb.encode(rootNode)
+    const rootCid = await storeBlock(rootBuf, dagPb.code)
+    const exported = await exporter(rootCid, block)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    await expect(all(exported.content())).to.eventually.be.rejected
+      .with.property('code', 'ERR_OVER_READ')
+  })
+
+  it('errors on DAG with incorrect number of blocksizes', async () => {
+    const leaves = await Promise.all([
+      randomBytes(5),
+      randomBytes(3),
+      randomBytes(6)
+    ].map(async buf => {
+      return {
+        cid: await storeBlock(buf, raw.code),
+        buf
+      }
+    }))
+
+    const unixfs = new UnixFS({
+      type: 'file',
+      blockSizes: [
+        BigInt(leaves[0].buf.byteLength),
+        // BigInt(leaves[1].buf.byteLength), // this is wrong
+        BigInt(leaves[2].buf.byteLength)
+      ]
+    })
+
+    const rootNode = {
+      Data: unixfs.marshal(),
+      Links: [{
+        Name: '',
+        Hash: leaves[0].cid,
+        Tsize: leaves[0].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[1].cid,
+        Tsize: leaves[1].buf.byteLength
+      }, {
+        Name: '',
+        Hash: leaves[2].cid,
+        Tsize: leaves[2].buf.byteLength
+      }]
+    }
+
+    const rootBuf = dagPb.encode(rootNode)
+    const rootCid = await storeBlock(rootBuf, dagPb.code)
+    const exported = await exporter(rootCid, block)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    await expect(all(exported.content())).to.eventually.be.rejected
+      .with.property('code', 'ERR_NOT_UNIXFS')
+  })
 })

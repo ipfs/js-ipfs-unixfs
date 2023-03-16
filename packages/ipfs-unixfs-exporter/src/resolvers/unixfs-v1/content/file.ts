@@ -137,14 +137,26 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
       return
     }
 
+    let read = 0n
     const queue = pushable()
 
     void walkDAG(blockstore, node, queue, 0n, offset, offset + length, options)
+      .then(() => {
+        const wanted = length - offset
+
+        if (read < wanted) {
+          throw errCode(new Error('Traversed entire DAG but did not read enough bytes'), 'ERR_UNDER_READ')
+        }
+
+        if (read > wanted) {
+          throw errCode(new Error('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect'), 'ERR_OVER_READ')
+        }
+
+        queue.end()
+      })
       .catch(err => {
         queue.end(err)
       })
-
-    let read = 0n
 
     for await (const buf of queue) {
       if (buf == null) {

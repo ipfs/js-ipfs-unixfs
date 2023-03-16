@@ -11,7 +11,7 @@ import map from 'it-map'
 import PQueue from 'p-queue'
 import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, Blockstore } from '../../../index.js'
 
-async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, walkQueue: PQueue, options: ExporterOptions): Promise<void> {
+async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node
   if (node instanceof Uint8Array) {
     queue.push(extractDataFromBlock(node, streamPosition, start, end))
@@ -98,9 +98,23 @@ async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array,
             return
         }
 
-        void walkQueue.add(async () => {
-          await walkDAG(blockstore, child, queue, blockStart, start, end, walkQueue, options)
+        // create a queue for this child - we use a queue instead of recursion
+        // to avoid overflowing the stack
+        const childQueue = new PQueue({
+          concurrency: 1
         })
+        // if any of the child jobs error, end the read queue with the error
+        childQueue.on('error', error => {
+          queue.end(error)
+        })
+
+        // if the job rejects the 'error' event will be emitted on the child queue
+        void childQueue.add(async () => {
+          await walkDAG(blockstore, child, queue, blockStart, start, end, options)
+        })
+
+        // wait for this child to complete before moving on to the next
+        await childQueue.onIdle()
       }
     }
   )
@@ -123,20 +137,12 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
       return
     }
 
-    // use a queue to walk the DAG instead of recursion to ensure very deep DAGs
-    // don't overflow the stack
-    const walkQueue = new PQueue({
-      concurrency: 1
-    })
     const queue = pushable()
 
-    void walkQueue.add(async () => {
-      await walkDAG(blockstore, node, queue, 0n, offset, offset + length, walkQueue, options)
-    })
-
-    walkQueue.on('error', error => {
-      queue.end(error)
-    })
+    void walkDAG(blockstore, node, queue, 0n, offset, offset + length, options)
+      .catch(err => {
+        queue.end(err)
+      })
 
     let read = 0n
 

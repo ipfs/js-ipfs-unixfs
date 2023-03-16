@@ -98,9 +98,17 @@ async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array,
             return
         }
 
+        // create a sub-queue for this child
+        const walkQueue = new PQueue({
+          concurrency: 1
+        })
+
         void walkQueue.add(async () => {
           await walkDAG(blockstore, child, queue, blockStart, start, end, walkQueue, options)
         })
+
+        // wait for this child to complete before moving on to the next
+        await walkQueue.onIdle()
       }
     }
   )

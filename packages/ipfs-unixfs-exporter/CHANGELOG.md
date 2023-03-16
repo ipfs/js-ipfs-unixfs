@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.0.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.5...ipfs-unixfs-exporter-v13.0.6) (2023-03-16)
+
+
+### Bug Fixes
+
+* align blockstore pick interface name ([#301](https://github.com/ipfs/js-ipfs-unixfs/issues/301)) ([ca10d79](https://github.com/ipfs/js-ipfs-unixfs/commit/ca10d792083b80fd45754b5260eb486a621cc489))
+
 ## [ipfs-unixfs-exporter-v13.0.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.4...ipfs-unixfs-exporter-v13.0.5) (2023-03-16)
 
 

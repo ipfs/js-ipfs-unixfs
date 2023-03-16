@@ -1,5 +1,5 @@
 import parallelBatch from 'it-parallel-batch'
-import { DAGBuilder, defaultDagBuilder } from './dag-builder/index.js'
+import { DAGBuilder, DagBuilderProgressEvents, defaultDagBuilder } from './dag-builder/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
@@ -13,6 +13,7 @@ import first from 'it-first'
 import errcode from 'err-code'
 import type { AwaitIterable } from 'interface-store'
 import type { ProgressOptions } from 'progress-events'
+import type { ReducerProgressEvents } from './dag-builder/file.js'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
@@ -76,13 +77,15 @@ export interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
 export interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: WritableStorage): AsyncIterable<ImportResult> }
 export interface BufferImporter { (file: File, blockstore: WritableStorage): AsyncIterable<() => Promise<BufferImporterResult>> }
 
-export type ImportProgressEvents =
-  BufferImportProgressEvents
+export type ImporterProgressEvents =
+  BufferImportProgressEvents |
+  DagBuilderProgressEvents |
+  ReducerProgressEvents
 
 /**
  * Options to control the importer's behaviour
  */
-export interface ImporterOptions extends ProgressOptions<ImportProgressEvents> {
+export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents> {
   /**
    * When a file would span multiple DAGNodes, if this is true the leaf nodes
    * will not be wrapped in `UnixFS` protobufs and will instead contain the

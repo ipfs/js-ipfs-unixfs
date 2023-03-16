@@ -9,7 +9,8 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
 import PQueue from 'p-queue'
-import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage } from '../../../index.js'
+import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage, ExportProgress, ExportWalk } from '../../../index.js'
+import { CustomProgressEvent } from 'progress-events'
 
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node
@@ -110,6 +111,11 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
 
         // if the job rejects the 'error' event will be emitted on the child queue
         void childQueue.add(async () => {
+          options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
+            cid: link.Hash,
+            child: child
+          }))
+
           await walkDAG(blockstore, child, queue, blockStart, start, end, options)
         })
 
@@ -138,12 +144,16 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
     }
 
     let read = 0n
+    const wanted = length - offset
     const queue = pushable()
+
+    options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
+      cid,
+      child: node
+    }))
 
     void walkDAG(blockstore, node, queue, 0n, offset, offset + length, options)
       .then(() => {
-        const wanted = length - offset
-
         if (read < wanted) {
           throw errCode(new Error('Traversed entire DAG but did not read enough bytes'), 'ERR_UNDER_READ')
         }
@@ -168,6 +178,12 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
       if (read === length) {
         queue.end()
       }
+
+      options.onProgress?.(new CustomProgressEvent<ExportProgress>('unixfs:exporter:progress:unixfs:file', {
+        bytesRead: read,
+        totalBytes: wanted,
+        fileSize
+      }))
 
       yield buf
     }

@@ -6,9 +6,48 @@ import type { UnixFS } from 'ipfs-unixfs'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { Bucket } from 'hamt-sharding'
-import type { ProgressOptions } from 'progress-events'
+import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
-export interface ExporterOptions extends ProgressOptions {
+export interface ExportProgress {
+  /**
+   * How many bytes of the file have been read
+   */
+  bytesRead: bigint
+
+  /**
+   * How many bytes of the file will be read - n.b. this may be
+   * smaller than `fileSize` if `offset`/`length` have been
+   * specified
+   */
+  totalBytes: bigint
+
+  /**
+   * The size of the file being read - n.b. this may be
+   * larger than `total` if `offset`/`length` has been
+   * specified
+   */
+  fileSize: bigint
+}
+
+export interface ExportWalk {
+  cid: CID
+  child: Uint8Array | PBNode
+}
+
+/**
+ * Progress events emitted by the exporter
+ */
+export type ExporterProgressEvents =
+  ProgressEvent<'unixfs:exporter:progress:unixfs:file', ExportProgress> |
+  ProgressEvent<'unixfs:exporter:progress:unixfs:raw', ExportProgress> |
+  ProgressEvent<'unixfs:exporter:progress:raw', ExportProgress> |
+  ProgressEvent<'unixfs:exporter:progress:identity', ExportProgress> |
+  ProgressEvent<'unixfs:exporter:walk:file', ExportWalk> |
+  ProgressEvent<'unixfs:exporter:walk:directory', ExportWalk> |
+  ProgressEvent<'unixfs:exporter:walk:hamt-sharded-directory', ExportWalk> |
+  ProgressEvent<'unixfs:exporter:walk:raw', ExportWalk>
+
+export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents> {
   offset?: number
   length?: number
   signal?: AbortSignal

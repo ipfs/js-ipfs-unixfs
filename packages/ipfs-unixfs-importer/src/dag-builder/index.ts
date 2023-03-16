@@ -1,9 +1,34 @@
 import { dirBuilder, DirBuilderOptions } from './dir.js'
 import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult, WritableStorage } from '../index.js'
+import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
+import type { ProgressEvent, ProgressOptions } from 'progress-events'
+import { CustomProgressEvent } from 'progress-events'
+
+/**
+ * Passed to the onProgress callback while importing files
+ */
+export interface ImportReadProgress {
+  /**
+   * How many bytes we have read from this source so far
+   */
+  bytesRead: bigint
+
+  /**
+   * The size of the current chunk
+   */
+  chunkSize: bigint
+
+  /**
+   * The path of the file being imported, if one was specified
+   */
+  path?: string
+}
+
+export type DagBuilderProgressEvents =
+  ProgressEvent<'unixfs:importer:progress:file:read', ImportReadProgress>
 
 function isIterable (thing: any): thing is Iterable<any> {
   return Symbol.iterator in thing
@@ -33,7 +58,7 @@ function contentAsAsyncIterable (content: Uint8Array | AsyncIterable<Uint8Array>
   throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
 }
 
-export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions {
+export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions, ProgressOptions<ImporterProgressEvents> {
   chunker: Chunker
   chunkValidator: ChunkValidator
   wrapWithDirectory: boolean
@@ -63,7 +88,22 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           path: entry.path,
           mtime: entry.mtime,
           mode: entry.mode,
-          content: options.chunker(options.chunkValidator(contentAsAsyncIterable(entry.content))),
+          content: (async function * () {
+            let bytesRead = 0n
+
+            for await (const chunk of options.chunker(options.chunkValidator(contentAsAsyncIterable(entry.content)))) {
+              const currentChunkSize = BigInt(chunk.byteLength)
+              bytesRead += currentChunkSize
+
+              options.onProgress?.(new CustomProgressEvent<ImportReadProgress>('unixfs:importer:progress:file:read', {
+                bytesRead,
+                chunkSize: currentChunkSize,
+                path: entry.path
+              }))
+
+              yield chunk
+            }
+          })(),
           originalPath
         }
 

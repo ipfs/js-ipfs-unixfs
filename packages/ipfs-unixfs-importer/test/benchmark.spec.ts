@@ -34,15 +34,17 @@ describe.skip('benchmark', function () {
 
       const options: Partial<ImporterOptions> = {
         onProgress: (evt) => {
-          read += evt.detail.bytes
+          if (evt.type === 'unixfs:importer:progress:file:read') {
+            read += Number(evt.detail.bytesRead)
 
-          const percent = Math.round((read / size) * 100)
+            const percent = Math.round((read / size) * 100)
 
-          if (percent > lastPercent) {
-            times[percent] = (times[percent] ?? 0) + (Date.now() - lastDate)
+            if (percent > lastPercent) {
+              times[percent] = (times[percent] ?? 0) + (Date.now() - lastDate)
 
-            lastDate = Date.now()
-            lastPercent = percent
+              lastDate = Date.now()
+              lastPercent = percent
+            }
           }
         }
       }

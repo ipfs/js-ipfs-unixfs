@@ -2,10 +2,16 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
 import { decode, PBNode } from '@ipld/dag-pb'
-import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage } from '../../../index.js'
+import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk } from '../../../index.js'
+import { CustomProgressEvent } from 'progress-events'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function yieldHamtDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {
+    options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
+      cid,
+      child: node
+    }))
+
     return listDirectory(node, path, resolve, depth, blockstore, options)
   }
 
@@ -29,6 +35,11 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
           // descend into subshard
           const block = await blockstore.get(link.Hash, options)
           node = decode(block)
+
+          options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
+            cid: link.Hash,
+            child: node
+          }))
 
           return { entries: listDirectory(node, path, resolve, depth, blockstore, options) }
         }

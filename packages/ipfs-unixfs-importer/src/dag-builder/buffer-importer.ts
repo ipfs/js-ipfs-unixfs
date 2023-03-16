@@ -3,18 +3,30 @@ import { persist, PersistOptions } from '../utils/persist.js'
 import * as dagPb from '@ipld/dag-pb'
 import * as raw from 'multiformats/codecs/raw'
 import type { BufferImporter } from '../index.js'
-import type { Version } from 'multiformats/cid'
+import type { CID, Version } from 'multiformats/cid'
 import { CustomProgressEvent } from 'progress-events'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 /**
  * Passed to the onProgress callback while importing files
  */
-export interface ImportProgressData {
+export interface ImportWriteProgress {
   /**
-   * The size of the current chunk
+   * How many bytes we have written for this source so far - this may be
+   * bigger than the file size due to the DAG-PB wrappers of each block
    */
-  bytes: number
+  bytesWritten: bigint
+
+  /**
+   * The CID of the block that has been written
+   */
+  cid: CID
+
+  /**
+   * The size of the block being written - this may be bigger than the
+   * chunk size due to the block's DAG-PB wrapper
+   */
+  blockSize: number
 
   /**
    * The path of the file being imported, if one was specified
@@ -23,7 +35,7 @@ export interface ImportProgressData {
 }
 
 export type BufferImportProgressEvents =
-  ProgressEvent<'unixfs:importer:progress', ImportProgressData>
+  ProgressEvent<'unixfs:importer:progress:file:write', ImportWriteProgress>
 
 export interface BufferImporterOptions extends ProgressOptions<BufferImportProgressEvents> {
   cidVersion: Version
@@ -33,9 +45,10 @@ export interface BufferImporterOptions extends ProgressOptions<BufferImportProgr
 
 export function defaultBufferImporter (options: BufferImporterOptions): BufferImporter {
   return async function * bufferImporter (file, blockstore) {
+    let bytesWritten = 0n
+
     for await (let block of file.content) {
-      yield async () => {
-        options.onProgress?.(new CustomProgressEvent<ImportProgressData>('unixfs:importer:progress', { bytes: block.byteLength, path: file.path }))
+      yield async () => { // eslint-disable-line no-loop-func
         let unixfs
 
         const opts: PersistOptions = {
@@ -59,8 +72,19 @@ export function defaultBufferImporter (options: BufferImporterOptions): BufferIm
           })
         }
 
+        const cid = await persist(block, blockstore, opts)
+
+        bytesWritten += BigInt(block.byteLength)
+
+        options.onProgress?.(new CustomProgressEvent<ImportWriteProgress>('unixfs:importer:progress:file:write', {
+          bytesWritten,
+          cid,
+          blockSize: block.byteLength,
+          path: file.path
+        }))
+
         return {
-          cid: await persist(block, blockstore, opts),
+          cid,
           unixfs,
           size: BigInt(block.length),
           block

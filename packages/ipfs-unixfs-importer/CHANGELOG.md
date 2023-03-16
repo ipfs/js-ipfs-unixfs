@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v15.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.0.2...ipfs-unixfs-importer-v15.0.3) (2023-03-16)
+
+
+### Bug Fixes
+
+* align blockstore pick interface name ([#301](https://github.com/ipfs/js-ipfs-unixfs/issues/301)) ([ca10d79](https://github.com/ipfs/js-ipfs-unixfs/commit/ca10d792083b80fd45754b5260eb486a621cc489))
+
 ## [ipfs-unixfs-importer-v15.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.0.1...ipfs-unixfs-importer-v15.0.2) (2023-03-15)
 
 

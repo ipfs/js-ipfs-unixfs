@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.3...ipfs-unixfs-exporter-v13.0.4) (2023-03-16)
+
+
+### Bug Fixes
+
+* add tests for unbalanced dags and very deep dags ([#299](https://github.com/ipfs/js-ipfs-unixfs/issues/299)) ([44e7792](https://github.com/ipfs/js-ipfs-unixfs/commit/44e7792416d400defeb4b8d34b2b90895d275dec))
+
 ## [ipfs-unixfs-exporter-v13.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.2...ipfs-unixfs-exporter-v13.0.3) (2023-03-15)
 
 

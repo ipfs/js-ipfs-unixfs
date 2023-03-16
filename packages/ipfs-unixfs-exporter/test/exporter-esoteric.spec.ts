@@ -30,7 +30,7 @@ describe('exporter esoteric DAGs', () => {
     return cid
   }
 
-  it('exports an uneven DAG', async () => {
+  it('exports an unbalanced DAG', async () => {
     const leaves = await Promise.all([
       randomBytes(5),
       randomBytes(3),

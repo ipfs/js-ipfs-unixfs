@@ -103,10 +103,12 @@ async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array,
         const childQueue = new PQueue({
           concurrency: 1
         })
+        // if any of the child jobs error, end the read queue with the error
         childQueue.on('error', error => {
           queue.end(error)
         })
 
+        // if the job rejects the 'error' event will be emitted on the child queue
         void childQueue.add(async () => {
           await walkDAG(blockstore, child, queue, blockStart, start, end, options)
         })

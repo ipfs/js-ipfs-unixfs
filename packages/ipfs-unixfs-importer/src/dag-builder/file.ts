@@ -3,7 +3,7 @@ import { persist } from '../utils/persist.js'
 import { encode, PBLink, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
-import type { BufferImporter, File, InProgressImportResult, Blockstore, SingleBlockImportResult } from '../index.js'
+import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { Version } from 'multiformats/cid'
 import type { ProgressOptions } from 'progress-events'
@@ -13,7 +13,7 @@ interface BuildFileBatchOptions {
   blockWriteConcurrency: number
 }
 
-async function * buildFileBatch (file: File, blockstore: Blockstore, options: BuildFileBatchOptions): AsyncGenerator<InProgressImportResult> {
+async function * buildFileBatch (file: File, blockstore: WritableStorage, options: BuildFileBatchOptions): AsyncGenerator<InProgressImportResult> {
   let count = -1
   let previous: SingleBlockImportResult | undefined
 
@@ -60,7 +60,7 @@ function isSingleBlockImport (result: any): result is SingleBlockImportResult {
   return result.single === true
 }
 
-const reduce = (file: File, blockstore: Blockstore, options: ReduceOptions): Reducer => {
+const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions): Reducer => {
   const reducer: Reducer = async function (leaves) {
     if (leaves.length === 1 && isSingleBlockImport(leaves[0]) && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
@@ -163,6 +163,6 @@ export interface FileBuilderOptions extends BuildFileBatchOptions, ReduceOptions
   layout: FileLayout
 }
 
-export const fileBuilder = async (file: File, block: Blockstore, options: FileBuilderOptions): Promise<InProgressImportResult> => {
+export const fileBuilder = async (file: File, block: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult> => {
   return await options.layout(buildFileBatch(file, block, options), reduce(file, block, options))
 }

@@ -2,7 +2,7 @@ import { DirFlat } from './dir-flat.js'
 import { flatToShard } from './flat-to-shard.js'
 import { Dir } from './dir.js'
 import { toPathComponents } from './utils/to-path-components.js'
-import type { ImportResult, InProgressImportResult, TreeBuilder, Blockstore } from './index.js'
+import type { ImportResult, InProgressImportResult, TreeBuilder, WritableStorage } from './index.js'
 import type { PersistOptions } from './utils/persist.js'
 
 export interface AddToTreeOptions extends PersistOptions {
@@ -54,7 +54,7 @@ async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddT
   return tree
 }
 
-async function * flushAndYield (tree: Dir | InProgressImportResult, blockstore: Blockstore): AsyncGenerator<ImportResult> {
+async function * flushAndYield (tree: Dir | InProgressImportResult, blockstore: WritableStorage): AsyncGenerator<ImportResult> {
   if (!(tree instanceof Dir)) {
     if (tree.unixfs?.isDirectory() === true) {
       yield tree

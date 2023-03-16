@@ -2,7 +2,7 @@
 import { Bucket, BucketPosition, createHAMT } from 'hamt-sharding'
 import { decode, PBLink, PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import type { ExporterOptions, ShardTraversalContext, Blockstore } from '../index.js'
+import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { CID } from 'multiformats/cid'
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js
@@ -61,7 +61,7 @@ const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>>
   return path.reverse()
 }
 
-const findShardCid = async (node: PBNode, name: string, blockstore: Blockstore, context?: ShardTraversalContext, options?: ExporterOptions): Promise<CID | undefined> => {
+const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStorage, context?: ShardTraversalContext, options?: ExporterOptions): Promise<CID | undefined> => {
   if (context == null) {
     const rootBucket = createHAMT<boolean>({
       hashFn

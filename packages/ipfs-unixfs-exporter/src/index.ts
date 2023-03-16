@@ -4,7 +4,7 @@ import resolve from './resolvers/index.js'
 import last from 'it-last'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { PBNode } from '@ipld/dag-pb'
-import type { Blockstore as InterfaceBlockstore } from 'interface-blockstore'
+import type { Blockstore } from 'interface-blockstore'
 import type { Bucket } from 'hamt-sharding'
 import type { ProgressOptions } from 'progress-events'
 
@@ -65,13 +65,13 @@ export interface ResolveResult {
   next?: NextResult
 }
 
-export interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: Blockstore, options: ExporterOptions): Promise<ResolveResult> }
-export interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: Blockstore, options: ExporterOptions): Promise<ResolveResult> }
+export interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
+export interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
 
 export type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 export type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 export type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-export interface UnixfsV1Resolver { (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: Blockstore): (options: ExporterOptions) => UnixfsV1Content }
+export interface UnixfsV1Resolver { (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage): (options: ExporterOptions) => UnixfsV1Content }
 
 export interface ShardTraversalContext {
   hamtDepth: number
@@ -79,7 +79,7 @@ export interface ShardTraversalContext {
   lastBucket: Bucket<boolean>
 }
 
-export type Blockstore = Pick<InterfaceBlockstore, 'get'>
+export type ReadableStorage = Pick<Blockstore, 'get'>
 
 const toPathComponents = (path: string = ''): string[] => {
   // split on / unless escaped with \
@@ -121,7 +121,7 @@ const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: str
   throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
 }
 
-export async function * walkPath (path: string | CID, blockstore: Blockstore, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
+export async function * walkPath (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   let {
     cid,
     toResolve
@@ -153,7 +153,7 @@ export async function * walkPath (path: string | CID, blockstore: Blockstore, op
   }
 }
 
-export async function exporter (path: string | CID, blockstore: Blockstore, options: ExporterOptions = {}): Promise<UnixFSEntry> {
+export async function exporter (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): Promise<UnixFSEntry> {
   const result = await last(walkPath(path, blockstore, options))
 
   if (result == null) {
@@ -163,7 +163,7 @@ export async function exporter (path: string | CID, blockstore: Blockstore, opti
   return result
 }
 
-export async function * recursive (path: string | CID, blockstore: Blockstore, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
+export async function * recursive (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   const node = await exporter(path, blockstore, options)
 
   if (node == null) {

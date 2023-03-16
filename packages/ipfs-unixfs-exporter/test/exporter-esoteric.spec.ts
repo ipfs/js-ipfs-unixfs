@@ -12,6 +12,7 @@ import * as raw from 'multiformats/codecs/raw'
 import { UnixFS } from 'ipfs-unixfs'
 import * as dagPb from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
+import { isNode } from 'wherearewe'
 
 describe('exporter esoteric DAGs', () => {
   let block: Blockstore
@@ -149,6 +150,11 @@ describe('exporter esoteric DAGs', () => {
   })
 
   it('exports a very deep DAG', async () => {
+    if (!isNode) {
+      // browsers are quite slow so only run on node
+      return
+    }
+
     const buf: Uint8Array = randomBytes(5)
     let child = {
       cid: await storeBlock(buf, raw.code),

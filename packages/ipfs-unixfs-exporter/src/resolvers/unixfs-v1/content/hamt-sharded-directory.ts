@@ -2,7 +2,7 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
 import { decode, PBNode } from '@ipld/dag-pb'
-import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, Blockstore } from '../../../index.js'
+import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage } from '../../../index.js'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function yieldHamtDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {
@@ -12,7 +12,7 @@ const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, 
   return yieldHamtDirectoryContent
 }
 
-async function * listDirectory (node: PBNode, path: string, resolve: Resolve, depth: number, blockstore: Blockstore, options: ExporterOptions): UnixfsV1DirectoryContent {
+async function * listDirectory (node: PBNode, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions): UnixfsV1DirectoryContent {
   const links = node.Links
 
   const results = pipe(

@@ -9,9 +9,9 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
 import PQueue from 'p-queue'
-import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, Blockstore } from '../../../index.js'
+import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage } from '../../../index.js'
 
-async function walkDAG (blockstore: Blockstore, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
+async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node
   if (node instanceof Uint8Array) {
     queue.push(extractDataFromBlock(node, streamPosition, start, end))

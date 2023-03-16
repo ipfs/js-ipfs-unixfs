@@ -1,4 +1,4 @@
-import type { Blockstore, ImportResult, InProgressImportResult } from './index.js'
+import type { WritableStorage, ImportResult, InProgressImportResult } from './index.js'
 import type { Mtime, UnixFS } from 'ipfs-unixfs'
 import { CID } from 'multiformats/cid'
 import type { PersistOptions } from './utils/persist.js'
@@ -50,7 +50,7 @@ export abstract class Dir {
   abstract put (name: string, value: InProgressImportResult | Dir): Promise<void>
   abstract get (name: string): Promise<InProgressImportResult | Dir | undefined>
   abstract eachChildSeries (): AsyncIterable<{ key: string, child: InProgressImportResult | Dir }>
-  abstract flush (blockstore: Blockstore): AsyncGenerator<ImportResult>
+  abstract flush (blockstore: WritableStorage): AsyncGenerator<ImportResult>
   abstract estimateNodeSize (): number
   abstract childCount (): number
 }

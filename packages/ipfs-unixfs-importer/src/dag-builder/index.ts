@@ -1,7 +1,7 @@
 import { dirBuilder, DirBuilderOptions } from './dir.js'
 import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult, Blockstore } from '../index.js'
+import type { Directory, File, FileCandidate, ImportCandidate, InProgressImportResult, WritableStorage } from '../index.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
 
@@ -42,7 +42,7 @@ export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions
 export type ImporterSourceStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
 
 export interface DAGBuilder {
-  (source: ImporterSourceStream, blockstore: Blockstore): AsyncIterable<() => Promise<InProgressImportResult>>
+  (source: ImporterSourceStream, blockstore: WritableStorage): AsyncIterable<() => Promise<InProgressImportResult>>
 }
 
 export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {

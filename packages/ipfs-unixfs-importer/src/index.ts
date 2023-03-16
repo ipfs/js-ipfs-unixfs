@@ -3,7 +3,7 @@ import { DAGBuilder, defaultDagBuilder } from './dag-builder/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
-import type { Blockstore as InterfaceBlockstore } from 'interface-blockstore'
+import type { Blockstore } from 'interface-blockstore'
 import { ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
 import { fixedSize } from './chunker/fixed-size.js'
 import type { Chunker } from './chunker/index.js'
@@ -17,7 +17,7 @@ import type { ProgressOptions } from 'progress-events'
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
 
-export type Blockstore = Pick<InterfaceBlockstore, 'put'>
+export type WritableStorage = Pick<Blockstore, 'put'>
 
 export interface FileCandidate {
   path?: string
@@ -73,8 +73,8 @@ export interface BufferImporterResult extends ImportResult {
 }
 
 export interface HamtHashFn { (value: Uint8Array): Promise<Uint8Array> }
-export interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: Blockstore): AsyncIterable<ImportResult> }
-export interface BufferImporter { (file: File, blockstore: Blockstore): AsyncIterable<() => Promise<BufferImporterResult>> }
+export interface TreeBuilder { (source: AsyncIterable<InProgressImportResult>, blockstore: WritableStorage): AsyncIterable<ImportResult> }
+export interface BufferImporter { (file: File, blockstore: WritableStorage): AsyncIterable<() => Promise<BufferImporterResult>> }
 
 export type ImportProgressEvents =
   BufferImportProgressEvents
@@ -227,7 +227,7 @@ export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandi
  * }
  * ```
  */
-export async function * importer (source: ImportCandidateStream, blockstore: Blockstore, options: ImporterOptions = {}): AsyncGenerator<ImportResult, void, unknown> {
+export async function * importer (source: ImportCandidateStream, blockstore: WritableStorage, options: ImporterOptions = {}): AsyncGenerator<ImportResult, void, unknown> {
   let candidates: AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
 
   if (Symbol.asyncIterator in source || Symbol.iterator in source) {
@@ -302,7 +302,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Blo
  * const entry = await importFile(input, blockstore)
  * ```
  */
-export async function importFile (content: FileCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importFile (content: FileCandidate, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
@@ -333,7 +333,7 @@ export async function importFile (content: FileCandidate, blockstore: Blockstore
  * const entry = await importDirectory(input, blockstore)
  * ```
  */
-export async function importDirectory (content: DirectoryCandidate, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importDirectory (content: DirectoryCandidate, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
@@ -361,7 +361,7 @@ export async function importDirectory (content: DirectoryCandidate, blockstore: 
  * const entry = await importBytes(input, blockstore)
  * ```
  */
-export async function importBytes (buf: ImportContent, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importBytes (buf: ImportContent, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
   return await importFile({
     content: buf
   }, blockstore, options)
@@ -388,7 +388,7 @@ export async function importBytes (buf: ImportContent, blockstore: Blockstore, o
  * const entry = await importByteStream(input, blockstore)
  * ```
  */
-export async function importByteStream (bufs: ByteStream, blockstore: Blockstore, options: ImporterOptions = {}): Promise<ImportResult> {
+export async function importByteStream (bufs: ByteStream, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
   return await importFile({
     content: bufs
   }, blockstore, options)

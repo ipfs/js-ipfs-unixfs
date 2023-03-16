@@ -1,7 +1,7 @@
 import { UnixFS } from 'ipfs-unixfs'
 import { persist } from '../utils/persist.js'
 import { encode, prepare } from '@ipld/dag-pb'
-import type { Directory, InProgressImportResult, Blockstore } from '../index.js'
+import type { Directory, InProgressImportResult, WritableStorage } from '../index.js'
 import type { Version } from 'multiformats/cid'
 import type { ProgressOptions } from 'progress-events'
 
@@ -10,7 +10,7 @@ export interface DirBuilderOptions extends ProgressOptions {
   signal?: AbortSignal
 }
 
-export const dirBuilder = async (dir: Directory, blockstore: Blockstore, options: DirBuilderOptions): Promise<InProgressImportResult> => {
+export const dirBuilder = async (dir: Directory, blockstore: WritableStorage, options: DirBuilderOptions): Promise<InProgressImportResult> => {
   const unixfs = new UnixFS({
     type: 'directory',
     mtime: dir.mtime,

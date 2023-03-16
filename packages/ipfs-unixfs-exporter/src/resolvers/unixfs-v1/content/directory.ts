@@ -12,8 +12,7 @@ const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, de
     const links = node.Links.slice(offset, length)
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:directory', {
-      cid,
-      child: node
+      cid
     }))
 
     yield * pipe(

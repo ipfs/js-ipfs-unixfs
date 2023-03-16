@@ -31,7 +31,6 @@ export interface ExportProgress {
 
 export interface ExportWalk {
   cid: CID
-  child: Uint8Array | PBNode
 }
 
 /**

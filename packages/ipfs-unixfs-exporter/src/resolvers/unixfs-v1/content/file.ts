@@ -112,8 +112,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
         // if the job rejects the 'error' event will be emitted on the child queue
         void childQueue.add(async () => {
           options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
-            cid: link.Hash,
-            child: child
+            cid: link.Hash
           }))
 
           await walkDAG(blockstore, child, queue, blockStart, start, end, options)
@@ -148,8 +147,7 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
     const queue = pushable()
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
-      cid,
-      child: node
+      cid
     }))
 
     void walkDAG(blockstore, node, queue, 0n, offset, offset + length, options)

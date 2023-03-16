@@ -71,11 +71,6 @@ export interface LayoutLeafProgress {
    * The original import path
    */
   originalPath: string
-
-  /**
-   * The leaf node
-   */
-  node: Uint8Array | PBNode
 }
 
 export type ReducerProgressEvents =
@@ -122,8 +117,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
         cid: leaf.cid,
         path: file.path,
         blockSize: leaf.size,
-        originalPath: leaf.originalPath,
-        node
+        originalPath: leaf.originalPath
       }))
 
       return {
@@ -192,8 +186,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
       cid,
       path: file.path,
       blockSize: block.byteLength,
-      originalPath: file.originalPath,
-      node
+      originalPath: file.originalPath
     }))
 
     return {

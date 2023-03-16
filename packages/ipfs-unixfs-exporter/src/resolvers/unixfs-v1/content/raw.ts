@@ -17,8 +17,7 @@ const rawContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, b
     } = validateOffsetAndLength(size, options.offset, options.length)
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:raw', {
-      cid,
-      child: node
+      cid
     }))
 
     const buf = extractDataFromBlock(unixfs.data, 0n, offset, offset + length)

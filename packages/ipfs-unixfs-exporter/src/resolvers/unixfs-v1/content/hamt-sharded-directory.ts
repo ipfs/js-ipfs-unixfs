@@ -8,8 +8,7 @@ import { CustomProgressEvent } from 'progress-events'
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function yieldHamtDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
-      cid,
-      child: node
+      cid
     }))
 
     return listDirectory(node, path, resolve, depth, blockstore, options)
@@ -37,8 +36,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
           node = decode(block)
 
           options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
-            cid: link.Hash,
-            child: node
+            cid: link.Hash
           }))
 
           return { entries: listDirectory(node, path, resolve, depth, blockstore, options) }

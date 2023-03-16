@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.0.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.4...ipfs-unixfs-exporter-v13.0.5) (2023-03-16)
+
+
+### Bug Fixes
+
+* test for file under/over reads ([#300](https://github.com/ipfs/js-ipfs-unixfs/issues/300)) ([8413c70](https://github.com/ipfs/js-ipfs-unixfs/commit/8413c7065b30c3347c98f18e03a3dcf086de69cb))
+
 ## [ipfs-unixfs-exporter-v13.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.3...ipfs-unixfs-exporter-v13.0.4) (2023-03-16)
 
 

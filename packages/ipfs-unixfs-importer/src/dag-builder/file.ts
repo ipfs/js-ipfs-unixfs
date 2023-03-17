@@ -61,11 +61,6 @@ export interface LayoutLeafProgress {
    * The path of the file being imported, if one was specified
    */
   path?: string
-
-  /**
-   * The size of the block that has been written
-   */
-  blockSize: number
 }
 
 export type ReducerProgressEvents =
@@ -110,8 +105,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
 
       options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
         cid: leaf.cid,
-        path: leaf.originalPath,
-        blockSize: leaf.size
+        path: leaf.originalPath
       }))
 
       return {
@@ -178,8 +172,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
 
     options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
       cid,
-      path: file.originalPath,
-      blockSize: block.byteLength
+      path: file.originalPath
     }))
 
     return {

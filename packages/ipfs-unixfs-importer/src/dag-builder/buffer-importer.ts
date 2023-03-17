@@ -23,12 +23,6 @@ export interface ImportWriteProgress {
   cid: CID
 
   /**
-   * The size of the block being written - this may be bigger than the
-   * chunk size due to the block's DAG-PB wrapper
-   */
-  blockSize: number
-
-  /**
    * The path of the file being imported, if one was specified
    */
   path?: string
@@ -79,7 +73,6 @@ export function defaultBufferImporter (options: BufferImporterOptions): BufferIm
         options.onProgress?.(new CustomProgressEvent<ImportWriteProgress>('unixfs:importer:progress:file:write', {
           bytesWritten,
           cid,
-          blockSize: block.byteLength,
           path: file.path
         }))
 

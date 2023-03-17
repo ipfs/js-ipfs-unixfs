@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.6...ipfs-unixfs-exporter-v13.1.0) (2023-03-17)
+
+
+### Features
+
+* adds progress events to the importer and exporter ([#302](https://github.com/ipfs/js-ipfs-unixfs/issues/302)) ([d0df723](https://github.com/ipfs/js-ipfs-unixfs/commit/d0df7237f155b73b8c722d6750742f9976232c0e))
+
 ## [ipfs-unixfs-exporter-v13.0.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.5...ipfs-unixfs-exporter-v13.0.6) (2023-03-16)
 
 

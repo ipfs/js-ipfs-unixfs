@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v15.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.0.3...ipfs-unixfs-importer-v15.1.0) (2023-03-17)
+
+
+### Features
+
+* adds progress events to the importer and exporter ([#302](https://github.com/ipfs/js-ipfs-unixfs/issues/302)) ([d0df723](https://github.com/ipfs/js-ipfs-unixfs/commit/d0df7237f155b73b8c722d6750742f9976232c0e))
+
 ## [ipfs-unixfs-importer-v15.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.0.2...ipfs-unixfs-importer-v15.0.3) (2023-03-16)
 
 

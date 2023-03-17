@@ -58,9 +58,9 @@ export interface LayoutLeafProgress {
   cid: CID
 
   /**
-   * The path of the file being imported
+   * The path of the file being imported, if one was specified
    */
-  path: string
+  path?: string
 
   /**
    * The size of the block that has been written

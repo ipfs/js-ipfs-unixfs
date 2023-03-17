@@ -1,0 +1,42 @@
+{
+  "name": "ipfs-unixfs-memory-benchmark",
+  "version": "0.0.0",
+  "description": "Memory benchmarks for ipfs-unixfs-importer",
+  "license": "Apache-2.0 OR MIT",
+  "private": true,
+  "type": "module",
+  "types": "./dist/src/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "!dist/test",
+    "!**/*.tsbuildinfo"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "eslintConfig": {
+    "extends": "ipfs",
+    "parserOptions": {
+      "sourceType": "module"
+    }
+  },
+  "scripts": {
+    "build": "aegir build --bundle false",
+    "clean": "aegir clean",
+    "lint": "aegir lint",
+    "dep-check": "aegir dep-check",
+    "start": "npm run build && node --expose-gc ./dist/test/index.spec.js"
+  },
+  "devDependencies": {
+    "aegir": "^38.1.2",
+    "blockstore-core": "^4.0.1",
+    "blockstore-fs": "^1.0.0",
+    "ipfs-unixfs-importer": "../../packages/ipfs-unixfs-importer",
+    "it-buffer-stream": "^3.0.1",
+    "it-drain": "^2.0.1"
+  }
+}

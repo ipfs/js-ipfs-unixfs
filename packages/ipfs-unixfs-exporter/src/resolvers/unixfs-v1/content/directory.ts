@@ -2,13 +2,18 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import map from 'it-map'
 import filter from 'it-filter'
-import type { ExporterOptions, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
+import type { ExporterOptions, ExportWalk, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
+import { CustomProgressEvent } from 'progress-events'
 
 const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   async function * yieldDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {
     const offset = options.offset ?? 0
     const length = options.length ?? node.Links.length
     const links = node.Links.slice(offset, length)
+
+    options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:directory', {
+      cid
+    }))
 
     yield * pipe(
       links,

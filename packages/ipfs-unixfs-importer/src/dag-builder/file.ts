@@ -1,12 +1,13 @@
 import { UnixFS } from 'ipfs-unixfs'
 import { persist } from '../utils/persist.js'
-import { encode, PBLink, prepare } from '@ipld/dag-pb'
+import { encode, PBLink, PBNode, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
-import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult } from '../index.js'
+import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult, ImporterProgressEvents } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
-import type { Version } from 'multiformats/cid'
-import type { ProgressOptions } from 'progress-events'
+import type { CID, Version } from 'multiformats/cid'
+import { CustomProgressEvent } from 'progress-events'
+import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 interface BuildFileBatchOptions {
   bufferImporter: BufferImporter
@@ -50,7 +51,22 @@ async function * buildFileBatch (file: File, blockstore: WritableStorage, option
   }
 }
 
-interface ReduceOptions extends ProgressOptions {
+export interface LayoutLeafProgress {
+  /**
+   * The CID of the leaf being written
+   */
+  cid: CID
+
+  /**
+   * The path of the file being imported, if one was specified
+   */
+  path?: string
+}
+
+export type ReducerProgressEvents =
+  ProgressEvent<'unixfs:importer:progress:file:layout', LayoutLeafProgress>
+
+interface ReduceOptions extends ProgressOptions<ImporterProgressEvents> {
   reduceSingleLeafToSelf: boolean
   cidVersion: Version
   signal?: AbortSignal
@@ -64,6 +80,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
   const reducer: Reducer = async function (leaves) {
     if (leaves.length === 1 && isSingleBlockImport(leaves[0]) && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
+      let node: Uint8Array | PBNode = leaf.block
 
       if (isSingleBlockImport(leaf) && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a raw leaf - we have metadata so convert it into a
@@ -75,7 +92,9 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
           data: leaf.block
         })
 
-        leaf.block = encode(prepare({ Data: leaf.unixfs.marshal() }))
+        node = { Data: leaf.unixfs.marshal(), Links: [] }
+
+        leaf.block = encode(prepare(node))
 
         leaf.cid = await persist(leaf.block, blockstore, {
           ...options,
@@ -83,6 +102,11 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
         })
         leaf.size = BigInt(leaf.block.length)
       }
+
+      options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+        cid: leaf.cid,
+        path: leaf.originalPath
+      }))
 
       return {
         cid: leaf.cid,
@@ -145,6 +169,11 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
     }
     const block = encode(prepare(node))
     const cid = await persist(block, blockstore, options)
+
+    options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+      cid,
+      path: file.originalPath
+    }))
 
     return {
       cid,

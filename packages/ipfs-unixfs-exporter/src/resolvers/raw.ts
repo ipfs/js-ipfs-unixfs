@@ -1,7 +1,8 @@
 import errCode from 'err-code'
-import type { ExporterOptions, Resolver } from '../index.js'
+import type { ExporterOptions, Resolver, ExportProgress } from '../index.js'
 import extractDataFromBlock from '../utils/extract-data-from-block.js'
 import validateOffsetAndLength from '../utils/validate-offset-and-length.js'
+import { CustomProgressEvent } from 'progress-events'
 
 const rawContent = (node: Uint8Array): ((options?: ExporterOptions) => AsyncGenerator<Uint8Array, void, undefined>) => {
   async function * contentGenerator (options: ExporterOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {
@@ -10,7 +11,15 @@ const rawContent = (node: Uint8Array): ((options?: ExporterOptions) => AsyncGene
       length
     } = validateOffsetAndLength(node.length, options.offset, options.length)
 
-    yield extractDataFromBlock(node, 0n, offset, offset + length)
+    const buf = extractDataFromBlock(node, 0n, offset, offset + length)
+
+    options.onProgress?.(new CustomProgressEvent<ExportProgress>('unixfs:exporter:progress:raw', {
+      bytesRead: BigInt(buf.byteLength),
+      totalBytes: length - offset,
+      fileSize: BigInt(node.byteLength)
+    }))
+
+    yield buf
   }
 
   return contentGenerator

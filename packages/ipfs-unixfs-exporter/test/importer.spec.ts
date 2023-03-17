@@ -652,8 +652,8 @@ strategies.forEach((strategy) => {
       }], block, options))
 
       expect(onProgress.called).to.equal(true)
-      expect(onProgress.getCall(0).args[0]).to.have.property('type', 'unixfs:importer:progress')
-      expect(onProgress.getCall(0).args[0]).to.have.deep.property('detail', { bytes: chunkSize, path })
+      expect(onProgress.getCall(0).args[0]).to.have.property('type', 'unixfs:importer:progress:file:read')
+      expect(onProgress.getCall(0).args[0]).to.have.deep.property('detail', { bytesRead: BigInt(chunkSize), chunkSize: BigInt(chunkSize), path })
     })
 
     it('will import files with CID version 1', async () => {

@@ -1,3 +1,15 @@
+## [ipfs-unixfs-importer-v15.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.0...ipfs-unixfs-importer-v15.1.1) (2023-03-23)
+
+
+### Dependencies
+
+* update interface-store to 5.x.x ([#304](https://github.com/ipfs/js-ipfs-unixfs/issues/304)) ([46f4de5](https://github.com/ipfs/js-ipfs-unixfs/commit/46f4de564c83aaf120172b93309d1519a52f2c6d))
+
+
+### Documentation
+
+* example in README of ipfs-unixfs-importer ([#303](https://github.com/ipfs/js-ipfs-unixfs/issues/303)) ([abbfe0c](https://github.com/ipfs/js-ipfs-unixfs/commit/abbfe0ce63eb72771d017cee5026151c45d0e3bd))
+
 ## [ipfs-unixfs-importer-v15.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.0.3...ipfs-unixfs-importer-v15.1.0) (2023-03-17)
 
 

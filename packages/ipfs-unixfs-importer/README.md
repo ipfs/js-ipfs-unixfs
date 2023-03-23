@@ -44,7 +44,7 @@ Let's create a little directory to import:
 > cd /tmp
 > mkdir foo
 > echo 'hello' > foo/bar
-> echo 'world' > foo/quxx
+> echo 'world' > foo/quux
 ```
 
 And write the importing logic:
@@ -52,7 +52,7 @@ And write the importing logic:
 ```js
 import { importer } from 'ipfs-unixfs-importer'
 import { MemoryBlockstore } from 'blockstore-core/memory'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 
 // Where the blocks will be stored
 const blockstore = new MemoryBlockstore()
@@ -63,7 +63,7 @@ const source = [{
   content: fs.createReadStream('/tmp/foo/bar')
 }, {
   path: '/tmp/foo/quxx',
-  content: fs.createReadStream('/tmp/foo/quxx')
+  content: fs.createReadStream('/tmp/foo/quux')
 }]
 
 for await (const entry of importer(source, blockstore)) {

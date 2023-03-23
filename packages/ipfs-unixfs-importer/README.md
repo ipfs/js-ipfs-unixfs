@@ -52,20 +52,21 @@ And write the importing logic:
 ```js
 import { importer } from 'ipfs-unixfs-importer'
 import { MemoryBlockstore } from 'blockstore-core/memory'
+import * as fs from 'node:fs'
 
 // Where the blocks will be stored
 const blockstore = new MemoryBlockstore()
 
-// Import path /tmp/foo/bar
+// Import path /tmp/foo/
 const source = [{
   path: '/tmp/foo/bar',
-  content: fs.createReadStream(file)
+  content: fs.createReadStream('/tmp/foo/bar')
 }, {
   path: '/tmp/foo/quxx',
-  content: fs.createReadStream(file2)
+  content: fs.createReadStream('/tmp/foo/quux')
 }]
 
-for await (const entry of importer(source, blockstore, options)) {
+for await (const entry of importer(source, blockstore)) {
   console.info(entry)
 }
 ```

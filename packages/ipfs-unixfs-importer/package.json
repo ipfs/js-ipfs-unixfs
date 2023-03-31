@@ -167,7 +167,7 @@
     "interface-store": "^5.0.1",
     "ipfs-unixfs": "^11.0.0",
     "it-all": "^2.0.0",
-    "it-batch": "^2.0.0",
+    "it-batch": "^3.0.0",
     "it-first": "^2.0.0",
     "it-parallel-batch": "^2.0.0",
     "multiformats": "^11.0.0",

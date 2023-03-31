@@ -146,7 +146,7 @@
     "it-last": "^2.0.0",
     "it-map": "^2.0.0",
     "it-parallel": "^3.0.0",
-    "it-pipe": "^2.0.4",
+    "it-pipe": "^3.0.0",
     "it-pushable": "^3.1.0",
     "multiformats": "^11.0.0",
     "p-queue": "^7.3.0",

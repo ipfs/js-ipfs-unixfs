@@ -142,7 +142,7 @@
     "hamt-sharding": "^3.0.0",
     "interface-blockstore": "^5.0.0",
     "ipfs-unixfs": "^11.0.0",
-    "it-filter": "^2.0.0",
+    "it-filter": "^3.0.0",
     "it-last": "^2.0.0",
     "it-map": "^2.0.0",
     "it-parallel": "^3.0.0",

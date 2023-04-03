@@ -144,7 +144,7 @@
     "ipfs-unixfs": "^11.0.0",
     "it-filter": "^2.0.0",
     "it-last": "^2.0.0",
-    "it-map": "^2.0.0",
+    "it-map": "^3.0.2",
     "it-parallel": "^3.0.0",
     "it-pipe": "^2.0.4",
     "it-pushable": "^3.1.0",

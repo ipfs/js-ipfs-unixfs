@@ -168,7 +168,7 @@
     "ipfs-unixfs": "^11.0.0",
     "it-all": "^2.0.0",
     "it-batch": "^2.0.0",
-    "it-first": "^2.0.0",
+    "it-first": "^3.0.1",
     "it-parallel-batch": "^2.0.0",
     "multiformats": "^11.0.0",
     "progress-events": "^1.0.0",

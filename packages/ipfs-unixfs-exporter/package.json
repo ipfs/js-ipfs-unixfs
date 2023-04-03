@@ -162,7 +162,7 @@
     "iso-random-stream": "^2.0.2",
     "it-all": "^2.0.0",
     "it-buffer-stream": "^3.0.0",
-    "it-first": "^2.0.0",
+    "it-first": "^3.0.1",
     "merge-options": "^3.0.4",
     "sinon": "^15.0.0",
     "wherearewe": "^2.0.1"

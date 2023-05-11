@@ -63,14 +63,14 @@
 <a href="#install" id="install" style="color: inherit; text-decoration: none;">
   <h2>Install</h2>
 </a>
-<pre><code class="language-console"><span class="hl-0">$ </span><span class="hl-1">npm</span><span class="hl-0"> </span><span class="hl-1">i</span><span class="hl-0"> </span><span class="hl-1">ipfs-unixfs</span>
+<pre><code class="language-console"><span class="hl-0">$</span><span class="hl-1"> </span><span class="hl-2">npm</span><span class="hl-1"> </span><span class="hl-2">i</span><span class="hl-1"> </span><span class="hl-2">ipfs-unixfs</span>
 </code></pre>
 
 <a href="#browser-ltscriptgt-tag" id="browser-ltscriptgt-tag" style="color: inherit; text-decoration: none;">
   <h3>Browser <code>&lt;script&gt;</code> tag</h3>
 </a>
 <p>Loading this module through a script tag will make it&#39;s exports available as <code>IpfsUnixfs</code> in the global namespace.</p>
-<pre><code class="language-html"><span class="hl-2">&lt;</span><span class="hl-3">script</span><span class="hl-4"> </span><span class="hl-5">src</span><span class="hl-4">=</span><span class="hl-6">&quot;https://unpkg.com/ipfs-unixfs/dist/index.min.js&quot;</span><span class="hl-2">&gt;&lt;/</span><span class="hl-3">script</span><span class="hl-2">&gt;</span>
+<pre><code class="language-html"><span class="hl-3">&lt;</span><span class="hl-4">script</span><span class="hl-5"> </span><span class="hl-6">src</span><span class="hl-5">=</span><span class="hl-7">&quot;https://unpkg.com/ipfs-unixfs/dist/index.min.js&quot;</span><span class="hl-3">&gt;&lt;/</span><span class="hl-4">script</span><span class="hl-3">&gt;</span>
 </code></pre>
 
 <a href="#spec" id="spec" style="color: inherit; text-decoration: none;">
@@ -81,14 +81,14 @@
 <a href="#use-in-nodejs" id="use-in-nodejs" style="color: inherit; text-decoration: none;">
   <h3>Use in Node.js</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">UnixFS</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;ipfs-unixfs&#39;</span>
+<pre><code class="language-JavaScript"><span class="hl-8">import</span><span class="hl-1"> { </span><span class="hl-9">UnixFS</span><span class="hl-1"> } </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-2">&#39;ipfs-unixfs&#39;</span>
 </code></pre>
 
 <a href="#use-in-a-browser-with-browserify-webpack-or-any-other-bundler" id="use-in-a-browser-with-browserify-webpack-or-any-other-bundler" style="color: inherit; text-decoration: none;">
   <h3>Use in a browser with browserify, webpack or any other bundler</h3>
 </a>
 <p>The code published to npm that gets loaded on require is in fact a ES5 transpiled version with the right shims added. This means that you can require it and use with your favourite bundler without having to adjust asset management process.</p>
-<pre><code class="language-JavaScript"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">UnixFS</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;ipfs-unixfs&#39;</span>
+<pre><code class="language-JavaScript"><span class="hl-8">import</span><span class="hl-1"> { </span><span class="hl-9">UnixFS</span><span class="hl-1"> } </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-2">&#39;ipfs-unixfs&#39;</span>
 </code></pre>
 
 <a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
@@ -98,14 +98,14 @@
 <a href="#create-a-file-composed-by-several-blocks" id="create-a-file-composed-by-several-blocks" style="color: inherit; text-decoration: none;">
   <h3>Create a file composed by several blocks</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">data</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">UnixFS</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;file&#39;</span><span class="hl-0"> })</span><br/><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">addBlockSize</span><span class="hl-0">(</span><span class="hl-12">256</span><span class="hl-0">) </span><span class="hl-13">// add the size of each block</span><br/><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">addBlockSize</span><span class="hl-0">(</span><span class="hl-12">256</span><span class="hl-0">)</span><br/><span class="hl-13">// ...</span>
+<pre><code class="language-JavaScript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">data</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">UnixFS</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;file&#39;</span><span class="hl-1"> })</span><br/><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">addBlockSize</span><span class="hl-1">(</span><span class="hl-12">256</span><span class="hl-1">) </span><span class="hl-13">// add the size of each block</span><br/><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">addBlockSize</span><span class="hl-1">(</span><span class="hl-12">256</span><span class="hl-1">)</span><br/><span class="hl-13">// ...</span>
 </code></pre>
 
 <a href="#create-a-directory-that-contains-several-files" id="create-a-directory-that-contains-several-files" style="color: inherit; text-decoration: none;">
   <h3>Create a directory that contains several files</h3>
 </a>
 <p>Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.</p>
-<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">data</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">UnixFS</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;directory&#39;</span><span class="hl-0"> })</span>
+<pre><code class="language-JavaScript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">data</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">UnixFS</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;directory&#39;</span><span class="hl-1"> })</span>
 </code></pre>
 
 <a href="#unixfs-data-structure" id="unixfs-data-structure" style="color: inherit; text-decoration: none;">
@@ -146,7 +146,7 @@ message Metadata {
 <a href="#create-an-unixfs-data-element" id="create-an-unixfs-data-element" style="color: inherit; text-decoration: none;">
   <h3>create an unixfs Data element</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">data</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">UnixFS</span><span class="hl-0">([</span><span class="hl-8">options</span><span class="hl-0">])</span>
+<pre><code class="language-JavaScript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">data</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">UnixFS</span><span class="hl-1">([</span><span class="hl-9">options</span><span class="hl-1">])</span>
 </code></pre>
 <p><code>options</code> is an optional object argument that might include the following keys:</p>
 <ul>
@@ -168,34 +168,34 @@ message Metadata {
 <a href="#add-and-remove-a-block-size-to-the-block-size-list" id="add-and-remove-a-block-size-to-the-block-size-list" style="color: inherit; text-decoration: none;">
   <h3>add and remove a block size to the block size list</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">addBlockSize</span><span class="hl-0">(</span><span class="hl-2">&lt;</span><span class="hl-3">size</span><span class="hl-0"> </span><span class="hl-5">in</span><span class="hl-0"> </span><span class="hl-5">bytes</span><span class="hl-2">&gt;</span><span class="hl-0">)</span>
+<pre><code class="language-JavaScript"><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">addBlockSize</span><span class="hl-1">(</span><span class="hl-3">&lt;</span><span class="hl-4">size</span><span class="hl-1"> </span><span class="hl-6">in</span><span class="hl-1"> </span><span class="hl-6">bytes</span><span class="hl-3">&gt;</span><span class="hl-1">)</span>
 </code></pre>
-<pre><code class="language-JavaScript"><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">removeBlockSize</span><span class="hl-0">(</span><span class="hl-2">&lt;</span><span class="hl-3">index</span><span class="hl-2">&gt;</span><span class="hl-0">)</span>
+<pre><code class="language-JavaScript"><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">removeBlockSize</span><span class="hl-1">(</span><span class="hl-3">&lt;</span><span class="hl-4">index</span><span class="hl-3">&gt;</span><span class="hl-1">)</span>
 </code></pre>
 
 <a href="#get-total-filesize" id="get-total-filesize" style="color: inherit; text-decoration: none;">
   <h3>get total fileSize</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">fileSize</span><span class="hl-0">() </span><span class="hl-13">// =&gt; size in bytes</span>
+<pre><code class="language-JavaScript"><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">fileSize</span><span class="hl-1">() </span><span class="hl-13">// =&gt; size in bytes</span>
 </code></pre>
 
 <a href="#marshal-and-unmarshal" id="marshal-and-unmarshal" style="color: inherit; text-decoration: none;">
   <h3>marshal and unmarshal</h3>
 </a>
-<pre><code class="language-javascript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">marshaled</span><span class="hl-0"> = </span><span class="hl-8">data</span><span class="hl-0">.</span><span class="hl-11">marshal</span><span class="hl-0">()</span><br/><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">unmarshaled</span><span class="hl-0"> = </span><span class="hl-8">Unixfs</span><span class="hl-0">.</span><span class="hl-11">unmarshal</span><span class="hl-0">(</span><span class="hl-8">marshaled</span><span class="hl-0">)</span>
+<pre><code class="language-javascript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">marshaled</span><span class="hl-1"> = </span><span class="hl-9">data</span><span class="hl-1">.</span><span class="hl-0">marshal</span><span class="hl-1">()</span><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">unmarshaled</span><span class="hl-1"> = </span><span class="hl-9">Unixfs</span><span class="hl-1">.</span><span class="hl-0">unmarshal</span><span class="hl-1">(</span><span class="hl-9">marshaled</span><span class="hl-1">)</span>
 </code></pre>
 
 <a href="#is-this-unixfs-entry-a-directory" id="is-this-unixfs-entry-a-directory" style="color: inherit; text-decoration: none;">
   <h3>is this UnixFS entry a directory?</h3>
 </a>
-<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">dir</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">Data</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;directory&#39;</span><span class="hl-0"> })</span><br/><span class="hl-8">dir</span><span class="hl-0">.</span><span class="hl-11">isDirectory</span><span class="hl-0">() </span><span class="hl-13">// true</span><br/><br/><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">file</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">Data</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;file&#39;</span><span class="hl-0"> })</span><br/><span class="hl-8">file</span><span class="hl-0">.</span><span class="hl-11">isDirectory</span><span class="hl-0">() </span><span class="hl-13">// false</span>
+<pre><code class="language-JavaScript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">dir</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;directory&#39;</span><span class="hl-1"> })</span><br/><span class="hl-9">dir</span><span class="hl-1">.</span><span class="hl-0">isDirectory</span><span class="hl-1">() </span><span class="hl-13">// true</span><br/><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">file</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;file&#39;</span><span class="hl-1"> })</span><br/><span class="hl-9">file</span><span class="hl-1">.</span><span class="hl-0">isDirectory</span><span class="hl-1">() </span><span class="hl-13">// false</span>
 </code></pre>
 
 <a href="#has-an-mtime-been-set" id="has-an-mtime-been-set" style="color: inherit; text-decoration: none;">
   <h3>has an mtime been set?</h3>
 </a>
 <p>If no modification time has been set, no <code>mtime</code> property will be present on the <code>Data</code> instance:</p>
-<pre><code class="language-JavaScript"><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">file</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">Data</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;file&#39;</span><span class="hl-0"> })</span><br/><span class="hl-8">file</span><span class="hl-0">.</span><span class="hl-8">mtime</span><span class="hl-0"> </span><span class="hl-13">// undefined</span><br/><br/><span class="hl-14">Object</span><span class="hl-0">.</span><span class="hl-8">prototype</span><span class="hl-0">.</span><span class="hl-8">hasOwnProperty</span><span class="hl-0">.</span><span class="hl-11">call</span><span class="hl-0">(</span><span class="hl-8">file</span><span class="hl-0">, </span><span class="hl-1">&#39;mtime&#39;</span><span class="hl-0">) </span><span class="hl-13">// false</span><br/><br/><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">dir</span><span class="hl-0"> = </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">Data</span><span class="hl-0">({ </span><span class="hl-8">type:</span><span class="hl-0"> </span><span class="hl-1">&#39;dir&#39;</span><span class="hl-0">, </span><span class="hl-8">mtime:</span><span class="hl-0"> </span><span class="hl-9">new</span><span class="hl-0"> </span><span class="hl-11">Date</span><span class="hl-0">() })</span><br/><span class="hl-8">dir</span><span class="hl-0">.</span><span class="hl-8">mtime</span><span class="hl-0"> </span><span class="hl-13">// { secs: Number, nsecs: Number }</span>
+<pre><code class="language-JavaScript"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">file</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;file&#39;</span><span class="hl-1"> })</span><br/><span class="hl-9">file</span><span class="hl-1">.</span><span class="hl-9">mtime</span><span class="hl-1"> </span><span class="hl-13">// undefined</span><br/><br/><span class="hl-14">Object</span><span class="hl-1">.</span><span class="hl-9">prototype</span><span class="hl-1">.</span><span class="hl-9">hasOwnProperty</span><span class="hl-1">.</span><span class="hl-0">call</span><span class="hl-1">(</span><span class="hl-9">file</span><span class="hl-1">, </span><span class="hl-2">&#39;mtime&#39;</span><span class="hl-1">) </span><span class="hl-13">// false</span><br/><br/><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">dir</span><span class="hl-1"> = </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">({ </span><span class="hl-9">type:</span><span class="hl-1"> </span><span class="hl-2">&#39;dir&#39;</span><span class="hl-1">, </span><span class="hl-9">mtime:</span><span class="hl-1"> </span><span class="hl-10">new</span><span class="hl-1"> </span><span class="hl-0">Date</span><span class="hl-1">() })</span><br/><span class="hl-9">dir</span><span class="hl-1">.</span><span class="hl-9">mtime</span><span class="hl-1"> </span><span class="hl-13">// { secs: Number, nsecs: Number }</span>
 </code></pre>
 
 <a href="#api-docs" id="api-docs" style="color: inherit; text-decoration: none;">

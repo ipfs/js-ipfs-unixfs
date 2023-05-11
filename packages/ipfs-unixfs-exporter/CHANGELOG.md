@@ -1,3 +1,19 @@
+## [ipfs-unixfs-exporter-v13.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.1...ipfs-unixfs-exporter-v13.1.2) (2023-05-11)
+
+
+### Dependencies
+
+* bump it-filter from 2.0.2 to 3.0.2 ([#328](https://github.com/ipfs/js-ipfs-unixfs/issues/328)) ([c4b624b](https://github.com/ipfs/js-ipfs-unixfs/commit/c4b624b99f0bfe05059de815e66443c80dbe7693))
+* bump it-map from 2.0.1 to 3.0.3 ([#329](https://github.com/ipfs/js-ipfs-unixfs/issues/329)) ([6974025](https://github.com/ipfs/js-ipfs-unixfs/commit/6974025542860b84d78b447e41b975a4b8a03f31))
+
+## [ipfs-unixfs-exporter-v13.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.0...ipfs-unixfs-exporter-v13.1.1) (2023-05-11)
+
+
+### Dependencies
+
+* bump it-last from 2.0.1 to 3.0.2 ([#330](https://github.com/ipfs/js-ipfs-unixfs/issues/330)) ([7f8df4d](https://github.com/ipfs/js-ipfs-unixfs/commit/7f8df4d437befacd36c36c85f178b14fc7930fd6))
+* bump it-pipe from 2.0.5 to 3.0.1 ([#319](https://github.com/ipfs/js-ipfs-unixfs/issues/319)) ([ab5dd0a](https://github.com/ipfs/js-ipfs-unixfs/commit/ab5dd0ab85fc2235b1fca912114b75f243634bf3))
+
 ## [ipfs-unixfs-exporter-v13.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.0.6...ipfs-unixfs-exporter-v13.1.0) (2023-03-17)
 
 

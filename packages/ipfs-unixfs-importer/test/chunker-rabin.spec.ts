@@ -102,8 +102,7 @@ describe('chunker: rabin', function () {
     }
 
     try {
-      // @ts-expect-error invalid opts
-      await all(rabin(asAsyncIterable([]), opts))
+      await all(rabin(opts)(asAsyncIterable([])))
       throw new Error('Should have thrown')
     } catch (err: any) {
       expect(err.code).to.equal('ERR_INVALID_AVG_CHUNK_SIZE')

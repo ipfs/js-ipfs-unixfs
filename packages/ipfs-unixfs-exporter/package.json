@@ -143,7 +143,7 @@
     "interface-blockstore": "^5.0.0",
     "ipfs-unixfs": "^11.0.0",
     "it-filter": "^2.0.0",
-    "it-last": "^2.0.0",
+    "it-last": "^3.0.2",
     "it-map": "^2.0.0",
     "it-parallel": "^3.0.0",
     "it-pipe": "^3.0.1",

@@ -15,7 +15,9 @@ import { CustomProgressEvent } from 'progress-events'
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node
   if (node instanceof Uint8Array) {
-    queue.push(extractDataFromBlock(node, streamPosition, start, end))
+    const buf = extractDataFromBlock(node, streamPosition, start, end)
+
+    queue.push(buf)
 
     return
   }
@@ -123,6 +125,10 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
       }
     }
   )
+
+  if (streamPosition >= end) {
+    queue.end()
+  }
 }
 
 const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -134,34 +140,23 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
     }
 
     const {
-      offset,
-      length
+      start,
+      end
     } = validateOffsetAndLength(fileSize, options.offset, options.length)
 
-    if (length === 0n) {
+    if (end === 0n) {
       return
     }
 
     let read = 0n
-    const wanted = length - offset
+    const wanted = end - start
     const queue = pushable()
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
       cid
     }))
 
-    void walkDAG(blockstore, node, queue, 0n, offset, offset + length, options)
-      .then(() => {
-        if (read < wanted) {
-          throw errCode(new Error('Traversed entire DAG but did not read enough bytes'), 'ERR_UNDER_READ')
-        }
-
-        if (read > wanted) {
-          throw errCode(new Error('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect'), 'ERR_OVER_READ')
-        }
-
-        queue.end()
-      })
+    void walkDAG(blockstore, node, queue, 0n, start, end, options)
       .catch(err => {
         queue.end(err)
       })
@@ -173,7 +168,12 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
 
       read += BigInt(buf.byteLength)
 
-      if (read === length) {
+      if (read > wanted) {
+        queue.end()
+        throw errCode(new Error('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect'), 'ERR_OVER_READ')
+      }
+
+      if (read === wanted) {
         queue.end()
       }
 
@@ -184,6 +184,10 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
       }))
 
       yield buf
+    }
+
+    if (read < wanted) {
+      throw errCode(new Error('Traversed entire DAG but did not read enough bytes'), 'ERR_UNDER_READ')
     }
   }
 

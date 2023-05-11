@@ -25,6 +25,9 @@ import type { Blockstore } from 'interface-blockstore'
 import { balanced, FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import type { Chunker } from 'ipfs-unixfs-importer/chunker'
 import { fixedSize } from 'ipfs-unixfs-importer/chunker'
+import toBuffer from 'it-to-buffer'
+import { Readable } from 'readable-stream'
+import { isNode } from 'wherearewe'
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -1228,5 +1231,82 @@ describe('exporter', () => {
     await expect(exporter(cid, customBlock, {
       signal: abortController.signal
     })).to.eventually.be.rejectedWith(message)
+  })
+
+  it('should support being used with readable-stream', async () => {
+    if (!isNode) {
+      // node-only test
+      return
+    }
+
+    let dataSizeInBytes = 10
+
+    // iterate through order of magnitude in size until hitting 10MB
+    while (dataSizeInBytes <= 10_000_000) {
+      const bytes = await toBuffer(randomBytes(dataSizeInBytes))
+
+      // chunk up the bytes to simulate a more real-world like behavior
+      const chunkLength = 100_000
+      let currentIndex = 0
+
+      const readableStream = new Readable({
+        read (): void {
+          // if this is the last chunk
+          if (currentIndex + chunkLength > bytes.length) {
+            this.push(bytes.subarray(currentIndex))
+            this.push(null)
+          } else {
+            this.push(bytes.subarray(currentIndex, currentIndex + chunkLength))
+
+            currentIndex = currentIndex + chunkLength
+          }
+        }
+      })
+
+      const result = await last(importer([{
+        content: readableStream
+      }], block))
+
+      if (result == null) {
+        throw new Error('Import failed')
+      }
+
+      const file = await exporter(result.cid, block)
+      const contentIterator = file.content()
+
+      const readableStreamToBytes = async (readableStream: Readable): Promise<Uint8Array> => {
+        return await new Promise((resolve, reject) => {
+          const chunks: any[] = []
+          readableStream.on('data', chunk => {
+            chunks.push(chunk)
+          })
+
+          readableStream.on('end', () => {
+            const uint8Array = uint8ArrayConcat(chunks)
+            resolve(uint8Array)
+          })
+
+          readableStream.on('error', reject)
+        })
+      }
+
+      const dataStream = new Readable({
+        async read (): Promise<void> {
+          const result = await contentIterator.next()
+          if (result.done === true) {
+            this.push(null) // end the stream
+          } else {
+            this.push(result.value)
+          }
+        }
+      })
+
+      const data = await readableStreamToBytes(dataStream)
+
+      expect(data.byteLength).to.equal(dataSizeInBytes)
+      expect(data).to.equalBytes(bytes)
+
+      dataSizeInBytes *= 10
+    }
   })
 })

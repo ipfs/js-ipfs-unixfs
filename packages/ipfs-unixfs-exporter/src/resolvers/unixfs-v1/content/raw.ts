@@ -12,19 +12,19 @@ const rawContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, b
     const size = unixfs.data.length
 
     const {
-      offset,
-      length
+      start,
+      end
     } = validateOffsetAndLength(size, options.offset, options.length)
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:raw', {
       cid
     }))
 
-    const buf = extractDataFromBlock(unixfs.data, 0n, offset, offset + length)
+    const buf = extractDataFromBlock(unixfs.data, 0n, start, end)
 
     options.onProgress?.(new CustomProgressEvent<ExportProgress>('unixfs:exporter:progress:unixfs:raw', {
       bytesRead: BigInt(buf.byteLength),
-      totalBytes: length - offset,
+      totalBytes: end - start,
       fileSize: BigInt(unixfs.data.byteLength)
     }))
 

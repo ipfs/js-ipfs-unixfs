@@ -59,7 +59,7 @@ export interface Exportable<T> {
   cid: CID
   depth: number
   size: bigint
-  content: (options?: ExporterOptions) => AsyncIterable<T>
+  content: (options?: ExporterOptions) => AsyncGenerator<T, void, unknown>
 }
 
 export interface UnixFSFile extends Exportable<Uint8Array> {

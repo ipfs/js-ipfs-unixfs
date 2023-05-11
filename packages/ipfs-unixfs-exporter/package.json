@@ -154,6 +154,7 @@
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
+    "@types/readable-stream": "^2.3.15",
     "@types/sinon": "^10.0.0",
     "aegir": "^38.1.2",
     "blockstore-core": "^4.0.1",
@@ -163,12 +164,15 @@
     "it-all": "^3.0.2",
     "it-buffer-stream": "^3.0.0",
     "it-first": "^3.0.2",
+    "it-to-buffer": "^4.0.2",
     "merge-options": "^3.0.4",
+    "readable-stream": "^4.4.0",
     "sinon": "^15.0.0",
     "wherearewe": "^2.0.1"
   },
   "browser": {
-    "fs": false
+    "fs": false,
+    "readable-stream": false
   },
   "typedoc": {
     "entryPoint": "./src/index.ts"

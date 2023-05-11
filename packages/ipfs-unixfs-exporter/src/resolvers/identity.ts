@@ -8,15 +8,15 @@ import { CustomProgressEvent } from 'progress-events'
 const rawContent = (node: Uint8Array): ((options?: ExporterOptions) => AsyncGenerator<Uint8Array, void, undefined>) => {
   async function * contentGenerator (options: ExporterOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {
     const {
-      offset,
-      length
+      start,
+      end
     } = validateOffsetAndLength(node.length, options.offset, options.length)
 
-    const buf = extractDataFromBlock(node, 0n, offset, offset + length)
+    const buf = extractDataFromBlock(node, 0n, start, end)
 
     options.onProgress?.(new CustomProgressEvent<ExportProgress>('unixfs:exporter:progress:identity', {
       bytesRead: BigInt(buf.byteLength),
-      totalBytes: length - offset,
+      totalBytes: end - start,
       fileSize: BigInt(node.byteLength)
     }))
 

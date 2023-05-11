@@ -1,3 +1,19 @@
+## [ipfs-unixfs-importer-v15.1.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.3...ipfs-unixfs-importer-v15.1.4) (2023-05-11)
+
+
+### Dependencies
+
+* bump it-all from 2.0.1 to 3.0.2 ([#324](https://github.com/ipfs/js-ipfs-unixfs/issues/324)) ([0738c35](https://github.com/ipfs/js-ipfs-unixfs/commit/0738c35cf437020c94dc8cc17644b01c9289b9a2))
+* bump it-first from 2.0.1 to 3.0.2 ([#325](https://github.com/ipfs/js-ipfs-unixfs/issues/325)) ([3db2948](https://github.com/ipfs/js-ipfs-unixfs/commit/3db2948ecb3fa2780582c8cddd32c1030e226356))
+
+## [ipfs-unixfs-importer-v15.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.2...ipfs-unixfs-importer-v15.1.3) (2023-05-11)
+
+
+### Dependencies
+
+* bump it-parallel-batch from 2.0.1 to 3.0.1 ([#327](https://github.com/ipfs/js-ipfs-unixfs/issues/327)) ([021dd0d](https://github.com/ipfs/js-ipfs-unixfs/commit/021dd0dbaa4ee3e9751dd422eb22c1ae8f1695be))
+* **dev:** bump it-drain from 2.0.1 to 3.0.2 ([#331](https://github.com/ipfs/js-ipfs-unixfs/issues/331)) ([4b1462c](https://github.com/ipfs/js-ipfs-unixfs/commit/4b1462c9a5f7730f41f76d06543fc63b58404e20))
+
 ## [ipfs-unixfs-importer-v15.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.1...ipfs-unixfs-importer-v15.1.2) (2023-05-11)
 
 

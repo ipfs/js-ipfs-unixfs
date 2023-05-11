@@ -1,36 +1,37 @@
 import errCode from 'err-code'
 
-const validateOffsetAndLength = (size: number | bigint, offset: number | bigint = 0, length: number | bigint = size): { offset: bigint, length: bigint } => {
-  offset = BigInt(offset ?? 0)
-  length = BigInt(length ?? size)
+const validateOffsetAndLength = (size: number | bigint, offset: number | bigint = 0, length: number | bigint = size): { start: bigint, end: bigint } => {
+  const fileSize = BigInt(size)
+  const start = BigInt(offset ?? 0)
+  let end = BigInt(length)
 
-  if (offset == null) {
-    offset = 0n
+  if (end !== fileSize) {
+    end = start + end
   }
 
-  if (offset < 0n) {
+  if (end > fileSize) {
+    end = fileSize
+  }
+
+  if (start < 0n) {
     throw errCode(new Error('Offset must be greater than or equal to 0'), 'ERR_INVALID_PARAMS')
   }
 
-  if (offset > size) {
+  if (start > fileSize) {
     throw errCode(new Error('Offset must be less than the file size'), 'ERR_INVALID_PARAMS')
   }
 
-  if (length == null) {
-    length = BigInt(size) - offset
-  }
-
-  if (length < 0n) {
+  if (end < 0n) {
     throw errCode(new Error('Length must be greater than or equal to 0'), 'ERR_INVALID_PARAMS')
   }
 
-  if (offset + length > size) {
-    length = BigInt(size) - offset
+  if (end > fileSize) {
+    throw errCode(new Error('Length must be less than the file size'), 'ERR_INVALID_PARAMS')
   }
 
   return {
-    offset,
-    length
+    start,
+    end
   }
 }
 

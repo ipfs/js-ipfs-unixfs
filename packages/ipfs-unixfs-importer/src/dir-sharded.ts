@@ -1,9 +1,9 @@
-import { encode, PBLink, prepare } from '@ipld/dag-pb'
-import { UnixFS } from 'ipfs-unixfs'
-import { Dir, CID_V0, CID_V1, DirProps } from './dir.js'
-import { persist, PersistOptions } from './utils/persist.js'
-import { createHAMT, Bucket, BucketChild } from 'hamt-sharding'
+import { encode, type PBLink, prepare } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
+import { createHAMT, Bucket, type BucketChild } from 'hamt-sharding'
+import { UnixFS } from 'ipfs-unixfs'
+import { Dir, CID_V0, CID_V1, type DirProps } from './dir.js'
+import { persist, type PersistOptions } from './utils/persist.js'
 import type { ImportResult, InProgressImportResult } from './index.js'
 import type { Blockstore } from 'interface-blockstore'
 
@@ -40,7 +40,7 @@ class DirSharded extends Dir {
   }
 
   async get (name: string): Promise<InProgressImportResult | Dir | undefined> {
-    return await this._bucket.get(name)
+    return this._bucket.get(name)
   }
 
   childCount (): number {

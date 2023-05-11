@@ -1,33 +1,33 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/chai'
-import { UnixFS } from 'ipfs-unixfs'
-import { CID } from 'multiformats/cid'
-import * as dagPb from '@ipld/dag-pb'
 import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { identity } from 'multiformats/hashes/identity'
-import * as raw from 'multiformats/codecs/raw'
-import { exporter, recursive } from '../src/index.js'
-import { importer } from 'ipfs-unixfs-importer'
-import all from 'it-all'
-import last from 'it-last'
-import first from 'it-first'
-import randomBytes from 'it-buffer-stream'
+import * as dagPb from '@ipld/dag-pb'
+import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
+import delay from 'delay'
+import { UnixFS } from 'ipfs-unixfs'
+import { importer } from 'ipfs-unixfs-importer'
+import { fixedSize } from 'ipfs-unixfs-importer/chunker'
+import { balanced, type FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
+import all from 'it-all'
+import randomBytes from 'it-buffer-stream'
+import first from 'it-first'
+import last from 'it-last'
+import toBuffer from 'it-to-buffer'
+import { CID } from 'multiformats/cid'
+import * as raw from 'multiformats/codecs/raw'
+import { identity } from 'multiformats/hashes/identity'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { Readable } from 'readable-stream'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { isNode } from 'wherearewe'
+import { exporter, recursive } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
-import delay from 'delay'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
-import { balanced, FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import type { Chunker } from 'ipfs-unixfs-importer/chunker'
-import { fixedSize } from 'ipfs-unixfs-importer/chunker'
-import toBuffer from 'it-to-buffer'
-import { Readable } from 'readable-stream'
-import { isNode } from 'wherearewe'
 
 const ONE_MEG = Math.pow(1024, 2)
 
@@ -336,7 +336,7 @@ describe('exporter', () => {
       async get (cid: CID) {
         await delay(Math.random() * 10)
 
-        return await block.get(cid)
+        return block.get(cid)
       }
     }
 
@@ -1005,7 +1005,7 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    return await expect(first(exported.content())).to.eventually.deep.equal(node)
+    return expect(first(exported.content())).to.eventually.deep.equal(node)
   })
 
   it('errors when exporting a node with no resolver', async () => {
@@ -1219,7 +1219,7 @@ describe('exporter', () => {
     const customBlock = {
       get: async (cid: CID, options: { signal: AbortSignal }) => {
         // promise will never resolve, so reject it when the abort signal is sent
-        return await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           options.signal.addEventListener('abort', () => {
             reject(new Error(message))
           })
@@ -1275,7 +1275,7 @@ describe('exporter', () => {
       const contentIterator = file.content()
 
       const readableStreamToBytes = async (readableStream: Readable): Promise<Uint8Array> => {
-        return await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           const chunks: any[] = []
           readableStream.on('data', chunk => {
             chunks.push(chunk)

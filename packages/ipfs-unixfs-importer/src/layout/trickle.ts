@@ -1,8 +1,8 @@
-import type { UnixFS } from 'ipfs-unixfs'
 import batch from 'it-batch'
-import type { CID } from 'multiformats/cid'
 import type { InProgressImportResult } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
+import type { UnixFS } from 'ipfs-unixfs'
+import type { CID } from 'multiformats/cid'
 
 const DEFAULT_LAYER_REPEAT = 4
 const DEFAULT_MAX_CHILDREN_PER_NODE = 174
@@ -59,7 +59,7 @@ export function trickle (options?: TrickleOptions): FileLayout {
       root.addChild(await subTree.reduce(reduce))
     }
 
-    return await root.reduce(reduce)
+    return root.reduce(reduce)
   }
 }
 
@@ -122,7 +122,7 @@ class SubTree {
       maxChildren: Math.floor(parent.children.length / this.layerRepeat) * this.layerRepeat
     }
 
-    // @ts-expect-error
+    // @ts-expect-error nextNode is different type
     parent.children.push(nextNode)
 
     this.currentDepth = nextNode.depth
@@ -134,7 +134,7 @@ class SubTree {
   }
 
   async reduce (reduce: Reducer): Promise<InProgressImportResult> {
-    return await this._reduce(this.root, reduce)
+    return this._reduce(this.root, reduce)
   }
 
   async _reduce (node: TrickleDagNode, reduce: Reducer): Promise<InProgressImportResult> {
@@ -143,14 +143,14 @@ class SubTree {
     if (node.children.length > 0) {
       children = await Promise.all(
         node.children
-          // @ts-expect-error
+          // @ts-expect-error data is not present on type
           .filter(child => child.data)
-          // @ts-expect-error
-          .map(async child => await this._reduce(child, reduce))
+          // @ts-expect-error child is wrong type
+          .map(async child => this._reduce(child, reduce))
       )
     }
 
-    return await reduce((node.data ?? []).concat(children))
+    return reduce((node.data ?? []).concat(children))
   }
 
   _findParent (node: TrickleDagNode, depth: number): TrickleDagNode | undefined {
@@ -182,6 +182,6 @@ class Root extends SubTree {
   }
 
   async reduce (reduce: Reducer): Promise<InProgressImportResult> {
-    return await reduce((this.root.data ?? []).concat(this.root.children))
+    return reduce((this.root.data ?? []).concat(this.root.children))
   }
 }

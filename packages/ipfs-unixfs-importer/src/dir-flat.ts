@@ -1,10 +1,10 @@
-import { encode, PBNode, prepare } from '@ipld/dag-pb'
-import type { Blockstore } from 'interface-blockstore'
+import { encode, type PBNode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import type { CID } from 'multiformats/cid'
-import { Dir, CID_V0, CID_V1, DirProps } from './dir.js'
+import { Dir, CID_V0, CID_V1, type DirProps } from './dir.js'
+import { persist, type PersistOptions } from './utils/persist.js'
 import type { ImportResult, InProgressImportResult } from './index.js'
-import { persist, PersistOptions } from './utils/persist.js'
+import type { Blockstore } from 'interface-blockstore'
+import type { CID } from 'multiformats/cid'
 
 export class DirFlat extends Dir {
   private readonly _children: Map<string, InProgressImportResult | Dir>
@@ -24,7 +24,7 @@ export class DirFlat extends Dir {
   }
 
   async get (name: string): Promise<InProgressImportResult | Dir | undefined> {
-    return await Promise.resolve(this._children.get(name))
+    return Promise.resolve(this._children.get(name))
   }
 
   childCount (): number {

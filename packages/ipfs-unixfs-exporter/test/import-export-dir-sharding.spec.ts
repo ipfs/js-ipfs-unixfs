@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 
-import { importer } from 'ipfs-unixfs-importer'
-import { exporter, UnixFSDirectory, UnixFSEntry } from '../src/index.js'
 import { expect } from 'aegir/chai'
+import { MemoryBlockstore } from 'blockstore-core'
+import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import last from 'it-last'
-import { MemoryBlockstore } from 'blockstore-core'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { exporter, type UnixFSDirectory, type UnixFSEntry } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import type { CID } from 'multiformats/cid'
 

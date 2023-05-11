@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 
-import { rabin } from '../src/chunker/rabin.js'
 import { expect } from 'aegir/chai'
 import all from 'it-all'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { isElectronRenderer } from 'wherearewe'
+import { rabin } from '../src/chunker/rabin.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)
 

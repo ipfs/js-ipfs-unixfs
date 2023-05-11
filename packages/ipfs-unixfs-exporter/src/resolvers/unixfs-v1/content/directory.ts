@@ -1,9 +1,9 @@
+import filter from 'it-filter'
+import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
-import map from 'it-map'
-import filter from 'it-filter'
-import type { ExporterOptions, ExportWalk, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
 import { CustomProgressEvent } from 'progress-events'
+import type { ExporterOptions, ExportWalk, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
 
 const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   async function * yieldDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {

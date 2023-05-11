@@ -1,7 +1,7 @@
-import { Uint8ArrayList } from 'uint8arraylist'
-// @ts-expect-error
-import { create } from 'rabin-wasm'
 import errcode from 'err-code'
+// @ts-expect-error no types
+import { create } from 'rabin-wasm'
+import { Uint8ArrayList } from 'uint8arraylist'
 import type { Chunker } from './index.js'
 
 const DEFAULT_MIN_CHUNK_SIZE = 262144

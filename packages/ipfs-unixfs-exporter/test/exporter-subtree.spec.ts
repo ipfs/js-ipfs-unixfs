@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 
 import { expect } from 'aegir/chai'
+import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
-import last from 'it-last'
-import { MemoryBlockstore } from 'blockstore-core'
 import randomBytes from 'it-buffer-stream'
+import last from 'it-last'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import asAsyncIterable from './helpers/as-async-iterable.js'
 import { exporter, walkPath } from './../src/index.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const ONE_MEG = Math.pow(1024, 2)
 

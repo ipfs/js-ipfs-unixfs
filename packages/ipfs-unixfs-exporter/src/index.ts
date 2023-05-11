@@ -1,11 +1,11 @@
 import errCode from 'err-code'
+import last from 'it-last'
 import { CID } from 'multiformats/cid'
 import resolve from './resolvers/index.js'
-import last from 'it-last'
-import type { UnixFS } from 'ipfs-unixfs'
 import type { PBNode } from '@ipld/dag-pb'
-import type { Blockstore } from 'interface-blockstore'
 import type { Bucket } from 'hamt-sharding'
+import type { Blockstore } from 'interface-blockstore'
+import type { UnixFS } from 'ipfs-unixfs'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 export interface ExportProgress {

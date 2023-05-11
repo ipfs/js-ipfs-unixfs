@@ -1,11 +1,11 @@
-import { dirBuilder, DirBuilderOptions } from './dir.js'
-import { fileBuilder, FileBuilderOptions } from './file.js'
 import errCode from 'err-code'
-import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.js'
+import { CustomProgressEvent } from 'progress-events'
+import { dirBuilder, type DirBuilderOptions } from './dir.js'
+import { fileBuilder, type FileBuilderOptions } from './file.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
+import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.js'
 import type { ProgressEvent, ProgressOptions } from 'progress-events'
-import { CustomProgressEvent } from 'progress-events'
 
 /**
  * Passed to the onProgress callback while importing files
@@ -107,7 +107,7 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           originalPath
         }
 
-        yield async () => await fileBuilder(file, blockstore, options)
+        yield async () => fileBuilder(file, blockstore, options)
       } else if (entry.path != null) {
         const dir: Directory = {
           path: entry.path,
@@ -116,7 +116,7 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           originalPath
         }
 
-        yield async () => await dirBuilder(dir, blockstore, options)
+        yield async () => dirBuilder(dir, blockstore, options)
       } else {
         throw new Error('Import candidate must have content or path or both')
       }

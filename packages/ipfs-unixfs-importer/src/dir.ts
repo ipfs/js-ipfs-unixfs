@@ -1,7 +1,7 @@
-import type { WritableStorage, ImportResult, InProgressImportResult } from './index.js'
-import type { Mtime, UnixFS } from 'ipfs-unixfs'
 import { CID } from 'multiformats/cid'
+import type { WritableStorage, ImportResult, InProgressImportResult } from './index.js'
 import type { PersistOptions } from './utils/persist.js'
+import type { Mtime, UnixFS } from 'ipfs-unixfs'
 
 export interface DirProps {
   root: boolean

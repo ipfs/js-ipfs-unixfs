@@ -1,7 +1,7 @@
 import { CustomProgressEvent } from 'progress-events'
-import type { ExporterOptions, ExportProgress, ExportWalk, UnixfsV1Resolver } from '../../../index.js'
 import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
 import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
+import type { ExporterOptions, ExportProgress, ExportWalk, UnixfsV1Resolver } from '../../../index.js'
 
 const rawContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function * yieldRawContent (options: ExporterOptions = {}): Generator<Uint8Array, void, undefined> {

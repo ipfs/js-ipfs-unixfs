@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 
 import { expect } from 'aegir/chai'
-import { balanced } from '../src/layout/balanced.js'
 import { CID } from 'multiformats/cid'
+import { balanced } from '../src/layout/balanced.js'
 import type { InProgressImportResult } from '../src/index.js'
 
 async function reduce (leaves: InProgressImportResult[]): Promise<InProgressImportResult> {
   if (leaves.length > 1) {
     return {
-      // @ts-expect-error
+      // @ts-expect-error children is not part of InProgressImportResult
       children: leaves
     }
   } else {
@@ -62,7 +62,7 @@ describe('builder: balanced', () => {
   it('obeys max children per node', async () => {
     const source = [1, 2, 3, 4]
 
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await balanced(options)((async function * () {
       yield * source
     }()), reduce)
@@ -79,7 +79,7 @@ describe('builder: balanced', () => {
   it('refolds 2 parent nodes', async () => {
     const source = [1, 2, 3, 4, 5, 6, 7]
 
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await balanced(options)((async function * () {
       yield * source
     }()), reduce)

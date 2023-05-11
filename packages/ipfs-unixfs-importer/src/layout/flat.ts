@@ -4,6 +4,6 @@ import type { InProgressImportResult } from '../index.js'
 
 export function flat (): FileLayout {
   return async function flatLayout (source, reduce): Promise<InProgressImportResult> {
-    return await reduce(await all(source))
+    return reduce(await all(source))
   }
 }

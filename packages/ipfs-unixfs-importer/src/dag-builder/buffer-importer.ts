@@ -1,10 +1,10 @@
-import { UnixFS } from 'ipfs-unixfs'
-import { persist, PersistOptions } from '../utils/persist.js'
 import * as dagPb from '@ipld/dag-pb'
+import { UnixFS } from 'ipfs-unixfs'
 import * as raw from 'multiformats/codecs/raw'
+import { CustomProgressEvent } from 'progress-events'
+import { persist, type PersistOptions } from '../utils/persist.js'
 import type { BufferImporter } from '../index.js'
 import type { CID, Version } from 'multiformats/cid'
-import { CustomProgressEvent } from 'progress-events'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 /**

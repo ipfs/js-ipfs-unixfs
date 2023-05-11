@@ -1,18 +1,18 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/chai'
-import { UnixFS } from 'ipfs-unixfs'
-import all from 'it-all'
-import last from 'it-last'
-import randomBytes from 'it-buffer-stream'
-import { exporter, walkPath } from '../src/index.js'
-import { importer } from 'ipfs-unixfs-importer'
 import * as dagPb from '@ipld/dag-pb'
-import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import { expect } from 'aegir/chai'
+import { MemoryBlockstore } from 'blockstore-core'
+import { UnixFS } from 'ipfs-unixfs'
+import { importer } from 'ipfs-unixfs-importer'
+import all from 'it-all'
+import randomBytes from 'it-buffer-stream'
+import last from 'it-last'
 import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
-import { MemoryBlockstore } from 'blockstore-core'
+import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
+import { exporter, walkPath } from '../src/index.js'
+import asAsyncIterable from './helpers/as-async-iterable.js'
 
 const SHARD_SPLIT_THRESHOLD = 10
 
@@ -22,7 +22,7 @@ describe('exporter sharded', function () {
   const block = new MemoryBlockstore()
 
   const createShard = async (numFiles: number): Promise<CID> => {
-    return await createShardWithFileNames(numFiles, (index) => `file-${index}`)
+    return createShardWithFileNames(numFiles, (index) => `file-${index}`)
   }
 
   const createShardWithFileNames = async (numFiles: number, fileName: (index: number) => string): Promise<CID> => {
@@ -31,7 +31,7 @@ describe('exporter sharded', function () {
       content: asAsyncIterable(Uint8Array.from([0, 1, 2, 3, 4, index]))
     }))
 
-    return await createShardWithFiles(files)
+    return createShardWithFiles(files)
   }
 
   const createShardWithFiles = async (files: Array<{ path: string, content: AsyncIterable<Uint8Array> }>): Promise<CID> => {

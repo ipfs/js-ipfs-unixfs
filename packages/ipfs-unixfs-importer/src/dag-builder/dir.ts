@@ -1,6 +1,6 @@
+import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import { persist } from '../utils/persist.js'
-import { encode, prepare } from '@ipld/dag-pb'
 import type { Directory, InProgressImportResult, WritableStorage } from '../index.js'
 import type { Version } from 'multiformats/cid'
 

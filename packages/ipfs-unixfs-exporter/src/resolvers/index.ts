@@ -1,14 +1,13 @@
-import errCode from 'err-code'
 
-import * as dagPb from '@ipld/dag-pb'
 import * as dagCbor from '@ipld/dag-cbor'
+import * as dagPb from '@ipld/dag-pb'
+import errCode from 'err-code'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
-
-import dagPbResolver from './unixfs-v1/index.js'
-import rawResolver from './raw.js'
 import dagCborResolver from './dag-cbor.js'
 import identifyResolver from './identity.js'
+import rawResolver from './raw.js'
+import dagPbResolver from './unixfs-v1/index.js'
 import type { Resolve, Resolver } from '../index.js'
 
 const resolvers: Record<number, Resolver> = {
@@ -25,7 +24,7 @@ const resolve: Resolve = async (cid, name, path, toResolve, depth, blockstore, o
     throw errCode(new Error(`No resolver for code ${cid.code}`), 'ERR_NO_RESOLVER')
   }
 
-  return await resolver(cid, name, path, toResolve, resolve, depth, blockstore, options)
+  return resolver(cid, name, path, toResolve, resolve, depth, blockstore, options)
 }
 
 export default resolve

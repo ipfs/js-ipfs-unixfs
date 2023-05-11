@@ -1,18 +1,18 @@
 /* eslint-env mocha */
 
+import * as dagPb from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
-import all from 'it-all'
 import { MemoryBlockstore } from 'blockstore-core'
-import { concat, concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import { exporter } from './../src/index.js'
+import { UnixFS } from 'ipfs-unixfs'
 import randomBytes from 'iso-random-stream/src/random.js'
-import { sha256 } from 'multiformats/hashes/sha2'
+import all from 'it-all'
 import { CID } from 'multiformats/cid'
 import * as raw from 'multiformats/codecs/raw'
-import { UnixFS } from 'ipfs-unixfs'
-import * as dagPb from '@ipld/dag-pb'
-import type { Blockstore } from 'interface-blockstore'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { concat, concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { isNode } from 'wherearewe'
+import { exporter } from './../src/index.js'
+import type { Blockstore } from 'interface-blockstore'
 
 describe('exporter esoteric DAGs', () => {
   let block: Blockstore

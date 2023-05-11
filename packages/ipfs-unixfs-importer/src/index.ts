@@ -1,19 +1,19 @@
+import errcode from 'err-code'
+import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
-import { DAGBuilder, DagBuilderProgressEvents, defaultDagBuilder } from './dag-builder/index.js'
+import { fixedSize } from './chunker/fixed-size.js'
+import { type BufferImportProgressEvents, defaultBufferImporter } from './dag-builder/buffer-importer.js'
+import { type DAGBuilder, type DagBuilderProgressEvents, defaultDagBuilder } from './dag-builder/index.js'
+import { type ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
+import { balanced, type FileLayout } from './layout/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
+import type { Chunker } from './chunker/index.js'
+import type { ReducerProgressEvents } from './dag-builder/file.js'
+import type { Blockstore } from 'interface-blockstore'
+import type { AwaitIterable } from 'interface-store'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
-import type { Blockstore } from 'interface-blockstore'
-import { ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
-import { fixedSize } from './chunker/fixed-size.js'
-import type { Chunker } from './chunker/index.js'
-import { balanced, FileLayout } from './layout/index.js'
-import { BufferImportProgressEvents, defaultBufferImporter } from './dag-builder/buffer-importer.js'
-import first from 'it-first'
-import errcode from 'err-code'
-import type { AwaitIterable } from 'interface-store'
 import type { ProgressOptions } from 'progress-events'
-import type { ReducerProgressEvents } from './dag-builder/file.js'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
@@ -365,7 +365,7 @@ export async function importDirectory (content: DirectoryCandidate, blockstore: 
  * ```
  */
 export async function importBytes (buf: ImportContent, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
-  return await importFile({
+  return importFile({
     content: buf
   }, blockstore, options)
 }
@@ -392,7 +392,7 @@ export async function importBytes (buf: ImportContent, blockstore: WritableStora
  * ```
  */
 export async function importByteStream (bufs: ByteStream, blockstore: WritableStorage, options: ImporterOptions = {}): Promise<ImportResult> {
-  return await importFile({
+  return importFile({
     content: bufs
   }, blockstore, options)
 }

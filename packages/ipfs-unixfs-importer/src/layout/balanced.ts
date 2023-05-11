@@ -1,6 +1,6 @@
 import batch from 'it-batch'
-import type { InProgressImportResult } from '../index.js'
 import type { FileLayout } from './index.js'
+import type { InProgressImportResult } from '../index.js'
 
 const DEFAULT_MAX_CHILDREN_PER_NODE = 174
 
@@ -19,7 +19,7 @@ export function balanced (options?: BalancedOptions): FileLayout {
     }
 
     if (roots.length > 1) {
-      return await balancedLayout(roots, reduce)
+      return balancedLayout(roots, reduce)
     }
 
     return roots[0]

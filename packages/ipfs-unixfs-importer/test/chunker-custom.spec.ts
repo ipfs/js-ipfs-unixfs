@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 
-import { importer } from '../src/index.js'
 import { expect } from 'aegir/chai'
+import { MemoryBlockstore } from 'blockstore-core'
+import { UnixFS } from 'ipfs-unixfs'
+import * as Block from 'multiformats/block'
 import * as rawCodec from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
-import * as Block from 'multiformats/block'
-import { MemoryBlockstore } from 'blockstore-core'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { UnixFS } from 'ipfs-unixfs'
+import { importer } from '../src/index.js'
 import type { CID } from 'multiformats'
 
 const iter = async function * (): AsyncGenerator<Uint8Array, void, unknown> {
@@ -40,7 +40,7 @@ describe('custom chunker', function () {
       chunker: source => source,
       bufferImporter: async function * (file, block) {
         for await (const item of file.content) {
-          yield async () => await put(item)
+          yield async () => put(item)
         }
       }
     })) {

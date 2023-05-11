@@ -29,14 +29,14 @@ const options = {
 
 describe('builder: trickle', () => {
   it('reduces one value into itself', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(asAsyncIterable([1]), reduce)
 
     expect(result).to.deep.equal(1)
   })
 
   it('reduces 3 values into parent', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(3), reduce)
 
     expect(result).to.deep.equal({
@@ -49,7 +49,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 6 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(6), reduce)
 
     expect(result).to.deep.equal({
@@ -69,7 +69,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 9 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(9), reduce)
 
     expect(result).to.deep.equal({
@@ -96,7 +96,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 12 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(12), reduce)
 
     expect(result).to.deep.equal({
@@ -130,7 +130,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 21 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(21), reduce)
 
     expect(result).to.deep.equal({
@@ -185,7 +185,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 68 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(68), reduce)
 
     expect(result).to.deep.equal(
@@ -353,7 +353,7 @@ describe('builder: trickle', () => {
   })
 
   it('reduces 93 values correctly', async () => {
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await trickle(options)(createValues(93), reduce)
 
     expect(result).to.deep.equal(

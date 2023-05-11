@@ -1,7 +1,7 @@
 
-import { Bucket, BucketPosition, createHAMT } from 'hamt-sharding'
-import { decode, PBLink, PBNode } from '@ipld/dag-pb'
+import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
+import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { CID } from 'multiformats/cid'
 
@@ -120,7 +120,7 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
   const block = await blockstore.get(link.Hash, options)
   node = decode(block)
 
-  return await findShardCid(node, name, blockstore, context, options)
+  return findShardCid(node, name, blockstore, context, options)
 }
 
 export default findShardCid

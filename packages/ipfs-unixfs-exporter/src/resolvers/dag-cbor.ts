@@ -1,6 +1,6 @@
-import { CID } from 'multiformats/cid'
-import errCode from 'err-code'
 import * as dagCbor from '@ipld/dag-cbor'
+import errCode from 'err-code'
+import { CID } from 'multiformats/cid'
 import type { Resolver } from '../index.js'
 
 const resolve: Resolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {

@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 
-import { importer, ImporterOptions } from '../src/index.js'
 import { expect } from 'aegir/chai'
-import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
+import { MemoryBlockstore } from 'blockstore-core'
 import first from 'it-first'
 import last from 'it-last'
-import { MemoryBlockstore } from 'blockstore-core'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { balanced, FileLayout, flat, trickle } from '../src/layout/index.js'
+import { importer, type ImporterOptions } from '../src/index.js'
+import { balanced, type FileLayout, flat, trickle } from '../src/layout/index.js'
+import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
 
 const strategies: Record<'flat' | 'trickle' | 'balanced', FileLayout> = {
   flat: flat(),

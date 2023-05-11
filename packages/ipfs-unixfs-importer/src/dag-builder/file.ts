@@ -1,12 +1,12 @@
+import { encode, type PBLink, type PBNode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import { persist } from '../utils/persist.js'
-import { encode, PBLink, PBNode, prepare } from '@ipld/dag-pb'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
+import { CustomProgressEvent } from 'progress-events'
+import { persist } from '../utils/persist.js'
 import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult, ImporterProgressEvents } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { CID, Version } from 'multiformats/cid'
-import { CustomProgressEvent } from 'progress-events'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 interface BuildFileBatchOptions {
@@ -193,5 +193,5 @@ export interface FileBuilderOptions extends BuildFileBatchOptions, ReduceOptions
 }
 
 export const fileBuilder = async (file: File, block: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult> => {
-  return await options.layout(buildFileBatch(file, block, options), reduce(file, block, options))
+  return options.layout(buildFileBatch(file, block, options), reduce(file, block, options))
 }

@@ -14,7 +14,7 @@ function reduce (leaves: any[]): any {
 describe('builder: flat', () => {
   it('reduces one value into itself', async () => {
     const source = [1]
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await flat()(source, reduce)
 
     expect(result).to.be.equal(1)
@@ -22,7 +22,7 @@ describe('builder: flat', () => {
 
   it('reduces 2 values into parent', async () => {
     const source = [1, 2]
-    // @ts-expect-error
+    // @ts-expect-error number is incorrect type
     const result = await flat()(source, reduce)
 
     expect(result).to.be.eql({ children: [1, 2] })

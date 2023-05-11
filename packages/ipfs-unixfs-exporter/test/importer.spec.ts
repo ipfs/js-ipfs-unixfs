@@ -1,26 +1,26 @@
 /* eslint-env mocha */
 
-import { importer, ImporterOptions } from 'ipfs-unixfs-importer'
-import { exporter, recursive } from '../src/index.js'
-import extend from 'merge-options'
+import { decode } from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
-import sinon from 'sinon'
-import { Mtime, UnixFS } from 'ipfs-unixfs'
-import collectLeafCids from './helpers/collect-leaf-cids.js'
 import loadFixture from 'aegir/fixtures'
+import { MemoryBlockstore } from 'blockstore-core'
+import { type Mtime, UnixFS } from 'ipfs-unixfs'
+import { importer, type ImporterOptions } from 'ipfs-unixfs-importer'
+import { fixedSize } from 'ipfs-unixfs-importer/chunker'
+import { balanced, type FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import first from 'it-first'
-import { MemoryBlockstore } from 'blockstore-core'
+import last from 'it-last'
+import extend from 'merge-options'
+import { base58btc } from 'multiformats/bases/base58'
+import { CID } from 'multiformats/cid'
+import sinon from 'sinon'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { exporter, recursive } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
-import last from 'it-last'
-import { CID } from 'multiformats/cid'
-import { base58btc } from 'multiformats/bases/base58'
-import { decode } from '@ipld/dag-pb'
+import collectLeafCids from './helpers/collect-leaf-cids.js'
 import type { Blockstore } from 'interface-blockstore'
-import { balanced, FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
-import { fixedSize } from 'ipfs-unixfs-importer/chunker'
 
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 const smallFile = loadFixture('test/fixtures/200Bytes.txt')
@@ -44,7 +44,14 @@ function dateToTimespec (date: Date): Mtime {
   }
 }
 
-const baseFiles = {
+interface File {
+  cid: string
+  size: bigint
+  type: string
+  path: string
+}
+
+const baseFiles: Record<string, File> = {
   '200Bytes.txt': {
     cid: 'QmQmZQxSKQppbsWfVzBvg59Cn3DKtsNVQ94bjAxg2h3Lb8',
     size: 200n,
@@ -65,7 +72,7 @@ const baseFiles = {
   }
 }
 
-const strategyBaseFiles = {
+const strategyBaseFiles: Record<string, Record<string, File>> = {
   flat: baseFiles,
   balanced: extend({}, baseFiles, {
     '1.2MiB.txt': {
@@ -93,7 +100,7 @@ const strategies: Array<'flat' | 'balanced' | 'trickle'> = [
   'trickle'
 ]
 
-const strategyOverrides = {
+const strategyOverrides: Record<string, Record<string, File>> = {
   balanced: {
     'foo-big': {
       cid: 'QmaFgyFJUP4fxFySJCddg2Pj6rpwSywopWk87VEVv52RSj',
@@ -203,7 +210,7 @@ const checkLeafNodeTypes = async (blockstore: Blockstore, options: Partial<Impor
   expect(node.Links.length).to.equal(2)
 
   const linkedBlocks = await Promise.all(
-    node.Links.map(async link => await blockstore.get(link.Hash))
+    node.Links.map(async link => blockstore.get(link.Hash))
   )
 
   linkedBlocks.forEach(bytes => {
@@ -305,7 +312,6 @@ strategies.forEach((strategy) => {
       cid: 'QmVfHowk2oKuWFyVwSRt8H1dQ3v272jyWSwhfQnTtWNmfw',
       size: 200n
     })
-  // @ts-expect-error
   }, strategyOverrides[strategy])
 
   const expected = extend({}, defaultResults)
@@ -1070,7 +1076,7 @@ describe('configuration', () => {
       /** @type {import('ipfs-unixfs-importer').DAGBuilder} */
       dagBuilder: async function * (source, block) { // eslint-disable-line require-await
         yield async function () {
-          return await Promise.resolve({
+          return Promise.resolve({
             cid,
             path: 'path',
             unixfs,

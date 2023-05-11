@@ -180,7 +180,7 @@
     "aegir": "^38.1.2",
     "blockstore-core": "^4.0.1",
     "it-buffer-stream": "^3.0.0",
-    "it-drain": "^2.0.0",
+    "it-drain": "^3.0.2",
     "it-last": "^3.0.2",
     "wherearewe": "^2.0.1"
   },

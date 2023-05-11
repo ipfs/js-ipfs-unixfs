@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.1.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.3...ipfs-unixfs-exporter-v13.1.4) (2023-05-11)
+
+
+### Bug Fixes
+
+* usage with readble-stream ([#333](https://github.com/ipfs/js-ipfs-unixfs/issues/333)) ([9b6203f](https://github.com/ipfs/js-ipfs-unixfs/commit/9b6203f16f77c0dbe80e41a844026aa52ab71652))
+
 ## [ipfs-unixfs-exporter-v13.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.2...ipfs-unixfs-exporter-v13.1.3) (2023-05-11)
 
 

@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.1.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.5...ipfs-unixfs-exporter-v13.1.6) (2023-06-30)
+
+
+### Dependencies
+
+* **dev:** bump delay from 5.0.0 to 6.0.0 ([#334](https://github.com/ipfs/js-ipfs-unixfs/issues/334)) ([e3a1cb1](https://github.com/ipfs/js-ipfs-unixfs/commit/e3a1cb1fb661c790ed1ac3af60ee8caa1290f869))
+
 ## [ipfs-unixfs-exporter-v13.1.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.4...ipfs-unixfs-exporter-v13.1.5) (2023-05-11)
 
 

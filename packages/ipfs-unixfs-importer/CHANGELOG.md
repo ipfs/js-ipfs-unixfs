@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v15.1.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.5...ipfs-unixfs-importer-v15.1.6) (2023-06-30)
+
+
+### Bug Fixes
+
+* add optional type for file candidate data ([#340](https://github.com/ipfs/js-ipfs-unixfs/issues/340)) ([ac3d176](https://github.com/ipfs/js-ipfs-unixfs/commit/ac3d176ceb3eada7f94b65406036992d44f123e5))
+
 ## [ipfs-unixfs-importer-v15.1.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.4...ipfs-unixfs-importer-v15.1.5) (2023-05-11)
 
 

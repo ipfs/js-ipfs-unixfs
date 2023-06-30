@@ -20,9 +20,9 @@ export type ImportContent = ByteStream | Uint8Array
 
 export type WritableStorage = Pick<Blockstore, 'put'>
 
-export interface FileCandidate {
+export interface FileCandidate<T extends ImportContent = ImportContent> {
   path?: string
-  content: ImportContent
+  content: T
   mtime?: Mtime
   mode?: number
 }

@@ -50,8 +50,14 @@ export const rabin = (options: RabinOptions = {}): Chunker => {
     max = avg + (avg / 2)
   }
 
-  if (options.avgChunkSize == null && options.minChunkSize == null && options.maxChunkSize == null) {
-    throw errcode(new Error('please specify an average chunk size'), 'ERR_INVALID_AVG_CHUNK_SIZE')
+  const isInvalidChunkSizes = [min, avg, max].some((size) => size == null || isNaN(size))
+
+  if (options.avgChunkSize != null && isInvalidChunkSizes) {
+    throw errcode(new Error('please specify a valid average chunk size number'), 'ERR_INVALID_AVG_CHUNK_SIZE')
+  }
+
+  if (isInvalidChunkSizes) {
+    throw errcode(new Error('please specify valid numbers for (min|max|avg)ChunkSize'), 'ERR_INVALID_CHUNK_SIZE')
   }
 
   // validate min/max/avg in the same way as go

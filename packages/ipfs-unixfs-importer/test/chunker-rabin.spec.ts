@@ -21,6 +21,10 @@ describe('chunker: rabin', function () {
     return
   }
 
+  it('Allows constructing without any options', () => {
+    expect(() => rabin()).to.not.throw()
+  })
+
   it('chunks non flat buffers', async () => {
     const b1 = new Uint8Array(2 * 256)
     const b2 = new Uint8Array(1 * 256)

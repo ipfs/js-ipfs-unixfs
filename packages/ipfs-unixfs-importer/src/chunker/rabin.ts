@@ -56,7 +56,7 @@ export const rabin = (options: RabinOptions = {}): Chunker => {
     if (options.avgChunkSize != null) {
       throw errcode(new Error('please specify a valid average chunk size number'), 'ERR_INVALID_AVG_CHUNK_SIZE')
     }
-    
+
     throw errcode(new Error('please specify valid numbers for (min|max|avg)ChunkSize'), 'ERR_INVALID_CHUNK_SIZE')
   }
 

@@ -1,3 +1,10 @@
+## [ipfs-unixfs-importer-v15.1.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.6...ipfs-unixfs-importer-v15.1.7) (2023-07-14)
+
+
+### Bug Fixes
+
+* **chunker-rabin:** types and errors are aligned ([#341](https://github.com/ipfs/js-ipfs-unixfs/issues/341)) ([df27ff0](https://github.com/ipfs/js-ipfs-unixfs/commit/df27ff0715f9d207b03dcb1e8c497411a77012c7)), closes [#339](https://github.com/ipfs/js-ipfs-unixfs/issues/339)
+
 ## [ipfs-unixfs-importer-v15.1.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.1.5...ipfs-unixfs-importer-v15.1.6) (2023-06-30)
 
 

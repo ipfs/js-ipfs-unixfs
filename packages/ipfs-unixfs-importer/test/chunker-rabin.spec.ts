@@ -21,6 +21,10 @@ describe('chunker: rabin', function () {
     return
   }
 
+  it('Allows constructing without any options', () => {
+    expect(() => rabin()).to.not.throw()
+  })
+
   it('chunks non flat buffers', async () => {
     const b1 = new Uint8Array(2 * 256)
     const b2 = new Uint8Array(1 * 256)
@@ -96,16 +100,45 @@ describe('chunker: rabin', function () {
     }
   })
 
-  it('throws when avg chunk size is not specified', async () => {
+  it('throws when invalid avg chunk size is specified', async () => {
     const opts = {
-      avgChunkSize: undefined
+      avgChunkSize: 'fortytwo'
     }
 
     try {
+      // @ts-expect-error invalid input
       await all(rabin(opts)(asAsyncIterable([])))
       throw new Error('Should have thrown')
     } catch (err: any) {
       expect(err.code).to.equal('ERR_INVALID_AVG_CHUNK_SIZE')
+    }
+  })
+
+  it('throws when invalid min chunk size is specified', async () => {
+    const opts = {
+      minChunkSize: 'fortytwo'
+    }
+
+    try {
+      // @ts-expect-error invalid input
+      await all(rabin(opts)(asAsyncIterable([])))
+      throw new Error('Should have thrown')
+    } catch (err: any) {
+      expect(err.code).to.equal('ERR_INVALID_CHUNK_SIZE')
+    }
+  })
+
+  it('throws when invalid max chunk size is specified', async () => {
+    const opts = {
+      maxChunkSize: 'fortytwo'
+    }
+
+    try {
+      // @ts-expect-error invalid input
+      await all(rabin(opts)(asAsyncIterable([])))
+      throw new Error('Should have thrown')
+    } catch (err: any) {
+      expect(err.code).to.equal('ERR_INVALID_CHUNK_SIZE')
     }
   })
 

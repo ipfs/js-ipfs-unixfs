@@ -36,7 +36,7 @@
     "release": "npm run docs:no-publish && aegir run release && npm run docs"
   },
   "devDependencies": {
-    "aegir": "^39.0.6"
+    "aegir": "^40.0.9"
   },
   "workspaces": [
     "packages/*"

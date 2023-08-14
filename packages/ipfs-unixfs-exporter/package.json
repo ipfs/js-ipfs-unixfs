@@ -154,7 +154,7 @@
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
-    "@types/readable-stream": "^2.3.15",
+    "@types/readable-stream": "^4.0.1",
     "@types/sinon": "^10.0.0",
     "aegir": "^39.0.6",
     "blockstore-core": "^4.0.1",

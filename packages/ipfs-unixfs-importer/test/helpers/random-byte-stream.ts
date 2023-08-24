@@ -1,4 +1,3 @@
-
 async function * randomByteStream (seed: number): AsyncGenerator<Uint8Array> {
   while (true) {
     const r = Math.floor(random(seed) * 256)

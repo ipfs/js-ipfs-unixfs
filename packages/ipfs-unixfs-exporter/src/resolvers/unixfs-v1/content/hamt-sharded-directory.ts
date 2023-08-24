@@ -1,6 +1,6 @@
-import { UnixFS } from 'ipfs-unixfs'
-import errCode from 'err-code'
 import { decode, type PBNode } from '@ipld/dag-pb'
+import errCode from 'err-code'
+import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'

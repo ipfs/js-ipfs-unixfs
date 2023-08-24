@@ -1,4 +1,3 @@
-
 import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
 import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'

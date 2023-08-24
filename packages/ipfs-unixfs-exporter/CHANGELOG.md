@@ -1,3 +1,12 @@
+## [ipfs-unixfs-exporter-v13.1.7](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.6...ipfs-unixfs-exporter-v13.1.7) (2023-08-24)
+
+
+### Dependencies
+
+* bump multiformats from 11.0.2 to 12.0.1 ([#337](https://github.com/ipfs/js-ipfs-unixfs/issues/337)) ([b8b17d9](https://github.com/ipfs/js-ipfs-unixfs/commit/b8b17d909579589cd1fc8cac2eb0955f433ff710))
+* **dev:** bump @types/readable-stream from 2.3.15 to 4.0.1 ([#352](https://github.com/ipfs/js-ipfs-unixfs/issues/352)) ([61c2db6](https://github.com/ipfs/js-ipfs-unixfs/commit/61c2db62f3c855cecbf3262856fad2ea8ed28f3a))
+* **dev:** bump aegir from 39.0.13 to 40.0.11 ([#353](https://github.com/ipfs/js-ipfs-unixfs/issues/353)) ([a61c620](https://github.com/ipfs/js-ipfs-unixfs/commit/a61c620082e2fcff1c2d83fe732a47d00904254c))
+
 ## [ipfs-unixfs-exporter-v13.1.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.5...ipfs-unixfs-exporter-v13.1.6) (2023-06-30)
 
 

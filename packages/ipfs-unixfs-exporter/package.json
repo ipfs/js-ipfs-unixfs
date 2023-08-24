@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "13.1.6",
+  "version": "13.1.7",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-exporter#readme",
@@ -148,15 +148,15 @@
     "it-parallel": "^3.0.0",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.1.0",
-    "multiformats": "^11.0.0",
+    "multiformats": "^12.0.1",
     "p-queue": "^7.3.0",
     "progress-events": "^1.0.0",
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
-    "@types/readable-stream": "^2.3.15",
+    "@types/readable-stream": "^4.0.1",
     "@types/sinon": "^10.0.0",
-    "aegir": "^39.0.6",
+    "aegir": "^40.0.11",
     "blockstore-core": "^4.0.1",
     "delay": "^6.0.0",
     "ipfs-unixfs-importer": "^15.0.0",

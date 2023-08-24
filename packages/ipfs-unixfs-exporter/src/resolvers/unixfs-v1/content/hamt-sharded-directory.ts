@@ -1,3 +1,5 @@
+import { UnixFS } from 'ipfs-unixfs'
+import errCode from 'err-code'
 import { decode, type PBNode } from '@ipld/dag-pb'
 import map from 'it-map'
 import parallel from 'it-parallel'
@@ -20,11 +22,28 @@ const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, 
 async function * listDirectory (node: PBNode, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions): UnixfsV1DirectoryContent {
   const links = node.Links
 
+  if (node.Data == null) {
+    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+  }
+
+  let dir: UnixFS
+  try {
+    dir = UnixFS.unmarshal(node.Data)
+  } catch (err: any) {
+    throw errCode(err, 'ERR_NOT_UNIXFS')
+  }
+
+  if (!dir.fanout) {
+    throw errCode(new Error('missing fanout'), 'ERR_NOT_UNIXFS')
+  }
+
+  const padLength = (dir.fanout - 1n).toString(16).length
+
   const results = pipe(
     links,
     source => map(source, link => {
       return async () => {
-        const name = link.Name != null ? link.Name.substring(2) : null
+        const name = link.Name != null ? link.Name.substring(padLength) : null
 
         if (name != null && name !== '') {
           const result = await resolve(link.Hash, name, `${path}/${name}`, [], depth + 1, blockstore, options)

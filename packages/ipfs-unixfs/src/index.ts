@@ -52,7 +52,8 @@ class UnixFS {
             secs: message.mtime.Seconds ?? 0n,
             nsecs: message.mtime.FractionalNanoseconds
           }
-        : undefined
+        : undefined,
+      fanout: message.fanout
     })
 
     // make sure we honour the original mode

@@ -19,15 +19,19 @@ async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
 
 const HAMT_HASH_CODE = BigInt(0x22)
 
+export interface DirShardedOptions extends PersistOptions {
+  shardFanoutBytes: number
+}
+
 class DirSharded extends Dir {
   private readonly _bucket: Bucket<InProgressImportResult | Dir>
 
-  constructor (props: DirProps, options: PersistOptions) {
+  constructor (props: DirProps, options: DirShardedOptions) {
     super(props, options)
 
     this._bucket = createHAMT({
       hashFn: hamtHashFn,
-      bits: 8
+      bits: options.shardFanoutBytes ?? 8
     })
   }
 
@@ -88,6 +92,7 @@ export default DirSharded
 
 async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore: Blockstore, shardRoot: DirSharded | null, options: PersistOptions): AsyncIterable<ImportResult> {
   const children = bucket._children
+  const padLength = (bucket.tableSize() - 1).toString(16).length
   const links: PBLink[] = []
   let childrenSize = 0n
 
@@ -98,7 +103,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
       continue
     }
 
-    const labelPrefix = i.toString(16).toUpperCase().padStart(2, '0')
+    const labelPrefix = i.toString(16).toUpperCase().padStart(padLength, '0')
 
     if (child instanceof Bucket) {
       let shard

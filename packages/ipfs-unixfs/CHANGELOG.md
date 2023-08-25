@@ -1,3 +1,10 @@
+## [ipfs-unixfs-v11.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v11.0.2...ipfs-unixfs-v11.1.0) (2023-08-25)
+
+
+### Features
+
+* add a shardFanoutBits option to the importer ([#355](https://github.com/ipfs/js-ipfs-unixfs/issues/355)) ([da18ea6](https://github.com/ipfs/js-ipfs-unixfs/commit/da18ea6fc51bccf8d16e4594cc10dface02f2374)), closes [/github.com/ipld/ipld/pull/296#issuecomment-1691532242](https://github.com/ipfs//github.com/ipld/ipld/pull/296/issues/issuecomment-1691532242)
+
 ## [ipfs-unixfs-v11.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v11.0.1...ipfs-unixfs-v11.0.2) (2023-08-24)
 
 

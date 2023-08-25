@@ -1,6 +1,8 @@
 import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
 import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
+import errCode from 'err-code'
+import { UnixFS } from 'ipfs-unixfs'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { CID } from 'multiformats/cid'
 
@@ -16,13 +18,14 @@ const hashFn = async function (buf: Uint8Array): Promise<Uint8Array> {
 }
 
 const addLinksToHamtBucket = async (links: PBLink[], bucket: Bucket<boolean>, rootBucket: Bucket<boolean>): Promise<void> => {
+  const padLength = (bucket.tableSize() - 1).toString(16).length
   await Promise.all(
     links.map(async link => {
       if (link.Name == null) {
         // TODO(@rvagg): what do? this is technically possible
         throw new Error('Unexpected Link without a Name')
       }
-      if (link.Name.length === 2) {
+      if (link.Name.length === padLength) {
         const pos = parseInt(link.Name, 16)
 
         bucket._putObjectAt(pos, new Bucket({
@@ -37,12 +40,12 @@ const addLinksToHamtBucket = async (links: PBLink[], bucket: Bucket<boolean>, ro
   )
 }
 
-const toPrefix = (position: number): string => {
+const toPrefix = (position: number, padLength: number): string => {
   return position
     .toString(16)
     .toUpperCase()
-    .padStart(2, '0')
-    .substring(0, 2)
+    .padStart(padLength, '0')
+    .substring(0, padLength)
 }
 
 const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>> => {
@@ -62,8 +65,27 @@ const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>>
 
 const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStorage, context?: ShardTraversalContext, options?: ExporterOptions): Promise<CID | undefined> => {
   if (context == null) {
+    if (node.Data == null) {
+      throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+    }
+  
+    let dir: UnixFS
+    try {
+      dir = UnixFS.unmarshal(node.Data)
+    } catch (err: any) {
+      throw errCode(err, 'ERR_NOT_UNIXFS')
+    }
+
+    if (dir.type !== 'hamt-sharded-directory') {
+      throw errCode(new Error('not a HAMT'), 'ERR_NOT_UNIXFS')
+    }
+    if (dir.fanout == null) {
+      throw errCode(new Error('missing fanout'), 'ERR_NOT_UNIXFS')
+    }
+
     const rootBucket = createHAMT<boolean>({
-      hashFn
+      hashFn,
+      bits: Math.log2(Number(dir.fanout))
     })
 
     context = {
@@ -73,16 +95,18 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
     }
   }
 
+  const padLength = (context.lastBucket.tableSize() - 1).toString(16).length
+
   await addLinksToHamtBucket(node.Links, context.lastBucket, context.rootBucket)
 
   const position = await context.rootBucket._findNewBucketAndPos(name)
-  let prefix = toPrefix(position.pos)
+  let prefix = toPrefix(position.pos, padLength)
   const bucketPath = toBucketPath(position)
 
   if (bucketPath.length > context.hamtDepth) {
     context.lastBucket = bucketPath[context.hamtDepth]
 
-    prefix = toPrefix(context.lastBucket._posAtParent)
+    prefix = toPrefix(context.lastBucket._posAtParent, padLength)
   }
 
   const link = node.Links.find(link => {
@@ -90,8 +114,8 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
       return false
     }
 
-    const entryPrefix = link.Name.substring(0, 2)
-    const entryName = link.Name.substring(2)
+    const entryPrefix = link.Name.substring(0, padLength)
+    const entryName = link.Name.substring(padLength)
 
     if (entryPrefix !== prefix) {
       // not the entry or subshard we're looking for
@@ -110,7 +134,7 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
     return
   }
 
-  if (link.Name != null && link.Name.substring(2) === name) {
+  if (link.Name != null && link.Name.substring(padLength) === name) {
     return link.Hash
   }
 

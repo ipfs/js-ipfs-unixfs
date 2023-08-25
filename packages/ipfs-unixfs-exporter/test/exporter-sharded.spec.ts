@@ -241,7 +241,7 @@ describe('exporter sharded', function () {
     await block.put(nodeBlockCid, nodeBlockBuf)
 
     const shardNodeBuf = dagPb.encode({
-      Data: new UnixFS({ type: 'hamt-sharded-directory' }).marshal(),
+      Data: new UnixFS({ type: 'hamt-sharded-directory', fanout: 2n**8n }).marshal(),
       Links: [{
         Name: '75normal-dir',
         Tsize: nodeBlockBuf.length,
@@ -290,5 +290,29 @@ describe('exporter sharded', function () {
       content: entry.node
     })))
       .to.deep.equal(files)
+  })
+
+  it('walks path of a HAMT with a different fanout size', async () => {
+    const files: ImportCandidate[] = [{
+      path: '/foo/bar/baz.txt',
+      content: Uint8Array.from([0, 1, 2, 3, 4])
+    }]
+
+    const result = await last(importer(files, block, {
+      shardSplitThresholdBytes: 0,
+      shardFanoutBits: 4, // 2**4 = 16 children max
+      wrapWithDirectory: true
+    }))
+
+    if (result == null) {
+      throw new Error('Import failed')
+    }
+
+    const { cid } = result
+    const file = await last(walkPath(`${cid}/foo/bar/baz.txt`, block))
+    expect([{
+      path: file?.path.replace(`${cid}`, ''),
+      content: file?.node
+    }]).to.deep.equal(files)
   })
 })

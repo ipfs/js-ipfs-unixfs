@@ -124,9 +124,11 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
   shardSplitThresholdBytes?: number
 
   /**
-   * The maximum number of bytes used as a HAMT prefix for shard entries. Default: 256
+   * The number of bits of a hash digest used at each level of sharding to
+   * the child index. 2**shardFanoutBits will dictate the maximum number of
+   * children for any shard in the HAMT. Default: 8
    */
-  shardFanoutBytes?: number
+  shardFanoutBits?: number
 
   /**
    * How many files to import concurrently. For large numbers of small files this
@@ -246,7 +248,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
 
   const wrapWithDirectory = options.wrapWithDirectory ?? false
   const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? 262144
-  const shardFanoutBytes = options.shardFanoutBytes ?? 8
+  const shardFanoutBits = options.shardFanoutBits ?? 8
   const cidVersion = options.cidVersion ?? 1
   const rawLeaves = options.rawLeaves ?? true
   const leafType = options.leafType ?? 'file'
@@ -275,7 +277,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const buildTree: TreeBuilder = options.treeBuilder ?? defaultTreeBuilder({
     wrapWithDirectory,
     shardSplitThresholdBytes,
-    shardFanoutBytes,
+    shardFanoutBits,
     cidVersion,
     onProgress: options.onProgress
   })

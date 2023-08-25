@@ -18,9 +18,10 @@ async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
 }
 
 const HAMT_HASH_CODE = BigInt(0x22)
+const DEFAULT_FANOUT_BITS = 8
 
 export interface DirShardedOptions extends PersistOptions {
-  shardFanoutBytes: number
+  shardFanoutBits: number
 }
 
 class DirSharded extends Dir {
@@ -31,7 +32,7 @@ class DirSharded extends Dir {
 
     this._bucket = createHAMT({
       hashFn: hamtHashFn,
-      bits: options.shardFanoutBytes ?? 8
+      bits: options.shardFanoutBits ?? DEFAULT_FANOUT_BITS
     })
   }
 
@@ -196,6 +197,7 @@ function isDir (obj: any): obj is Dir {
 
 function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, options: PersistOptions): number {
   const children = bucket._children
+  const padLength = (bucket.tableSize() - 1).toString(16).length
   const links: PBLink[] = []
 
   for (let i = 0; i < children.length; i++) {
@@ -205,7 +207,7 @@ function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, optio
       continue
     }
 
-    const labelPrefix = i.toString(16).toUpperCase().padStart(2, '0')
+    const labelPrefix = i.toString(16).toUpperCase().padStart(padLength, '0')
 
     if (child instanceof Bucket) {
       const size = calculateSize(child, null, options)

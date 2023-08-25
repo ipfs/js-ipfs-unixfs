@@ -270,7 +270,7 @@ describe('exporter sharded', function () {
 
     const result = await last(importer(files, block, {
       shardSplitThresholdBytes: 0,
-      shardFanoutBytes: 4,
+      shardFanoutBits: 4, // 2**4 = 16 children max
       wrapWithDirectory: true
     }))
 

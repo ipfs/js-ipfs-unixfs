@@ -4,7 +4,7 @@ import * as dagPb from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import { UnixFS } from 'ipfs-unixfs'
-import { importer } from 'ipfs-unixfs-importer'
+import { importer, type ImportCandidate } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
 import last from 'it-last'
@@ -241,7 +241,7 @@ describe('exporter sharded', function () {
     await block.put(nodeBlockCid, nodeBlockBuf)
 
     const shardNodeBuf = dagPb.encode({
-      Data: new UnixFS({ type: 'hamt-sharded-directory' }).marshal(),
+      Data: new UnixFS({ type: 'hamt-sharded-directory', fanout: 2n ** 8n }).marshal(),
       Links: [{
         Name: '75normal-dir',
         Tsize: nodeBlockBuf.length,
@@ -254,5 +254,65 @@ describe('exporter sharded', function () {
     const exported = await exporter(`/ipfs/${shardNodeCid}/normal-dir/shard/file-1`, block)
 
     expect(exported.name).to.deep.equal('file-1')
+  })
+
+  it('exports a shard with a different fanout size', async () => {
+    const files: ImportCandidate[] = [{
+      path: '/baz.txt',
+      content: Uint8Array.from([0, 1, 2, 3, 4])
+    }, {
+      path: '/foo.txt',
+      content: Uint8Array.from([0, 1, 2, 3, 4])
+    }, {
+      path: '/bar.txt',
+      content: Uint8Array.from([0, 1, 2, 3, 4])
+    }]
+
+    const result = await last(importer(files, block, {
+      shardSplitThresholdBytes: 0,
+      shardFanoutBits: 4, // 2**4 = 16 children max
+      wrapWithDirectory: true
+    }))
+
+    if (result == null) {
+      throw new Error('Import failed')
+    }
+
+    const { cid } = result
+    const dir = await exporter(cid, block)
+
+    expect(dir).to.have.nested.property('unixfs.fanout', 16n)
+
+    const contents = await all(dir.content())
+
+    expect(contents.map(entry => ({
+      path: `/${entry.name}`,
+      content: entry.node
+    })))
+      .to.deep.equal(files)
+  })
+
+  it('walks path of a HAMT with a different fanout size', async () => {
+    const files: ImportCandidate[] = [{
+      path: '/foo/bar/baz.txt',
+      content: Uint8Array.from([0, 1, 2, 3, 4])
+    }]
+
+    const result = await last(importer(files, block, {
+      shardSplitThresholdBytes: 0,
+      shardFanoutBits: 4, // 2**4 = 16 children max
+      wrapWithDirectory: true
+    }))
+
+    if (result == null) {
+      throw new Error('Import failed')
+    }
+
+    const { cid } = result
+    const file = await last(walkPath(`${cid}/foo/bar/baz.txt`, block))
+    expect([{
+      path: file?.path.replace(`${cid}`, ''),
+      content: file?.node
+    }]).to.deep.equal(files)
   })
 })

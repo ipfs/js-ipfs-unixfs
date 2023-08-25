@@ -7,6 +7,7 @@ import type { PersistOptions } from './utils/persist.js'
 
 export interface AddToTreeOptions extends PersistOptions {
   shardSplitThresholdBytes: number
+  shardFanoutBits: number
 }
 
 async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddToTreeOptions): Promise<Dir> {

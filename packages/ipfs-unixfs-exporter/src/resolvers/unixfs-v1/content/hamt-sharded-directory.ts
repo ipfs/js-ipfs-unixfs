@@ -33,7 +33,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
     throw errCode(err, 'ERR_NOT_UNIXFS')
   }
 
-  if (!dir.fanout) {
+  if (dir.fanout == null) {
     throw errCode(new Error('missing fanout'), 'ERR_NOT_UNIXFS')
   }
 

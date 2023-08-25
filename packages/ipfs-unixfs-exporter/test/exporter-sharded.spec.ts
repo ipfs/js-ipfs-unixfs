@@ -256,40 +256,87 @@ describe('exporter sharded', function () {
     expect(exported.name).to.deep.equal('file-1')
   })
 
-  it('exports a shard with a different fanout size', async () => {
-    const files: ImportCandidate[] = [{
-      path: '/baz.txt',
-      content: Uint8Array.from([0, 1, 2, 3, 4])
-    }, {
-      path: '/foo.txt',
-      content: Uint8Array.from([0, 1, 2, 3, 4])
-    }, {
-      path: '/bar.txt',
-      content: Uint8Array.from([0, 1, 2, 3, 4])
-    }]
+  describe('alternate fanout size', function () {
+    it('exports a shard with a fanout of 16', async () => {
+      const files: ImportCandidate[] = [{
+        path: '/baz.txt',
+        content: Uint8Array.from([0, 1, 2, 3, 4])
+      }, {
+        path: '/foo.txt',
+        content: Uint8Array.from([0, 1, 2, 3, 4])
+      }, {
+        path: '/bar.txt',
+        content: Uint8Array.from([0, 1, 2, 3, 4])
+      }]
 
-    const result = await last(importer(files, block, {
-      shardSplitThresholdBytes: 0,
-      shardFanoutBits: 4, // 2**4 = 16 children max
-      wrapWithDirectory: true
-    }))
+      const result = await last(importer(files, block, {
+        shardSplitThresholdBytes: 0,
+        shardFanoutBits: 4, // 2**4 = 16 children max
+        wrapWithDirectory: true
+      }))
 
-    if (result == null) {
-      throw new Error('Import failed')
-    }
+      if (result == null) {
+        throw new Error('Import failed')
+      }
 
-    const { cid } = result
-    const dir = await exporter(cid, block)
+      const { cid } = result
+      const dir = await exporter(cid, block)
 
-    expect(dir).to.have.nested.property('unixfs.fanout', 16n)
+      expect(dir).to.have.nested.property('unixfs.fanout', 16n)
 
-    const contents = await all(dir.content())
+      const contents = await all(dir.content())
 
-    expect(contents.map(entry => ({
-      path: `/${entry.name}`,
-      content: entry.node
-    })))
-      .to.deep.equal(files)
+      expect(contents.map(entry => ({
+        path: `/${entry.name}`,
+        content: entry.node
+      })))
+        .to.deep.equal(files)
+    })
+
+    // Cross-impl reference test: directory of files with single character
+    // names, starting from ' ' and ending with '~', but excluding the special
+    // characters '/' and '.'. Each file should contain a single byte with the
+    // same value as the character in its name. Files are added to a sharded
+    // directory with a fanout of 16, using CIDv1 throughout, and should result
+    // in the root CID of:
+    //  bafybeihnipspiyy3dctpcx7lv655qpiuy52d7b2fzs52dtrjqwmvbiux44
+    it('reference shard with fanout of 16', async () => {
+      const files: ImportCandidate[] = []
+      for (let ch = ' '.charCodeAt(0); ch <= '~'.charCodeAt(0); ch++) {
+        if (ch === 47 || ch === 46) { // skip '/' and '.'
+          continue
+        }
+        files.push({
+          path: String.fromCharCode(ch),
+          content: Uint8Array.from([ch])
+        })
+      }
+
+      const result = await last(importer(files, block, {
+        shardSplitThresholdBytes: 0,
+        shardFanoutBits: 4,
+        wrapWithDirectory: true
+      }))
+
+      if (result == null) {
+        throw new Error('Import failed')
+      }
+
+      const { cid } = result
+      expect(cid.toString()).to.equal('bafybeihnipspiyy3dctpcx7lv655qpiuy52d7b2fzs52dtrjqwmvbiux44')
+
+      const dir = await exporter(cid, block)
+
+      expect(dir).to.have.nested.property('unixfs.fanout', 16n)
+
+      let contents = await all(dir.content())
+      contents = contents.map(entry => ({
+        path: `${entry.name}`,
+        content: entry.node
+      }))
+      contents.sort((a, b) => a.content[0] < b.content[0] ? -1 : 1)
+      expect(contents).to.deep.equal(files)
+    })
   })
 
   it('walks path of a HAMT with a different fanout size', async () => {

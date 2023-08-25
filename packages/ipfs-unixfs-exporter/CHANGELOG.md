@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.0...ipfs-unixfs-exporter-v13.2.1) (2023-08-25)
+
+
+### Bug Fixes
+
+* add cross-impl shard test, fix path cleaner ([#358](https://github.com/ipfs/js-ipfs-unixfs/issues/358)) ([00293b3](https://github.com/ipfs/js-ipfs-unixfs/commit/00293b302d68c39918dc6bdb9e8a49b6d467f507))
+
 ## [ipfs-unixfs-exporter-v13.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.1.7...ipfs-unixfs-exporter-v13.2.0) (2023-08-25)
 
 

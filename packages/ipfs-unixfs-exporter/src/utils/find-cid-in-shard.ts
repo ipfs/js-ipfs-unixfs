@@ -1,7 +1,7 @@
 import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
 import errCode from 'err-code'
+import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { CID } from 'multiformats/cid'

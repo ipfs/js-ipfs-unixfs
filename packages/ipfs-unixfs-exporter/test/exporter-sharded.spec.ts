@@ -241,7 +241,7 @@ describe('exporter sharded', function () {
     await block.put(nodeBlockCid, nodeBlockBuf)
 
     const shardNodeBuf = dagPb.encode({
-      Data: new UnixFS({ type: 'hamt-sharded-directory', fanout: 2n**8n }).marshal(),
+      Data: new UnixFS({ type: 'hamt-sharded-directory', fanout: 2n ** 8n }).marshal(),
       Links: [{
         Name: '75normal-dir',
         Tsize: nodeBlockBuf.length,

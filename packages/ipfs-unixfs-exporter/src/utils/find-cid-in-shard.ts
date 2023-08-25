@@ -68,7 +68,7 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
     if (node.Data == null) {
       throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
     }
-  
+
     let dir: UnixFS
     try {
       dir = UnixFS.unmarshal(node.Data)

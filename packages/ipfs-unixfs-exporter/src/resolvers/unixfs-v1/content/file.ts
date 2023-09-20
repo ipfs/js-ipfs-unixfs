@@ -84,7 +84,8 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
       }
     }),
     (source) => parallel(source, {
-      ordered: true
+      ordered: true,
+      concurrency: options.blockReadConcurrency
     }),
     async (source) => {
       for await (const { link, block, blockStart } of source) {

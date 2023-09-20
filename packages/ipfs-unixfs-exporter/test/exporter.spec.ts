@@ -19,6 +19,7 @@ import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { Readable } from 'readable-stream'
+import Sinon from 'sinon'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
@@ -1308,5 +1309,72 @@ describe('exporter', () => {
 
       dataSizeInBytes *= 10
     }
+  })
+
+  it('should allow control of block read concurrency', async () => {
+    // create a multi-layered DAG of a manageable size
+    const imported = await first(importer([{
+      path: '1.2MiB.txt',
+      content: asAsyncIterable(smallFile)
+    }], block, {
+      rawLeaves: true,
+      chunker: fixedSize({ chunkSize: 50 }),
+      layout: balanced({ maxChildrenPerNode: 2 })
+    }))
+
+    if (imported == null) {
+      throw new Error('Nothing imported')
+    }
+
+    const node = dagPb.decode(await block.get(imported.cid))
+    expect(node.Links).to.have.lengthOf(2, 'imported node had too many children')
+
+    const child1 = dagPb.decode(await block.get(node.Links[0].Hash))
+    expect(child1.Links).to.have.lengthOf(2, 'layer 1 node had too many children')
+
+    const child2 = dagPb.decode(await block.get(node.Links[1].Hash))
+    expect(child2.Links).to.have.lengthOf(2, 'layer 1 node had too many children')
+
+    // should be raw nodes
+    expect(child1.Links[0].Hash.code).to.equal(raw.code, 'layer 2 node had wrong codec')
+    expect(child1.Links[1].Hash.code).to.equal(raw.code, 'layer 2 node had wrong codec')
+    expect(child2.Links[0].Hash.code).to.equal(raw.code, 'layer 2 node had wrong codec')
+    expect(child2.Links[1].Hash.code).to.equal(raw.code, 'layer 2 node had wrong codec')
+
+    // export file
+    const file = await exporter(imported.cid, block)
+
+    // export file data with default settings
+    const blockReadSpy = Sinon.spy(block, 'get')
+    const contentWithDefaultBlockConcurrency = await toBuffer(file.content())
+
+    // blocks should be loaded in default order - a whole level of sibling nodes at a time
+    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal([
+      node.Links[0].Hash.toString(),
+      node.Links[1].Hash.toString(),
+      child1.Links[0].Hash.toString(),
+      child1.Links[1].Hash.toString(),
+      child2.Links[0].Hash.toString(),
+      child2.Links[1].Hash.toString()
+    ])
+
+    // export file data overriding read concurrency
+    blockReadSpy.resetHistory()
+    const contentWitSmallBlockConcurrency = await toBuffer(file.content({
+      blockReadConcurrency: 1
+    }))
+
+    // blocks should be loaded in traversal order
+    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal([
+      node.Links[0].Hash.toString(),
+      child1.Links[0].Hash.toString(),
+      child1.Links[1].Hash.toString(),
+      node.Links[1].Hash.toString(),
+      child2.Links[0].Hash.toString(),
+      child2.Links[1].Hash.toString()
+    ])
+
+    // ensure exported bytes are the same
+    expect(contentWithDefaultBlockConcurrency).to.equalBytes(contentWitSmallBlockConcurrency)
   })
 })

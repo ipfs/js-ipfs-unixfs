@@ -17,7 +17,7 @@
   - [UnixFSEntry](#unixfsentry)
   - [Raw entries](#raw-entries)
   - [CBOR entries](#cbor-entries)
-  - [`entry.content({ offset, length })`](#entrycontent-offset-length-)
+  - [`entry.content({ offset, length, blockReadConcurrency })`](#entrycontent-offset-length-blockreadconcurrency-)
   - [`walkPath(cid, blockstore)`](#walkpathcid-blockstore)
   - [`recursive(cid, blockstore)`](#recursivecid-blockstore)
 - [API Docs](#api-docs)
@@ -168,9 +168,11 @@ Entries with a `dag-cbor` codec `CID` return JavaScript object entries:
 
 There is no `content` function for a `CBOR` node.
 
-### `entry.content({ offset, length })`
+### `entry.content({ offset, length, blockReadConcurrency })`
 
-When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
+When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data.
+
+`blockReadConcurrency` is an advanced option that lets you control how many blocks are loaded from the blockstore at once. By default it will attempt to load all siblings from the current DAG layer in one go, but this can be reduced if, for example, your blockstore requires data access in a proscribed manner.
 
 ```javascript
 const length = 5

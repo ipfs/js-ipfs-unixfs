@@ -47,9 +47,37 @@ export type ExporterProgressEvents =
   ProgressEvent<'unixfs:exporter:walk:raw', ExportWalk>
 
 export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents> {
+  /**
+   * An optional offset to start reading at.
+   *
+   * If the CID resolves to a file this will be a byte offset within that file,
+   * otherwise if it's a directory it will be a directory entry offset within
+   * the directory listing. (default: undefined)
+   */
   offset?: number
+
+  /**
+   * An optional length to read.
+   *
+   * If the CID resolves to a file this will be the number of bytes read from
+   * the file, otherwise if it's a directory it will be the number of directory
+   * entries read from the directory listing. (default: undefined)
+   */
   length?: number
+
+  /**
+   * This signal can be used to abort any long-lived operations such as fetching
+   * blocks from the network. (default: undefined)
+   */
   signal?: AbortSignal
+
+  /**
+   * When a DAG layer is encountered, all child nodes are loaded in parallel but
+   * processed as they arrive. This allows us to load sibling nodes in advance
+   * of yielding their bytes. Pass a value here to control the amount of blocks
+   * loaded in parallel. (default: undefined)
+   */
+  blockReadConcurrency?: number
 }
 
 export interface Exportable<T> {

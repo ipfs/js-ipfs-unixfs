@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.1...ipfs-unixfs-exporter-v13.2.2) (2023-09-20)
+
+
+### Dependencies
+
+* **dev:** bump sinon from 15.2.0 to 16.0.0 ([#360](https://github.com/ipfs/js-ipfs-unixfs/issues/360)) ([94db38d](https://github.com/ipfs/js-ipfs-unixfs/commit/94db38de34a11a38c24f792a58af85b0f385845f))
+
 ## [ipfs-unixfs-exporter-v13.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.0...ipfs-unixfs-exporter-v13.2.1) (2023-08-25)
 
 

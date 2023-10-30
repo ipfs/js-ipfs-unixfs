@@ -156,7 +156,7 @@
   "devDependencies": {
     "@types/readable-stream": "^4.0.1",
     "@types/sinon": "^10.0.0",
-    "aegir": "^40.0.11",
+    "aegir": "^41.1.2",
     "blockstore-core": "^4.0.1",
     "delay": "^6.0.0",
     "ipfs-unixfs-importer": "^15.0.0",

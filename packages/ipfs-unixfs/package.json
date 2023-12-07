@@ -146,7 +146,7 @@
   "devDependencies": {
     "aegir": "^40.0.11",
     "protons": "^7.0.2",
-    "uint8arrays": "^4.0.2"
+    "uint8arrays": "^5.0.0"
   },
   "browser": {
     "fs": false

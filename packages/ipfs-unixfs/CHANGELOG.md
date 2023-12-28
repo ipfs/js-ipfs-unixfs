@@ -1,3 +1,10 @@
+## [ipfs-unixfs-v11.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v11.1.0...ipfs-unixfs-v11.1.1) (2023-12-28)
+
+
+### Dependencies
+
+* bump uint8arrays from 4.0.10 to 5.0.0 ([#384](https://github.com/ipfs/js-ipfs-unixfs/issues/384)) ([d547296](https://github.com/ipfs/js-ipfs-unixfs/commit/d547296f49241dab91ec65bfe01d0a1ba58faa32))
+
 ## [ipfs-unixfs-v11.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v11.0.2...ipfs-unixfs-v11.1.0) (2023-08-25)
 
 

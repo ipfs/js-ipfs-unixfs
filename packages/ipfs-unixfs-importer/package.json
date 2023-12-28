@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-importer",
-  "version": "15.2.1",
+  "version": "15.2.2",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-importer#readme",

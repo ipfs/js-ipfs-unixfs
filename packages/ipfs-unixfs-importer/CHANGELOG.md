@@ -1,3 +1,11 @@
+## [ipfs-unixfs-importer-v15.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.2.1...ipfs-unixfs-importer-v15.2.2) (2023-12-28)
+
+
+### Dependencies
+
+* bump multiformats from 12.1.3 to 13.0.0 ([#389](https://github.com/ipfs/js-ipfs-unixfs/issues/389)) ([c0913c2](https://github.com/ipfs/js-ipfs-unixfs/commit/c0913c2f55b841c7e14cb0c573dd0a9af1817b79))
+* bump uint8arrays from 4.0.10 to 5.0.0 ([#384](https://github.com/ipfs/js-ipfs-unixfs/issues/384)) ([d547296](https://github.com/ipfs/js-ipfs-unixfs/commit/d547296f49241dab91ec65bfe01d0a1ba58faa32))
+
 ## [ipfs-unixfs-importer-v15.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-v15.2.0...ipfs-unixfs-importer-v15.2.1) (2023-08-25)
 
 

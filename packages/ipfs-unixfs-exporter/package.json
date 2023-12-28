@@ -155,7 +155,7 @@
   },
   "devDependencies": {
     "@types/readable-stream": "^4.0.1",
-    "@types/sinon": "^10.0.0",
+    "@types/sinon": "^17.0.2",
     "aegir": "^40.0.11",
     "blockstore-core": "^4.0.1",
     "delay": "^6.0.0",
@@ -167,7 +167,7 @@
     "it-to-buffer": "^4.0.2",
     "merge-options": "^3.0.4",
     "readable-stream": "^4.4.0",
-    "sinon": "^16.0.0",
+    "sinon": "^17.0.1",
     "wherearewe": "^2.0.1"
   },
   "browser": {

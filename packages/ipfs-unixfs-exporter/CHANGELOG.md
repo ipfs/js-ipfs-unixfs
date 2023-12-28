@@ -1,3 +1,11 @@
+## [ipfs-unixfs-exporter-v13.2.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.3...ipfs-unixfs-exporter-v13.2.4) (2023-12-28)
+
+
+### Dependencies
+
+* bump p-queue from 7.4.1 to 8.0.1 ([#387](https://github.com/ipfs/js-ipfs-unixfs/issues/387)) ([8d5c325](https://github.com/ipfs/js-ipfs-unixfs/commit/8d5c3258ef23911c1795ec2c2d5a0f1280b11daa))
+* **dev:** bump sinon from 16.1.3 to 17.0.1 ([#373](https://github.com/ipfs/js-ipfs-unixfs/issues/373)) ([62964fd](https://github.com/ipfs/js-ipfs-unixfs/commit/62964fd616aa6498a8b7ea6bd5e0830766add4e2))
+
 ## [ipfs-unixfs-exporter-v13.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.2...ipfs-unixfs-exporter-v13.2.3) (2023-12-28)
 
 

@@ -1,3 +1,33 @@
+## [ipfs-unixfs-exporter-v13.2.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.4...ipfs-unixfs-exporter-v13.2.5) (2023-12-28)
+
+
+### Dependencies
+
+* **dev:** bump aegir from 40.0.13 to 41.3.2 ([#390](https://github.com/ipfs/js-ipfs-unixfs/issues/390)) ([1c484e0](https://github.com/ipfs/js-ipfs-unixfs/commit/1c484e01d6699ab9126f5dded70e411a869b7820))
+
+## [ipfs-unixfs-exporter-v13.2.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.3...ipfs-unixfs-exporter-v13.2.4) (2023-12-28)
+
+
+### Dependencies
+
+* bump p-queue from 7.4.1 to 8.0.1 ([#387](https://github.com/ipfs/js-ipfs-unixfs/issues/387)) ([8d5c325](https://github.com/ipfs/js-ipfs-unixfs/commit/8d5c3258ef23911c1795ec2c2d5a0f1280b11daa))
+* **dev:** bump sinon from 16.1.3 to 17.0.1 ([#373](https://github.com/ipfs/js-ipfs-unixfs/issues/373)) ([62964fd](https://github.com/ipfs/js-ipfs-unixfs/commit/62964fd616aa6498a8b7ea6bd5e0830766add4e2))
+
+## [ipfs-unixfs-exporter-v13.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.2...ipfs-unixfs-exporter-v13.2.3) (2023-12-28)
+
+
+### Dependencies
+
+* bump multiformats from 12.1.3 to 13.0.0 ([#389](https://github.com/ipfs/js-ipfs-unixfs/issues/389)) ([c0913c2](https://github.com/ipfs/js-ipfs-unixfs/commit/c0913c2f55b841c7e14cb0c573dd0a9af1817b79))
+* bump uint8arrays from 4.0.10 to 5.0.0 ([#384](https://github.com/ipfs/js-ipfs-unixfs/issues/384)) ([d547296](https://github.com/ipfs/js-ipfs-unixfs/commit/d547296f49241dab91ec65bfe01d0a1ba58faa32))
+
+## [ipfs-unixfs-exporter-v13.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.1...ipfs-unixfs-exporter-v13.2.2) (2023-09-20)
+
+
+### Dependencies
+
+* **dev:** bump sinon from 15.2.0 to 16.0.0 ([#360](https://github.com/ipfs/js-ipfs-unixfs/issues/360)) ([94db38d](https://github.com/ipfs/js-ipfs-unixfs/commit/94db38de34a11a38c24f792a58af85b0f385845f))
+
 ## [ipfs-unixfs-exporter-v13.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.0...ipfs-unixfs-exporter-v13.2.1) (2023-08-25)
 
 

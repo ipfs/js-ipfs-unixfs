@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "13.2.1",
+  "version": "13.2.5",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-exporter#readme",
@@ -136,6 +136,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
+    "@ipld/dag-json": "^10.1.7",
     "@ipld/dag-pb": "^4.0.0",
     "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",
@@ -148,15 +149,15 @@
     "it-parallel": "^3.0.0",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.1.0",
-    "multiformats": "^12.0.1",
-    "p-queue": "^7.3.0",
+    "multiformats": "^13.0.0",
+    "p-queue": "^8.0.1",
     "progress-events": "^1.0.0",
-    "uint8arrays": "^4.0.2"
+    "uint8arrays": "^5.0.0"
   },
   "devDependencies": {
     "@types/readable-stream": "^4.0.1",
-    "@types/sinon": "^10.0.0",
-    "aegir": "^40.0.11",
+    "@types/sinon": "^17.0.2",
+    "aegir": "^41.3.2",
     "blockstore-core": "^4.0.1",
     "delay": "^6.0.0",
     "ipfs-unixfs-importer": "^15.0.0",
@@ -167,7 +168,7 @@
     "it-to-buffer": "^4.0.2",
     "merge-options": "^3.0.4",
     "readable-stream": "^4.4.0",
-    "sinon": "^16.0.0",
+    "sinon": "^17.0.1",
     "wherearewe": "^2.0.1"
   },
   "browser": {

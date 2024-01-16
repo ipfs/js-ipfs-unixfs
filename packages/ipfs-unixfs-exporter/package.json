@@ -136,6 +136,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
+    "@ipld/dag-json": "^10.1.7",
     "@ipld/dag-pb": "^4.0.0",
     "@multiformats/murmur3": "^2.0.0",
     "err-code": "^3.0.1",

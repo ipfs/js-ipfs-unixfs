@@ -1,9 +1,11 @@
 import * as dagCbor from '@ipld/dag-cbor'
+import * as dagJson from '@ipld/dag-json'
 import * as dagPb from '@ipld/dag-pb'
 import errCode from 'err-code'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
 import dagCborResolver from './dag-cbor.js'
+import dagJsonResolver from './dag-json.js'
 import identifyResolver from './identity.js'
 import rawResolver from './raw.js'
 import dagPbResolver from './unixfs-v1/index.js'
@@ -13,6 +15,7 @@ const resolvers: Record<number, Resolver> = {
   [dagPb.code]: dagPbResolver,
   [raw.code]: rawResolver,
   [dagCbor.code]: dagCborResolver,
+  [dagJson.code]: dagJsonResolver,
   [identity.code]: identifyResolver
 }
 

@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
 import * as dagCbor from '@ipld/dag-cbor'
+import * as dagJson from '@ipld/dag-json'
 import * as dagPb from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
@@ -999,6 +1000,39 @@ describe('exporter', () => {
     const cborBlock = dagCbor.encode(node)
     const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
     await block.put(cid, cborBlock)
+    const exported = await exporter(`${cid}`, block)
+
+    if (exported.type !== 'object') {
+      throw new Error('Unexpected type')
+    }
+
+    return expect(first(exported.content())).to.eventually.deep.equal(node)
+  })
+
+  it('errors when exporting a non-existent key from a json node', async () => {
+    const node = {
+      foo: 'bar'
+    }
+
+    const jsonBlock = dagJson.encode(node)
+    const cid = CID.createV1(dagJson.code, await sha256.digest(jsonBlock))
+    await block.put(cid, jsonBlock)
+
+    try {
+      await exporter(`${cid}/baz`, block)
+    } catch (err: any) {
+      expect(err.code).to.equal('ERR_NO_PROP')
+    }
+  })
+
+  it('exports a json node', async () => {
+    const node = {
+      foo: 'bar'
+    }
+
+    const jsonBlock = dagJson.encode(node)
+    const cid = CID.createV1(dagJson.code, await sha256.digest(jsonBlock))
+    await block.put(cid, jsonBlock)
     const exported = await exporter(`${cid}`, block)
 
     if (exported.type !== 'object') {

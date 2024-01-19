@@ -32,9 +32,9 @@
     "start": "npm run build && node --expose-gc ./dist/test/index.spec.js"
   },
   "devDependencies": {
-    "aegir": "^38.1.2",
+    "aegir": "^42.2.2",
     "blockstore-fs": "^1.0.0",
     "ipfs-unixfs-importer": "../../packages/ipfs-unixfs-importer",
-    "it-drain": "^2.0.1"
+    "it-drain": "^3.0.5"
   }
 }

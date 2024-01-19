@@ -94,9 +94,40 @@ export type ExporterProgressEvents =
   ProgressEvent<'unixfs:exporter:walk:raw', ExportWalk>
 
 export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents> {
+  /**
+   * An optional offset to start reading at.
+   *
+   * If the CID resolves to a file this will be a byte offset within that file,
+   * otherwise if it's a directory it will be a directory entry offset within
+   * the directory listing. (default: undefined)
+   */
   offset?: number
+
+  /**
+   * An optional length to read.
+   *
+   * If the CID resolves to a file this will be the number of bytes read from
+   * the file, otherwise if it's a directory it will be the number of directory
+   * entries read from the directory listing. (default: undefined)
+   */
   length?: number
+
+  /**
+   * This signal can be used to abort any long-lived operations such as fetching
+   * blocks from the network. (default: undefined)
+   */
   signal?: AbortSignal
+
+  /**
+   * When a DAG layer is encountered, all child nodes are loaded in parallel but
+   * processed as they arrive. This allows us to load sibling nodes in advance
+   * of yielding their bytes. Pass a value here to control the number of blocks
+   * loaded in parallel. If a strict depth-first traversal is required, this
+   * value should be set to `1`, otherwise the traversal order will tend to
+   * resemble a breadth-first fan-out and yield a have stable ordering.
+   * (default: undefined)
+   */
+  blockReadConcurrency?: number
 }
 
 export interface Exportable<T> {
@@ -143,6 +174,8 @@ export interface Exportable<T> {
   size: bigint
 
   /**
+   * @example File content
+   *
    * When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
    *
    * ```javascript
@@ -162,6 +195,8 @@ export interface Exportable<T> {
    * return data
    * ```
    *
+   * @example Directory content
+   *
    * If `entry` is a directory, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
    *
    * ```javascript
@@ -176,7 +211,6 @@ export interface Exportable<T> {
    *
    * // `entries` contains the first 5 files/directories in the directory
    * ```
-   *
    */
   content(options?: ExporterOptions): AsyncGenerator<T, void, unknown>
 }

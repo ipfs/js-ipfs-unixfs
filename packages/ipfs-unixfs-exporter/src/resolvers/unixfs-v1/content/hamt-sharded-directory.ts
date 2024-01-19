@@ -62,7 +62,10 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
         }
       }
     }),
-    source => parallel(source, { ordered: true })
+    source => parallel(source, {
+      ordered: true,
+      concurrency: options.blockReadConcurrency
+    })
   )
 
   for await (const { entries } of results) {

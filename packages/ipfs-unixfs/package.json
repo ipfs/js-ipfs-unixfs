@@ -51,8 +51,7 @@
     "build": "aegir build",
     "clean": "aegir clean",
     "lint": "aegir lint",
-    "dep-check": "aegir dep-check -i protons",
-    "release": "aegir release"
+    "dep-check": "aegir dep-check"
   },
   "dependencies": {
     "err-code": "^3.0.1",

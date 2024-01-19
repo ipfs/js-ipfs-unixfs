@@ -13,7 +13,7 @@
   },
   "private": true,
   "scripts": {
-    "reset": "aegir run clean && aegir clean ./node_modules ./package-lock.json packages/*/node_modules packages/*/package-lock.json",
+    "reset": "aegir run clean && aegir clean **/node_modules **/package-lock.json",
     "test": "aegir run test",
     "test:node": "aegir run test:node",
     "test:chrome": "aegir run test:chrome",
@@ -23,23 +23,25 @@
     "test:electron-main": "aegir run test:electron-main",
     "test:electron-renderer": "aegir run test:electron-renderer",
     "clean": "aegir run clean",
+    "generate": "aegir run generate",
     "build": "aegir run build",
     "lint": "aegir run lint",
-    "generate": "aegir run generate",
-    "docs": "NODE_OPTIONS=--max_old_space_size=4096 aegir docs",
-    "docs:no-publish": "npm run docs -- --publish false",
     "dep-check": "aegir run dep-check",
-    "release": "npm run docs:no-publish && aegir run release && npm run docs"
+    "release": "run-s build docs:no-publish npm:release docs",
+    "npm:release": "aegir release",
+    "docs": "aegir docs",
+    "docs:no-publish": "aegir docs --publish false"
   },
   "devDependencies": {
-    "aegir": "^42.2.2"
+    "aegir": "^42.2.2",
+    "npm-run-all": "^4.1.5"
   },
   "workspaces": [
     "packages/*"
   ],
   "release": {
     "branches": [
-      "main"
+      "master"
     ],
     "plugins": [
       [

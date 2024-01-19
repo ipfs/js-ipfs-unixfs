@@ -71,8 +71,7 @@
     "build": "aegir build",
     "clean": "aegir clean",
     "lint": "aegir lint",
-    "dep-check": "aegir dep-check",
-    "release": "aegir release"
+    "dep-check": "aegir dep-check"
   },
   "dependencies": {
     "@ipld/dag-pb": "^4.0.0",

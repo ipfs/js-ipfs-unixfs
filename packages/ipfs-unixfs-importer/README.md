@@ -7,40 +7,13 @@
 
 > JavaScript implementation of the UnixFs importer used by IPFS
 
-## Table of contents <!-- omit in toc -->
-
-- [Install](#install)
-  - [Browser `<script>` tag](#browser-script-tag)
-- [Example](#example)
-- [API](#api)
-  - [const stream = importer(source, blockstore \[, options\])](#const-stream--importersource-blockstore--options)
-  - [const result = await importFile(content, blockstore \[, options\])](#const-result--await-importfilecontent-blockstore--options)
-  - [const result = await importDirectory(content, blockstore \[, options\])](#const-result--await-importdirectorycontent-blockstore--options)
-  - [const result = await importBytes(buf, blockstore \[, options\])](#const-result--await-importbytesbuf-blockstore--options)
-  - [const result = await importByteStream(source, blockstore \[, options\])](#const-result--await-importbytestreamsource-blockstore--options)
-- [API Docs](#api-docs)
-- [License](#license)
-- [Contribute](#contribute)
-
-## Install
-
-```console
-$ npm i ipfs-unixfs-importer
-```
-
-### Browser `<script>` tag
-
-Loading this module through a script tag will make it's exports available as `IpfsUnixfsImporter` in the global namespace.
-
-```html
-<script src="https://unpkg.com/ipfs-unixfs-importer/dist/index.min.js"></script>
-```
+# About
 
 ## Example
 
 Let's create a little directory to import:
 
-```sh
+```console
 > cd /tmp
 > mkdir foo
 > echo 'hello' > foo/bar
@@ -96,59 +69,32 @@ When run, metadata about DAGNodes in the created tree is printed until the root:
 }
 ```
 
-## API
+# Install
 
-```js
-import { importer, importFile, importDir, importBytes, importByteStream } from 'ipfs-unixfs-importer'
+```console
+$ npm i ipfs-unixfs-importer
 ```
 
-### const stream = importer(source, blockstore \[, options])
+## Browser `<script>` tag
 
-The `importer` function returns an async iterator takes a source async iterator that yields objects of the form:
+Loading this module through a script tag will make it's exports available as `IpfsUnixfsImporter` in the global namespace.
 
-```js
-{
-  path: 'a name',
-  content: (Buffer or iterator emitting Buffers),
-  mtime: (Number representing seconds since (positive) or before (negative) the Unix Epoch),
-  mode: (Number representing ugo-rwx, setuid, setguid and sticky bit)
-}
+```html
+<script src="https://unpkg.com/ipfs-unixfs-importer/dist/index.min.js"></script>
 ```
 
-`stream` will output file info objects as files get stored in IPFS. When stats on a node are emitted they are guaranteed to have been written.
-
-`blockstore` is an instance of a [blockstore][]
-
-The input's file paths and directory structure will be preserved in the [`dag-pb`](https://github.com/ipld/js-dag-pb) created nodes.
-
-### const result = await importFile(content, blockstore \[, options])
-
-A convenience function for importing a single file or directory.
-
-### const result = await importDirectory(content, blockstore \[, options])
-
-A convenience function for importing a directory - note this is non-recursive, to import recursively use the [importer](#const-stream--importersource-blockstore--options) function.
-
-### const result = await importBytes(buf, blockstore \[, options])
-
-A convenience function for importing a single Uint8Array.
-
-### const result = await importByteStream(source, blockstore \[, options])
-
-A convenience function for importing a single stream of Uint8Arrays.
-
-## API Docs
+# API Docs
 
 - <https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs_importer.html>
 
-## License
+# License
 
 Licensed under either of
 
 - Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
 - MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
 
-## Contribute
+# Contribute
 
 Contributions welcome! Please check out [the issues](https://github.com/ipfs/js-ipfs-unixfs/issues).
 

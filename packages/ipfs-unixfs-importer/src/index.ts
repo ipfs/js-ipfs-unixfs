@@ -1,3 +1,67 @@
+/**
+ * @packageDocumentation
+ *
+ * @example
+ *
+ * Let's create a little directory to import:
+ *
+ * ```console
+ * > cd /tmp
+ * > mkdir foo
+ * > echo 'hello' > foo/bar
+ * > echo 'world' > foo/quux
+ * ```
+ *
+ * And write the importing logic:
+ *
+ * ```js
+ * import { importer } from 'ipfs-unixfs-importer'
+ * import { MemoryBlockstore } from 'blockstore-core/memory'
+ * import * as fs from 'node:fs'
+ *
+ * // Where the blocks will be stored
+ * const blockstore = new MemoryBlockstore()
+ *
+ * // Import path /tmp/foo/
+ * const source = [{
+ *   path: '/tmp/foo/bar',
+ *   content: fs.createReadStream('/tmp/foo/bar')
+ * }, {
+ *   path: '/tmp/foo/quxx',
+ *   content: fs.createReadStream('/tmp/foo/quux')
+ * }]
+ *
+ * for await (const entry of importer(source, blockstore)) {
+ *   console.info(entry)
+ * }
+ * ```
+ *
+ * When run, metadata about DAGNodes in the created tree is printed until the root:
+ *
+ * ```js
+ * {
+ *   cid: CID, // see https://github.com/multiformats/js-cid
+ *   path: 'tmp/foo/bar',
+ *   unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+ * }
+ * {
+ *   cid: CID, // see https://github.com/multiformats/js-cid
+ *   path: 'tmp/foo/quxx',
+ *   unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+ * }
+ * {
+ *   cid: CID, // see https://github.com/multiformats/js-cid
+ *   path: 'tmp/foo',
+ *   unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+ * }
+ * {
+ *   cid: CID, // see https://github.com/multiformats/js-cid
+ *   path: 'tmp',
+ *   unixfs: UnixFS // see https://github.com/ipfs/js-ipfs-unixfs
+ * }
+ * ```
+ */
+
 import errcode from 'err-code'
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'

@@ -25,7 +25,10 @@ const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, de
           return result.entry
         }
       }),
-      source => parallel(source, { ordered: true }),
+      source => parallel(source, {
+        ordered: true,
+        concurrency: options.blockReadConcurrency
+      }),
       source => filter(source, entry => entry != null)
     )
   }

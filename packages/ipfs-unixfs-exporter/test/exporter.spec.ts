@@ -12,6 +12,7 @@ import { fixedSize } from 'ipfs-unixfs-importer/chunker'
 import { balanced, type FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
+import drain from 'it-drain'
 import first from 'it-first'
 import last from 'it-last'
 import toBuffer from 'it-to-buffer'
@@ -1345,7 +1346,7 @@ describe('exporter', () => {
     }
   })
 
-  it('should allow control of block read concurrency', async () => {
+  it('should allow control of block read concurrency for files', async () => {
     // create a multi-layered DAG of a manageable size
     const imported = await first(importer([{
       path: '1.2MiB.txt',
@@ -1410,5 +1411,162 @@ describe('exporter', () => {
 
     // ensure exported bytes are the same
     expect(contentWithDefaultBlockConcurrency).to.equalBytes(contentWitSmallBlockConcurrency)
+  })
+
+  it('should allow control of block read concurrency for directories', async () => {
+    const entries = 1024
+
+    // create a largeish directory
+    const imported = await last(importer((async function * () {
+      for (let i = 0; i < entries; i++) {
+        yield {
+          path: `file-${i}.txt`,
+          content: Uint8Array.from([i])
+        }
+      }
+    })(), block, {
+      wrapWithDirectory: true
+    }))
+
+    if (imported == null) {
+      throw new Error('Nothing imported')
+    }
+
+    const node = dagPb.decode(await block.get(imported.cid))
+    expect(node.Links).to.have.lengthOf(entries, 'imported node had too many children')
+
+    for (const link of node.Links) {
+      // should be raw nodes
+      expect(link.Hash.code).to.equal(raw.code, 'child node had wrong codec')
+    }
+
+    // export directory
+    const directory = await exporter(imported.cid, block)
+
+    // export file data with default settings
+    const originalGet = block.get.bind(block)
+
+    const expectedInvocations: string[] = []
+
+    for (const link of node.Links) {
+      expectedInvocations.push(`${link.Hash.toString()}-start`)
+      expectedInvocations.push(`${link.Hash.toString()}-end`)
+    }
+
+    const actualInvocations: string[] = []
+
+    block.get = async (cid) => {
+      actualInvocations.push(`${cid.toString()}-start`)
+
+      // introduce a small delay - if running in parallel actualInvocations will
+      // be:
+      // `foo-start`, `bar-start`, `baz-start`, `foo-end`, `bar-end`, `baz-end`
+      // if in series it will be:
+      // `foo-start`, `foo-end`, `bar-start`, `bar-end`, `baz-start`, `baz-end`
+      await delay(1)
+
+      actualInvocations.push(`${cid.toString()}-end`)
+
+      return originalGet(cid)
+    }
+
+    const blockReadSpy = Sinon.spy(block, 'get')
+    await drain(directory.content({
+      blockReadConcurrency: 1
+    }))
+
+    // blocks should be loaded in default order - a whole level of sibling nodes at a time
+    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal(
+      node.Links.map(link => link.Hash.toString())
+    )
+
+    expect(actualInvocations).to.deep.equal(expectedInvocations)
+  })
+
+  it('should allow control of block read concurrency for HAMT sharded directories', async () => {
+    const entries = 1024
+
+    // create a sharded directory
+    const imported = await last(importer((async function * () {
+      for (let i = 0; i < entries; i++) {
+        yield {
+          path: `file-${i}.txt`,
+          content: Uint8Array.from([i])
+        }
+      }
+    })(), block, {
+      wrapWithDirectory: true,
+      shardSplitThresholdBytes: 10
+    }))
+
+    if (imported == null) {
+      throw new Error('Nothing imported')
+    }
+
+    const node = dagPb.decode(await block.get(imported.cid))
+    const data = UnixFS.unmarshal(node.Data ?? new Uint8Array(0))
+    expect(data.type).to.equal('hamt-sharded-directory')
+
+    // traverse the shard, collect all the CIDs
+    async function collectCIDs (node: PBNode): Promise<CID[]> {
+      const children: CID[] = []
+
+      for (const link of node.Links) {
+        children.push(link.Hash)
+
+        if (link.Hash.code === dagPb.code) {
+          const buf = await block.get(link.Hash)
+          const childNode = dagPb.decode(buf)
+
+          children.push(...(await collectCIDs(childNode)))
+        }
+      }
+
+      return children
+    }
+
+    const children: CID[] = await collectCIDs(node)
+
+    // export directory
+    const directory = await exporter(imported.cid, block)
+
+    // export file data with default settings
+    const originalGet = block.get.bind(block)
+
+    const expectedInvocations: string[] = []
+
+    for (const cid of children) {
+      expectedInvocations.push(`${cid.toString()}-start`)
+      expectedInvocations.push(`${cid.toString()}-end`)
+    }
+
+    const actualInvocations: string[] = []
+
+    block.get = async (cid) => {
+      actualInvocations.push(`${cid.toString()}-start`)
+
+      // introduce a small delay - if running in parallel actualInvocations will
+      // be:
+      // `foo-start`, `bar-start`, `baz-start`, `foo-end`, `bar-end`, `baz-end`
+      // if in series it will be:
+      // `foo-start`, `foo-end`, `bar-start`, `bar-end`, `baz-start`, `baz-end`
+      await delay(1)
+
+      actualInvocations.push(`${cid.toString()}-end`)
+
+      return originalGet(cid)
+    }
+
+    const blockReadSpy = Sinon.spy(block, 'get')
+    await drain(directory.content({
+      blockReadConcurrency: 1
+    }))
+
+    // blocks should be loaded in default order - a whole level of sibling nodes at a time
+    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal(
+      children.map(link => link.toString())
+    )
+
+    expect(actualInvocations).to.deep.equal(expectedInvocations)
   })
 })

@@ -79,6 +79,7 @@
     "iso-random-stream": "^2.0.2",
     "it-all": "^3.0.2",
     "it-buffer-stream": "^3.0.0",
+    "it-drain": "^3.0.5",
     "it-first": "^3.0.2",
     "it-to-buffer": "^4.0.2",
     "merge-options": "^3.0.4",

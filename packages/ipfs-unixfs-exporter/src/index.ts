@@ -1,3 +1,50 @@
+/**
+ * @packageDocumentation
+ *
+ * The UnixFS Exporter provides a means to read DAGs from a blockstore given a CID.
+ *
+ * @example
+ *
+ * ```js
+ * // import a file and export it again
+ * import { importer } from 'ipfs-unixfs-importer'
+ * import { exporter } from 'ipfs-unixfs-exporter'
+ * import { MemoryBlockstore } from 'blockstore-core/memory'
+ *
+ * // Should contain the blocks we are trying to export
+ * const blockstore = new MemoryBlockstore()
+ * const files = []
+ *
+ * for await (const file of importer([{
+ *   path: '/foo/bar.txt',
+ *   content: new Uint8Array([0, 1, 2, 3])
+ * }], blockstore)) {
+ *   files.push(file)
+ * }
+ *
+ * console.info(files[0].cid) // Qmbaz
+ *
+ * const entry = await exporter(files[0].cid, blockstore)
+ *
+ * console.info(entry.cid) // Qmqux
+ * console.info(entry.path) // Qmbaz/foo/bar.txt
+ * console.info(entry.name) // bar.txt
+ * console.info(entry.unixfs.fileSize()) // 4
+ *
+ * // stream content from unixfs node
+ * const size = entry.unixfs.fileSize()
+ * const bytes = new Uint8Array(size)
+ * let offset = 0
+ *
+ * for await (const buf of entry.content()) {
+ *   bytes.set(buf, offset)
+ *   offset += chunk.length
+ * }
+ *
+ * console.info(bytes) // 0, 1, 2, 3
+ * ```
+ */
+
 import errCode from 'err-code'
 import last from 'it-last'
 import { CID } from 'multiformats/cid'
@@ -81,42 +128,165 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
 }
 
 export interface Exportable<T> {
+  /**
+   * A disambiguator to allow TypeScript to work out the type of the entry.
+   *
+   * @example
+   *
+   * ```TypeScript
+   * if (entry.type === 'file') {
+   *   // access UnixFSFile properties safely
+   * }
+   *
+   * if (entry.type === 'directory') {
+   *   // access UnixFSDirectory properties safely
+   * }
+   * ```
+   */
   type: 'file' | 'directory' | 'object' | 'raw' | 'identity'
+
+  /**
+   * The name of the entry
+   */
   name: string
+
+  /**
+   * The path of the entry within the DAG in which it was encountered
+   */
   path: string
+
+  /**
+   * The CID of the entry
+   */
   cid: CID
+
+  /**
+   * How far down the DAG the entry is
+   */
   depth: number
+
+  /**
+   * The size of the entry
+   */
   size: bigint
+
+  /**
+   * @example File content
+   *
+   * When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
+   *
+   * ```javascript
+   * const length = 5
+   * const data = new Uint8Array(length)
+   * let offset = 0
+   *
+   * for await (const chunk of entry.content({
+   *   offset: 0,
+   *   length
+   * })) {
+   *   data.set(chunk, offset)
+   *   offset += chunk.length
+   * }
+   *
+   * // `data` contains the first 5 bytes of the file
+   * return data
+   * ```
+   *
+   * @example Directory content
+   *
+   * If `entry` is a directory, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
+   *
+   * ```javascript
+   * const entries = []
+   *
+   * for await (const entry of dir.content({
+   *   offset: 0,
+   *   length: 5
+   * })) {
+   *   entries.push(entry)
+   * }
+   *
+   * // `entries` contains the first 5 files/directories in the directory
+   * ```
+   */
   content(options?: ExporterOptions): AsyncGenerator<T, void, unknown>
 }
 
+/**
+ * If the entry is a file, `entry.content()` returns an async iterator that yields one or more Uint8Arrays containing the file content:
+ *
+ * ```javascript
+ * if (entry.type === 'file') {
+ *   for await (const chunk of entry.content()) {
+ *     // chunk is a Buffer
+ *   }
+ * }
+ * ```
+ */
 export interface UnixFSFile extends Exportable<Uint8Array> {
   type: 'file'
   unixfs: UnixFS
   node: PBNode
 }
 
+/**
+ * If the entry is a directory, `entry.content()` returns further `entry` objects:
+ *
+ * ```javascript
+ * if (entry.type === 'directory') {
+ *   for await (const entry of dir.content()) {
+ *     console.info(entry.name)
+ *   }
+ * }
+ * ```
+ */
 export interface UnixFSDirectory extends Exportable<UnixFSEntry> {
   type: 'directory'
   unixfs: UnixFS
   node: PBNode
 }
 
+/**
+ * Entries with a `dag-cbor` or `dag-json` codec {@link CID} return JavaScript object entries
+ */
 export interface ObjectNode extends Exportable<any> {
   type: 'object'
   node: Uint8Array
 }
 
+/**
+ * Entries with a `raw` codec {@link CID} return raw entries.
+ *
+ * `entry.content()` returns an async iterator that yields a buffer containing the node content:
+ *
+ * ```javascript
+ * for await (const chunk of entry.content()) {
+ *   // chunk is a Buffer
+ * }
+ * ```
+ *
+ * Unless you an options object containing `offset` and `length` keys as an argument to `entry.content()`, `chunk` will be equal to `entry.node`.
+ */
 export interface RawNode extends Exportable<Uint8Array> {
   type: 'raw'
   node: Uint8Array
 }
 
+/**
+ * Entries with a `identity` codec {@link CID} return identity entries.
+ *
+ * These are entries where the data payload is stored in the CID itself,
+ * otherwise they are identical to {@link RawNode}s.
+ */
 export interface IdentityNode extends Exportable<Uint8Array> {
   type: 'identity'
   node: Uint8Array
 }
 
+/**
+ * A UnixFSEntry is a representation of the types of node that can be
+ * encountered in a DAG.
+ */
 export type UnixFSEntry = UnixFSFile | UnixFSDirectory | ObjectNode | RawNode | IdentityNode
 
 export interface NextResult {
@@ -145,6 +315,10 @@ export interface ShardTraversalContext {
   lastBucket: Bucket<boolean>
 }
 
+/**
+ * A subset of the {@link Blockstore} interface that just contains the get
+ * method.
+ */
 export type ReadableStorage = Pick<Blockstore, 'get'>
 
 const toPathComponents = (path: string = ''): string[] => {
@@ -187,6 +361,23 @@ const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: str
   throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
 }
 
+/**
+ * Returns an async iterator that yields entries for all segments in a path
+ *
+ * @example
+ *
+ * ```javascript
+ * import { walkPath } from 'ipfs-unixfs-exporter'
+ *
+ * const entries = []
+ *
+ * for await (const entry of walkPath('Qmfoo/foo/bar/baz.txt', blockstore)) {
+ *   entries.push(entry)
+ * }
+ *
+ * // entries contains 4x `entry` objects
+ * ```
+ */
 export async function * walkPath (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   let {
     cid,
@@ -219,6 +410,30 @@ export async function * walkPath (path: string | CID, blockstore: ReadableStorag
   }
 }
 
+/**
+ * Uses the given blockstore instance to fetch an IPFS node by a CID or path.
+ *
+ * Returns a {@link Promise} which resolves to a {@link UnixFSEntry}.
+ *
+ * @example
+ *
+ * ```typescript
+ * import { exporter } from 'ipfs-unixfs-exporter'
+ * import { CID } from 'multiformats/cid'
+ *
+ * const cid = CID.parse('QmFoo')
+ *
+ * const entry = await exporter(cid, blockstore, {
+ *   signal: AbortSignal.timeout(50000)
+ * })
+ *
+ * if (entry.type === 'file') {
+ *   for await (const chunk of entry.content()) {
+ *     // chunk is a Uint8Array
+ *   }
+ * }
+ * ```
+ */
 export async function exporter (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): Promise<UnixFSEntry> {
   const result = await last(walkPath(path, blockstore, options))
 
@@ -229,6 +444,24 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
   return result
 }
 
+/**
+ * Returns an async iterator that yields all entries beneath a given CID or IPFS
+ * path, as well as the containing directory.
+ *
+ * @example
+ *
+ * ```typescript
+ * import { recursive } from 'ipfs-unixfs-exporter'
+ *
+ * const entries = []
+ *
+ * for await (const child of recursive('Qmfoo/foo/bar', blockstore)) {
+ *   entries.push(entry)
+ * }
+ *
+ * // entries contains all children of the `Qmfoo/foo/bar` directory and it's children
+ * ```
+ */
 export async function * recursive (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   const node = await exporter(path, blockstore, options)
 

@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.3.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.5...ipfs-unixfs-exporter-v13.3.0) (2024-01-16)
+
+
+### Features
+
+* add dag-json resolver ([#397](https://github.com/ipfs/js-ipfs-unixfs/issues/397)) ([1b40e3e](https://github.com/ipfs/js-ipfs-unixfs/commit/1b40e3ee4c0b4aae10f354f9338358ca0c863bc8))
+
 ## [ipfs-unixfs-exporter-v13.2.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.4...ipfs-unixfs-exporter-v13.2.5) (2023-12-28)
 
 

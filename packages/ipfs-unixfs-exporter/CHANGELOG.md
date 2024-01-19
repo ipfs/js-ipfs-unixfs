@@ -1,3 +1,22 @@
+## ipfs-unixfs-exporter [13.3.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.3.0...ipfs-unixfs-exporter-13.3.1) (2024-01-19)
+
+
+### Trivial Changes
+
+* update project config ([125f4d7](https://github.com/ipfs/js-ipfs-unixfs/commit/125f4d7dba9e04914f16560fb1f5002e298eaba1))
+
+
+### Dependencies
+
+* **dev:** bump aegir from 41.3.5 to 42.2.2 ([#399](https://github.com/ipfs/js-ipfs-unixfs/issues/399)) ([9d6c7cb](https://github.com/ipfs/js-ipfs-unixfs/commit/9d6c7cb9904e40e1fb4d92735fac62f5bc04559e))
+
+
+
+### Dependencies
+
+* **ipfs-unixfs:** upgraded to 11.1.3
+* **ipfs-unixfs-importer:** upgraded to 15.2.4
+
 ## [ipfs-unixfs-exporter-v13.3.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-v13.2.5...ipfs-unixfs-exporter-v13.3.0) (2024-01-16)
 
 

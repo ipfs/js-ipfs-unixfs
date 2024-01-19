@@ -1,3 +1,10 @@
+## ipfs-unixfs-exporter [13.4.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.3.1...ipfs-unixfs-exporter-13.4.0) (2024-01-19)
+
+
+### Features
+
+* add blockReadConcurrency option to exporter ([#361](https://github.com/ipfs/js-ipfs-unixfs/issues/361)) ([295077e](https://github.com/ipfs/js-ipfs-unixfs/commit/295077ea70c99fd6c4ca0ef8c304781de07120c7)), closes [#359](https://github.com/ipfs/js-ipfs-unixfs/issues/359)
+
 ## ipfs-unixfs-exporter [13.3.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.3.0...ipfs-unixfs-exporter-13.3.1) (2024-01-19)
 
 

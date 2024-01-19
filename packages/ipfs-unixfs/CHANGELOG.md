@@ -1,3 +1,15 @@
+## ipfs-unixfs [11.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.2...ipfs-unixfs-11.1.3) (2024-01-19)
+
+
+### Trivial Changes
+
+* update project config ([125f4d7](https://github.com/ipfs/js-ipfs-unixfs/commit/125f4d7dba9e04914f16560fb1f5002e298eaba1))
+
+
+### Dependencies
+
+* **dev:** bump aegir from 41.3.5 to 42.2.2 ([#399](https://github.com/ipfs/js-ipfs-unixfs/issues/399)) ([9d6c7cb](https://github.com/ipfs/js-ipfs-unixfs/commit/9d6c7cb9904e40e1fb4d92735fac62f5bc04559e))
+
 ## [ipfs-unixfs-v11.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-v11.1.1...ipfs-unixfs-v11.1.2) (2023-12-28)
 
 

@@ -121,8 +121,11 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
   /**
    * When a DAG layer is encountered, all child nodes are loaded in parallel but
    * processed as they arrive. This allows us to load sibling nodes in advance
-   * of yielding their bytes. Pass a value here to control the amount of blocks
-   * loaded in parallel. (default: undefined)
+   * of yielding their bytes. Pass a value here to control the number of blocks
+   * loaded in parallel. If a strict depth-first traversal is required, this
+   * value should be set to `1`, otherwise the traversal order will tend to
+   * resemble a breadth-first fan-out and yield a have stable ordering.
+   * (default: undefined)
    */
   blockReadConcurrency?: number
 }

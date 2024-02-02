@@ -17,6 +17,7 @@ import first from 'it-first'
 import last from 'it-last'
 import toBuffer from 'it-to-buffer'
 import { CID } from 'multiformats/cid'
+import * as json from 'multiformats/codecs/json'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -978,7 +979,7 @@ describe('exporter', () => {
     expect(data).to.deep.equal(smallFile)
   })
 
-  it('errors when exporting a non-existent key from a cbor node', async () => {
+  it('errors when exporting a non-existent key from a dag-cbor node', async () => {
     const node = {
       foo: 'bar'
     }
@@ -994,7 +995,7 @@ describe('exporter', () => {
     }
   })
 
-  it('exports a cbor node', async () => {
+  it('exports a dag-cbor node', async () => {
     const node = {
       foo: 'bar'
     }
@@ -1011,7 +1012,7 @@ describe('exporter', () => {
     return expect(first(exported.content())).to.eventually.deep.equal(node)
   })
 
-  it('errors when exporting a non-existent key from a json node', async () => {
+  it('errors when exporting a non-existent key from a dag-json node', async () => {
     const node = {
       foo: 'bar'
     }
@@ -1027,13 +1028,46 @@ describe('exporter', () => {
     }
   })
 
-  it('exports a json node', async () => {
+  it('exports a dag-json node', async () => {
     const node = {
       foo: 'bar'
     }
 
     const jsonBlock = dagJson.encode(node)
     const cid = CID.createV1(dagJson.code, await sha256.digest(jsonBlock))
+    await block.put(cid, jsonBlock)
+    const exported = await exporter(`${cid}`, block)
+
+    if (exported.type !== 'object') {
+      throw new Error('Unexpected type')
+    }
+
+    return expect(first(exported.content())).to.eventually.deep.equal(node)
+  })
+
+  it('errors when exporting a non-existent key from a json node', async () => {
+    const node = {
+      foo: 'bar'
+    }
+
+    const jsonBlock = json.encode(node)
+    const cid = CID.createV1(json.code, await sha256.digest(jsonBlock))
+    await block.put(cid, jsonBlock)
+
+    try {
+      await exporter(`${cid}/baz`, block)
+    } catch (err: any) {
+      expect(err.code).to.equal('ERR_NO_PROP')
+    }
+  })
+
+  it('exports a json node', async () => {
+    const node = {
+      foo: 'bar'
+    }
+
+    const jsonBlock = json.encode(node)
+    const cid = CID.createV1(json.code, await sha256.digest(jsonBlock))
     await block.put(cid, jsonBlock)
     const exported = await exporter(`${cid}`, block)
 

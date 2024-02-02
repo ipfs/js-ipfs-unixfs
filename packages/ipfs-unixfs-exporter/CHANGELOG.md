@@ -1,3 +1,10 @@
+## ipfs-unixfs-exporter [13.5.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.4.0...ipfs-unixfs-exporter-13.5.0) (2024-02-02)
+
+
+### Features
+
+* add json resolver ([#400](https://github.com/ipfs/js-ipfs-unixfs/issues/400)) ([81e85c8](https://github.com/ipfs/js-ipfs-unixfs/commit/81e85c8a6798a8f76e11bdf2eebe9bfa2d9cb5a4)), closes [#397](https://github.com/ipfs/js-ipfs-unixfs/issues/397)
+
 ## ipfs-unixfs-exporter [13.4.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.3.1...ipfs-unixfs-exporter-13.4.0) (2024-01-19)
 
 

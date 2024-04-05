@@ -3,7 +3,7 @@
   "version": "15.2.4",
   "description": "JavaScript implementation of the UnixFs importer used by IPFS",
   "license": "Apache-2.0 OR MIT",
-  "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-importer#readme",
+  "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-importer#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ipfs/js-ipfs-unixfs.git"
@@ -74,30 +74,31 @@
     "dep-check": "aegir dep-check"
   },
   "dependencies": {
-    "@ipld/dag-pb": "^4.0.0",
-    "@multiformats/murmur3": "^2.0.0",
+    "@ipld/dag-pb": "^4.1.0",
+    "@multiformats/murmur3": "^2.1.8",
     "err-code": "^3.0.1",
-    "hamt-sharding": "^3.0.0",
-    "interface-blockstore": "^5.0.0",
-    "interface-store": "^5.0.1",
+    "hamt-sharding": "^3.0.6",
+    "interface-blockstore": "^5.2.10",
+    "interface-store": "^5.1.8",
     "ipfs-unixfs": "^11.0.0",
-    "it-all": "^3.0.2",
-    "it-batch": "^3.0.2",
-    "it-first": "^3.0.2",
-    "it-parallel-batch": "^3.0.1",
-    "multiformats": "^13.0.0",
+    "it-all": "^3.0.4",
+    "it-batch": "^3.0.4",
+    "it-first": "^3.0.4",
+    "it-parallel-batch": "^3.0.4",
+    "multiformats": "^13.1.0",
     "progress-events": "^1.0.0",
-    "rabin-wasm": "^0.1.4",
-    "uint8arraylist": "^2.4.3",
-    "uint8arrays": "^5.0.0"
+    "rabin-wasm": "^0.1.5",
+    "uint8arraylist": "^2.4.8",
+    "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
-    "aegir": "^42.2.2",
-    "blockstore-core": "^4.0.1",
-    "it-last": "^3.0.2",
+    "aegir": "^42.2.5",
+    "blockstore-core": "^4.4.0",
+    "it-last": "^3.0.4",
     "wherearewe": "^2.0.1"
   },
   "browser": {
     "fs": false
-  }
+  },
+  "sideEffects": false
 }

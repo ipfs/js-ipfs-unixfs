@@ -55,15 +55,16 @@
   },
   "dependencies": {
     "err-code": "^3.0.1",
-    "protons-runtime": "^5.0.0",
-    "uint8arraylist": "^2.4.3"
+    "protons-runtime": "^5.4.0",
+    "uint8arraylist": "^2.4.8"
   },
   "devDependencies": {
-    "aegir": "^42.2.2",
-    "protons": "^7.0.2",
-    "uint8arrays": "^5.0.0"
+    "aegir": "^42.2.5",
+    "protons": "^7.5.0",
+    "uint8arrays": "^5.0.3"
   },
   "browser": {
     "fs": false
-  }
+  },
+  "sideEffects": false
 }

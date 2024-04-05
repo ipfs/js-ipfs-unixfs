@@ -1,3 +1,15 @@
+## ipfs-unixfs [11.1.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.3...ipfs-unixfs-11.1.4) (2024-04-05)
+
+
+### Bug Fixes
+
+* add sideEffects false to package.json to enable tree shaking ([#402](https://github.com/ipfs/js-ipfs-unixfs/issues/402)) ([aea58c4](https://github.com/ipfs/js-ipfs-unixfs/commit/aea58c40a4a2457ddf44454befa1eb25d4caa016))
+
+
+### Trivial Changes
+
+* rename master to main ([0cdfcd6](https://github.com/ipfs/js-ipfs-unixfs/commit/0cdfcd674513b21aab7e27b446a6f2181c9ba842))
+
 ## ipfs-unixfs [11.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.2...ipfs-unixfs-11.1.3) (2024-01-19)
 
 

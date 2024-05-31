@@ -92,7 +92,7 @@
     "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
-    "aegir": "^42.2.5",
+    "aegir": "^43.0.1",
     "blockstore-core": "^4.4.0",
     "it-last": "^3.0.4",
     "wherearewe": "^2.0.1"

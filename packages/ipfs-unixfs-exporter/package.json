@@ -72,7 +72,7 @@
     "@types/readable-stream": "^4.0.11",
     "@types/sinon": "^17.0.3",
     "aegir": "^42.2.5",
-    "blockstore-core": "^4.4.0",
+    "blockstore-core": "^5.0.0",
     "delay": "^6.0.0",
     "ipfs-unixfs-importer": "^15.0.0",
     "iso-random-stream": "^2.0.2",

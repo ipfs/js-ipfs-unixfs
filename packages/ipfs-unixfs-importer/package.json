@@ -93,7 +93,7 @@
   },
   "devDependencies": {
     "aegir": "^42.2.5",
-    "blockstore-core": "^4.4.0",
+    "blockstore-core": "^5.0.0",
     "it-last": "^3.0.4",
     "wherearewe": "^2.0.1"
   },

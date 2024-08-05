@@ -79,7 +79,7 @@
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^5.2.10",
-    "interface-store": "^5.1.8",
+    "interface-store": "^6.0.0",
     "ipfs-unixfs": "^11.0.0",
     "it-all": "^3.0.4",
     "it-batch": "^3.0.4",

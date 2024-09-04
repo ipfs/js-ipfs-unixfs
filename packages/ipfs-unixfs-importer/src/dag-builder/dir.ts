@@ -1,7 +1,11 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import { persist } from '../utils/persist.js'
-import type { Directory, InProgressImportResult, WritableStorage } from '../index.js'
+import type {
+  Directory,
+  InProgressImportResult,
+  WritableStorage
+} from '../index.js'
 import type { Version } from 'multiformats/cid'
 
 export interface DirBuilderOptions {
@@ -9,7 +13,11 @@ export interface DirBuilderOptions {
   signal?: AbortSignal
 }
 
-export const dirBuilder = async (dir: Directory, blockstore: WritableStorage, options: DirBuilderOptions): Promise<InProgressImportResult> => {
+export const defaultDirBuilder = async (
+  dir: Directory,
+  blockstore: WritableStorage,
+  options: DirBuilderOptions
+): Promise<InProgressImportResult> => {
   const unixfs = new UnixFS({
     type: 'directory',
     mtime: dir.mtime,

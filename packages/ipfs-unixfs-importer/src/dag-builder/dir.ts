@@ -13,6 +13,14 @@ export interface DirBuilderOptions {
   signal?: AbortSignal
 }
 
+export interface DirBuilder {
+  (
+    dir: Directory,
+    blockstore: WritableStorage,
+    options: DirBuilderOptions
+  ): Promise<InProgressImportResult>
+}
+
 export const defaultDirBuilder = async (
   dir: Directory,
   blockstore: WritableStorage,

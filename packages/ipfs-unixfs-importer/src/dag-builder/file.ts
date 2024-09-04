@@ -232,6 +232,14 @@ const reduce = (
   return reducer
 }
 
+export interface FileBuilder {
+  (
+    file: File,
+    blockstore: WritableStorage,
+    options: FileBuilderOptions
+  ): Promise<InProgressImportResult>
+}
+
 export interface FileBuilderOptions
   extends BuildFileBatchOptions,
   ReduceOptions {

@@ -1,7 +1,7 @@
 import errCode from 'err-code'
 import { CustomProgressEvent } from 'progress-events'
-import { defaultDirBuilder, type DirBuilderOptions } from './dir.js'
-import { defaultFileBuilder, type FileBuilderOptions } from './file.js'
+import { defaultDirBuilder, type DirBuilder, type DirBuilderOptions } from './dir.js'
+import { defaultFileBuilder, type FileBuilder, type FileBuilderOptions } from './file.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
 import type {
@@ -77,16 +77,8 @@ export interface DagBuilderOptions
   chunker: Chunker
   chunkValidator: ChunkValidator
   wrapWithDirectory: boolean
-  dirBuilder?(
-    dir: Directory,
-    blockstore: WritableStorage,
-    options: DirBuilderOptions
-  ): Promise<InProgressImportResult>
-  fileBuilder?(
-    file: File,
-    blockstore: WritableStorage,
-    options: FileBuilderOptions
-  ): Promise<InProgressImportResult>
+  dirBuilder?: DirBuilder
+  fileBuilder?: FileBuilder
 }
 
 export type ImporterSourceStream =

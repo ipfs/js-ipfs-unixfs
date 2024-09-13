@@ -103,7 +103,7 @@ export class DirFlat extends Dir {
        * @param {number} acc
        * @param {PBLink} curr
        */
-      (acc, curr) => acc + (curr.Tsize == null ? 0 : curr.Tsize),
+      (acc, curr) => acc + (curr.Tsize ?? 0),
       0)
 
     this.cid = cid

@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v11.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.5...ipfs-unixfs-11.2.0) (2024-09-13)
+
+### Features
+
+* add name property to errors ([#414](https://github.com/ipfs/js-ipfs-unixfs/issues/414)) ([70145c7](https://github.com/ipfs/js-ipfs-unixfs/commit/70145c7c1e78ede3c481100151a9491c639671be))
+
 ## [ipfs-unixfs-v11.1.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.4...ipfs-unixfs-11.1.5) (2024-09-13)
 
 ### Dependencies

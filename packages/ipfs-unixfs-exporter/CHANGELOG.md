@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v13.6.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.5.1...ipfs-unixfs-exporter-13.6.0) (2024-09-13)
+
+### Features
+
+* add name property to errors ([#414](https://github.com/ipfs/js-ipfs-unixfs/issues/414)) ([70145c7](https://github.com/ipfs/js-ipfs-unixfs/commit/70145c7c1e78ede3c481100151a9491c639671be))
+
 ## [ipfs-unixfs-exporter-v13.5.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.5.0...ipfs-unixfs-exporter-13.5.1) (2024-09-13)
 
 ### Bug Fixes

@@ -1,5 +1,5 @@
-import errCode from 'err-code'
 import { CID } from 'multiformats/cid'
+import { NoPropError } from '../errors.js'
 import type { ResolveResult } from '../index.js'
 
 export function resolveObjectPath (object: any, block: Uint8Array, cid: CID, name: string, path: string, toResolve: string[], depth: number): ResolveResult {
@@ -41,7 +41,7 @@ export function resolveObjectPath (object: any, block: Uint8Array, cid: CID, nam
       subObject = subObject[prop]
     } else {
       // cannot resolve further
-      throw errCode(new Error(`No property named ${prop} found in node ${cid}`), 'ERR_NO_PROP')
+      throw new NoPropError(`No property named ${prop} found in node ${cid}`)
     }
   }
 

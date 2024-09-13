@@ -104,7 +104,7 @@ export function defaultTreeBuilder (options: TreeBuilderOptions): TreeBuilder {
 
       tree = await addToTree(entry, tree, options)
 
-      if (entry.unixfs == null || !entry.unixfs.isDirectory()) {
+      if (entry.unixfs?.isDirectory() !== true) {
         yield entry
       }
     }

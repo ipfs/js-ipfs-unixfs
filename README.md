@@ -7,13 +7,13 @@
 
 > JS implementation of the IPFS UnixFS
 
-The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
-
 # Packages
 
-- [`/packages/ipfs-unixfs`](./packages/ipfs-unixfs) JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)
-- [`/packages/ipfs-unixfs-exporter`](./packages/ipfs-unixfs-exporter) JavaScript implementation of the UnixFs exporter used by IPFS
-- [`/packages/ipfs-unixfs-importer`](./packages/ipfs-unixfs-importer) JavaScript implementation of the UnixFs importer used by IPFS
+- [`packages/ipfs-unixfs`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs) JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)
+- [`packages/ipfs-unixfs-exporter`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-exporter) JavaScript implementation of the UnixFs exporter used by IPFS
+- [`packages/ipfs-unixfs-importer`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-importer) JavaScript implementation of the UnixFs importer used by IPFS
+
+The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
 
 # API Docs
 
@@ -23,8 +23,8 @@ The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/s
 
 Licensed under either of
 
-- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
-- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+- Apache 2.0, ([LICENSE-APACHE](https://github.com/ipfs/js-ipfs-unixfs/blob/main/LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](https://github.com/ipfs/js-ipfs-unixfs/blob/main/LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
 
 # Contribute
 

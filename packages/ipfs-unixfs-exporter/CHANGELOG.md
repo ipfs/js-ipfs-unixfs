@@ -1,3 +1,23 @@
+## [ipfs-unixfs-exporter-v13.6.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.5.1...ipfs-unixfs-exporter-13.6.0) (2024-09-13)
+
+### Features
+
+* add name property to errors ([#414](https://github.com/ipfs/js-ipfs-unixfs/issues/414)) ([70145c7](https://github.com/ipfs/js-ipfs-unixfs/commit/70145c7c1e78ede3c481100151a9491c639671be))
+
+## [ipfs-unixfs-exporter-v13.5.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.5.0...ipfs-unixfs-exporter-13.5.1) (2024-09-13)
+
+### Bug Fixes
+
+* add sideEffects false to package.json to enable tree shaking ([#402](https://github.com/ipfs/js-ipfs-unixfs/issues/402)) ([aea58c4](https://github.com/ipfs/js-ipfs-unixfs/commit/aea58c40a4a2457ddf44454befa1eb25d4caa016))
+
+### Trivial Changes
+
+* rename master to main ([0cdfcd6](https://github.com/ipfs/js-ipfs-unixfs/commit/0cdfcd674513b21aab7e27b446a6f2181c9ba842))
+
+### Dependencies
+
+* **dev:** bump aegir from 42.2.11 to 44.1.1 ([#412](https://github.com/ipfs/js-ipfs-unixfs/issues/412)) ([f94d1ad](https://github.com/ipfs/js-ipfs-unixfs/commit/f94d1ad0a507a0b37dd601490bba22224192f5a3))
+
 ## ipfs-unixfs-exporter [13.5.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.4.0...ipfs-unixfs-exporter-13.5.0) (2024-02-02)
 
 

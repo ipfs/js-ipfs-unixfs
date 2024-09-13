@@ -1,4 +1,4 @@
-import errCode from 'err-code'
+import { InvalidParametersError } from '../errors.js'
 
 const validateOffsetAndLength = (size: number | bigint, offset: number | bigint = 0, length: number | bigint = size): { start: bigint, end: bigint } => {
   const fileSize = BigInt(size)
@@ -14,19 +14,19 @@ const validateOffsetAndLength = (size: number | bigint, offset: number | bigint 
   }
 
   if (start < 0n) {
-    throw errCode(new Error('Offset must be greater than or equal to 0'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Offset must be greater than or equal to 0')
   }
 
   if (start > fileSize) {
-    throw errCode(new Error('Offset must be less than the file size'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Offset must be less than the file size')
   }
 
   if (end < 0n) {
-    throw errCode(new Error('Length must be greater than or equal to 0'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Length must be greater than or equal to 0')
   }
 
   if (end > fileSize) {
-    throw errCode(new Error('Length must be less than the file size'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Length must be less than the file size')
   }
 
   return {

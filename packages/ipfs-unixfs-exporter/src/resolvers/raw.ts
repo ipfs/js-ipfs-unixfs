@@ -1,5 +1,5 @@
-import errCode from 'err-code'
 import { CustomProgressEvent } from 'progress-events'
+import { NotFoundError } from '../errors.js'
 import extractDataFromBlock from '../utils/extract-data-from-block.js'
 import validateOffsetAndLength from '../utils/validate-offset-and-length.js'
 import type { ExporterOptions, Resolver, ExportProgress } from '../index.js'
@@ -27,7 +27,7 @@ const rawContent = (node: Uint8Array): ((options?: ExporterOptions) => AsyncGene
 
 const resolve: Resolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
   if (toResolve.length > 0) {
-    throw errCode(new Error(`No link named ${path} found in raw node ${cid}`), 'ERR_NOT_FOUND')
+    throw new NotFoundError(`No link named ${path} found in raw node ${cid}`)
   }
 
   const block = await blockstore.get(cid, options)

@@ -120,7 +120,7 @@ $ npm i ipfs-unixfs
 
 ## Browser `<script>` tag
 
-Loading this module through a script tag will make it's exports available as `IpfsUnixfs` in the global namespace.
+Loading this module through a script tag will make its exports available as `IpfsUnixfs` in the global namespace.
 
 ```html
 <script src="https://unpkg.com/ipfs-unixfs/dist/index.min.js"></script>
@@ -134,8 +134,8 @@ Loading this module through a script tag will make it's exports available as `Ip
 
 Licensed under either of
 
-- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
-- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+- Apache 2.0, ([LICENSE-APACHE](https://github.com/ipfs/js-ipfs-unixfs/blob/main/packages/ipfs-unixfs/LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](https://github.com/ipfs/js-ipfs-unixfs/blob/main/packages/ipfs-unixfs/LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
 
 # Contribute
 

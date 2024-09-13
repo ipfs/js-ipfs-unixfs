@@ -1,5 +1,4 @@
 import * as dagPb from '@ipld/dag-pb'
-import errCode from 'err-code'
 import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
@@ -8,6 +7,7 @@ import { type Pushable, pushable } from 'it-pushable'
 import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
+import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.js'
 import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
 import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
 import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage, ExportProgress, ExportWalk } from '../../../index.js'
@@ -23,7 +23,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
   }
 
   if (node.Data == null) {
-    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError('no data in PBNode')
   }
 
   let file: UnixFS
@@ -31,7 +31,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
   try {
     file = UnixFS.unmarshal(node.Data)
   } catch (err: any) {
-    throw errCode(err, 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError(err.message)
   }
 
   // might be a unixfs `raw` node or have data on intermediate nodes
@@ -47,7 +47,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
   const childOps: Array<{ link: dagPb.PBLink, blockStart: bigint }> = []
 
   if (node.Links.length !== file.blockSizes.length) {
-    throw errCode(new Error('Inconsistent block sizes and dag links'), 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError('Inconsistent block sizes and dag links')
   }
 
   for (let i = 0; i < node.Links.length; i++) {
@@ -98,7 +98,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
             child = block
             break
           default:
-            queue.end(errCode(new Error(`Unsupported codec: ${link.Hash.code}`), 'ERR_NOT_UNIXFS'))
+            queue.end(new NotUnixFSError(`Unsupported codec: ${link.Hash.code}`))
             return
         }
 
@@ -171,7 +171,7 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
 
       if (read > wanted) {
         queue.end()
-        throw errCode(new Error('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect'), 'ERR_OVER_READ')
+        throw new OverReadError('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect')
       }
 
       if (read === wanted) {
@@ -188,7 +188,7 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
     }
 
     if (read < wanted) {
-      throw errCode(new Error('Traversed entire DAG but did not read enough bytes'), 'ERR_UNDER_READ')
+      throw new UnderReadError('Traversed entire DAG but did not read enough bytes')
     }
   }
 

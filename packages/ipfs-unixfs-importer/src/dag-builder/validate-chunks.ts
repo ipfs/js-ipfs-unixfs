@@ -1,5 +1,5 @@
-import errCode from 'err-code'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { InvalidContentError } from '../errors.js'
 
 export interface ChunkValidator { (source: AsyncIterable<Uint8Array>): AsyncIterable<Uint8Array> }
 
@@ -7,7 +7,7 @@ export const defaultChunkValidator = (): ChunkValidator => {
   return async function * validateChunks (source) {
     for await (const content of source) {
       if (content.length === undefined) {
-        throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
+        throw new InvalidContentError('Content was invalid')
       }
 
       if (typeof content === 'string' || content instanceof String) {
@@ -17,7 +17,7 @@ export const defaultChunkValidator = (): ChunkValidator => {
       } else if (content instanceof Uint8Array) {
         yield content
       } else {
-        throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
+        throw new InvalidContentError('Content was invalid')
       }
     }
   }

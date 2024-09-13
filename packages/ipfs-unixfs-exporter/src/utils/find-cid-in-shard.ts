@@ -1,8 +1,8 @@
 import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import errCode from 'err-code'
 import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
+import { NotUnixFSError } from '../errors.js'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { CID } from 'multiformats/cid'
 
@@ -66,21 +66,21 @@ const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>>
 const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStorage, context?: ShardTraversalContext, options?: ExporterOptions): Promise<CID | undefined> => {
   if (context == null) {
     if (node.Data == null) {
-      throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+      throw new NotUnixFSError('no data in PBNode')
     }
 
     let dir: UnixFS
     try {
       dir = UnixFS.unmarshal(node.Data)
     } catch (err: any) {
-      throw errCode(err, 'ERR_NOT_UNIXFS')
+      throw new NotUnixFSError(err.message)
     }
 
     if (dir.type !== 'hamt-sharded-directory') {
-      throw errCode(new Error('not a HAMT'), 'ERR_NOT_UNIXFS')
+      throw new NotUnixFSError('not a HAMT')
     }
     if (dir.fanout == null) {
-      throw errCode(new Error('missing fanout'), 'ERR_NOT_UNIXFS')
+      throw new NotUnixFSError('missing fanout')
     }
 
     const rootBucket = createHAMT<boolean>({

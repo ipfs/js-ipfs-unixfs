@@ -140,7 +140,6 @@
     "@ipld/dag-json": "^10.2.2",
     "@ipld/dag-pb": "^4.1.2",
     "@multiformats/murmur3": "^2.1.8",
-    "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^5.3.0",
     "ipfs-unixfs": "^11.0.0",

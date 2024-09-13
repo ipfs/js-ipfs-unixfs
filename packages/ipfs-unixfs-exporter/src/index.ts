@@ -45,15 +45,17 @@
  * ```
  */
 
-import errCode from 'err-code'
 import last from 'it-last'
 import { CID } from 'multiformats/cid'
+import { BadPathError, NotFoundError } from './errors.js'
 import resolve from './resolvers/index.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Bucket } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
+
+export * from './errors.js'
 
 export interface ExportProgress {
   /**
@@ -361,7 +363,7 @@ const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: str
     }
   }
 
-  throw errCode(new Error(`Unknown path type ${path}`), 'ERR_BAD_PATH')
+  throw new BadPathError(`Unknown path type ${path}`)
 }
 
 /**
@@ -394,7 +396,7 @@ export async function * walkPath (path: string | CID, blockstore: ReadableStorag
     const result = await resolve(cid, name, entryPath, toResolve, startingDepth, blockstore, options)
 
     if (result.entry == null && result.next == null) {
-      throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
+      throw new NotFoundError(`Could not resolve ${path}`)
     }
 
     if (result.entry != null) {
@@ -441,7 +443,7 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
   const result = await last(walkPath(path, blockstore, options))
 
   if (result == null) {
-    throw errCode(new Error(`Could not resolve ${path}`), 'ERR_NOT_FOUND')
+    throw new NotFoundError(`Could not resolve ${path}`)
   }
 
   return result

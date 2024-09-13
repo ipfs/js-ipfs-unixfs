@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v13.6.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.0...ipfs-unixfs-exporter-13.6.1) (2024-09-13)
+
+### Dependencies
+
+* **dev:** bump blockstore-core from 4.4.1 to 5.0.0 ([#411](https://github.com/ipfs/js-ipfs-unixfs/issues/411)) ([6663007](https://github.com/ipfs/js-ipfs-unixfs/commit/6663007b46fb18e31157bce7bba4bfcf7b0ef5b5))
+* **dev:** bump sinon from 17.0.2 to 19.0.2 ([#415](https://github.com/ipfs/js-ipfs-unixfs/issues/415)) ([f0a0b37](https://github.com/ipfs/js-ipfs-unixfs/commit/f0a0b37a57754ec7c36913e8ab06072aca7df41d))
+
 ## [ipfs-unixfs-exporter-v13.6.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.5.1...ipfs-unixfs-exporter-13.6.0) (2024-09-13)
 
 ### Features

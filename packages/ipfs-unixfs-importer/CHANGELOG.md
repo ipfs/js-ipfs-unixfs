@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v15.3.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.2.6...ipfs-unixfs-importer-15.3.0) (2024-09-13)
+
+### Features
+
+* add name property to errors ([#414](https://github.com/ipfs/js-ipfs-unixfs/issues/414)) ([70145c7](https://github.com/ipfs/js-ipfs-unixfs/commit/70145c7c1e78ede3c481100151a9491c639671be))
+
 ## [ipfs-unixfs-importer-v15.2.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.2.5...ipfs-unixfs-importer-15.2.6) (2024-09-13)
 
 ### Dependencies

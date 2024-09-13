@@ -1,6 +1,6 @@
 import { decode, type PBNode } from '@ipld/dag-pb'
-import errCode from 'err-code'
 import { UnixFS } from 'ipfs-unixfs'
+import { NotFoundError, NotUnixFSError } from '../../errors.js'
 import findShardCid from '../../utils/find-cid-in-shard.js'
 import contentDirectory from './content/directory.js'
 import contentFile from './content/file.js'
@@ -39,14 +39,14 @@ const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, dep
   }
 
   if (node.Data == null) {
-    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError('no data in PBNode')
   }
 
   try {
     unixfs = UnixFS.unmarshal(node.Data)
   } catch (err: any) {
     // non-UnixFS dag-pb node? It could happen.
-    throw errCode(err, 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError(err.message)
   }
 
   if (path == null) {
@@ -64,7 +64,7 @@ const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, dep
     }
 
     if (linkCid == null) {
-      throw errCode(new Error('file does not exist'), 'ERR_NOT_FOUND')
+      throw new NotFoundError('file does not exist')
     }
 
     // remove the path component we have resolved
@@ -82,7 +82,7 @@ const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, dep
   const content = contentExporters[unixfs.type](cid, node, unixfs, path, resolve, depth, blockstore)
 
   if (content == null) {
-    throw errCode(new Error('could not find content exporter'), 'ERR_NOT_FOUND')
+    throw new NotFoundError('could not find content exporter')
   }
 
   if (unixfs.isDirectory()) {

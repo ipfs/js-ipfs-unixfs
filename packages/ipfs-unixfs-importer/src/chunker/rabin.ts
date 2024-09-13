@@ -1,7 +1,7 @@
-import errcode from 'err-code'
 // @ts-expect-error no types
 import { create } from 'rabin-wasm'
 import { Uint8ArrayList } from 'uint8arraylist'
+import { InvalidAvgChunkSizeError, InvalidChunkSizeError, InvalidMinChunkSizeError } from '../errors.js'
 import type { Chunker } from './index.js'
 
 const DEFAULT_MIN_CHUNK_SIZE = 262144
@@ -54,15 +54,15 @@ export const rabin = (options: RabinOptions = {}): Chunker => {
 
   if (isInvalidChunkSizes) {
     if (options.avgChunkSize != null) {
-      throw errcode(new Error('please specify a valid average chunk size number'), 'ERR_INVALID_AVG_CHUNK_SIZE')
+      throw new InvalidAvgChunkSizeError('please specify a valid average chunk size number')
     }
 
-    throw errcode(new Error('please specify valid numbers for (min|max|avg)ChunkSize'), 'ERR_INVALID_CHUNK_SIZE')
+    throw new InvalidChunkSizeError('please specify valid numbers for (min|max|avg)ChunkSize')
   }
 
   // validate min/max/avg in the same way as go
   if (min < 16) {
-    throw errcode(new Error('rabin min must be greater than 16'), 'ERR_INVALID_MIN_CHUNK_SIZE')
+    throw new InvalidMinChunkSizeError('rabin min must be greater than 16')
   }
 
   if (max < min) {

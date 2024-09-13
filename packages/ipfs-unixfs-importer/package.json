@@ -63,6 +63,91 @@
       "sourceType": "module"
     }
   },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "breaking": true,
+              "release": "major"
+            },
+            {
+              "revert": true,
+              "release": "patch"
+            },
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "release": "patch"
+            },
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "test",
+              "release": "patch"
+            },
+            {
+              "type": "deps",
+              "release": "patch"
+            },
+            {
+              "scope": "no-release",
+              "release": false
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "Features"
+              },
+              {
+                "type": "fix",
+                "section": "Bug Fixes"
+              },
+              {
+                "type": "chore",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "docs",
+                "section": "Documentation"
+              },
+              {
+                "type": "deps",
+                "section": "Dependencies"
+              },
+              {
+                "type": "test",
+                "section": "Tests"
+              }
+            ]
+          }
+        }
+      ],
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
+  },
   "scripts": {
     "test": "aegir test",
     "test:node": "aegir test -t node --cov",
@@ -71,30 +156,31 @@
     "build": "aegir build",
     "clean": "aegir clean",
     "lint": "aegir lint",
-    "dep-check": "aegir dep-check"
+    "dep-check": "aegir dep-check",
+    "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-pb": "^4.1.0",
+    "@ipld/dag-pb": "^4.1.2",
     "@multiformats/murmur3": "^2.1.8",
     "err-code": "^3.0.1",
     "hamt-sharding": "^3.0.6",
-    "interface-blockstore": "^5.2.10",
+    "interface-blockstore": "^5.3.0",
     "interface-store": "^5.1.8",
     "ipfs-unixfs": "^11.0.0",
-    "it-all": "^3.0.4",
-    "it-batch": "^3.0.4",
-    "it-first": "^3.0.4",
-    "it-parallel-batch": "^3.0.4",
-    "multiformats": "^13.1.0",
-    "progress-events": "^1.0.0",
+    "it-all": "^3.0.6",
+    "it-batch": "^3.0.6",
+    "it-first": "^3.0.6",
+    "it-parallel-batch": "^3.0.6",
+    "multiformats": "^13.2.3",
+    "progress-events": "^1.0.1",
     "rabin-wasm": "^0.1.5",
     "uint8arraylist": "^2.4.8",
-    "uint8arrays": "^5.0.3"
+    "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
     "aegir": "^44.1.1",
-    "blockstore-core": "^4.4.0",
-    "it-last": "^3.0.4",
+    "blockstore-core": "^4.4.1",
+    "it-last": "^3.0.6",
     "wherearewe": "^2.0.1"
   },
   "browser": {

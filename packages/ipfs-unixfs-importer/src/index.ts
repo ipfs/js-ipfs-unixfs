@@ -62,13 +62,13 @@
  * ```
  */
 
-import errcode from 'err-code'
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
 import { fixedSize } from './chunker/fixed-size.js'
 import { type BufferImportProgressEvents, defaultBufferImporter } from './dag-builder/buffer-importer.js'
 import { type DAGBuilder, type DagBuilderProgressEvents, defaultDagBuilder } from './dag-builder/index.js'
 import { type ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
+import { InvalidParametersError } from './errors.js'
 import { balanced, type FileLayout } from './layout/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { Chunker } from './chunker/index.js'
@@ -78,6 +78,8 @@ import type { AwaitIterable } from 'interface-store'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
 import type { ProgressOptions } from 'progress-events'
+
+export * from './errors.js'
 
 export type ByteStream = AwaitIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
@@ -382,7 +384,7 @@ export async function importFile (content: FileCandidate, blockstore: WritableSt
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
-    throw errcode(new Error('Nothing imported'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Nothing imported')
   }
 
   return result
@@ -413,7 +415,7 @@ export async function importDirectory (content: DirectoryCandidate, blockstore: 
   const result = await first(importer([content], blockstore, options))
 
   if (result == null) {
-    throw errcode(new Error('Nothing imported'), 'ERR_INVALID_PARAMS')
+    throw new InvalidParametersError('Nothing imported')
   }
 
   return result

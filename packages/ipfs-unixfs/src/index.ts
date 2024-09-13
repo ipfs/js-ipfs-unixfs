@@ -90,7 +90,7 @@
  * ```
  */
 
-import errcode from 'err-code'
+import { InvalidTypeError } from './errors.js'
 import { Data as PBData } from './unixfs.js'
 
 export interface Mtime {
@@ -178,7 +178,7 @@ class UnixFS {
     } = options
 
     if (type != null && !Object.values(types).includes(type)) {
-      throw errcode(new Error('Type: ' + type + ' is not valid'), 'ERR_INVALID_TYPE')
+      throw new InvalidTypeError('Type: ' + type + ' is not valid')
     }
 
     this.type = type ?? 'file'
@@ -250,7 +250,7 @@ class UnixFS {
       case 'symlink': type = PBData.DataType.Symlink; break
       case 'hamt-sharded-directory': type = PBData.DataType.HAMTShard; break
       default:
-        throw errcode(new Error(`Type: ${type} is not valid`), 'ERR_INVALID_TYPE')
+        throw new InvalidTypeError(`Type: ${type} is not valid`)
     }
 
     let data = this.data
@@ -296,3 +296,4 @@ class UnixFS {
 }
 
 export { UnixFS }
+export * from './errors.js'

@@ -1,10 +1,10 @@
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagJson from '@ipld/dag-json'
 import * as dagPb from '@ipld/dag-pb'
-import errCode from 'err-code'
 import * as json from 'multiformats/codecs/json'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
+import { NoResolverError } from '../errors.js'
 import dagCborResolver from './dag-cbor.js'
 import dagJsonResolver from './dag-json.js'
 import identifyResolver from './identity.js'
@@ -26,7 +26,7 @@ const resolve: Resolve = async (cid, name, path, toResolve, depth, blockstore, o
   const resolver = resolvers[cid.code]
 
   if (resolver == null) {
-    throw errCode(new Error(`No resolver for code ${cid.code}`), 'ERR_NO_RESOLVER')
+    throw new NoResolverError(`No resolver for code ${cid.code}`)
   }
 
   return resolver(cid, name, path, toResolve, resolve, depth, blockstore, options)

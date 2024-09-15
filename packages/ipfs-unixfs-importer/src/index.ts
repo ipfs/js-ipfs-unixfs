@@ -72,7 +72,8 @@ import { InvalidParametersError } from './errors.js'
 import { balanced, type FileLayout } from './layout/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { Chunker } from './chunker/index.js'
-import type { ReducerProgressEvents } from './dag-builder/file.js'
+import type { DirBuilder } from './dag-builder/dir.js'
+import type { FileBuilder, ReducerProgressEvents } from './dag-builder/file.js'
 import type { Blockstore } from 'interface-blockstore'
 import type { AwaitIterable } from 'interface-store'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
@@ -272,6 +273,20 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * `Error`
    */
   chunkValidator?: ChunkValidator
+
+  /**
+   * This option can be used to override how a directory IPLD node is built.
+   *
+   * This function takes a `Directory` object and returns a `Promise` that resolves to an `InProgressImportResult`.
+   */
+  dirBuilder?: DirBuilder
+
+  /**
+   * This option can be used to override how a file IPLD node is built.
+   *
+   * This function takes a `File` object and returns a `Promise` that resolves to an `InProgressImportResult`.
+   */
+  fileBuilder?: FileBuilder
 }
 
 export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
@@ -322,6 +337,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const blockWriteConcurrency = options.blockWriteConcurrency ?? 10
   const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? true
 
+
   const chunker = options.chunker ?? fixedSize()
   const chunkValidator = options.chunkValidator ?? defaultChunkValidator()
   const buildDag: DAGBuilder = options.dagBuilder ?? defaultDagBuilder({
@@ -338,7 +354,9 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     blockWriteConcurrency,
     reduceSingleLeafToSelf,
     cidVersion,
-    onProgress: options.onProgress
+    onProgress: options.onProgress,
+    dirBuilder: options.dirBuilder,
+    fileBuilder: options.fileBuilder
   })
   const buildTree: TreeBuilder = options.treeBuilder ?? defaultTreeBuilder({
     wrapWithDirectory,

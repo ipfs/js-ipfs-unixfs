@@ -1,10 +1,10 @@
 import { decode, type PBNode } from '@ipld/dag-pb'
-import errCode from 'err-code'
 import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
+import { NotUnixFSError } from '../../../errors.js'
 import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk } from '../../../index.js'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -23,18 +23,18 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
   const links = node.Links
 
   if (node.Data == null) {
-    throw errCode(new Error('no data in PBNode'), 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError('no data in PBNode')
   }
 
   let dir: UnixFS
   try {
     dir = UnixFS.unmarshal(node.Data)
   } catch (err: any) {
-    throw errCode(err, 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError(err.message)
   }
 
   if (dir.fanout == null) {
-    throw errCode(new Error('missing fanout'), 'ERR_NOT_UNIXFS')
+    throw new NotUnixFSError('missing fanout')
   }
 
   const padLength = (dir.fanout - 1n).toString(16).length

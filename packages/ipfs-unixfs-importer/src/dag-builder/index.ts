@@ -1,5 +1,5 @@
-import errCode from 'err-code'
 import { CustomProgressEvent } from 'progress-events'
+import { InvalidContentError } from '../errors.js'
 import { defaultDirBuilder, type DirBuilder, type DirBuilderOptions } from './dir.js'
 import { defaultFileBuilder, type FileBuilder, type FileBuilderOptions } from './file.js'
 import type { ChunkValidator } from './validate-chunks.js'
@@ -64,10 +64,10 @@ function contentAsAsyncIterable (
       return content
     }
   } catch {
-    throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
+    throw new InvalidContentError('Content was invalid')
   }
 
-  throw errCode(new Error('Content was invalid'), 'ERR_INVALID_CONTENT')
+  throw new InvalidContentError('Content was invalid')
 }
 
 export interface DagBuilderOptions

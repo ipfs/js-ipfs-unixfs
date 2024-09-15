@@ -1,3 +1,22 @@
+## [ipfs-unixfs-importer-v15.3.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.0...ipfs-unixfs-importer-15.3.1) (2024-09-13)
+
+### Dependencies
+
+* bump interface-store from 5.1.8 to 6.0.0 ([#410](https://github.com/ipfs/js-ipfs-unixfs/issues/410)) ([e3939ec](https://github.com/ipfs/js-ipfs-unixfs/commit/e3939ec99dd5e1a66a00fc249e0bd242724c43d0))
+* **dev:** bump blockstore-core from 4.4.1 to 5.0.0 ([#411](https://github.com/ipfs/js-ipfs-unixfs/issues/411)) ([6663007](https://github.com/ipfs/js-ipfs-unixfs/commit/6663007b46fb18e31157bce7bba4bfcf7b0ef5b5))
+
+## [ipfs-unixfs-importer-v15.3.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.2.6...ipfs-unixfs-importer-15.3.0) (2024-09-13)
+
+### Features
+
+* add name property to errors ([#414](https://github.com/ipfs/js-ipfs-unixfs/issues/414)) ([70145c7](https://github.com/ipfs/js-ipfs-unixfs/commit/70145c7c1e78ede3c481100151a9491c639671be))
+
+## [ipfs-unixfs-importer-v15.2.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.2.5...ipfs-unixfs-importer-15.2.6) (2024-09-13)
+
+### Dependencies
+
+* **dev:** bump aegir from 42.2.11 to 44.1.1 ([#412](https://github.com/ipfs/js-ipfs-unixfs/issues/412)) ([f94d1ad](https://github.com/ipfs/js-ipfs-unixfs/commit/f94d1ad0a507a0b37dd601490bba22224192f5a3))
+
 ## ipfs-unixfs-importer [15.2.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.2.4...ipfs-unixfs-importer-15.2.5) (2024-04-05)
 
 

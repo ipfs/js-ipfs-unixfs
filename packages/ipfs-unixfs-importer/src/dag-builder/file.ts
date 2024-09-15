@@ -184,7 +184,7 @@ const reduce = (
           }
         }
 
-        if (leaf.unixfs == null || leaf.unixfs.data == null) {
+        if ((leaf.unixfs?.data == null)) {
           // node is an intermediate node
           f.addBlockSize(leaf.unixfs?.fileSize() ?? 0n)
         } else {

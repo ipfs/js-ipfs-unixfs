@@ -32,8 +32,8 @@ The UnixFS spec can be found in the [ipfs/specs repository](http://github.com/ip
 
 ```JavaScript
 const data = new UnixFS({ type: 'file' })
-data.addBlockSize(256) // add the size of each block
-data.addBlockSize(256)
+data.addBlockSize(256n) // add the size of each block
+data.addBlockSize(256n)
 // ...
 ```
 
@@ -68,7 +68,7 @@ const data = new UnixFS([options])
 ## Example - Add and remove a block size to the block size list
 
 ```JavaScript
-data.addBlockSize(<size in bytes>)
+data.addBlockSize(<size in BigInt(bytes)>)
 ```
 
 ```JavaScript

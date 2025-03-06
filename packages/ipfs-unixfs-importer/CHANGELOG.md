@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v15.3.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.1...ipfs-unixfs-importer-15.3.2) (2025-03-06)
+
+### Dependencies
+
+* **dev:** bump aegir from 44.1.4 to 45.0.8 ([#420](https://github.com/ipfs/js-ipfs-unixfs/issues/420)) ([6eb1064](https://github.com/ipfs/js-ipfs-unixfs/commit/6eb1064ceaf3bbbdadc639e9641f3d9fad8ab23b))
+
 ## [ipfs-unixfs-importer-v15.3.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.0...ipfs-unixfs-importer-15.3.1) (2024-09-13)
 
 ### Dependencies

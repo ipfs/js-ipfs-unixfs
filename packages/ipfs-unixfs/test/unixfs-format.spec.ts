@@ -431,4 +431,17 @@ describe('unixfs-format', () => {
 
     expect(marshaled).to.deep.equal(Uint8Array.from([0x08, 0x02, 0x18, 0x00]))
   })
+
+  it('should limit maximum fanout size', () => {
+    const data = new UnixFS({
+      type: 'hamt-sharded-directory',
+      fanout: 1025n
+    })
+    const marshaled = data.marshal()
+
+    expect(() => {
+      UnixFS.unmarshal(marshaled)
+    }).to.throw()
+      .with.property('name', 'InvalidUnixFSMessageError')
+  })
 })

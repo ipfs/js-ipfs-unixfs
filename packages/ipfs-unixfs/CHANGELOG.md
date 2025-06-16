@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v11.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.1...ipfs-unixfs-11.2.2) (2025-06-16)
+
+### Bug Fixes
+
+* limit incoming hamt width ([#433](https://github.com/ipfs/js-ipfs-unixfs/issues/433)) ([8ca0144](https://github.com/ipfs/js-ipfs-unixfs/commit/8ca014420094be90b8bb765bb3f703a9ce7260b1))
+
 ## [ipfs-unixfs-v11.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.0...ipfs-unixfs-11.2.1) (2025-03-06)
 
 ### Dependencies

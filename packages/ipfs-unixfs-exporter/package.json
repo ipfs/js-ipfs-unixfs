@@ -168,7 +168,7 @@
     "it-to-buffer": "^4.0.7",
     "merge-options": "^3.0.4",
     "readable-stream": "^4.5.2",
-    "sinon": "^19.0.2",
+    "sinon": "^21.0.0",
     "uint8arrays": "^5.1.0",
     "wherearewe": "^2.0.1"
   },

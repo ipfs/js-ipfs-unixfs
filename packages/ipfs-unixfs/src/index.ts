@@ -90,7 +90,7 @@
  * ```
  */
 
-import { InvalidTypeError } from './errors.js'
+import { InvalidTypeError, InvalidUnixFSMessageError } from './errors.js'
 import { Data as PBData } from './unixfs.js'
 
 export interface Mtime {
@@ -117,6 +117,9 @@ const dirTypes = [
 const DEFAULT_FILE_MODE = parseInt('0644', 8)
 const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 
+// https://github.com/ipfs/boxo/blob/364c5040ec91ec8e2a61446e9921e9225704c34d/ipld/unixfs/hamt/hamt.go#L778
+const MAX_FANOUT = BigInt(1 << 10)
+
 export interface UnixFSOptions {
   type?: string
   data?: Uint8Array
@@ -133,6 +136,10 @@ class UnixFS {
    */
   static unmarshal (marshaled: Uint8Array): UnixFS {
     const message = PBData.decode(marshaled)
+
+    if (message.fanout != null && message.fanout > MAX_FANOUT) {
+      throw new InvalidUnixFSMessageError(`Fanout size was too large - ${message.fanout} > ${MAX_FANOUT}`)
+    }
 
     const data = new UnixFS({
       type: types[message.Type != null ? message.Type.toString() : 'File'],

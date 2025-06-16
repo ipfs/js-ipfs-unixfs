@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v13.6.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.2...ipfs-unixfs-exporter-13.6.3) (2025-06-16)
+
+### Dependencies
+
+* **dev:** bump sinon from 19.0.5 to 21.0.0 ([#432](https://github.com/ipfs/js-ipfs-unixfs/issues/432)) ([14d7e1c](https://github.com/ipfs/js-ipfs-unixfs/commit/14d7e1cacfa61fad6df86c0875ad52ce6b203457))
+
 ## [ipfs-unixfs-exporter-v13.6.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.1...ipfs-unixfs-exporter-13.6.2) (2025-03-06)
 
 ### Dependencies

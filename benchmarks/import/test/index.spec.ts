@@ -1,9 +1,10 @@
 /* eslint-env mocha */
 
-import { importer, ImporterOptions } from 'ipfs-unixfs-importer'
-import bufferStream from 'it-buffer-stream'
 import { MemoryBlockstore } from 'blockstore-core'
+import { importer } from 'ipfs-unixfs-importer'
+import bufferStream from 'it-buffer-stream'
 import drain from 'it-drain'
+import type { ImporterOptions } from 'ipfs-unixfs-importer'
 
 const REPEATS = 10
 const FILE_SIZE = Math.pow(2, 20) * 500 // 500MB

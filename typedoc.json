@@ -1,7 +1,12 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "name": "UnixFS",
+  "name": "js-ipfs-unixfs",
+  "readme": "./README.md",
+  "headings": {
+    "readme": false,
+    "document": false
+  },
   "exclude": [
-    "packages/interop"
+    "benchmarks/**/*"
   ]
 }

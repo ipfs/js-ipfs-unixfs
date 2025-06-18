@@ -1,3 +1,27 @@
+## [ipfs-unixfs-v11.2.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.3...ipfs-unixfs-11.2.4) (2025-06-18)
+
+### Documentation
+
+* convert examples to ts, run doc verifier ([#434](https://github.com/ipfs/js-ipfs-unixfs/issues/434)) ([95e0b47](https://github.com/ipfs/js-ipfs-unixfs/commit/95e0b47de62c57b29bd10d48503cef4f208caae1))
+
+## [ipfs-unixfs-v11.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.2...ipfs-unixfs-11.2.3) (2025-06-18)
+
+### Dependencies
+
+* bump aegir from 45.2.1 to 47.0.16 ([#431](https://github.com/ipfs/js-ipfs-unixfs/issues/431)) ([1fb2db3](https://github.com/ipfs/js-ipfs-unixfs/commit/1fb2db37f33674eb7a0e00aa88d5312a7644536d))
+
+## [ipfs-unixfs-v11.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.1...ipfs-unixfs-11.2.2) (2025-06-16)
+
+### Bug Fixes
+
+* limit incoming hamt width ([#433](https://github.com/ipfs/js-ipfs-unixfs/issues/433)) ([8ca0144](https://github.com/ipfs/js-ipfs-unixfs/commit/8ca014420094be90b8bb765bb3f703a9ce7260b1))
+
+## [ipfs-unixfs-v11.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.0...ipfs-unixfs-11.2.1) (2025-03-06)
+
+### Dependencies
+
+* **dev:** bump aegir from 44.1.4 to 45.0.8 ([#420](https://github.com/ipfs/js-ipfs-unixfs/issues/420)) ([6eb1064](https://github.com/ipfs/js-ipfs-unixfs/commit/6eb1064ceaf3bbbdadc639e9641f3d9fad8ab23b))
+
 ## [ipfs-unixfs-v11.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.1.5...ipfs-unixfs-11.2.0) (2024-09-13)
 
 ### Features

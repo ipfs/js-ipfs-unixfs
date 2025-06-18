@@ -1,8 +1,11 @@
-import { encode, type PBNode, prepare } from '@ipld/dag-pb'
+import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import { Dir, CID_V0, CID_V1, type DirProps } from './dir.js'
-import { persist, type PersistOptions } from './utils/persist.js'
+import { Dir, CID_V0, CID_V1 } from './dir.js'
+import { persist } from './utils/persist.js'
+import type { DirProps } from './dir.js'
 import type { ImportResult, InProgressImportResult } from './index.js'
+import type { PersistOptions } from './utils/persist.js'
+import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { CID } from 'multiformats/cid'
 
@@ -35,11 +38,11 @@ export class DirFlat extends Dir {
     return this.childCount()
   }
 
-  onlyChild (): InProgressImportResult | Dir {
+  onlyChild (): InProgressImportResult | Dir | undefined {
     return this._children.values().next().value
   }
 
-  async * eachChildSeries (): AsyncGenerator<{ key: string, child: InProgressImportResult | Dir }, void, undefined> {
+  * eachChildSeries (): Generator<{ key: string, child: InProgressImportResult | Dir }, void, undefined> {
     for (const [key, child] of this._children.entries()) {
       yield {
         key,

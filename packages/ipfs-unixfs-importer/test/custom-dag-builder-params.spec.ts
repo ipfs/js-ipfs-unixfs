@@ -1,11 +1,13 @@
 import { chai } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
-import { defaultDirBuilder, type DirBuilder } from '../src/dag-builder/dir.js'
+import { defaultDirBuilder } from '../src/dag-builder/dir.js'
 import {
-  defaultFileBuilder,
-  type FileBuilder
+  defaultFileBuilder
+
 } from '../src/dag-builder/file.js'
 import { importer } from '../src/index.js'
+import type { DirBuilder } from '../src/dag-builder/dir.js'
+import type { FileBuilder } from '../src/dag-builder/file.js'
 
 describe('CustomParamsDagBuilder', () => {
   it('should build a dag with custom dir builder', async () => {

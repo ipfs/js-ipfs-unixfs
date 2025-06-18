@@ -14,7 +14,7 @@
  *
  * And write the importing logic:
  *
- * ```js
+ * ```TypeScript
  * import { importer } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core/memory'
  * import * as fs from 'node:fs'
@@ -38,7 +38,7 @@
  *
  * When run, metadata about DAGNodes in the created tree is printed until the root:
  *
- * ```js
+ * ```
  * {
  *   cid: CID, // see https://github.com/multiformats/js-cid
  *   path: 'tmp/foo/bar',
@@ -65,15 +65,19 @@
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
 import { fixedSize } from './chunker/fixed-size.js'
-import { type BufferImportProgressEvents, defaultBufferImporter } from './dag-builder/buffer-importer.js'
-import { type DAGBuilder, type DagBuilderProgressEvents, defaultDagBuilder } from './dag-builder/index.js'
-import { type ChunkValidator, defaultChunkValidator } from './dag-builder/validate-chunks.js'
+import { defaultBufferImporter } from './dag-builder/buffer-importer.js'
+import { defaultDagBuilder } from './dag-builder/index.js'
+import { defaultChunkValidator } from './dag-builder/validate-chunks.js'
 import { InvalidParametersError } from './errors.js'
-import { balanced, type FileLayout } from './layout/index.js'
+import { balanced } from './layout/index.js'
 import { defaultTreeBuilder } from './tree-builder.js'
 import type { Chunker } from './chunker/index.js'
+import type { BufferImportProgressEvents } from './dag-builder/buffer-importer.js'
 import type { DirBuilder } from './dag-builder/dir.js'
 import type { FileBuilder, ReducerProgressEvents } from './dag-builder/file.js'
+import type { DAGBuilder, DagBuilderProgressEvents } from './dag-builder/index.js'
+import type { ChunkValidator } from './dag-builder/validate-chunks.js'
+import type { FileLayout } from './layout/index.js'
 import type { Blockstore } from 'interface-blockstore'
 import type { AwaitIterable } from 'interface-store'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
@@ -336,7 +340,6 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const fileImportConcurrency = options.fileImportConcurrency ?? 50
   const blockWriteConcurrency = options.blockWriteConcurrency ?? 10
   const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? true
-
 
   const chunker = options.chunker ?? fixedSize()
   const chunkValidator = options.chunkValidator ?? defaultChunkValidator()

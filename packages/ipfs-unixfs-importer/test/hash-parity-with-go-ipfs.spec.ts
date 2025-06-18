@@ -5,9 +5,11 @@ import { MemoryBlockstore } from 'blockstore-core'
 import first from 'it-first'
 import last from 'it-last'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { importer, type ImporterOptions } from '../src/index.js'
-import { balanced, type FileLayout, flat, trickle } from '../src/layout/index.js'
+import { importer } from '../src/index.js'
+import { balanced, flat, trickle } from '../src/layout/index.js'
 import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
+import type { ImporterOptions } from '../src/index.js'
+import type { FileLayout } from '../src/layout/index.js'
 
 const strategies: Record<'flat' | 'trickle' | 'balanced', FileLayout> = {
   flat: flat(),

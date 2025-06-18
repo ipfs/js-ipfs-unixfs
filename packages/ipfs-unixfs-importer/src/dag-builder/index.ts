@@ -1,7 +1,9 @@
 import { CustomProgressEvent } from 'progress-events'
 import { InvalidContentError } from '../errors.js'
-import { defaultDirBuilder, type DirBuilder, type DirBuilderOptions } from './dir.js'
-import { defaultFileBuilder, type FileBuilder, type FileBuilderOptions } from './file.js'
+import { defaultDirBuilder } from './dir.js'
+import { defaultFileBuilder } from './file.js'
+import type { DirBuilder, DirBuilderOptions } from './dir.js'
+import type { FileBuilder, FileBuilderOptions } from './file.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
 import type {

@@ -7,10 +7,12 @@
  *
  * @example Create a file composed of several blocks
  *
- * ```JavaScript
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
  * const data = new UnixFS({ type: 'file' })
- * data.addBlockSize(256) // add the size of each block
- * data.addBlockSize(256)
+ * data.addBlockSize(256n) // add the size of each block
+ * data.addBlockSize(256n)
  * // ...
  * ```
  *
@@ -18,14 +20,20 @@
  *
  * Creating a directory that contains several files is achieve by creating a unixfs element that identifies a MerkleDAG node as a directory. The links of that MerkleDAG node are the files that are contained in this directory.
  *
- * ```JavaScript
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
  * const data = new UnixFS({ type: 'directory' })
  * ```
  *
  * @example Create an unixfs Data element
  *
- * ```JavaScript
- * const data = new UnixFS([options])
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const data = new UnixFS({
+ *   // ...options
+ * })
  * ```
  *
  * `options` is an optional object argument that might include the following keys:
@@ -44,34 +52,51 @@
  *
  * @example Add and remove a block size to the block size list
  *
- * ```JavaScript
- * data.addBlockSize(<size in bytes>)
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const data = new UnixFS({ type: 'file' })
+ * const sizeInBytes = 100n
+ * data.addBlockSize(sizeInBytes)
  * ```
  *
- * ```JavaScript
- * data.removeBlockSize(<index>)
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const data = new UnixFS({ type: 'file' })
+ *
+ * const index = 0
+ * data.removeBlockSize(index)
  * ```
  *
  * @example Get total fileSize
  *
- * ```JavaScript
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const data = new UnixFS({ type: 'file' })
  * data.fileSize() // => size in bytes
  * ```
  *
  * @example Marshal and unmarshal
  *
- * ```javascript
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const data = new UnixFS({ type: 'file' })
  * const marshaled = data.marshal()
- * const unmarshaled = Unixfs.unmarshal(marshaled)
+ * const unmarshaled = UnixFS.unmarshal(marshaled)
  * ```
  *
  * @example Is this UnixFS entry a directory?
  *
- * ```JavaScript
- * const dir = new Data({ type: 'directory' })
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const dir = new UnixFS({ type: 'directory' })
  * dir.isDirectory() // true
  *
- * const file = new Data({ type: 'file' })
+ * const file = new UnixFS({ type: 'file' })
  * file.isDirectory() // false
  * ```
  *
@@ -79,18 +104,20 @@
  *
  * If no modification time has been set, no `mtime` property will be present on the `Data` instance:
  *
- * ```JavaScript
- * const file = new Data({ type: 'file' })
+ * ```TypeScript
+ * import { UnixFS } from 'ipfs-unixfs'
+ *
+ * const file = new UnixFS({ type: 'file' })
  * file.mtime // undefined
  *
  * Object.prototype.hasOwnProperty.call(file, 'mtime') // false
  *
- * const dir = new Data({ type: 'dir', mtime: new Date() })
+ * const dir = new UnixFS({ type: 'dir', mtime: { secs: 5n } })
  * dir.mtime // { secs: Number, nsecs: Number }
  * ```
  */
 
-import { InvalidTypeError } from './errors.js'
+import { InvalidTypeError, InvalidUnixFSMessageError } from './errors.js'
 import { Data as PBData } from './unixfs.js'
 
 export interface Mtime {
@@ -117,6 +144,9 @@ const dirTypes = [
 const DEFAULT_FILE_MODE = parseInt('0644', 8)
 const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 
+// https://github.com/ipfs/boxo/blob/364c5040ec91ec8e2a61446e9921e9225704c34d/ipld/unixfs/hamt/hamt.go#L778
+const MAX_FANOUT = BigInt(1 << 10)
+
 export interface UnixFSOptions {
   type?: string
   data?: Uint8Array
@@ -133,6 +163,10 @@ class UnixFS {
    */
   static unmarshal (marshaled: Uint8Array): UnixFS {
     const message = PBData.decode(marshaled)
+
+    if (message.fanout != null && message.fanout > MAX_FANOUT) {
+      throw new InvalidUnixFSMessageError(`Fanout size was too large - ${message.fanout} > ${MAX_FANOUT}`)
+    }
 
     const data = new UnixFS({
       type: types[message.Type != null ? message.Type.toString() : 'File'],

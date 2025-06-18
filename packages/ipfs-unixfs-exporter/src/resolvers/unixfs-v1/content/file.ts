@@ -3,7 +3,7 @@ import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
-import { type Pushable, pushable } from 'it-pushable'
+import { pushable } from 'it-pushable'
 import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
@@ -11,6 +11,7 @@ import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.j
 import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
 import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
 import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage, ExportProgress, ExportWalk } from '../../../index.js'
+import type { Pushable } from 'it-pushable'
 
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node

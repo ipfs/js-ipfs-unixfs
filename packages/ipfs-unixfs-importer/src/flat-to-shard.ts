@@ -1,5 +1,6 @@
 import { DirFlat } from './dir-flat.js'
-import DirSharded, { type DirShardedOptions } from './dir-sharded.js'
+import DirSharded from './dir-sharded.js'
+import type { DirShardedOptions } from './dir-sharded.js'
 import type { Dir } from './dir.js'
 
 export async function flatToShard (child: Dir | null, dir: Dir, threshold: number, options: DirShardedOptions): Promise<DirSharded> {
@@ -43,7 +44,7 @@ async function convertToShard (oldDir: DirFlat, options: DirShardedOptions): Pro
     mode: oldDir.mode
   }, options)
 
-  for await (const { key, child } of oldDir.eachChildSeries()) {
+  for (const { key, child } of oldDir.eachChildSeries()) {
     await newDir.put(key, child)
   }
 

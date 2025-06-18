@@ -3,8 +3,9 @@
 import { expect } from 'aegir/chai'
 import loadFixture from 'aegir/fixtures'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { type Mtime, UnixFS } from '../src/index.js'
+import { UnixFS } from '../src/index.js'
 import * as Pb from '../src/unixfs.js'
+import type { Mtime } from '../src/index.js'
 const PBData = Pb.Data
 
 const raw = loadFixture('test/fixtures/raw.unixfs')
@@ -430,5 +431,18 @@ describe('unixfs-format', () => {
     const marshaled = data.marshal()
 
     expect(marshaled).to.deep.equal(Uint8Array.from([0x08, 0x02, 0x18, 0x00]))
+  })
+
+  it('should limit maximum fanout size', () => {
+    const data = new UnixFS({
+      type: 'hamt-sharded-directory',
+      fanout: 1025n
+    })
+    const marshaled = data.marshal()
+
+    expect(() => {
+      UnixFS.unmarshal(marshaled)
+    }).to.throw()
+      .with.property('name', 'InvalidUnixFSMessageError')
   })
 })

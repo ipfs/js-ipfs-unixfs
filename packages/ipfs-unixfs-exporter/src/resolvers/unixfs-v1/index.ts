@@ -1,4 +1,4 @@
-import { decode, type PBNode } from '@ipld/dag-pb'
+import { decode } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import { NotFoundError, NotUnixFSError } from '../../errors.js'
 import findShardCid from '../../utils/find-cid-in-shard.js'
@@ -6,6 +6,7 @@ import contentDirectory from './content/directory.js'
 import contentFile from './content/file.js'
 import contentHamtShardedDirectory from './content/hamt-sharded-directory.js'
 import type { Resolver, UnixfsV1Resolver } from '../../index.js'
+import type { PBNode } from '@ipld/dag-pb'
 import type { CID } from 'multiformats/cid'
 
 const findLinkCid = (node: PBNode, name: string): CID | undefined => {

@@ -1,3 +1,27 @@
+## [ipfs-unixfs-exporter-v13.6.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.4...ipfs-unixfs-exporter-13.6.5) (2025-06-18)
+
+### Documentation
+
+* convert examples to ts, run doc verifier ([#434](https://github.com/ipfs/js-ipfs-unixfs/issues/434)) ([95e0b47](https://github.com/ipfs/js-ipfs-unixfs/commit/95e0b47de62c57b29bd10d48503cef4f208caae1))
+
+## [ipfs-unixfs-exporter-v13.6.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.3...ipfs-unixfs-exporter-13.6.4) (2025-06-18)
+
+### Dependencies
+
+* bump aegir from 45.2.1 to 47.0.16 ([#431](https://github.com/ipfs/js-ipfs-unixfs/issues/431)) ([1fb2db3](https://github.com/ipfs/js-ipfs-unixfs/commit/1fb2db37f33674eb7a0e00aa88d5312a7644536d))
+
+## [ipfs-unixfs-exporter-v13.6.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.2...ipfs-unixfs-exporter-13.6.3) (2025-06-16)
+
+### Dependencies
+
+* **dev:** bump sinon from 19.0.5 to 21.0.0 ([#432](https://github.com/ipfs/js-ipfs-unixfs/issues/432)) ([14d7e1c](https://github.com/ipfs/js-ipfs-unixfs/commit/14d7e1cacfa61fad6df86c0875ad52ce6b203457))
+
+## [ipfs-unixfs-exporter-v13.6.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.1...ipfs-unixfs-exporter-13.6.2) (2025-03-06)
+
+### Dependencies
+
+* **dev:** bump aegir from 44.1.4 to 45.0.8 ([#420](https://github.com/ipfs/js-ipfs-unixfs/issues/420)) ([6eb1064](https://github.com/ipfs/js-ipfs-unixfs/commit/6eb1064ceaf3bbbdadc639e9641f3d9fad8ab23b))
+
 ## [ipfs-unixfs-exporter-v13.6.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.0...ipfs-unixfs-exporter-13.6.1) (2024-09-13)
 
 ### Dependencies

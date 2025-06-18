@@ -49,7 +49,7 @@ export abstract class Dir {
 
   abstract put (name: string, value: InProgressImportResult | Dir): Promise<void>
   abstract get (name: string): Promise<InProgressImportResult | Dir | undefined>
-  abstract eachChildSeries (): AsyncIterable<{ key: string, child: InProgressImportResult | Dir }>
+  abstract eachChildSeries (): Iterable<{ key: string, child: InProgressImportResult | Dir }>
   abstract flush (blockstore: WritableStorage): AsyncGenerator<ImportResult>
   abstract estimateNodeSize (): number
   abstract childCount (): number

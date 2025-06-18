@@ -27,6 +27,7 @@
     "build": "aegir run build",
     "lint": "aegir run lint",
     "dep-check": "aegir run dep-check",
+    "doc-check": "aegir run doc-check",
     "release": "run-s build docs:no-publish npm:release docs",
     "npm:release": "aegir run release --concurrency 1",
     "docs": "aegir docs",

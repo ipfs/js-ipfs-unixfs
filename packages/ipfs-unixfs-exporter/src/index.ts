@@ -5,7 +5,7 @@
  *
  * @example
  *
- * ```js
+ * ```TypeScript
  * // import a file and export it again
  * import { importer } from 'ipfs-unixfs-importer'
  * import { exporter } from 'ipfs-unixfs-exporter'
@@ -26,6 +26,10 @@
  *
  * const entry = await exporter(files[0].cid, blockstore)
  *
+ * if (entry.type !== 'file') {
+ *   throw new Error('Unexpected entry type')
+ * }
+ *
  * console.info(entry.cid) // Qmqux
  * console.info(entry.path) // Qmbaz/foo/bar.txt
  * console.info(entry.name) // bar.txt
@@ -33,12 +37,12 @@
  *
  * // stream content from unixfs node
  * const size = entry.unixfs.fileSize()
- * const bytes = new Uint8Array(size)
+ * const bytes = new Uint8Array(Number(size))
  * let offset = 0
  *
  * for await (const buf of entry.content()) {
  *   bytes.set(buf, offset)
- *   offset += chunk.length
+ *   offset += buf.byteLength
  * }
  *
  * console.info(bytes) // 0, 1, 2, 3
@@ -180,7 +184,7 @@ export interface Exportable<T> {
    *
    * When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
    *
-   * ```javascript
+   * ```TypeScript
    * const length = 5
    * const data = new Uint8Array(length)
    * let offset = 0
@@ -201,7 +205,7 @@ export interface Exportable<T> {
    *
    * If `entry` is a directory, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
    *
-   * ```javascript
+   * ```TypeScript
    * const entries = []
    *
    * for await (const entry of dir.content({
@@ -220,7 +224,7 @@ export interface Exportable<T> {
 /**
  * If the entry is a file, `entry.content()` returns an async iterator that yields one or more Uint8Arrays containing the file content:
  *
- * ```javascript
+ * ```TypeScript
  * if (entry.type === 'file') {
  *   for await (const chunk of entry.content()) {
  *     // chunk is a Buffer
@@ -237,7 +241,7 @@ export interface UnixFSFile extends Exportable<Uint8Array> {
 /**
  * If the entry is a directory, `entry.content()` returns further `entry` objects:
  *
- * ```javascript
+ * ```TypeScript
  * if (entry.type === 'directory') {
  *   for await (const entry of dir.content()) {
  *     console.info(entry.name)
@@ -264,7 +268,7 @@ export interface ObjectNode extends Exportable<any> {
  *
  * `entry.content()` returns an async iterator that yields a buffer containing the node content:
  *
- * ```javascript
+ * ```TypeScript
  * for await (const chunk of entry.content()) {
  *   // chunk is a Buffer
  * }
@@ -371,7 +375,7 @@ const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: str
  *
  * @example
  *
- * ```javascript
+ * ```TypeScript
  * import { walkPath } from 'ipfs-unixfs-exporter'
  *
  * const entries = []

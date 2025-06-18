@@ -370,6 +370,7 @@ describe('unixfs-format', () => {
     try {
       // eslint-disable-next-line no-new
       new UnixFS({
+        // @ts-expect-error invalid type
         type: 'bananas'
       })
     } catch (err: any) {

@@ -28,7 +28,7 @@ The UnixFS Exporter provides a means to read DAGs from a blockstore given a CID.
 
 ## Example
 
-```js
+```TypeScript
 // import a file and export it again
 import { importer } from 'ipfs-unixfs-importer'
 import { exporter } from 'ipfs-unixfs-exporter'
@@ -49,6 +49,10 @@ console.info(files[0].cid) // Qmbaz
 
 const entry = await exporter(files[0].cid, blockstore)
 
+if (entry.type !== 'file') {
+  throw new Error('Unexpected entry type')
+}
+
 console.info(entry.cid) // Qmqux
 console.info(entry.path) // Qmbaz/foo/bar.txt
 console.info(entry.name) // bar.txt
@@ -56,12 +60,12 @@ console.info(entry.unixfs.fileSize()) // 4
 
 // stream content from unixfs node
 const size = entry.unixfs.fileSize()
-const bytes = new Uint8Array(size)
+const bytes = new Uint8Array(Number(size))
 let offset = 0
 
 for await (const buf of entry.content()) {
   bytes.set(buf, offset)
-  offset += chunk.length
+  offset += buf.byteLength
 }
 
 console.info(bytes) // 0, 1, 2, 3

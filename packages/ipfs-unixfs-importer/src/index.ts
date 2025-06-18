@@ -14,7 +14,7 @@
  *
  * And write the importing logic:
  *
- * ```js
+ * ```TypeScript
  * import { importer } from 'ipfs-unixfs-importer'
  * import { MemoryBlockstore } from 'blockstore-core/memory'
  * import * as fs from 'node:fs'
@@ -38,7 +38,7 @@
  *
  * When run, metadata about DAGNodes in the created tree is printed until the root:
  *
- * ```js
+ * ```
  * {
  *   cid: CID, // see https://github.com/multiformats/js-cid
  *   path: 'tmp/foo/bar',

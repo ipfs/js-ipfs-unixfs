@@ -104,12 +104,10 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
         leaf.size = BigInt(leaf.block.length)
       }
 
-      options.onProgress?.(
-        new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
-          cid: leaf.cid,
-          path: leaf.originalPath
-        })
-      )
+      options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+        cid: leaf.cid,
+        path: leaf.originalPath
+      }))
 
       return {
         cid: leaf.cid,
@@ -128,7 +126,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
     })
 
     const links: PBLink[] = leaves
-      .filter((leaf) => {
+      .filter(leaf => {
         if (leaf.cid.code === rawCodec.code && leaf.size > 0) {
           return true
         }
@@ -173,21 +171,16 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
     const block = encode(prepare(node))
     const cid = await persist(block, blockstore, options)
 
-    options.onProgress?.(
-      new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
-        cid,
-        path: file.originalPath
-      })
-    )
+    options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+      cid,
+      path: file.originalPath
+    }))
 
     return {
       cid,
       path: file.path,
       unixfs: f,
-      size: BigInt(
-        block.length +
-          node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0)
-      ),
+      size: BigInt(block.length + node.Links.reduce((acc, curr) => acc + (curr.Tsize ?? 0), 0)),
       originalPath: file.originalPath,
       block
     }

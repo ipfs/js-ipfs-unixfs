@@ -68,9 +68,7 @@ export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions
   fileBuilder?: FileBuilder
 }
 
-export type ImporterSourceStream =
-  | AsyncIterable<ImportCandidate>
-  | Iterable<ImportCandidate>
+export type ImporterSourceStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
 
 export interface DAGBuilder {
   (source: ImporterSourceStream, blockstore: WritableStorage): AsyncIterable<() => Promise<InProgressImportResult>>

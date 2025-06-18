@@ -5,5 +5,8 @@
   "headings": {
     "readme": false,
     "document": false
-  }
+  },
+  "exclude": [
+    "benchmarks/**/*"
+  ]
 }

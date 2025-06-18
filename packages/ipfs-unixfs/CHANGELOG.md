@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v11.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.2...ipfs-unixfs-11.2.3) (2025-06-18)
+
+### Dependencies
+
+* bump aegir from 45.2.1 to 47.0.16 ([#431](https://github.com/ipfs/js-ipfs-unixfs/issues/431)) ([1fb2db3](https://github.com/ipfs/js-ipfs-unixfs/commit/1fb2db37f33674eb7a0e00aa88d5312a7644536d))
+
 ## [ipfs-unixfs-v11.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.1...ipfs-unixfs-11.2.2) (2025-06-16)
 
 ### Bug Fixes

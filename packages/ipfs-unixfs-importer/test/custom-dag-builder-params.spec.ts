@@ -1,10 +1,7 @@
-import { chai } from 'aegir/chai'
+import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import { defaultDirBuilder } from '../src/dag-builder/dir.js'
-import {
-  defaultFileBuilder
-
-} from '../src/dag-builder/file.js'
+import { defaultFileBuilder } from '../src/dag-builder/file.js'
 import { importer } from '../src/index.js'
 import type { DirBuilder } from '../src/dag-builder/dir.js'
 import type { FileBuilder } from '../src/dag-builder/file.js'
@@ -24,27 +21,20 @@ describe('CustomParamsDagBuilder', () => {
 
     const blockstore = new MemoryBlockstore()
     const files = []
-    for await (const file of importer(
-      [
-        {
-          path: './src/file.txt',
-          content: new Uint8Array(
-            'hello world'.split('').map((char) => char.charCodeAt(0))
-          )
-        },
-        {
-          path: './src'
-        }
-      ],
-      blockstore,
-      {
-        dirBuilder: customDirBuilder,
-        fileBuilder: customFileBuilder
-      }
-    )) {
+    for await (const file of importer([{
+      path: './src/file.txt',
+      content: new Uint8Array(
+        'hello world'.split('').map((char) => char.charCodeAt(0))
+      )
+    }, {
+      path: './src'
+    }], blockstore, {
+      dirBuilder: customDirBuilder,
+      fileBuilder: customFileBuilder
+    })) {
       files.push(file)
     }
 
-    chai.expect(counter.dirCounter).to.equal(1)
+    expect(counter.dirCounter).to.equal(1)
   })
 })

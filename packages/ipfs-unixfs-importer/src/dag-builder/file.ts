@@ -4,14 +4,7 @@ import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
 import { CustomProgressEvent } from 'progress-events'
 import { persist } from '../utils/persist.js'
-import type {
-  BufferImporter,
-  File,
-  InProgressImportResult,
-  WritableStorage,
-  SingleBlockImportResult,
-  ImporterProgressEvents
-} from '../index.js'
+import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult, ImporterProgressEvents } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
 import type { PBLink, PBNode } from '@ipld/dag-pb'
 import type { CID, Version } from 'multiformats/cid'
@@ -22,18 +15,11 @@ interface BuildFileBatchOptions {
   blockWriteConcurrency: number
 }
 
-async function * buildFileBatch (
-  file: File,
-  blockstore: WritableStorage,
-  options: BuildFileBatchOptions
-): AsyncGenerator<InProgressImportResult> {
+async function * buildFileBatch (file: File, blockstore: WritableStorage, options: BuildFileBatchOptions): AsyncGenerator<InProgressImportResult> {
   let count = -1
   let previous: SingleBlockImportResult | undefined
 
-  for await (const entry of parallelBatch(
-    options.bufferImporter(file, blockstore),
-    options.blockWriteConcurrency
-  )) {
+  for await (const entry of parallelBatch(options.bufferImporter(file, blockstore), options.blockWriteConcurrency)) {
     count++
 
     if (count === 0) {
@@ -78,10 +64,8 @@ export interface LayoutLeafProgress {
   path?: string
 }
 
-export type ReducerProgressEvents = ProgressEvent<
-'unixfs:importer:progress:file:layout',
-LayoutLeafProgress
->
+export type ReducerProgressEvents =
+  ProgressEvent<'unixfs:importer:progress:file:layout', LayoutLeafProgress>
 
 interface ReduceOptions extends ProgressOptions<ImporterProgressEvents> {
   reduceSingleLeafToSelf: boolean
@@ -93,24 +77,13 @@ function isSingleBlockImport (result: any): result is SingleBlockImportResult {
   return result.single === true
 }
 
-const reduce = (
-  file: File,
-  blockstore: WritableStorage,
-  options: ReduceOptions
-): Reducer => {
+const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions): Reducer => {
   const reducer: Reducer = async function (leaves) {
-    if (
-      leaves.length === 1 &&
-      isSingleBlockImport(leaves[0]) &&
-      options.reduceSingleLeafToSelf
-    ) {
+    if (leaves.length === 1 && isSingleBlockImport(leaves[0]) && options.reduceSingleLeafToSelf) {
       const leaf = leaves[0]
       let node: Uint8Array | PBNode = leaf.block
 
-      if (
-        isSingleBlockImport(leaf) &&
-        (file.mtime !== undefined || file.mode !== undefined)
-      ) {
+      if (isSingleBlockImport(leaf) && (file.mtime !== undefined || file.mode !== undefined)) {
         // only one leaf node which is a raw leaf - we have metadata so convert it into a
         // UnixFS entry otherwise we'll have nowhere to store the metadata
         leaf.unixfs = new UnixFS({
@@ -132,13 +105,10 @@ const reduce = (
       }
 
       options.onProgress?.(
-        new CustomProgressEvent<LayoutLeafProgress>(
-          'unixfs:importer:progress:file:layout',
-          {
-            cid: leaf.cid,
-            path: leaf.originalPath
-          }
-        )
+        new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+          cid: leaf.cid,
+          path: leaf.originalPath
+        })
       )
 
       return {
@@ -163,11 +133,7 @@ const reduce = (
           return true
         }
 
-        if (
-          leaf.unixfs != null &&
-          leaf.unixfs.data == null &&
-          leaf.unixfs.fileSize() > 0n
-        ) {
+        if (leaf.unixfs != null && leaf.unixfs.data == null && leaf.unixfs.fileSize() > 0n) {
           return true
         }
 
@@ -208,13 +174,10 @@ const reduce = (
     const cid = await persist(block, blockstore, options)
 
     options.onProgress?.(
-      new CustomProgressEvent<LayoutLeafProgress>(
-        'unixfs:importer:progress:file:layout',
-        {
-          cid,
-          path: file.originalPath
-        }
-      )
+      new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
+        cid,
+        path: file.originalPath
+      })
     )
 
     return {
@@ -234,24 +197,14 @@ const reduce = (
 }
 
 export interface FileBuilder {
-  (
-    file: File,
-    blockstore: WritableStorage,
-    options: FileBuilderOptions
-  ): Promise<InProgressImportResult>
+  (file: File, blockstore: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult>
 }
 
-export interface FileBuilderOptions
-  extends BuildFileBatchOptions,
-  ReduceOptions {
+export interface FileBuilderOptions extends BuildFileBatchOptions, ReduceOptions {
   layout: FileLayout
 }
 
-export const defaultFileBuilder = async (
-  file: File,
-  block: WritableStorage,
-  options: FileBuilderOptions
-): Promise<InProgressImportResult> => {
+export const defaultFileBuilder: FileBuilder = async (file: File, block: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult> => {
   return options.layout(
     buildFileBatch(file, block, options),
     reduce(file, block, options)

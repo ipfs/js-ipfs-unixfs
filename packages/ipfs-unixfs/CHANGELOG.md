@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v11.2.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.3...ipfs-unixfs-11.2.4) (2025-06-18)
+
+### Documentation
+
+* convert examples to ts, run doc verifier ([#434](https://github.com/ipfs/js-ipfs-unixfs/issues/434)) ([95e0b47](https://github.com/ipfs/js-ipfs-unixfs/commit/95e0b47de62c57b29bd10d48503cef4f208caae1))
+
 ## [ipfs-unixfs-v11.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.2...ipfs-unixfs-11.2.3) (2025-06-18)
 
 ### Dependencies

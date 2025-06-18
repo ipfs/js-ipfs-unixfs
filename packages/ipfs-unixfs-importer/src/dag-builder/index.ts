@@ -1,9 +1,9 @@
 import { CustomProgressEvent } from 'progress-events'
 import { InvalidContentError } from '../errors.js'
-import { dirBuilder } from './dir.js'
-import { fileBuilder } from './file.js'
-import type { DirBuilderOptions } from './dir.js'
-import type { FileBuilderOptions } from './file.js'
+import { defaultDirBuilder } from './dir.js'
+import { defaultFileBuilder } from './file.js'
+import type { DirBuilder, DirBuilderOptions } from './dir.js'
+import type { FileBuilder, FileBuilderOptions } from './file.js'
 import type { ChunkValidator } from './validate-chunks.js'
 import type { Chunker } from '../chunker/index.js'
 import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.js'
@@ -45,11 +45,11 @@ function contentAsAsyncIterable (content: Uint8Array | AsyncIterable<Uint8Array>
     if (content instanceof Uint8Array) {
       return (async function * () {
         yield content
-      }())
+      })()
     } else if (isIterable(content)) {
       return (async function * () {
         yield * content
-      }())
+      })()
     } else if (isAsyncIterable(content)) {
       return content
     }
@@ -64,6 +64,8 @@ export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions
   chunker: Chunker
   chunkValidator: ChunkValidator
   wrapWithDirectory: boolean
+  dirBuilder?: DirBuilder
+  fileBuilder?: FileBuilder
 }
 
 export type ImporterSourceStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
@@ -109,6 +111,8 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           originalPath
         }
 
+        const fileBuilder = options.fileBuilder ?? defaultFileBuilder
+
         yield async () => fileBuilder(file, blockstore, options)
       } else if (entry.path != null) {
         const dir: Directory = {
@@ -117,6 +121,8 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
           mode: entry.mode,
           originalPath
         }
+
+        const dirBuilder = options.dirBuilder ?? defaultDirBuilder
 
         yield async () => dirBuilder(dir, blockstore, options)
       } else {

@@ -9,7 +9,11 @@ export interface DirBuilderOptions {
   signal?: AbortSignal
 }
 
-export const dirBuilder = async (dir: Directory, blockstore: WritableStorage, options: DirBuilderOptions): Promise<InProgressImportResult> => {
+export interface DirBuilder {
+  (dir: Directory, blockstore: WritableStorage, options: DirBuilderOptions): Promise<InProgressImportResult>
+}
+
+export const defaultDirBuilder: DirBuilder = async (dir: Directory, blockstore: WritableStorage, options: DirBuilderOptions): Promise<InProgressImportResult> => {
   const unixfs = new UnixFS({
     type: 'directory',
     mtime: dir.mtime,

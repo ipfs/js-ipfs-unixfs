@@ -30,7 +30,7 @@ async function * buildFileBatch (file: File, blockstore: WritableStorage, option
       }
 
       continue
-    } else if (count === 1 && (previous != null)) {
+    } else if (count === 1 && previous != null) {
       // we have the second block of a multiple block import so yield the first
       yield {
         ...previous,
@@ -131,7 +131,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
           return true
         }
 
-        if ((leaf.unixfs != null) && (leaf.unixfs.data == null) && leaf.unixfs.fileSize() > 0n) {
+        if (leaf.unixfs != null && leaf.unixfs.data == null && leaf.unixfs.fileSize() > 0n) {
           return true
         }
 
@@ -189,10 +189,17 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
   return reducer
 }
 
+export interface FileBuilder {
+  (file: File, blockstore: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult>
+}
+
 export interface FileBuilderOptions extends BuildFileBatchOptions, ReduceOptions {
   layout: FileLayout
 }
 
-export const fileBuilder = async (file: File, block: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult> => {
-  return options.layout(buildFileBatch(file, block, options), reduce(file, block, options))
+export const defaultFileBuilder: FileBuilder = async (file: File, block: WritableStorage, options: FileBuilderOptions): Promise<InProgressImportResult> => {
+  return options.layout(
+    buildFileBatch(file, block, options),
+    reduce(file, block, options)
+  )
 }

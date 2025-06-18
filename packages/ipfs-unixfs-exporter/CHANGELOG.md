@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v13.6.6](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.5...ipfs-unixfs-exporter-13.6.6) (2025-06-18)
+
+### Bug Fixes
+
+* constrain the unixfs type ([#435](https://github.com/ipfs/js-ipfs-unixfs/issues/435)) ([7663b87](https://github.com/ipfs/js-ipfs-unixfs/commit/7663b87ed2e3e8cd4da1484ca601638740ea0ae7))
+
 ## [ipfs-unixfs-exporter-v13.6.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.4...ipfs-unixfs-exporter-13.6.5) (2025-06-18)
 
 ### Documentation

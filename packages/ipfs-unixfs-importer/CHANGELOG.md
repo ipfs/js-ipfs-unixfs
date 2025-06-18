@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v15.4.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.4...ipfs-unixfs-importer-15.4.0) (2025-06-18)
+
+### Features
+
+* enable custom file/directory builders ([#413](https://github.com/ipfs/js-ipfs-unixfs/issues/413)) ([d06d9fe](https://github.com/ipfs/js-ipfs-unixfs/commit/d06d9fe5aa4c0e7f82f3265bf09b0db064d2b563))
+
 ## [ipfs-unixfs-importer-v15.3.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.3...ipfs-unixfs-importer-15.3.4) (2025-06-18)
 
 ### Documentation

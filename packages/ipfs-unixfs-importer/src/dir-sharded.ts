@@ -1,10 +1,14 @@
-import { encode, type PBLink, prepare } from '@ipld/dag-pb'
+import { encode, prepare } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import { createHAMT, Bucket, type BucketChild } from 'hamt-sharding'
+import { createHAMT, Bucket } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
-import { Dir, CID_V0, CID_V1, type DirProps } from './dir.js'
-import { persist, type PersistOptions } from './utils/persist.js'
+import { Dir, CID_V0, CID_V1 } from './dir.js'
+import { persist } from './utils/persist.js'
+import type { DirProps } from './dir.js'
 import type { ImportResult, InProgressImportResult } from './index.js'
+import type { PersistOptions } from './utils/persist.js'
+import type { PBLink } from '@ipld/dag-pb'
+import type { BucketChild } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 
 async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
@@ -60,8 +64,8 @@ class DirSharded extends Dir {
     return this._bucket.onlyChild()
   }
 
-  async * eachChildSeries (): AsyncGenerator<{ key: string, child: InProgressImportResult | Dir }> {
-    for await (const { key, value } of this._bucket.eachLeafSeries()) {
+  * eachChildSeries (): Generator<{ key: string, child: InProgressImportResult | Dir }> {
+    for (const { key, value } of this._bucket.eachLeafSeries()) {
       yield {
         key,
         child: value

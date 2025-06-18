@@ -9,7 +9,7 @@ import delay from 'delay'
 import { UnixFS } from 'ipfs-unixfs'
 import { importer } from 'ipfs-unixfs-importer'
 import { fixedSize } from 'ipfs-unixfs-importer/chunker'
-import { balanced, type FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
+import { balanced, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
 import drain from 'it-drain'
@@ -32,6 +32,7 @@ import asAsyncIterable from './helpers/as-async-iterable.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { Chunker } from 'ipfs-unixfs-importer/chunker'
+import type { FileLayout } from 'ipfs-unixfs-importer/layout'
 
 const ONE_MEG = Math.pow(1024, 2)
 

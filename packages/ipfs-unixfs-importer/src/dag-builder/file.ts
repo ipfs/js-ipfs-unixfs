@@ -1,4 +1,4 @@
-import { encode, type PBLink, type PBNode, prepare } from '@ipld/dag-pb'
+import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import parallelBatch from 'it-parallel-batch'
 import * as rawCodec from 'multiformats/codecs/raw'
@@ -6,6 +6,7 @@ import { CustomProgressEvent } from 'progress-events'
 import { persist } from '../utils/persist.js'
 import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult, ImporterProgressEvents } from '../index.js'
 import type { FileLayout, Reducer } from '../layout/index.js'
+import type { PBLink, PBNode } from '@ipld/dag-pb'
 import type { CID, Version } from 'multiformats/cid'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 

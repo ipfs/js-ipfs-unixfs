@@ -32,16 +32,6 @@
       "import": "./dist/src/index.js"
     }
   },
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "project": true,
-      "sourceType": "module"
-    },
-    "ignorePatterns": [
-      "src/unixfs.d.ts"
-    ]
-  },
   "release": {
     "branches": [
       "main"
@@ -124,7 +114,15 @@
       "@semantic-release/changelog",
       "@semantic-release/npm",
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json"
+          ]
+        }
+      ]
     ]
   },
   "scripts": {
@@ -145,7 +143,7 @@
   },
   "devDependencies": {
     "aegir": "^47.0.16",
-    "protons": "^7.6.0",
+    "protons": "^7.6.1",
     "uint8arrays": "^5.1.0"
   },
   "browser": {

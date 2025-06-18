@@ -1,9 +1,11 @@
-import { decode, type PBLink, type PBNode } from '@ipld/dag-pb'
+import { decode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import { Bucket, type BucketPosition, createHAMT } from 'hamt-sharding'
+import { Bucket, createHAMT } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
 import { NotUnixFSError } from '../errors.js'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
+import type { PBLink, PBNode } from '@ipld/dag-pb'
+import type { BucketPosition } from 'hamt-sharding'
 import type { CID } from 'multiformats/cid'
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js

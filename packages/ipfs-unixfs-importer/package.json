@@ -56,13 +56,6 @@
       "import": "./dist/src/layout/index.js"
     }
   },
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "project": true,
-      "sourceType": "module"
-    }
-  },
   "release": {
     "branches": [
       "main"
@@ -145,7 +138,15 @@
       "@semantic-release/changelog",
       "@semantic-release/npm",
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json"
+          ]
+        }
+      ]
     ]
   },
   "scripts": {
@@ -160,17 +161,17 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-pb": "^4.1.2",
+    "@ipld/dag-pb": "^4.1.5",
     "@multiformats/murmur3": "^2.1.8",
     "hamt-sharding": "^3.0.6",
-    "interface-blockstore": "^5.3.0",
-    "interface-store": "^6.0.0",
+    "interface-blockstore": "^5.3.2",
+    "interface-store": "^6.0.3",
     "ipfs-unixfs": "^11.0.0",
-    "it-all": "^3.0.6",
-    "it-batch": "^3.0.6",
-    "it-first": "^3.0.6",
-    "it-parallel-batch": "^3.0.6",
-    "multiformats": "^13.2.3",
+    "it-all": "^3.0.9",
+    "it-batch": "^3.0.9",
+    "it-first": "^3.0.9",
+    "it-parallel-batch": "^3.0.9",
+    "multiformats": "^13.3.7",
     "progress-events": "^1.0.1",
     "rabin-wasm": "^0.1.5",
     "uint8arraylist": "^2.4.8",
@@ -178,8 +179,8 @@
   },
   "devDependencies": {
     "aegir": "^47.0.16",
-    "blockstore-core": "^5.0.0",
-    "it-last": "^3.0.6",
+    "blockstore-core": "^5.0.4",
+    "it-last": "^3.0.9",
     "wherearewe": "^2.0.1"
   },
   "browser": {

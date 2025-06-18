@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
-import { importer } from 'ipfs-unixfs-importer'
-import path from 'node:path'
-import os from 'node:os'
 import fs from 'node:fs'
-import drain from 'it-drain'
+import os from 'node:os'
+import path from 'node:path'
 import { FsBlockstore } from 'blockstore-fs'
+import { importer } from 'ipfs-unixfs-importer'
+import drain from 'it-drain'
 
 const ONE_MEG = 1024 * 1024
 
@@ -43,6 +43,6 @@ async function main (): Promise<void> {
 }
 
 main().catch(err => {
-  console.error(err) // eslint-disable-line no-console
+  console.error(err)
   process.exit(1)
 })

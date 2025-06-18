@@ -1,29 +1,9 @@
 {
-  "name": "ipfs-unixfs-memory-benchmark",
+  "name": "ipfs-unixfs-import-benchmark",
   "version": "0.0.0",
-  "description": "Memory benchmarks for ipfs-unixfs-importer",
+  "description": "Import benchmarks for ipfs-unixfs-importer",
   "license": "Apache-2.0 OR MIT",
-  "private": true,
   "type": "module",
-  "types": "./dist/src/index.d.ts",
-  "files": [
-    "src",
-    "dist",
-    "!dist/test",
-    "!**/*.tsbuildinfo"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js"
-    }
-  },
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "sourceType": "module"
-    }
-  },
   "scripts": {
     "build": "aegir build --bundle false",
     "clean": "aegir clean",
@@ -32,11 +12,12 @@
     "start": "npm run build && node --expose-gc ./dist/test/index.spec.js"
   },
   "devDependencies": {
-    "aegir": "^42.2.2",
-    "blockstore-core": "^4.0.1",
-    "blockstore-fs": "^1.0.0",
-    "ipfs-unixfs-importer": "../../packages/ipfs-unixfs-importer",
-    "it-buffer-stream": "^3.0.1",
-    "it-drain": "^3.0.5"
-  }
+    "aegir": "^47.0.16",
+    "blockstore-core": "^5.0.4",
+    "blockstore-fs": "^2.0.4",
+    "ipfs-unixfs-importer": "^15.0.0",
+    "it-buffer-stream": "^3.0.11",
+    "it-drain": "^3.0.10"
+  },
+  "private": true
 }

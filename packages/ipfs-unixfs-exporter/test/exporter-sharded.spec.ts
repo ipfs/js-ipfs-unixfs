@@ -4,7 +4,7 @@ import * as dagPb from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import { UnixFS } from 'ipfs-unixfs'
-import { importer, type ImportCandidate } from 'ipfs-unixfs-importer'
+import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
 import last from 'it-last'
@@ -13,6 +13,7 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { exporter, walkPath } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
+import type { ImportCandidate } from 'ipfs-unixfs-importer'
 
 const SHARD_SPLIT_THRESHOLD = 10
 

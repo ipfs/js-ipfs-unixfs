@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v15.3.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.3...ipfs-unixfs-importer-15.3.4) (2025-06-18)
+
+### Documentation
+
+* convert examples to ts, run doc verifier ([#434](https://github.com/ipfs/js-ipfs-unixfs/issues/434)) ([95e0b47](https://github.com/ipfs/js-ipfs-unixfs/commit/95e0b47de62c57b29bd10d48503cef4f208caae1))
+
 ## [ipfs-unixfs-importer-v15.3.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.2...ipfs-unixfs-importer-15.3.3) (2025-06-18)
 
 ### Dependencies

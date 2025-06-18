@@ -4,13 +4,14 @@ import { decode } from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
 import loadFixture from 'aegir/fixtures'
 import { MemoryBlockstore } from 'blockstore-core'
-import { type Mtime, UnixFS } from 'ipfs-unixfs'
-import { importer, type ImporterOptions } from 'ipfs-unixfs-importer'
+import { UnixFS } from 'ipfs-unixfs'
+import { importer } from 'ipfs-unixfs-importer'
 import { fixedSize } from 'ipfs-unixfs-importer/chunker'
-import { balanced, type FileLayout, flat, trickle } from 'ipfs-unixfs-importer/layout'
+import { balanced, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import first from 'it-first'
 import last from 'it-last'
+// @ts-expect-error https://github.com/schnittstabil/merge-options/pull/28
 import extend from 'merge-options'
 import { base58btc } from 'multiformats/bases/base58'
 import { CID } from 'multiformats/cid'
@@ -21,6 +22,9 @@ import { exporter, recursive } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import collectLeafCids from './helpers/collect-leaf-cids.js'
 import type { Blockstore } from 'interface-blockstore'
+import type { Mtime } from 'ipfs-unixfs'
+import type { ImporterOptions } from 'ipfs-unixfs-importer'
+import type { FileLayout } from 'ipfs-unixfs-importer/layout'
 
 const bigFile = loadFixture('test/fixtures/1.2MiB.txt')
 const smallFile = loadFixture('test/fixtures/200Bytes.txt')
@@ -1074,7 +1078,7 @@ describe('configuration', () => {
       content: 'content'
     }], block, {
       /** @type {import('ipfs-unixfs-importer').DAGBuilder} */
-      dagBuilder: async function * (source, block) { // eslint-disable-line require-await
+      dagBuilder: async function * (source, block) {
         yield async function () {
           return Promise.resolve({
             cid,
@@ -1085,7 +1089,7 @@ describe('configuration', () => {
         }
       },
       /** @type {import('ipfs-unixfs-importer').TreeBuilder} */
-      treeBuilder: async function * (source, block) { // eslint-disable-line require-await
+      treeBuilder: async function * (source, block) {
         builtTree = true
         yield * source
       }
@@ -1106,7 +1110,7 @@ describe('configuration', () => {
       path: 'path',
       content: asAsyncIterable(uint8ArrayFromString('content'))
     }], block, {
-      chunkValidator: async function * (source) { // eslint-disable-line require-await
+      chunkValidator: async function * (source) {
         validated = true
 
         for await (const str of source) {
@@ -1117,7 +1121,7 @@ describe('configuration', () => {
           }
         }
       },
-      chunker: async function * (source) { // eslint-disable-line require-await
+      chunker: async function * (source) {
         chunked = true
         yield * source
       }

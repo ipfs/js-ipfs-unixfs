@@ -4,10 +4,12 @@
 import { expect } from 'aegir/chai'
 import loadFixture from 'aegir/fixtures'
 import { MemoryBlockstore } from 'blockstore-core'
-import { importer, type ImporterOptions } from 'ipfs-unixfs-importer'
-import { flat, balanced, trickle, type FileLayout } from 'ipfs-unixfs-importer/layout'
+import { importer } from 'ipfs-unixfs-importer'
+import { flat, balanced, trickle } from 'ipfs-unixfs-importer/layout'
 import { exporter } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
+import type { ImporterOptions } from 'ipfs-unixfs-importer'
+import type { FileLayout } from 'ipfs-unixfs-importer/layout'
 
 const bigFile = loadFixture(('test') + '/fixtures/1.2MiB.txt')
 

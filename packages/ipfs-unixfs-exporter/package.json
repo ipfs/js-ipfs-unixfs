@@ -32,13 +32,6 @@
       "import": "./dist/src/index.js"
     }
   },
-  "eslintConfig": {
-    "extends": "ipfs",
-    "parserOptions": {
-      "project": true,
-      "sourceType": "module"
-    }
-  },
   "release": {
     "branches": [
       "main"
@@ -121,7 +114,15 @@
       "@semantic-release/changelog",
       "@semantic-release/npm",
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json"
+          ]
+        }
+      ]
     ]
   },
   "scripts": {
@@ -136,38 +137,38 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^9.2.1",
-    "@ipld/dag-json": "^10.2.2",
-    "@ipld/dag-pb": "^4.1.2",
+    "@ipld/dag-cbor": "^9.2.4",
+    "@ipld/dag-json": "^10.2.5",
+    "@ipld/dag-pb": "^4.1.5",
     "@multiformats/murmur3": "^2.1.8",
     "hamt-sharding": "^3.0.6",
-    "interface-blockstore": "^5.3.0",
+    "interface-blockstore": "^5.3.2",
     "ipfs-unixfs": "^11.0.0",
-    "it-filter": "^3.1.1",
-    "it-last": "^3.0.6",
-    "it-map": "^3.1.1",
-    "it-parallel": "^3.0.8",
+    "it-filter": "^3.1.4",
+    "it-last": "^3.0.9",
+    "it-map": "^3.1.4",
+    "it-parallel": "^3.0.13",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.3",
-    "multiformats": "^13.2.3",
-    "p-queue": "^8.0.1",
+    "multiformats": "^13.3.7",
+    "p-queue": "^8.1.0",
     "progress-events": "^1.0.1"
   },
   "devDependencies": {
-    "@types/readable-stream": "^4.0.15",
-    "@types/sinon": "^17.0.3",
-    "aegir": "^45.0.8",
-    "blockstore-core": "^5.0.0",
+    "@types/readable-stream": "^4.0.21",
+    "@types/sinon": "^17.0.4",
+    "aegir": "^47.0.16",
+    "blockstore-core": "^5.0.4",
     "delay": "^6.0.0",
     "ipfs-unixfs-importer": "^15.0.0",
     "iso-random-stream": "^2.0.2",
-    "it-all": "^3.0.6",
-    "it-buffer-stream": "^3.0.8",
-    "it-drain": "^3.0.7",
-    "it-first": "^3.0.6",
-    "it-to-buffer": "^4.0.7",
+    "it-all": "^3.0.9",
+    "it-buffer-stream": "^3.0.11",
+    "it-drain": "^3.0.10",
+    "it-first": "^3.0.9",
+    "it-to-buffer": "^4.0.10",
     "merge-options": "^3.0.4",
-    "readable-stream": "^4.5.2",
+    "readable-stream": "^4.7.0",
     "sinon": "^21.0.0",
     "uint8arrays": "^5.1.0",
     "wherearewe": "^2.0.1"

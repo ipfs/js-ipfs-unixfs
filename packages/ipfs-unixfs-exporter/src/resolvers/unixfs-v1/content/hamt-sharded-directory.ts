@@ -1,4 +1,4 @@
-import { decode, type PBNode } from '@ipld/dag-pb'
+import { decode } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
@@ -6,6 +6,7 @@ import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
 import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk } from '../../../index.js'
+import type { PBNode } from '@ipld/dag-pb'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function yieldHamtDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {

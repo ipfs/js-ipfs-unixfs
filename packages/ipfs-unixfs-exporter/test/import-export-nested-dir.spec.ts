@@ -7,8 +7,9 @@ import all from 'it-all'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { exporter, type UnixFSEntry } from '../src/index.js'
+import { exporter } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
+import type { UnixFSEntry } from '../src/index.js'
 import type { CID } from 'multiformats/cid'
 
 describe('import and export: directory', () => {
@@ -113,7 +114,7 @@ function normalizeNode (node: { path?: string, cid: CID }): { path: string, mult
 }
 
 function byPath (a: { path: string }, b: { path: string }): number {
-  if (a.path > b.path) return -1
-  if (a.path < b.path) return 1
+  if (a.path > b.path) { return -1 }
+  if (a.path < b.path) { return 1 }
   return 0
 }

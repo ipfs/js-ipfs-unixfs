@@ -7,13 +7,15 @@
 
 > JS implementation of the IPFS UnixFS
 
+The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
+
 # Packages
 
+- [`benchmarks/import`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/benchmarks/import) Import benchmarks for ipfs-unixfs-importer
+- [`benchmarks/memory`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/benchmarks/memory) Memory benchmarks for ipfs-unixfs-importer
 - [`packages/ipfs-unixfs`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs) JavaScript implementation of IPFS' unixfs (a Unix FileSystem representation on top of a MerkleDAG)
 - [`packages/ipfs-unixfs-exporter`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-exporter) JavaScript implementation of the UnixFs exporter used by IPFS
 - [`packages/ipfs-unixfs-importer`](https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-importer) JavaScript implementation of the UnixFs importer used by IPFS
-
-The UnixFS spec can be found at [ipfs/specs/UNIXFS.md](https://github.com/ipfs/specs/blob/master/UNIXFS.md)
 
 # API Docs
 

@@ -112,7 +112,7 @@ export function defaultTreeBuilder (options: TreeBuilderOptions): TreeBuilder {
     if (options.wrapWithDirectory || (singleRoot && tree.childCount() > 1)) {
       yield * flushAndYield(tree, block)
     } else {
-      for await (const unwrapped of tree.eachChildSeries()) {
+      for (const unwrapped of tree.eachChildSeries()) {
         if (unwrapped == null) {
           continue
         }

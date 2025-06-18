@@ -31,6 +31,7 @@ import { exporter, recursive } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
+import type { UnixFSType } from 'ipfs-unixfs'
 import type { Chunker } from 'ipfs-unixfs-importer/chunker'
 import type { FileLayout } from 'ipfs-unixfs-importer/layout'
 
@@ -46,7 +47,7 @@ describe('exporter', () => {
     smallFile = uint8ArrayConcat(await all(randomBytes(200)))
   })
 
-  async function dagPut (options: { type?: string, content?: Uint8Array, links?: dagPb.PBLink[] } = {}): Promise<{ file: UnixFS, node: PBNode, cid: CID }> {
+  async function dagPut (options: { type?: UnixFSType, content?: Uint8Array, links?: dagPb.PBLink[] } = {}): Promise<{ file: UnixFS, node: PBNode, cid: CID }> {
     options.type = options.type ?? 'file'
     options.content = options.content ?? Uint8Array.from([0x01, 0x02, 0x03])
     options.links = options.links ?? []

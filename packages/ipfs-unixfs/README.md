@@ -135,7 +135,7 @@ file.mtime // undefined
 
 Object.prototype.hasOwnProperty.call(file, 'mtime') // false
 
-const dir = new UnixFS({ type: 'dir', mtime: { secs: 5n } })
+const dir = new UnixFS({ type: 'directory', mtime: { secs: 5n } })
 dir.mtime // { secs: Number, nsecs: Number }
 ```
 

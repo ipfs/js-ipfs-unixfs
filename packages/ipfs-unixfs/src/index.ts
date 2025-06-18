@@ -112,7 +112,7 @@
  *
  * Object.prototype.hasOwnProperty.call(file, 'mtime') // false
  *
- * const dir = new UnixFS({ type: 'dir', mtime: { secs: 5n } })
+ * const dir = new UnixFS({ type: 'directory', mtime: { secs: 5n } })
  * dir.mtime // { secs: Number, nsecs: Number }
  * ```
  */
@@ -127,7 +127,9 @@ export interface Mtime {
 
 export type MtimeLike = Mtime | { Seconds: number, FractionalNanoseconds?: number } | [number, number] | Date
 
-const types: Record<string, string> = {
+export type UnixFSType = 'raw' | 'directory' | 'file' | 'metadata' | 'symlink' | 'hamt-sharded-directory'
+
+const types: Record<string, UnixFSType> = {
   Raw: 'raw',
   Directory: 'directory',
   File: 'file',
@@ -148,7 +150,7 @@ const DEFAULT_DIRECTORY_MODE = parseInt('0755', 8)
 const MAX_FANOUT = BigInt(1 << 10)
 
 export interface UnixFSOptions {
-  type?: string
+  type?: UnixFSType
   data?: Uint8Array
   blockSizes?: bigint[]
   hashType?: bigint

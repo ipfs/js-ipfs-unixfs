@@ -57,8 +57,8 @@ import type { PBNode } from '@ipld/dag-pb'
 import type { Bucket } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
-import type { ProgressOptions, ProgressEvent } from 'progress-events'
 import type { AbortOptions } from 'it-pushable'
+import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 export * from './errors.js'
 
@@ -354,7 +354,7 @@ export interface UnixfsV1BasicContent {
    * there. The metadata will contain what kind of node it is (e.g. file,
    * directory, etc), the file size, and more.
    */
-  resolve: (options?: AbortOptions) => Promise<UnixFSEntry>
+  resolve(options?: AbortOptions): Promise<UnixFSEntry>
 }
 
 export interface UnixFsV1ContentResolver {

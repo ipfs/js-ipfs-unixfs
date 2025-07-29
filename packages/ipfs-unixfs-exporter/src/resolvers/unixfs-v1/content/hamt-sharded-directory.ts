@@ -5,9 +5,9 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
+import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
 import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions, UnixfsV1BasicContent } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
-import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   function yieldHamtDirectoryContent (options: ExporterOptions | BasicExporterOptions = {}): UnixfsV1DirectoryContent {
@@ -53,7 +53,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
           if (isBasicExporterOptions(options)) {
             const basic: UnixfsV1BasicContent = {
               cid: link.Hash,
-              name: name,
+              name,
               path: linkPath,
               resolve: async (options = {}) => {
                 const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)

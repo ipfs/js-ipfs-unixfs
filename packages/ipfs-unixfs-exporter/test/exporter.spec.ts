@@ -1633,8 +1633,8 @@ describe('exporter', () => {
     const dirFiles = await all(exported.content())
 
     // delete shard contents
-    for await (const entry of dirFiles) {
-      block.delete(entry.cid)
+    for (const entry of dirFiles) {
+      await block.delete(entry.cid)
     }
 
     // list the contents again, this time just the basic version

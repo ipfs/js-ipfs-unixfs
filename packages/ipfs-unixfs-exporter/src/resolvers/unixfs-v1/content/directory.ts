@@ -3,8 +3,8 @@ import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
-import type { BasicExporterOptions, ExporterOptions, ExportWalk, UnixfsV1BasicContent, UnixfsV1DirectoryContent, UnixfsV1Resolver } from '../../../index.js'
 import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
+import type { BasicExporterOptions, ExporterOptions, ExportWalk, UnixfsV1BasicContent, UnixfsV1Resolver } from '../../../index.js'
 
 const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   async function * yieldDirectoryContent (options: ExporterOptions | BasicExporterOptions = {}): any {

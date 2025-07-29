@@ -5,11 +5,12 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
-import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk } from '../../../index.js'
+import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions, UnixfsV1BasicContent } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
+import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
-  function yieldHamtDirectoryContent (options: ExporterOptions = {}): UnixfsV1DirectoryContent {
+  function yieldHamtDirectoryContent (options: ExporterOptions | BasicExporterOptions = {}): UnixfsV1DirectoryContent {
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
       cid
     }))
@@ -20,7 +21,7 @@ const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, 
   return yieldHamtDirectoryContent
 }
 
-async function * listDirectory (node: PBNode, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions): UnixfsV1DirectoryContent {
+async function * listDirectory (node: PBNode, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions | BasicExporterOptions): any {
   const links = node.Links
 
   if (node.Data == null) {
@@ -47,7 +48,23 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
         const name = link.Name != null ? link.Name.substring(padLength) : null
 
         if (name != null && name !== '') {
-          const result = await resolve(link.Hash, name, `${path}/${name}`, [], depth + 1, blockstore, options)
+          const linkPath = `${path}/${name}`
+
+          if (isBasicExporterOptions(options)) {
+            const basic: UnixfsV1BasicContent = {
+              cid: link.Hash,
+              name: name,
+              path: linkPath,
+              resolve: async (options = {}) => {
+                const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
+                return result.entry
+              }
+            }
+
+            return { entries: [basic] }
+          }
+
+          const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
 
           return { entries: result.entry == null ? [] : [result.entry] }
         } else {

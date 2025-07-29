@@ -1605,4 +1605,54 @@ describe('exporter', () => {
 
     expect(actualInvocations).to.deep.equal(expectedInvocations)
   })
+
+  it('exports basic directory', async () => {
+    const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
+
+    for (let i = 0; i < 10; i++) {
+      files[`file-${Math.random()}.txt`] = {
+        content: uint8ArrayConcat(await all(randomBytes(100)))
+      }
+    }
+
+    const imported = await all(importer(Object.keys(files).map(path => ({
+      path,
+      content: asAsyncIterable(files[path].content)
+    })), block, {
+      wrapWithDirectory: true,
+      rawLeaves: false
+    }))
+
+    const dirCid = imported.pop()?.cid
+
+    if (dirCid == null) {
+      throw new Error('No directory CID found')
+    }
+
+    const exported = await exporter(dirCid, block)
+    const dirFiles = await all(exported.content())
+
+    // delete shard contents
+    for await (const entry of dirFiles) {
+      block.delete(entry.cid)
+    }
+
+    // list the contents again, this time just the basic version
+    const basicDirFiles = await all(exported.content({
+      extended: false
+    }))
+    expect(basicDirFiles.length).to.equal(dirFiles.length)
+
+    for (let i = 0; i < basicDirFiles.length; i++) {
+      const dirFile = basicDirFiles[i]
+
+      expect(dirFile).to.have.property('name')
+      expect(dirFile).to.have.property('path')
+      expect(dirFile).to.have.property('cid')
+      expect(dirFile).to.have.property('resolve')
+
+      // should fail because we have deleted this block
+      await expect(dirFile.resolve()).to.eventually.be.rejected()
+    }
+  })
 })

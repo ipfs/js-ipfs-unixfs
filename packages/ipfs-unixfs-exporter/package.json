@@ -1,6 +1,6 @@
 {
   "name": "ipfs-unixfs-exporter",
-  "version": "13.6.6",
+  "version": "13.7.0",
   "description": "JavaScript implementation of the UnixFs exporter used by IPFS",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/ipfs/js-ipfs-unixfs/tree/main/packages/ipfs-unixfs-exporter#readme",

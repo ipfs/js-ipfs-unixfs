@@ -57,6 +57,7 @@ import type { PBNode } from '@ipld/dag-pb'
 import type { Bucket } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
+import type { AbortOptions } from 'it-pushable'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 export * from './errors.js'
@@ -134,6 +135,21 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    * (default: undefined)
    */
   blockReadConcurrency?: number
+}
+
+export interface BasicExporterOptions extends ExporterOptions {
+  /**
+   * When directory contents are listed, by default the root node of each entry
+   * is fetched to decode the UnixFS metadata and know if the entry is a file or
+   * a directory. This can result in fetching extra data which may not be
+   * desirable, depending on your application.
+   *
+   * Pass false here to only return the CID and the name of the entry and not
+   * any extended metadata.
+   *
+   * @default true
+   */
+  extended: false
 }
 
 export interface Exportable<T> {
@@ -218,7 +234,7 @@ export interface Exportable<T> {
    * // `entries` contains the first 5 files/directories in the directory
    * ```
    */
-  content(options?: ExporterOptions): AsyncGenerator<T, void, unknown>
+  content(options?: ExporterOptions | BasicExporterOptions): AsyncGenerator<T, void, unknown>
 }
 
 /**
@@ -316,7 +332,39 @@ export interface Resolver { (cid: CID, name: string, path: string, toResolve: st
 export type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 export type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 export type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-export interface UnixfsV1Resolver { (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage): (options: ExporterOptions) => UnixfsV1Content }
+
+export interface UnixfsV1BasicContent {
+  /**
+   * The name of the entry
+   */
+  name: string
+
+  /**
+   * The path of the entry within the DAG in which it was encountered
+   */
+  path: string
+
+  /**
+   * The CID of the entry
+   */
+  cid: CID
+
+  /**
+   * Resolve the root node of the entry to parse the UnixFS metadata contained
+   * there. The metadata will contain what kind of node it is (e.g. file,
+   * directory, etc), the file size, and more.
+   */
+  resolve(options?: AbortOptions): Promise<UnixFSEntry>
+}
+
+export interface UnixFsV1ContentResolver {
+  (options: ExporterOptions): UnixfsV1Content
+  (options: BasicExporterOptions): UnixfsV1BasicContent
+}
+
+export interface UnixfsV1Resolver {
+  (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage): (options: ExporterOptions) => UnixfsV1Content
+}
 
 export interface ShardTraversalContext {
   hamtDepth: number

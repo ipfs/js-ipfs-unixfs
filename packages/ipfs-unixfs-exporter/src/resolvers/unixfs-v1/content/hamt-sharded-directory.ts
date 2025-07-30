@@ -6,7 +6,7 @@ import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
 import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
-import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions, UnixfsV1BasicContent } from '../../../index.js'
+import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -49,24 +49,27 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
 
         if (name != null && name !== '') {
           const linkPath = `${path}/${name}`
-
-          if (isBasicExporterOptions(options)) {
-            const basic: UnixfsV1BasicContent = {
-              cid: link.Hash,
-              name,
-              path: linkPath,
-              resolve: async (options = {}) => {
-                const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
-                return result.entry
-              }
-            }
-
-            return { entries: [basic] }
+          const load = async (options = {}) => {
+            const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
+            return result.entry
           }
 
-          const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
+          if (isBasicExporterOptions(options)) {
+            return {
+              entries: [{
+                cid: link.Hash,
+                name,
+                path: linkPath,
+                resolve: load
+              }]
+            }
+          }
 
-          return { entries: result.entry == null ? [] : [result.entry] }
+          return {
+            entries: [
+              await load()
+            ].filter(Boolean)
+          }
         } else {
           // descend into subshard
           const block = await blockstore.get(link.Hash, options)
@@ -76,7 +79,9 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
             cid: link.Hash
           }))
 
-          return { entries: listDirectory(node, path, resolve, depth, blockstore, options) }
+          return {
+            entries: listDirectory(node, path, resolve, depth, blockstore, options)
+          }
         }
       }
     }),

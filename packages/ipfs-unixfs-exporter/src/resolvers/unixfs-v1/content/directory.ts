@@ -23,22 +23,23 @@ const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, de
           const linkName = link.Name ?? ''
           const linkPath = `${path}/${linkName}`
 
+          const load = async (options = {}) => {
+            const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
+            return result.entry
+          }
+
           if (isBasicExporterOptions(options)) {
             const basic: UnixfsV1BasicContent = {
               cid: link.Hash,
               name: linkName,
               path: linkPath,
-              resolve: async (options = {}) => {
-                const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
-                return result.entry
-              }
+              resolve: load
             }
 
             return basic
           }
 
-          const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
-          return result.entry
+          return load(options)
         }
       }),
       source => parallel(source, {

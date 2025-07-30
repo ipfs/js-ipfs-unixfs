@@ -6,7 +6,7 @@ import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
 import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
-import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions } from '../../../index.js'
+import type { ExporterOptions, Resolve, UnixfsV1DirectoryContent, UnixfsV1Resolver, ReadableStorage, ExportWalk, BasicExporterOptions, UnixFSEntry } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
 
 const hamtShardedDirectoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
@@ -49,7 +49,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
 
         if (name != null && name !== '') {
           const linkPath = `${path}/${name}`
-          const load = async (options = {}) => {
+          const load = async (options = {}): Promise<UnixFSEntry> => {
             const result = await resolve(link.Hash, name, linkPath, [], depth + 1, blockstore, options)
             return result.entry
           }

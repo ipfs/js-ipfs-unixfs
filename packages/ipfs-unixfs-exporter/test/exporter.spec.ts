@@ -1606,7 +1606,7 @@ describe('exporter', () => {
     expect(actualInvocations).to.deep.equal(expectedInvocations)
   })
 
-  it('exports basic directory', async () => {
+  it('exports basic directory contents', async () => {
     const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
 
     for (let i = 0; i < 10; i++) {
@@ -1649,10 +1649,63 @@ describe('exporter', () => {
       expect(dirFile).to.have.property('name')
       expect(dirFile).to.have.property('path')
       expect(dirFile).to.have.property('cid')
-      expect(dirFile).to.have.property('resolve')
 
       // should fail because we have deleted this block
-      await expect(dirFile.resolve()).to.eventually.be.rejected()
+      await expect(exporter(dirFile.cid, block)).to.eventually.be.rejected()
     }
+  })
+
+  it('exports basic file', async () => {
+    const imported = await all(importer([{
+      content: uint8ArrayFromString('hello')
+    }], block, {
+      rawLeaves: false
+    }))
+
+    const regularFile = await exporter(imported[0].cid, block)
+    expect(regularFile).to.have.property('unixfs')
+
+    const basicFile = await exporter(imported[0].cid, block, {
+      extended: false
+    })
+
+    expect(basicFile).to.have.property('name')
+    expect(basicFile).to.have.property('path')
+    expect(basicFile).to.have.property('cid')
+    expect(basicFile).to.not.have.property('unixfs')
+  })
+
+  it('exports basic directory', async () => {
+    const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
+
+    for (let i = 0; i < 10; i++) {
+      files[`file-${Math.random()}.txt`] = {
+        content: uint8ArrayConcat(await all(randomBytes(100)))
+      }
+    }
+
+    const imported = await all(importer(Object.keys(files).map(path => ({
+      path,
+      content: asAsyncIterable(files[path].content)
+    })), block, {
+      wrapWithDirectory: true,
+      rawLeaves: false
+    }))
+
+    const dirCid = imported.pop()?.cid
+
+    if (dirCid == null) {
+      throw new Error('No directory CID found')
+    }
+
+    const basicDir = await exporter(dirCid, block, {
+      extended: false
+    })
+
+    expect(basicDir).to.have.property('name')
+    expect(basicDir).to.have.property('path')
+    expect(basicDir).to.have.property('cid')
+    expect(basicDir).to.not.have.property('unixfs')
+    expect(basicDir).to.not.have.property('content')
   })
 })

@@ -57,7 +57,6 @@ import type { PBNode } from '@ipld/dag-pb'
 import type { Bucket } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
-import type { AbortOptions } from 'it-pushable'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 export * from './errors.js'
@@ -314,26 +313,7 @@ export interface IdentityNode extends Exportable<Uint8Array> {
  */
 export type UnixFSEntry = UnixFSFile | UnixFSDirectory | ObjectNode | RawNode | IdentityNode
 
-export interface NextResult {
-  cid: CID
-  name: string
-  path: string
-  toResolve: string[]
-}
-
-export interface ResolveResult {
-  entry: UnixFSEntry
-  next?: NextResult
-}
-
-export interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
-export interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
-
-export type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
-export type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
-export type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-
-export interface UnixfsV1BasicContent {
+export interface UnixFSBasicEntry {
   /**
    * The name of the entry
    */
@@ -348,18 +328,30 @@ export interface UnixfsV1BasicContent {
    * The CID of the entry
    */
   cid: CID
-
-  /**
-   * Resolve the root node of the entry to parse the UnixFS metadata contained
-   * there. The metadata will contain what kind of node it is (e.g. file,
-   * directory, etc), the file size, and more.
-   */
-  resolve(options?: AbortOptions): Promise<UnixFSEntry>
 }
+
+export interface NextResult {
+  cid: CID
+  name: string
+  path: string
+  toResolve: string[]
+}
+
+export interface ResolveResult {
+  entry: UnixFSEntry
+  next?: NextResult
+}
+
+export interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
+export interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions | BasicExporterOptions): Promise<ResolveResult> }
+
+export type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
+export type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
+export type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
 
 export interface UnixFsV1ContentResolver {
   (options: ExporterOptions): UnixfsV1Content
-  (options: BasicExporterOptions): UnixfsV1BasicContent
+  (options: BasicExporterOptions): UnixFSBasicEntry
 }
 
 export interface UnixfsV1Resolver {
@@ -435,6 +427,8 @@ const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: str
  * // entries contains 4x `entry` objects
  * ```
  */
+export function walkPath (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): AsyncGenerator<UnixFSEntry, void, any>
+export function walkPath (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): AsyncGenerator<UnixFSBasicEntry, void, any>
 export async function * walkPath (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   let {
     cid,
@@ -491,6 +485,8 @@ export async function * walkPath (path: string | CID, blockstore: ReadableStorag
  * }
  * ```
  */
+export async function exporter (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): Promise<UnixFSEntry>
+export async function exporter (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): Promise<UnixFSBasicEntry>
 export async function exporter (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): Promise<UnixFSEntry> {
   const result = await last(walkPath(path, blockstore, options))
 
@@ -519,6 +515,8 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
  * // entries contains all children of the `Qmfoo/foo/bar` directory and it's children
  * ```
  */
+export function recursive (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): AsyncGenerator<UnixFSEntry, void, any>
+export function recursive (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): AsyncGenerator<UnixFSBasicEntry, void, any>
 export async function * recursive (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
   const node = await exporter(path, blockstore, options)
 

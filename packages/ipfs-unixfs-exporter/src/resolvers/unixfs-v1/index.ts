@@ -2,10 +2,11 @@ import { decode } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import { NotFoundError, NotUnixFSError } from '../../errors.js'
 import findShardCid from '../../utils/find-cid-in-shard.js'
+import { isBasicExporterOptions } from '../../utils/is-basic-exporter-options.ts'
 import contentDirectory from './content/directory.js'
 import contentFile from './content/file.js'
 import contentHamtShardedDirectory from './content/hamt-sharded-directory.js'
-import type { Resolver, UnixfsV1Resolver } from '../../index.js'
+import type { Resolver, UnixFSBasicEntry, UnixfsV1Resolver } from '../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { CID } from 'multiformats/cid'
 
@@ -30,6 +31,18 @@ const contentExporters: Record<string, UnixfsV1Resolver> = {
 
 // @ts-expect-error types are wrong
 const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
+  if (isBasicExporterOptions(options)) {
+    const basic: UnixFSBasicEntry = {
+      cid,
+      name,
+      path
+    }
+
+    return {
+      entry: basic
+    }
+  }
+
   const block = await blockstore.get(cid, options)
   const node = decode(block)
   let unixfs

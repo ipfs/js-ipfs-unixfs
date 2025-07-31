@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v13.7.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.0...ipfs-unixfs-exporter-13.7.1) (2025-07-31)
+
+### Bug Fixes
+
+* add option to export non-extended unixfs ([#438](https://github.com/ipfs/js-ipfs-unixfs/issues/438)) ([c9a9bf4](https://github.com/ipfs/js-ipfs-unixfs/commit/c9a9bf45a5c8a779ed73cc2238a58c01e090edb7))
+
 ## [ipfs-unixfs-exporter-v13.7.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.6.6...ipfs-unixfs-exporter-13.7.0) (2025-07-30)
 
 ### Features

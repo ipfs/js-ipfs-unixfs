@@ -4,7 +4,7 @@ import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { CustomProgressEvent } from 'progress-events'
 import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
-import type { BasicExporterOptions, ExporterOptions, ExportWalk, UnixFSEntry, UnixfsV1BasicContent, UnixfsV1Resolver } from '../../../index.js'
+import type { BasicExporterOptions, ExporterOptions, ExportWalk, UnixFSBasicEntry, UnixfsV1Resolver } from '../../../index.js'
 
 const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
   async function * yieldDirectoryContent (options: ExporterOptions | BasicExporterOptions = {}): any {
@@ -23,23 +23,18 @@ const directoryContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, de
           const linkName = link.Name ?? ''
           const linkPath = `${path}/${linkName}`
 
-          const load = async (options = {}): Promise<UnixFSEntry> => {
-            const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
-            return result.entry
-          }
-
           if (isBasicExporterOptions(options)) {
-            const basic: UnixfsV1BasicContent = {
+            const basic: UnixFSBasicEntry = {
               cid: link.Hash,
               name: linkName,
-              path: linkPath,
-              resolve: load
+              path: linkPath
             }
 
             return basic
           }
 
-          return load(options)
+          const result = await resolve(link.Hash, linkName, linkPath, [], depth + 1, blockstore, options)
+          return result.entry
         }
       }),
       source => parallel(source, {

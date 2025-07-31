@@ -409,10 +409,9 @@ describe('exporter sharded', function () {
       expect(dirFile).to.have.property('name')
       expect(dirFile).to.have.property('path')
       expect(dirFile).to.have.property('cid')
-      expect(dirFile).to.have.property('resolve')
 
       // should fail because we have deleted this block
-      await expect(dirFile.resolve()).to.eventually.be.rejected()
+      await expect(exporter(dirFile.cid, block)).to.eventually.be.rejected()
     }
   })
 })

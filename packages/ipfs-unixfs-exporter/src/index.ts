@@ -134,6 +134,19 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    * (default: undefined)
    */
   blockReadConcurrency?: number
+
+  /**
+   * When directory contents are listed, by default the root node of each entry
+   * is fetched to decode the UnixFS metadata and know if the entry is a file or
+   * a directory. This can result in fetching extra data which may not be
+   * desirable, depending on your application.
+   *
+   * Pass false here to only return the CID and the name of the entry and not
+   * any extended metadata.
+   *
+   * @default true
+   */
+  extended?: boolean
 }
 
 export interface BasicExporterOptions extends ExporterOptions {

@@ -31,7 +31,7 @@ const contentExporters: Record<string, UnixfsV1Resolver> = {
 
 // @ts-expect-error types are wrong
 const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, depth, blockstore, options) => {
-  if (isBasicExporterOptions(options)) {
+  if (isBasicExporterOptions(options) && toResolve.length === 0) {
     const basic: UnixFSBasicEntry = {
       cid,
       name,

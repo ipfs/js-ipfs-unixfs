@@ -414,4 +414,37 @@ describe('exporter sharded', function () {
       await expect(exporter(dirFile.cid, block)).to.eventually.be.rejected()
     }
   })
+
+  it('exports basic file from sharded directory', async () => {
+    const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
+
+    // needs to result in a block that is larger than SHARD_SPLIT_THRESHOLD bytes
+    for (let i = 0; i < 100; i++) {
+      files[`file-${Math.random()}.txt`] = {
+        content: uint8ArrayConcat(await all(randomBytes(100)))
+      }
+    }
+
+    const imported = await all(importer(Object.keys(files).map(path => ({
+      path,
+      content: asAsyncIterable(files[path].content)
+    })), block, {
+      wrapWithDirectory: true,
+      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
+      rawLeaves: false
+    }))
+
+    const file = imported[0]
+    const dir = imported[imported.length - 1]
+
+    const basicfile = await exporter(`/ipfs/${dir.cid}/${file.path}`, block, {
+      extended: false
+    })
+
+    expect(basicfile).to.have.property('name', file.path)
+    expect(basicfile).to.have.property('path', `${dir.cid}/${file.path}`)
+    expect(basicfile).to.have.deep.property('cid', file.cid)
+    expect(basicfile).to.not.have.property('unixfs')
+    expect(basicfile).to.not.have.property('content')
+  })
 })

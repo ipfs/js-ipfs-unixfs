@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v13.7.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.2...ipfs-unixfs-exporter-13.7.3) (2025-08-12)
+
+### Bug Fixes
+
+* export basic file from dir or shard ([#440](https://github.com/ipfs/js-ipfs-unixfs/issues/440)) ([b8d33de](https://github.com/ipfs/js-ipfs-unixfs/commit/b8d33deb0dfc76cc53eb82e31a67748a8da24eae))
+
 ## [ipfs-unixfs-exporter-v13.7.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.1...ipfs-unixfs-exporter-13.7.2) (2025-07-31)
 
 ### Bug Fixes

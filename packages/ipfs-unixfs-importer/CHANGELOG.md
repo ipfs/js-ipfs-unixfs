@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.0...ipfs-unixfs-importer-16.0.1) (2025-10-03)
+
+### Bug Fixes
+
+* update sibling dep ([af03409](https://github.com/ipfs/js-ipfs-unixfs/commit/af03409d6a0a454b63c28de941095c2a0340ff0a))
+
 ## [ipfs-unixfs-importer-v16.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.4.0...ipfs-unixfs-importer-16.0.0) (2025-10-03)
 
 ### ⚠ BREAKING CHANGES

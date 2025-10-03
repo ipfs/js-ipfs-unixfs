@@ -1,3 +1,10 @@
+## [ipfs-unixfs-exporter-v14.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.0...ipfs-unixfs-exporter-14.0.1) (2025-10-03)
+
+### Bug Fixes
+
+* update other sibling deps ([3e70ac2](https://github.com/ipfs/js-ipfs-unixfs/commit/3e70ac2f12ac875ea005c4be4d004a26765af460))
+* update sibling dep ([af03409](https://github.com/ipfs/js-ipfs-unixfs/commit/af03409d6a0a454b63c28de941095c2a0340ff0a))
+
 ## [ipfs-unixfs-exporter-v14.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.3...ipfs-unixfs-exporter-14.0.0) (2025-10-03)
 
 ### ⚠ BREAKING CHANGES

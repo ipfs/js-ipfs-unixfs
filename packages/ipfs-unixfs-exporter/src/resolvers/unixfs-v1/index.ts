@@ -1,5 +1,6 @@
 import { decode } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
+import toBuffer from 'it-to-buffer'
 import { NotFoundError, NotUnixFSError } from '../../errors.js'
 import findShardCid from '../../utils/find-cid-in-shard.js'
 import { isBasicExporterOptions } from '../../utils/is-basic-exporter-options.ts'
@@ -43,7 +44,7 @@ const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, dep
     }
   }
 
-  const block = await blockstore.get(cid, options)
+  const block = await toBuffer(blockstore.get(cid, options))
   const node = decode(block)
   let unixfs
   let next

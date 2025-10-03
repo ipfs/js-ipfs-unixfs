@@ -4,6 +4,7 @@ import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
 import { pushable } from 'it-pushable'
+import toBuffer from 'it-to-buffer'
 import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
@@ -76,7 +77,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
     childOps,
     (source) => map(source, (op) => {
       return async () => {
-        const block = await blockstore.get(op.link.Hash, options)
+        const block = await toBuffer(blockstore.get(op.link.Hash, options))
 
         return {
           ...op,

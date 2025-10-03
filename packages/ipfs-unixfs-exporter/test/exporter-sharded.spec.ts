@@ -8,6 +8,7 @@ import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
 import last from 'it-last'
+import toBuffer from 'it-to-buffer'
 import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
@@ -83,7 +84,7 @@ describe('exporter sharded', function () {
       files[imported.path].cid = imported.cid
     })
 
-    const encodedBlock = await block.get(dirCid)
+    const encodedBlock = await toBuffer(block.get(dirCid))
     const dir = dagPb.decode(encodedBlock)
     if (dir.Data == null) {
       throw Error('PBNode Data undefined')

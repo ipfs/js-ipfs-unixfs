@@ -3,6 +3,7 @@ import { UnixFS } from 'ipfs-unixfs'
 import map from 'it-map'
 import parallel from 'it-parallel'
 import { pipe } from 'it-pipe'
+import toBuffer from 'it-to-buffer'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
 import { isBasicExporterOptions } from '../../../utils/is-basic-exporter-options.ts'
@@ -73,7 +74,7 @@ async function * listDirectory (node: PBNode, path: string, resolve: Resolve, de
           }
         } else {
           // descend into subshard
-          const block = await blockstore.get(link.Hash, options)
+          const block = await toBuffer(blockstore.get(link.Hash, options))
           node = decode(block)
 
           options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {

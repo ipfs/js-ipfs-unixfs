@@ -150,7 +150,7 @@ describe('exporter', () => {
 
   it('ensure hash inputs are sanitized', async () => {
     const result = await dagPut()
-    const encodedBlock = await block.get(result.cid)
+    const encodedBlock = await toBuffer(block.get(result.cid))
     const node = dagPb.decode(encodedBlock)
     if (node.Data == null) {
       throw new Error('PBNode Data undefined')
@@ -212,7 +212,7 @@ describe('exporter', () => {
       content: uint8ArrayConcat(await all(randomBytes(100)))
     })
 
-    const encodedBlock = await block.get(result.cid)
+    const encodedBlock = await toBuffer(block.get(result.cid))
     const node = dagPb.decode(encodedBlock)
     if (node.Data == null) {
       throw new Error('PBNode Data undefined')
@@ -339,10 +339,10 @@ describe('exporter', () => {
     // @ts-expect-error incomplete implementation
     const blockStore: Blockstore = {
       ...block,
-      async get (cid: CID) {
+      async * get (cid: CID) {
         await delay(Math.random() * 10)
 
-        return block.get(cid)
+        yield * block.get(cid)
       }
     }
 
@@ -1289,9 +1289,10 @@ describe('exporter', () => {
     // regular test IPLD is offline-only, we need to mimic what happens when
     // we try to get a block from the network
     const customBlock = {
-      get: async (cid: CID, options: { signal: AbortSignal }) => {
+      // eslint-disable-next-line require-yield
+      get: async function * (cid: CID, options: { signal: AbortSignal }) {
         // promise will never resolve, so reject it when the abort signal is sent
-        return new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
           options.signal.addEventListener('abort', () => {
             reject(new Error(message))
           })
@@ -1299,7 +1300,6 @@ describe('exporter', () => {
       }
     }
 
-    // @ts-expect-error ipld implementation incomplete
     await expect(exporter(cid, customBlock, {
       signal: abortController.signal
     })).to.eventually.be.rejectedWith(message)
@@ -1397,13 +1397,13 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const node = dagPb.decode(await block.get(imported.cid))
+    const node = dagPb.decode(await toBuffer(block.get(imported.cid)))
     expect(node.Links).to.have.lengthOf(2, 'imported node had too many children')
 
-    const child1 = dagPb.decode(await block.get(node.Links[0].Hash))
+    const child1 = dagPb.decode(await toBuffer(block.get(node.Links[0].Hash)))
     expect(child1.Links).to.have.lengthOf(2, 'layer 1 node had too many children')
 
-    const child2 = dagPb.decode(await block.get(node.Links[1].Hash))
+    const child2 = dagPb.decode(await toBuffer(block.get(node.Links[1].Hash)))
     expect(child2.Links).to.have.lengthOf(2, 'layer 1 node had too many children')
 
     // should be raw nodes
@@ -1468,7 +1468,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const node = dagPb.decode(await block.get(imported.cid))
+    const node = dagPb.decode(await toBuffer(block.get(imported.cid)))
     expect(node.Links).to.have.lengthOf(entries, 'imported node had too many children')
 
     for (const link of node.Links) {
@@ -1491,7 +1491,7 @@ describe('exporter', () => {
 
     const actualInvocations: string[] = []
 
-    block.get = async (cid) => {
+    block.get = async function * (cid) {
       actualInvocations.push(`${cid.toString()}-start`)
 
       // introduce a small delay - if running in parallel actualInvocations will
@@ -1503,7 +1503,7 @@ describe('exporter', () => {
 
       actualInvocations.push(`${cid.toString()}-end`)
 
-      return originalGet(cid)
+      yield * originalGet(cid)
     }
 
     const blockReadSpy = Sinon.spy(block, 'get')
@@ -1539,7 +1539,7 @@ describe('exporter', () => {
       throw new Error('Nothing imported')
     }
 
-    const node = dagPb.decode(await block.get(imported.cid))
+    const node = dagPb.decode(await toBuffer(block.get(imported.cid)))
     const data = UnixFS.unmarshal(node.Data ?? new Uint8Array(0))
     expect(data.type).to.equal('hamt-sharded-directory')
 
@@ -1551,7 +1551,7 @@ describe('exporter', () => {
         children.push(link.Hash)
 
         if (link.Hash.code === dagPb.code) {
-          const buf = await block.get(link.Hash)
+          const buf = await toBuffer(block.get(link.Hash))
           const childNode = dagPb.decode(buf)
 
           children.push(...(await collectCIDs(childNode)))
@@ -1578,7 +1578,7 @@ describe('exporter', () => {
 
     const actualInvocations: string[] = []
 
-    block.get = async (cid) => {
+    block.get = async function * (cid) {
       actualInvocations.push(`${cid.toString()}-start`)
 
       // introduce a small delay - if running in parallel actualInvocations will
@@ -1590,7 +1590,7 @@ describe('exporter', () => {
 
       actualInvocations.push(`${cid.toString()}-end`)
 
-      return originalGet(cid)
+      yield * originalGet(cid)
     }
 
     const blockReadSpy = Sinon.spy(block, 'get')

@@ -2,6 +2,7 @@ import { decode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
 import { Bucket, createHAMT } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
+import toBuffer from 'it-to-buffer'
 import { NotUnixFSError } from '../errors.js'
 import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
 import type { PBLink, PBNode } from '@ipld/dag-pb'
@@ -142,7 +143,7 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
 
   context.hamtDepth++
 
-  const block = await blockstore.get(link.Hash, options)
+  const block = await toBuffer(blockstore.get(link.Hash, options))
   node = decode(block)
 
   return findShardCid(node, name, blockstore, context, options)

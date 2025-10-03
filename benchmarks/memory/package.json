@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "aegir": "^47.0.16",
-    "blockstore-fs": "^2.0.4",
+    "blockstore-fs": "^3.0.1",
     "ipfs-unixfs-importer": "^15.0.0",
     "it-drain": "^3.0.10"
   },

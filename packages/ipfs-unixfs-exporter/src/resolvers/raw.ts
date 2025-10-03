@@ -1,3 +1,4 @@
+import toBuffer from 'it-to-buffer'
 import { CustomProgressEvent } from 'progress-events'
 import { NotFoundError } from '../errors.js'
 import extractDataFromBlock from '../utils/extract-data-from-block.js'
@@ -30,7 +31,7 @@ const resolve: Resolver = async (cid, name, path, toResolve, resolve, depth, blo
     throw new NotFoundError(`No link named ${path} found in raw node ${cid}`)
   }
 
-  const block = await blockstore.get(cid, options)
+  const block = await toBuffer(blockstore.get(cid, options))
 
   return {
     entry: {

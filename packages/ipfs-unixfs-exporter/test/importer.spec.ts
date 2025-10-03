@@ -11,6 +11,7 @@ import { balanced, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import first from 'it-first'
 import last from 'it-last'
+import toBuffer from 'it-to-buffer'
 // @ts-expect-error https://github.com/schnittstabil/merge-options/pull/28
 import extend from 'merge-options'
 import { base58btc } from 'multiformats/bases/base58'
@@ -203,7 +204,7 @@ const checkLeafNodeTypes = async (blockstore: Blockstore, options: Partial<Impor
     throw new Error('Nothing imported')
   }
 
-  const fileBlock = await blockstore.get(file.cid)
+  const fileBlock = await toBuffer(blockstore.get(file.cid))
   const node = decode(fileBlock)
   if (node.Data == null) {
     throw new Error('PBNode Data undefined')
@@ -214,7 +215,7 @@ const checkLeafNodeTypes = async (blockstore: Blockstore, options: Partial<Impor
   expect(node.Links.length).to.equal(2)
 
   const linkedBlocks = await Promise.all(
-    node.Links.map(async link => blockstore.get(link.Hash))
+    node.Links.map(async link => toBuffer(blockstore.get(link.Hash)))
   )
 
   linkedBlocks.forEach(bytes => {
@@ -232,7 +233,7 @@ const checkNodeLinks = async (blockstore: Blockstore, options: Partial<ImporterO
     path: 'foo',
     content: asAsyncIterable(new Uint8Array(100).fill(1))
   }], blockstore, options)) {
-    const fileBlock = await blockstore.get(file.cid)
+    const fileBlock = await toBuffer(blockstore.get(file.cid))
     const node = decode(fileBlock)
     if (node.Data == null) {
       throw new Error('PBNode Data undefined')

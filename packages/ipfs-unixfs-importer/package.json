@@ -167,7 +167,7 @@
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^6.0.1",
     "interface-store": "^7.0.0",
-    "ipfs-unixfs": "^11.0.0",
+    "ipfs-unixfs": "^12.0.0",
     "it-all": "^3.0.9",
     "it-batch": "^3.0.9",
     "it-first": "^3.0.9",

@@ -1,3 +1,13 @@
+## [ipfs-unixfs-importer-v16.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.4.0...ipfs-unixfs-importer-16.0.0) (2025-10-03)
+
+### ⚠ BREAKING CHANGES
+
+* requires latest blockstore implementations
+
+### Bug Fixes
+
+* update blockstore deps ([#445](https://github.com/ipfs/js-ipfs-unixfs/issues/445)) ([dce7ca6](https://github.com/ipfs/js-ipfs-unixfs/commit/dce7ca68d014e5b695809cd61f24f91217161393))
+
 ## [ipfs-unixfs-importer-v15.4.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-15.3.4...ipfs-unixfs-importer-15.4.0) (2025-06-18)
 
 ### Features

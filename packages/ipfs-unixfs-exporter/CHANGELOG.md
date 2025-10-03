@@ -1,3 +1,13 @@
+## [ipfs-unixfs-exporter-v14.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.3...ipfs-unixfs-exporter-14.0.0) (2025-10-03)
+
+### ⚠ BREAKING CHANGES
+
+* requires latest blockstore implementations
+
+### Bug Fixes
+
+* update blockstore deps ([#445](https://github.com/ipfs/js-ipfs-unixfs/issues/445)) ([dce7ca6](https://github.com/ipfs/js-ipfs-unixfs/commit/dce7ca68d014e5b695809cd61f24f91217161393))
+
 ## [ipfs-unixfs-exporter-v13.7.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-13.7.2...ipfs-unixfs-exporter-13.7.3) (2025-08-12)
 
 ### Bug Fixes

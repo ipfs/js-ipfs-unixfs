@@ -14,7 +14,7 @@
   "devDependencies": {
     "aegir": "^47.0.16",
     "blockstore-fs": "^3.0.1",
-    "ipfs-unixfs-importer": "^15.0.0",
+    "ipfs-unixfs-importer": "^16.0.0",
     "it-drain": "^3.0.10"
   },
   "private": true

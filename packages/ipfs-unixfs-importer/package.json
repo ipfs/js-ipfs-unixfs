@@ -166,7 +166,7 @@
     "@multiformats/murmur3": "^2.1.8",
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^5.3.2",
-    "interface-store": "^6.0.3",
+    "interface-store": "^7.0.0",
     "ipfs-unixfs": "^11.0.0",
     "it-all": "^3.0.9",
     "it-batch": "^3.0.9",

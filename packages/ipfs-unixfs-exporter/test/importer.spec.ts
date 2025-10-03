@@ -11,8 +11,8 @@ import { balanced, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
 import first from 'it-first'
 import last from 'it-last'
-// @ts-expect-error https://github.com/schnittstabil/merge-options/pull/28
 import toBuffer from 'it-to-buffer'
+// @ts-expect-error https://github.com/schnittstabil/merge-options/pull/28
 import extend from 'merge-options'
 import { base58btc } from 'multiformats/bases/base58'
 import { CID } from 'multiformats/cid'

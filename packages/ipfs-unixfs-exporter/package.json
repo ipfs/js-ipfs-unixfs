@@ -161,7 +161,7 @@
     "@types/sinon": "^17.0.4",
     "aegir": "^47.0.16",
     "blockstore-core": "^6.0.2",
-    "delay": "^6.0.0",
+    "delay": "^7.0.0",
     "ipfs-unixfs-importer": "^16.0.0",
     "iso-random-stream": "^2.0.2",
     "it-all": "^3.0.9",

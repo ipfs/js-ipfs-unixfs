@@ -45,7 +45,15 @@ const unixFsResolver: Resolver = async (cid, name, path, toResolve, resolve, dep
   }
 
   const block = await toBuffer(blockstore.get(cid, options))
-  const node = decode(block)
+  let node: PBNode
+
+  try {
+    node = decode(block)
+  } catch (err: any) {
+    // badly formatted or invalid protobuf
+    throw new NotUnixFSError(err.message)
+  }
+
   let unixfs
   let next
 

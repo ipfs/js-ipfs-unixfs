@@ -1737,4 +1737,14 @@ describe('exporter', () => {
     expect(basicfile).to.not.have.property('unixfs')
     expect(basicfile).to.not.have.property('content')
   })
+
+  it('should throw NotUnixFSError when data is not parseable', async () => {
+    const buf = uint8ArrayFromString('i am not a protobuf')
+    const mh = await sha256.digest(buf)
+    const cid = CID.createV1(dagPb.code, mh)
+    await block.put(cid, buf)
+
+    await expect(exporter(cid, block)).to.eventually.be.rejected
+      .with.property('name', 'NotUnixFSError')
+  })
 })

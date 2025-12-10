@@ -1,3 +1,14 @@
+## [ipfs-unixfs-exporter-v14.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.1...ipfs-unixfs-exporter-14.0.2) (2025-12-10)
+
+### Bug Fixes
+
+* handle invalid or corrupt protobuf data ([#449](https://github.com/ipfs/js-ipfs-unixfs/issues/449)) ([131d524](https://github.com/ipfs/js-ipfs-unixfs/commit/131d524fac5e0f9fa01de362e63eb371489df51d))
+
+### Trivial Changes
+
+* bump @types/sinon from 17.0.4 to 21.0.0 ([#448](https://github.com/ipfs/js-ipfs-unixfs/issues/448)) ([42246f9](https://github.com/ipfs/js-ipfs-unixfs/commit/42246f90d55177c6ece0aaace12730b1f6cf3c3d))
+* bump delay from 6.0.0 to 7.0.0 ([#446](https://github.com/ipfs/js-ipfs-unixfs/issues/446)) ([5531763](https://github.com/ipfs/js-ipfs-unixfs/commit/55317632d46ba60abcfe41e127662e0662c8f60e))
+
 ## [ipfs-unixfs-exporter-v14.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.0...ipfs-unixfs-exporter-14.0.1) (2025-10-03)
 
 ### Bug Fixes

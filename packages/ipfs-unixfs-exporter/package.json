@@ -158,7 +158,7 @@
   },
   "devDependencies": {
     "@types/readable-stream": "^4.0.21",
-    "@types/sinon": "^17.0.4",
+    "@types/sinon": "^21.0.0",
     "aegir": "^47.0.16",
     "blockstore-core": "^6.0.2",
     "delay": "^7.0.0",

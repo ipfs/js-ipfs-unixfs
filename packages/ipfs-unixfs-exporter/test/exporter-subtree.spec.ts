@@ -5,7 +5,9 @@ import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import randomBytes from 'it-buffer-stream'
+import drain from 'it-drain'
 import last from 'it-last'
+import toBuffer from 'it-to-buffer'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { exporter, walkPath } from './../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
@@ -33,11 +35,17 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid}/level-1/200Bytes.txt`, block)
+    const entry = await last(walkPath(`${imported.cid}/level-1/200Bytes.txt`, block))
 
-    expect(exported).to.have.property('cid')
-    expect(exported.name).to.equal('200Bytes.txt')
-    expect(exported.path).to.equal(`${imported.cid}/level-1/200Bytes.txt`)
+    if (entry == null) {
+      throw new Error('Did not walk path')
+    }
+
+    expect(entry).to.have.property('cid')
+    expect(entry).to.have.property('name', '200Bytes.txt')
+    expect(entry).to.have.property('path', `${imported.cid}/level-1/200Bytes.txt`)
+
+    const exported = await exporter(entry.cid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')
@@ -63,27 +71,31 @@ describe('exporter subtree', () => {
       throw new Error('Nothing imported')
     }
 
-    const exported = await exporter(`${imported.cid}/level-1`, block)
+    const entry = await last(walkPath(`${imported.cid}/level-1`, block))
+
+    if (entry == null) {
+      throw new Error('Did not walk path')
+    }
+
+    const exported = await exporter(entry.cid, block)
 
     if (exported.type !== 'directory') {
       throw new Error('Unexpected type')
     }
 
-    const files = await all(exported.content())
-
+    const files = await all(exported.entries())
     expect(files.length).to.equal(2)
     expect(files[0].name).to.equal('200Bytes.txt')
-    expect(files[0].path).to.equal(`${imported.cid}/level-1/200Bytes.txt`)
-
     expect(files[1].name).to.equal('level-2')
-    expect(files[1].path).to.equal(`${imported.cid}/level-1/level-2`)
 
-    if (files[0].type !== 'file') {
-      throw new Error('Unexpected type')
+    const file = await exporter(files[0].cid, block)
+
+    if (file.type !== 'file') {
+      throw new Error('Expected file')
     }
 
-    const data = uint8ArrayConcat(await all(files[0].content()))
-    expect(data).to.deep.equal(content)
+    const data = await toBuffer(file.content())
+    expect(data).to.equalBytes(content)
   })
 
   it('exports a non existing file from a directory', async () => {
@@ -97,7 +109,7 @@ describe('exporter subtree', () => {
     }
 
     try {
-      await exporter(`${imported.cid}/doesnotexist`, block)
+      await drain(walkPath(`${imported.cid}/doesnotexist`, block))
     } catch (err: any) {
       expect(err.code).to.equal('ERR_NOT_FOUND')
     }

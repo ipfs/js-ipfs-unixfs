@@ -1,10 +1,13 @@
 import { CustomProgressEvent } from 'progress-events'
-import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
-import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
-import type { ExporterOptions, ExportProgress, ExportWalk, UnixfsV1Resolver } from '../../../index.js'
+import { extractDataFromBlock } from '../../utils/extract-data-from-block.js'
+import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.js'
+import type { ExporterOptions, ExportProgress, ExportWalk } from '../../../index.js'
+import type { PBNode } from '@ipld/dag-pb'
+import type { UnixFS } from 'ipfs-unixfs'
+import type { CID } from 'multiformats'
 
-const rawContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
-  function * yieldRawContent (options: ExporterOptions = {}): Generator<Uint8Array, void, undefined> {
+export function rawContent (cid: CID, node: PBNode, unixfs: UnixFS): (options: ExporterOptions) => AsyncGenerator<Uint8Array> {
+  async function * yieldRawContent (options: ExporterOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {
     if (unixfs.data == null) {
       throw new Error('Raw block had no data')
     }
@@ -33,5 +36,3 @@ const rawContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, b
 
   return yieldRawContent
 }
-
-export default rawContent

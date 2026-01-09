@@ -54,8 +54,6 @@ if (entry.type !== 'file') {
 }
 
 console.info(entry.cid) // Qmqux
-console.info(entry.path) // Qmbaz/foo/bar.txt
-console.info(entry.name) // bar.txt
 console.info(entry.unixfs.fileSize()) // 4
 
 // stream content from unixfs node

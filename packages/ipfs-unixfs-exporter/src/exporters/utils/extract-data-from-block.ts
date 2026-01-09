@@ -1,4 +1,4 @@
-function extractDataFromBlock (block: Uint8Array, blockStart: bigint, requestedStart: bigint, requestedEnd: bigint): Uint8Array {
+export function extractDataFromBlock (block: Uint8Array, blockStart: bigint, requestedStart: bigint, requestedEnd: bigint): Uint8Array {
   const blockLength = BigInt(block.length)
   const blockEnd = BigInt(blockStart + blockLength)
 
@@ -20,5 +20,3 @@ function extractDataFromBlock (block: Uint8Array, blockStart: bigint, requestedS
 
   return block
 }
-
-export default extractDataFromBlock

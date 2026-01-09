@@ -64,17 +64,6 @@ export class UnderReadError extends Error {
   }
 }
 
-export class NoPropError extends Error {
-  static name = 'NoPropError'
-  static code = 'ERR_NO_PROP'
-  name = NoPropError.name
-  code = NoPropError.code
-
-  constructor (message = 'No Property found') {
-    super(message)
-  }
-}
-
 export class InvalidParametersError extends Error {
   static name = 'InvalidParametersError'
   static code = 'ERR_INVALID_PARAMS'

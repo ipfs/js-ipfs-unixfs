@@ -190,44 +190,54 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
 
   /**
    * If the serialized node is larger than this it might be converted to a HAMT
-   * sharded directory. Default: 256KiB
+   * sharded directory.
+   *
+   * @default 262144
    */
   shardSplitThresholdBytes?: number
 
   /**
    * The number of bits of a hash digest used at each level of sharding to
    * the child index. 2**shardFanoutBits will dictate the maximum number of
-   * children for any shard in the HAMT. Default: 8
+   * children for any shard in the HAMT.
+   *
+   * @default 8
    */
   shardFanoutBits?: number
 
   /**
    * How many files to import concurrently. For large numbers of small files this
-   * should be high (e.g. 50). Default: 10
+   * should be high (e.g. 50).
+   *
+   * @default 10
    */
   fileImportConcurrency?: number
 
   /**
    * How many blocks to hash and write to the block store concurrently. For small
-   * numbers of large files this should be high (e.g. 50). Default: 50
+   * numbers of large files this should be high (e.g. 50).
+   *
+   * @default 50
    */
   blockWriteConcurrency?: number
 
   /**
    * If true, all imported files and folders will be contained in a directory that
-   * will correspond to the CID of the final entry yielded. Default: false
+   * will correspond to the CID of the final entry yielded.
+   *
+   * @default false
    */
   wrapWithDirectory?: boolean
 
   /**
    * The chunking strategy. See [./src/chunker/index.ts](./src/chunker/index.ts)
-   * for available chunkers. Default: fixedSize
+   * for available chunkers.
    */
   chunker?: Chunker
 
   /**
    * How the DAG that represents files are created. See
-   * [./src/layout/index.ts](./src/layout/index.ts) for available layouts. Default: balanced
+   * [./src/layout/index.ts](./src/layout/index.ts) for available layouts.
    */
   layout?: FileLayout
 
@@ -240,7 +250,9 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string, `unixfs`
    * is a UnixFS entry and `node` is a `DAGNode`.
    * Values will be pulled from this generator in parallel - the amount of parallelisation
-   * is controlled by the `fileImportConcurrency` option (default: 50)
+   * is controlled by the `fileImportConcurrency` option
+   *
+   * @default 50
    */
   dagBuilder?: DAGBuilder
 
@@ -264,7 +276,7 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * It should yield functions that return a Promise that resolves to an object with
    * the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
    * Values will be pulled from this generator in parallel - the amount of
-   * parallelisation is controlled by the `blockWriteConcurrency` option (default: 10)
+   * parallelisation is controlled by the `blockWriteConcurrency` option
    */
   bufferImporter?: BufferImporter
 

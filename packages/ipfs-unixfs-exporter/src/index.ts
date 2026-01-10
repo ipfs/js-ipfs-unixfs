@@ -335,23 +335,6 @@ export interface IdentityNode extends Exportable {
  */
 export type UnixFSEntry = UnixFSFile | UnixFSDirectory | ObjectNode | RawNode | IdentityNode
 
-export interface UnixFSBasicEntry {
-  /**
-   * The name of the entry
-   */
-  name: string
-
-  /**
-   * The path of the entry within the DAG in which it was encountered
-   */
-  path: string
-
-  /**
-   * The CID of the entry
-   */
-  cid: CID
-}
-
 export interface Resolver {
   (cid: CID, blockstore: ReadableStorage, options: ExporterOptions): Promise<UnixFSEntry>
 }

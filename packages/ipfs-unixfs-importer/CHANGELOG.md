@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.1...ipfs-unixfs-importer-16.0.2) (2026-01-10)
+
+### Documentation
+
+* update jsdocs to use default tag ([#452](https://github.com/ipfs/js-ipfs-unixfs/issues/452)) ([f8ad52e](https://github.com/ipfs/js-ipfs-unixfs/commit/f8ad52e84e49c8bd73cb4da1ffdf5dad68ddf8dc))
+
 ## [ipfs-unixfs-importer-v16.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.0...ipfs-unixfs-importer-16.0.1) (2025-10-03)
 
 ### Bug Fixes

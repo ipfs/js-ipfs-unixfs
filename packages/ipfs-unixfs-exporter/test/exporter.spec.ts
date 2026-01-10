@@ -15,6 +15,7 @@ import randomBytes from 'it-buffer-stream'
 import drain from 'it-drain'
 import first from 'it-first'
 import last from 'it-last'
+import map from 'it-map'
 import toBuffer from 'it-to-buffer'
 import { CID } from 'multiformats/cid'
 import * as json from 'multiformats/codecs/json'
@@ -27,7 +28,7 @@ import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { isNode } from 'wherearewe'
-import { exporter, recursive } from '../src/index.js'
+import { exporter, recursive, walkPath } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
@@ -162,7 +163,6 @@ describe('exporter', () => {
     const file = await exporter(result.cid, block)
 
     expect(file).to.have.property('cid')
-    expect(file).to.have.property('path', result.cid.toString())
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -182,10 +182,14 @@ describe('exporter', () => {
     }], block))
 
     const path = `/ipfs/${files[1].cid}/${fileName}`
-    const file = await exporter(path, block)
+    const entry = await last(walkPath(path, block))
 
-    expect(file.name).to.equal(fileName)
-    expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
+    if (entry == null) {
+      throw new Error('Did not walk path')
+    }
+
+    expect(entry).to.have.property('name', fileName)
+    expect(entry).to.have.property('path', `${files[1].cid}/${fileName}`)
   })
 
   it('small file in a directory with an square brackets in the title', async () => {
@@ -198,10 +202,14 @@ describe('exporter', () => {
     }], block))
 
     const path = `/ipfs/${files[1].cid}/${fileName}`
-    const file = await exporter(path, block)
+    const entry = await last(walkPath(path, block))
 
-    expect(file.name).to.equal(fileName)
-    expect(file.path).to.equal(`${files[1].cid}/${fileName}`)
+    if (entry == null) {
+      throw new Error('Did not walk path')
+    }
+
+    expect(entry).to.have.property('name', fileName)
+    expect(entry).to.have.property('path', `${files[1].cid}/${fileName}`)
   })
 
   it('exports a chunk of a file with no links', async () => {
@@ -370,7 +378,6 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    expect(file).to.have.property('path', cid.toString())
     expect(file.unixfs.fileSize()).to.equal(BigInt(ONE_MEG * 6))
   })
 
@@ -386,7 +393,6 @@ describe('exporter', () => {
     })
 
     const file = await exporter(cid, block)
-    expect(file).to.have.property('path', cid.toString())
 
     if (file.type !== 'file') {
       throw new Error('Unexpected type')
@@ -457,17 +463,19 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    const files = await all(dir.content())
+    const entries = await all(dir.entries())
 
-    files.forEach(file => expect(file).to.have.property('cid'))
+    entries.forEach(file => expect(file).to.have.property('cid'))
 
     expect(
-      files.map((file) => file.path)
-    ).to.be.eql([
-      `${dir.cid}/200Bytes.txt`,
-      `${dir.cid}/dir-another`,
-      `${dir.cid}/level-1`
+      entries.map((entry) => entry.name)
+    ).to.be.deep.equal([
+      '200Bytes.txt',
+      'dir-another',
+      'level-1'
     ])
+
+    const files = await all(map(entries, (entry) => exporter(entry.cid, block)))
 
     files
       .filter(file => file.type === 'directory' && file.unixfs.type === 'dir')
@@ -505,17 +513,19 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    const files = await all(dir.content())
+    const entries = await all(dir.entries())
 
-    files.forEach(file => expect(file).to.have.property('cid'))
+    entries.forEach(entry => expect(entry).to.have.property('cid'))
 
     expect(
-      files.map((file) => file.path)
-    ).to.be.eql([
-      `${importedDir.cid}/200Bytes.txt`,
-      `${importedDir.cid}/dir-another`,
-      `${importedDir.cid}/level-1`
+      entries.map((entry) => entry.name)
+    ).to.deep.equal([
+      '200Bytes.txt',
+      'dir-another',
+      'level-1'
     ])
+
+    const files = await all(map(entries, (entry) => exporter(entry.cid, block)))
 
     expect(
       files
@@ -689,7 +699,7 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    const files = await all(dir.content())
+    const files = await all(dir.entries())
     expect(files.length).to.equal(0)
   })
 
@@ -841,7 +851,7 @@ describe('exporter', () => {
 
   it('fails on non existent hash', async () => {
     // This hash doesn't exist in the repo
-    const hash = 'bafybeidu2qqwriogfndznz32swi5r4p2wruf6ztu5k7my53tsezwhncs5y'
+    const hash = CID.parse('bafybeidu2qqwriogfndznz32swi5r4p2wruf6ztu5k7my53tsezwhncs5y')
 
     try {
       await exporter(hash, block)
@@ -990,11 +1000,8 @@ describe('exporter', () => {
     const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
     await block.put(cid, cborBlock)
 
-    try {
-      await exporter(`${cid}/baz`, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NO_PROP')
-    }
+    await expect(drain(walkPath(`${cid}/baz`, block))).to.eventually.be.rejected
+      .with.property('name', 'BadPathError')
   })
 
   it('exports a dag-cbor node', async () => {
@@ -1005,13 +1012,13 @@ describe('exporter', () => {
     const cborBlock = dagCbor.encode(node)
     const cid = CID.createV1(dagCbor.code, await sha256.digest(cborBlock))
     await block.put(cid, cborBlock)
-    const exported = await exporter(`${cid}`, block)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
     }
 
-    return expect(first(exported.content())).to.eventually.deep.equal(node)
+    expect(exported.object).to.deep.equal(node)
   })
 
   it('errors when exporting a non-existent key from a dag-json node', async () => {
@@ -1023,11 +1030,8 @@ describe('exporter', () => {
     const cid = CID.createV1(dagJson.code, await sha256.digest(jsonBlock))
     await block.put(cid, jsonBlock)
 
-    try {
-      await exporter(`${cid}/baz`, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NO_PROP')
-    }
+    await expect(drain(walkPath(`${cid}/baz`, block))).to.eventually.be.rejected
+      .with.property('name', 'BadPathError')
   })
 
   it('exports a dag-json node', async () => {
@@ -1038,13 +1042,13 @@ describe('exporter', () => {
     const jsonBlock = dagJson.encode(node)
     const cid = CID.createV1(dagJson.code, await sha256.digest(jsonBlock))
     await block.put(cid, jsonBlock)
-    const exported = await exporter(`${cid}`, block)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
     }
 
-    return expect(first(exported.content())).to.eventually.deep.equal(node)
+    expect(exported.object).to.deep.equal(node)
   })
 
   it('errors when exporting a non-existent key from a json node', async () => {
@@ -1056,11 +1060,8 @@ describe('exporter', () => {
     const cid = CID.createV1(json.code, await sha256.digest(jsonBlock))
     await block.put(cid, jsonBlock)
 
-    try {
-      await exporter(`${cid}/baz`, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NO_PROP')
-    }
+    await expect(drain(walkPath(`${cid}/baz`, block))).to.eventually.be.rejected
+      .with.property('name', 'BadPathError')
   })
 
   it('exports a json node', async () => {
@@ -1071,23 +1072,20 @@ describe('exporter', () => {
     const jsonBlock = json.encode(node)
     const cid = CID.createV1(json.code, await sha256.digest(jsonBlock))
     await block.put(cid, jsonBlock)
-    const exported = await exporter(`${cid}`, block)
+    const exported = await exporter(cid, block)
 
     if (exported.type !== 'object') {
       throw new Error('Unexpected type')
     }
 
-    return expect(first(exported.content())).to.eventually.deep.equal(node)
+    expect(exported.object).to.deep.equal(node)
   })
 
   it('errors when exporting a node with no resolver', async () => {
     const cid = CID.create(1, 0x78, CID.parse('zdj7WkRPAX9o9nb9zPbXzwG7JEs78uyhwbUs8JSUayB98DWWY').multihash)
 
-    try {
-      await exporter(`${cid}`, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NO_RESOLVER')
-    }
+    await expect(exporter(cid, block)).to.eventually.be.rejected
+      .with.property('name', 'NoResolverError')
   })
 
   it('errors if we try to export links from inside a raw node', async () => {
@@ -1095,11 +1093,8 @@ describe('exporter', () => {
     const cid = CID.createV1(raw.code, await sha256.digest(rawBlock))
     await block.put(cid, rawBlock)
 
-    try {
-      await exporter(`${cid}/lol`, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NOT_FOUND')
-    }
+    await expect(drain(walkPath(`${cid}/lol`, block))).to.eventually.be.rejected
+      .with.property('name', 'NotFoundError')
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
@@ -1110,11 +1105,8 @@ describe('exporter', () => {
     const dagpbCid = CID.createV0(await sha256.digest(dagpbBlock))
     await block.put(dagpbCid, dagpbBlock)
 
-    try {
-      await exporter(dagpbCid, block)
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NOT_UNIXFS')
-    }
+    await expect(exporter(dagpbCid, block)).to.eventually.be.rejected
+      .with.property('name', 'NotUnixFSError')
   })
 
   it('errors we export a unixfs node that has a non-unixfs/dag-pb child', async () => {
@@ -1144,22 +1136,8 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
-    try {
-      await all(exported.content())
-    } catch (err: any) {
-      expect(err.code).to.equal('ERR_NOT_UNIXFS')
-    }
-  })
-
-  it('exports a node with depth', async () => {
-    const imported = await all(importer([{
-      path: '/foo/bar/baz.txt',
-      content: asAsyncIterable(uint8ArrayFromString('hello world'))
-    }], block))
-
-    const exported = await exporter(imported[0].cid, block)
-
-    expect(exported.depth).to.equal(0)
+    await expect(all(exported.content())).to.eventually.be.rejected
+      .with.property('name', 'NotUnixFSError')
   })
 
   it('exports a node recursively with depth', async () => {
@@ -1344,6 +1322,11 @@ describe('exporter', () => {
       }
 
       const file = await exporter(result.cid, block)
+
+      if (file.type !== 'file' && file.type !== 'raw') {
+        throw new Error('File expected')
+      }
+
       const contentIterator = file.content()
 
       const readableStreamToBytes = async (readableStream: Readable): Promise<Uint8Array> => {
@@ -1415,6 +1398,10 @@ describe('exporter', () => {
     // export file
     const file = await exporter(imported.cid, block)
 
+    if (file.type !== 'file' && file.type !== 'raw') {
+      throw new Error('File expected')
+    }
+
     // export file data with default settings
     const blockReadSpy = Sinon.spy(block, 'get')
     const contentWithDefaultBlockConcurrency = await toBuffer(file.content())
@@ -1449,164 +1436,7 @@ describe('exporter', () => {
     expect(contentWithDefaultBlockConcurrency).to.equalBytes(contentWitSmallBlockConcurrency)
   })
 
-  it('should allow control of block read concurrency for directories', async () => {
-    const entries = 1024
-
-    // create a largeish directory
-    const imported = await last(importer((async function * () {
-      for (let i = 0; i < entries; i++) {
-        yield {
-          path: `file-${i}.txt`,
-          content: Uint8Array.from([i])
-        }
-      }
-    })(), block, {
-      wrapWithDirectory: true
-    }))
-
-    if (imported == null) {
-      throw new Error('Nothing imported')
-    }
-
-    const node = dagPb.decode(await toBuffer(block.get(imported.cid)))
-    expect(node.Links).to.have.lengthOf(entries, 'imported node had too many children')
-
-    for (const link of node.Links) {
-      // should be raw nodes
-      expect(link.Hash.code).to.equal(raw.code, 'child node had wrong codec')
-    }
-
-    // export directory
-    const directory = await exporter(imported.cid, block)
-
-    // export file data with default settings
-    const originalGet = block.get.bind(block)
-
-    const expectedInvocations: string[] = []
-
-    for (const link of node.Links) {
-      expectedInvocations.push(`${link.Hash.toString()}-start`)
-      expectedInvocations.push(`${link.Hash.toString()}-end`)
-    }
-
-    const actualInvocations: string[] = []
-
-    block.get = async function * (cid) {
-      actualInvocations.push(`${cid.toString()}-start`)
-
-      // introduce a small delay - if running in parallel actualInvocations will
-      // be:
-      // `foo-start`, `bar-start`, `baz-start`, `foo-end`, `bar-end`, `baz-end`
-      // if in series it will be:
-      // `foo-start`, `foo-end`, `bar-start`, `bar-end`, `baz-start`, `baz-end`
-      await delay(1)
-
-      actualInvocations.push(`${cid.toString()}-end`)
-
-      yield * originalGet(cid)
-    }
-
-    const blockReadSpy = Sinon.spy(block, 'get')
-    await drain(directory.content({
-      blockReadConcurrency: 1
-    }))
-
-    // blocks should be loaded in default order - a whole level of sibling nodes at a time
-    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal(
-      node.Links.map(link => link.Hash.toString())
-    )
-
-    expect(actualInvocations).to.deep.equal(expectedInvocations)
-  })
-
-  it('should allow control of block read concurrency for HAMT sharded directories', async () => {
-    const entries = 1024
-
-    // create a sharded directory
-    const imported = await last(importer((async function * () {
-      for (let i = 0; i < entries; i++) {
-        yield {
-          path: `file-${i}.txt`,
-          content: Uint8Array.from([i])
-        }
-      }
-    })(), block, {
-      wrapWithDirectory: true,
-      shardSplitThresholdBytes: 10
-    }))
-
-    if (imported == null) {
-      throw new Error('Nothing imported')
-    }
-
-    const node = dagPb.decode(await toBuffer(block.get(imported.cid)))
-    const data = UnixFS.unmarshal(node.Data ?? new Uint8Array(0))
-    expect(data.type).to.equal('hamt-sharded-directory')
-
-    // traverse the shard, collect all the CIDs
-    async function collectCIDs (node: PBNode): Promise<CID[]> {
-      const children: CID[] = []
-
-      for (const link of node.Links) {
-        children.push(link.Hash)
-
-        if (link.Hash.code === dagPb.code) {
-          const buf = await toBuffer(block.get(link.Hash))
-          const childNode = dagPb.decode(buf)
-
-          children.push(...(await collectCIDs(childNode)))
-        }
-      }
-
-      return children
-    }
-
-    const children: CID[] = await collectCIDs(node)
-
-    // export directory
-    const directory = await exporter(imported.cid, block)
-
-    // export file data with default settings
-    const originalGet = block.get.bind(block)
-
-    const expectedInvocations: string[] = []
-
-    for (const cid of children) {
-      expectedInvocations.push(`${cid.toString()}-start`)
-      expectedInvocations.push(`${cid.toString()}-end`)
-    }
-
-    const actualInvocations: string[] = []
-
-    block.get = async function * (cid) {
-      actualInvocations.push(`${cid.toString()}-start`)
-
-      // introduce a small delay - if running in parallel actualInvocations will
-      // be:
-      // `foo-start`, `bar-start`, `baz-start`, `foo-end`, `bar-end`, `baz-end`
-      // if in series it will be:
-      // `foo-start`, `foo-end`, `bar-start`, `bar-end`, `baz-start`, `baz-end`
-      await delay(1)
-
-      actualInvocations.push(`${cid.toString()}-end`)
-
-      yield * originalGet(cid)
-    }
-
-    const blockReadSpy = Sinon.spy(block, 'get')
-    await drain(directory.content({
-      blockReadConcurrency: 1
-    }))
-
-    // blocks should be loaded in default order - a whole level of sibling nodes at a time
-    expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal(
-      children.map(link => link.toString())
-    )
-
-    expect(actualInvocations).to.deep.equal(expectedInvocations)
-  })
-
-  it('exports basic directory contents', async () => {
+  it('exports directory contents', async () => {
     const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
 
     for (let i = 0; i < 10; i++) {
@@ -1630,112 +1460,29 @@ describe('exporter', () => {
     }
 
     const exported = await exporter(dirCid, block)
-    const dirFiles = await all(exported.content())
 
-    // delete shard contents
-    for (const entry of dirFiles) {
+    if (exported.type !== 'directory') {
+      throw new Error('Directory expected')
+    }
+
+    // delete every file in the directory
+    for await (const entry of exported.entries()) {
       await block.delete(entry.cid)
     }
 
-    // list the contents again, this time just the basic version
-    const basicDirFiles = await all(exported.content({
-      extended: false
-    }))
-    expect(basicDirFiles.length).to.equal(dirFiles.length)
+    // list the contents
+    const basicDirFiles = await all(exported.entries())
+    expect(basicDirFiles.length).to.equal(10)
 
     for (let i = 0; i < basicDirFiles.length; i++) {
       const dirFile = basicDirFiles[i]
 
       expect(dirFile).to.have.property('name')
-      expect(dirFile).to.have.property('path')
       expect(dirFile).to.have.property('cid')
 
       // should fail because we have deleted this block
       await expect(exporter(dirFile.cid, block)).to.eventually.be.rejected()
     }
-  })
-
-  it('exports basic file', async () => {
-    const imported = await all(importer([{
-      content: uint8ArrayFromString('hello')
-    }], block, {
-      rawLeaves: false
-    }))
-
-    const regularFile = await exporter(imported[0].cid, block)
-    expect(regularFile).to.have.property('unixfs')
-
-    const basicFile = await exporter(imported[0].cid, block, {
-      extended: false
-    })
-
-    expect(basicFile).to.have.property('name')
-    expect(basicFile).to.have.property('path')
-    expect(basicFile).to.have.property('cid')
-    expect(basicFile).to.not.have.property('unixfs')
-  })
-
-  it('exports basic directory', async () => {
-    const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
-
-    for (let i = 0; i < 10; i++) {
-      files[`file-${Math.random()}.txt`] = {
-        content: uint8ArrayConcat(await all(randomBytes(100)))
-      }
-    }
-
-    const imported = await all(importer(Object.keys(files).map(path => ({
-      path,
-      content: asAsyncIterable(files[path].content)
-    })), block, {
-      wrapWithDirectory: true,
-      rawLeaves: false
-    }))
-
-    const dirCid = imported.pop()?.cid
-
-    if (dirCid == null) {
-      throw new Error('No directory CID found')
-    }
-
-    const basicDir = await exporter(dirCid, block, {
-      extended: false
-    })
-
-    expect(basicDir).to.have.property('name')
-    expect(basicDir).to.have.property('path')
-    expect(basicDir).to.have.property('cid')
-    expect(basicDir).to.not.have.property('unixfs')
-    expect(basicDir).to.not.have.property('content')
-  })
-
-  it('exports basic file from directory', async () => {
-    const files: Record<string, { content: Uint8Array, cid?: CID }> = {
-      'file.txt': {
-        content: uint8ArrayConcat(await all(randomBytes(100)))
-      }
-    }
-
-    const imported = await all(importer(Object.keys(files).map(path => ({
-      path,
-      content: asAsyncIterable(files[path].content)
-    })), block, {
-      wrapWithDirectory: true,
-      rawLeaves: false
-    }))
-
-    const file = imported[0]
-    const dir = imported[imported.length - 1]
-
-    const basicfile = await exporter(`/ipfs/${dir.cid}/${file.path}`, block, {
-      extended: false
-    })
-
-    expect(basicfile).to.have.property('name', file.path)
-    expect(basicfile).to.have.property('path', `${dir.cid}/${file.path}`)
-    expect(basicfile).to.have.deep.property('cid', file.cid)
-    expect(basicfile).to.not.have.property('unixfs')
-    expect(basicfile).to.not.have.property('content')
   })
 
   it('should throw NotUnixFSError when data is not parseable', async () => {

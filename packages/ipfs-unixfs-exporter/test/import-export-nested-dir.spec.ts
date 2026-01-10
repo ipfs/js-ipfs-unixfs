@@ -4,13 +4,14 @@ import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
-import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
+import toBuffer from 'it-to-buffer'
+import { CID } from 'multiformats/cid'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { exporter } from '../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 import type { UnixFSEntry } from '../src/index.js'
-import type { CID } from 'multiformats/cid'
+import type { Blockstore } from 'interface-blockstore'
 
 describe('import and export: directory', () => {
   const rootHash = 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK'
@@ -68,8 +69,8 @@ describe('import and export: directory', () => {
   it('exports', async function () {
     this.timeout(20 * 1000)
 
-    const dir = await exporter(rootHash, block)
-    const files = await recursiveExport(dir, rootHash)
+    const dir = await exporter(CID.parse(rootHash), block)
+    const files = await recursiveExport(dir, rootHash, block)
 
     expect(files.sort(byPath)).to.eql([{
       path: 'QmdCrquDwd7RfZ6GCZFEVADwe8uyyw1YmF9mtAB7etDgmK/b/h',
@@ -87,18 +88,20 @@ describe('import and export: directory', () => {
   })
 })
 
-async function recursiveExport (node: UnixFSEntry, path: string, entries: Array<{ path: string, content: string }> = []): Promise<Array<{ path: string, content: string }>> {
+async function recursiveExport (node: UnixFSEntry, path: string, block: Blockstore, entries: Array<{ path: string, content: string }> = []): Promise<Array<{ path: string, content: string }>> {
   if (node.type !== 'directory') {
     throw new Error('Can only recursively export directories')
   }
 
-  for await (const entry of node.content()) {
-    if (entry.type === 'directory') {
-      await recursiveExport(entry, `${path}/${entry.name}`, entries)
-    } else if (entry.type === 'file') {
+  for await (const entry of node.entries()) {
+    const file = await exporter(entry.cid, block)
+
+    if (file.type === 'directory') {
+      await recursiveExport(file, `${path}/${entry.name}`, block, entries)
+    } else if (file.type === 'file') {
       entries.push({
         path: `${path}/${entry.name}`,
-        content: uint8ArrayToString(uint8ArrayConcat(await all(entry.content())))
+        content: uint8ArrayToString(await toBuffer(file.content()))
       })
     }
   }

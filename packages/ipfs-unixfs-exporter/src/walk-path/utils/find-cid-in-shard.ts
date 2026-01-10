@@ -3,11 +3,17 @@ import { murmur3128 } from '@multiformats/murmur3'
 import { Bucket, createHAMT } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
 import toBuffer from 'it-to-buffer'
-import { NotUnixFSError } from '../errors.js'
-import type { ExporterOptions, ShardTraversalContext, ReadableStorage } from '../index.js'
+import { NotUnixFSError } from '../../errors.js'
+import type { ReadableStorage, WalkPathOptions } from '../../index.js'
+import type { ResolveResult } from '../index.ts'
 import type { PBLink, PBNode } from '@ipld/dag-pb'
 import type { BucketPosition } from 'hamt-sharding'
-import type { CID } from 'multiformats/cid'
+
+interface ShardTraversalContext {
+  hamtDepth: number
+  rootBucket: Bucket<boolean>
+  lastBucket: Bucket<boolean>
+}
 
 // FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js
 const hashFn = async function (buf: Uint8Array): Promise<Uint8Array> {
@@ -66,10 +72,10 @@ const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>>
   return path.reverse()
 }
 
-const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStorage, context?: ShardTraversalContext, options?: ExporterOptions): Promise<CID | undefined> => {
+export async function * findShardCid (node: PBNode, name: string, rest: string[], blockstore: ReadableStorage, context?: ShardTraversalContext, options?: WalkPathOptions): AsyncGenerator<ResolveResult> {
   if (context == null) {
     if (node.Data == null) {
-      throw new NotUnixFSError('no data in PBNode')
+      throw new NotUnixFSError('No data in PBNode')
     }
 
     let dir: UnixFS
@@ -80,10 +86,11 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
     }
 
     if (dir.type !== 'hamt-sharded-directory') {
-      throw new NotUnixFSError('not a HAMT')
+      throw new NotUnixFSError('Not a HAMT')
     }
+
     if (dir.fanout == null) {
-      throw new NotUnixFSError('missing fanout')
+      throw new NotUnixFSError('Missing fanout')
     }
 
     const rootBucket = createHAMT<boolean>({
@@ -138,7 +145,13 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
   }
 
   if (link.Name != null && link.Name.substring(padLength) === name) {
-    return link.Hash
+    yield {
+      cid: link.Hash,
+      name: link.Name.substring(padLength),
+      rest
+    }
+
+    return
   }
 
   context.hamtDepth++
@@ -146,7 +159,13 @@ const findShardCid = async (node: PBNode, name: string, blockstore: ReadableStor
   const block = await toBuffer(blockstore.get(link.Hash, options))
   node = decode(block)
 
-  return findShardCid(node, name, blockstore, context, options)
-}
+  if (options?.yieldSubShards === true) {
+    yield {
+      cid: link.Hash,
+      name: link.Name ?? '',
+      rest: [name, ...rest]
+    }
+  }
 
-export default findShardCid
+  yield * findShardCid(node, name, rest, blockstore, context, options)
+}

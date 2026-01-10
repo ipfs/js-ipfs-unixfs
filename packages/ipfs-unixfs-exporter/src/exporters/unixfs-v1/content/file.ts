@@ -9,10 +9,11 @@ import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.js'
-import extractDataFromBlock from '../../../utils/extract-data-from-block.js'
-import validateOffsetAndLength from '../../../utils/validate-offset-and-length.js'
-import type { ExporterOptions, UnixfsV1FileContent, UnixfsV1Resolver, ReadableStorage, ExportProgress, ExportWalk } from '../../../index.js'
+import { extractDataFromBlock } from '../../utils/extract-data-from-block.js'
+import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.js'
+import type { ExporterOptions, ReadableStorage, ExportProgress, ExportWalk } from '../../../index.js'
 import type { Pushable } from 'it-pushable'
+import type { CID } from 'multiformats/cid'
 
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExporterOptions): Promise<void> {
   // a `raw` node
@@ -134,8 +135,8 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
   }
 }
 
-const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, blockstore) => {
-  async function * yieldFileContent (options: ExporterOptions = {}): UnixfsV1FileContent {
+export function fileContent (cid: CID, node: dagPb.PBNode, unixfs: UnixFS, blockstore: ReadableStorage): (options: ExporterOptions) => AsyncGenerator<Uint8Array> {
+  async function * yieldFileContent (options: ExporterOptions = {}): AsyncGenerator<Uint8Array> {
     const fileSize = unixfs.fileSize()
 
     if (fileSize === undefined) {
@@ -196,5 +197,3 @@ const fileContent: UnixfsV1Resolver = (cid, node, unixfs, path, resolve, depth, 
 
   return yieldFileContent
 }
-
-export default fileContent

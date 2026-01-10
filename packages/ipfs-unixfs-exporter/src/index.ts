@@ -1,7 +1,8 @@
 /**
  * @packageDocumentation
  *
- * The UnixFS Exporter provides a means to read DAGs from a blockstore given a CID.
+ * The UnixFS Exporter provides a means to read DAGs from a blockstore given a
+ * CID.
  *
  * @example
  *
@@ -31,8 +32,6 @@
  * }
  *
  * console.info(entry.cid) // Qmqux
- * console.info(entry.path) // Qmbaz/foo/bar.txt
- * console.info(entry.name) // bar.txt
  * console.info(entry.unixfs.fileSize()) // 4
  *
  * // stream content from unixfs node
@@ -49,17 +48,15 @@
  * ```
  */
 
-import last from 'it-last'
 import { CID } from 'multiformats/cid'
-import { BadPathError, NotFoundError } from './errors.js'
-import resolve from './resolvers/index.js'
+import { resolve } from './exporters/index.js'
 import type { PBNode } from '@ipld/dag-pb'
-import type { Bucket } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
 export * from './errors.js'
+export * from './walk-path/index.js'
 
 export interface ExportProgress {
   /**
@@ -105,7 +102,9 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    *
    * If the CID resolves to a file this will be a byte offset within that file,
    * otherwise if it's a directory it will be a directory entry offset within
-   * the directory listing. (default: undefined)
+   * the directory listing.
+   *
+   * @default undefined
    */
   offset?: number
 
@@ -114,13 +113,17 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    *
    * If the CID resolves to a file this will be the number of bytes read from
    * the file, otherwise if it's a directory it will be the number of directory
-   * entries read from the directory listing. (default: undefined)
+   * entries read from the directory listing.
+   *
+   * @default undefined
    */
   length?: number
 
   /**
    * This signal can be used to abort any long-lived operations such as fetching
-   * blocks from the network. (default: undefined)
+   * blocks from the network.
+   *
+   * @default undefined
    */
   signal?: AbortSignal
 
@@ -130,41 +133,50 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    * of yielding their bytes. Pass a value here to control the number of blocks
    * loaded in parallel. If a strict depth-first traversal is required, this
    * value should be set to `1`, otherwise the traversal order will tend to
-   * resemble a breadth-first fan-out and yield a have stable ordering.
-   * (default: undefined)
+   * resemble a breadth-first fan-out with stable ordering.
+   *
+   * @default undefined
    */
   blockReadConcurrency?: number
+}
+
+export interface WalkPathOptions extends ProgressOptions<ExporterProgressEvents> {
+  /**
+   * This signal can be used to abort any long-lived operations such as fetching
+   * blocks from the network.
+   *
+   * @default undefined
+   */
+  signal?: AbortSignal
 
   /**
-   * When directory contents are listed, by default the root node of each entry
-   * is fetched to decode the UnixFS metadata and know if the entry is a file or
-   * a directory. This can result in fetching extra data which may not be
-   * desirable, depending on your application.
+   * By default if a HAMT-sharded directory is encountered, only file and
+   * directory entries are yielded. Pass `true` here to also yield intermediate
+   * sub-shards.
    *
-   * Pass false here to only return the CID and the name of the entry and not
-   * any extended metadata.
+   * @default false
+   */
+  yieldSubShards?: boolean
+
+  /**
+   * If a HAMT-sharded directory is encountered, paths will be translated
+   * automatically, e.g. `QmHamt/bar.txt` -> `QmHamt/F0/A1bar.txt`, pass `false`
+   * here to not perform this translation.
    *
    * @default true
    */
-  extended?: boolean
-}
+  translateHamtPath?: boolean
 
-export interface BasicExporterOptions extends ExporterOptions {
   /**
-   * When directory contents are listed, by default the root node of each entry
-   * is fetched to decode the UnixFS metadata and know if the entry is a file or
-   * a directory. This can result in fetching extra data which may not be
-   * desirable, depending on your application.
+   * Passed to the underlying block store - may prevent network operations if
+   * set to `true`.
    *
-   * Pass false here to only return the CID and the name of the entry and not
-   * any extended metadata.
-   *
-   * @default true
+   * @default false
    */
-  extended: false
+  offline?: boolean
 }
 
-export interface Exportable<T> {
+export interface Exportable {
   /**
    * A disambiguator to allow TypeScript to work out the type of the entry.
    *
@@ -183,24 +195,26 @@ export interface Exportable<T> {
   type: 'file' | 'directory' | 'object' | 'raw' | 'identity'
 
   /**
-   * The name of the entry
-   */
-  name: string
-
-  /**
-   * The path of the entry within the DAG in which it was encountered
-   */
-  path: string
-
-  /**
    * The CID of the entry
    */
   cid: CID
+}
 
-  /**
-   * How far down the DAG the entry is
-   */
-  depth: number
+/**
+ * If the entry is a file, `entry.content()` returns an async iterator that yields one or more Uint8Arrays containing the file content:
+ *
+ * ```TypeScript
+ * if (entry.type === 'file') {
+ *   for await (const chunk of entry.content()) {
+ *     // chunk is a Buffer
+ *   }
+ * }
+ * ```
+ */
+export interface UnixFSFile extends Exportable {
+  type: 'file'
+  unixfs: UnixFS
+  node: PBNode
 
   /**
    * The size of the entry
@@ -208,9 +222,8 @@ export interface Exportable<T> {
   size: bigint
 
   /**
-   * @example File content
-   *
-   * When `entry` is a file or a `raw` node, `offset` and/or `length` arguments can be passed to `entry.content()` to return slices of data:
+   * `offset` and/or `length` arguments can be passed to `entry.content()` to
+   * return slices of data:
    *
    * ```TypeScript
    * const length = 5
@@ -228,10 +241,34 @@ export interface Exportable<T> {
    * // `data` contains the first 5 bytes of the file
    * return data
    * ```
-   *
-   * @example Directory content
-   *
-   * If `entry` is a directory, passing `offset` and/or `length` to `entry.content()` will limit the number of files returned from the directory.
+   */
+  content(options?: ExporterOptions): AsyncGenerator<Uint8Array, void, unknown>
+}
+
+export interface UnixFSDirectoryEntry {
+  cid: CID
+  name: string
+}
+
+/**
+ * If the entry is a directory, `entry.entries()` returns further `entry` objects:
+ *
+ * ```TypeScript
+ * if (entry.type === 'directory') {
+ *   for await (const entry of dir.content()) {
+ *     console.info(entry.name)
+ *   }
+ * }
+ * ```
+ */
+export interface UnixFSDirectory extends Exportable {
+  type: 'directory'
+  unixfs: UnixFS
+  node: PBNode
+
+  /**
+   * Passing `offset` and/or `length` to `entry.content()` will limit the number
+   * of files returned from the directory.
    *
    * ```TypeScript
    * const entries = []
@@ -246,48 +283,16 @@ export interface Exportable<T> {
    * // `entries` contains the first 5 files/directories in the directory
    * ```
    */
-  content(options?: ExporterOptions | BasicExporterOptions): AsyncGenerator<T, void, unknown>
+  entries(options?: ExporterOptions): AsyncGenerator<UnixFSDirectoryEntry, void, unknown>
 }
 
 /**
- * If the entry is a file, `entry.content()` returns an async iterator that yields one or more Uint8Arrays containing the file content:
- *
- * ```TypeScript
- * if (entry.type === 'file') {
- *   for await (const chunk of entry.content()) {
- *     // chunk is a Buffer
- *   }
- * }
- * ```
+ * Entries with a `dag-cbor`, `dag-json`, `cbor` or `json` codec {@link CID}
+ * return JavaScript object entries
  */
-export interface UnixFSFile extends Exportable<Uint8Array> {
-  type: 'file'
-  unixfs: UnixFS
-  node: PBNode
-}
-
-/**
- * If the entry is a directory, `entry.content()` returns further `entry` objects:
- *
- * ```TypeScript
- * if (entry.type === 'directory') {
- *   for await (const entry of dir.content()) {
- *     console.info(entry.name)
- *   }
- * }
- * ```
- */
-export interface UnixFSDirectory extends Exportable<UnixFSEntry> {
-  type: 'directory'
-  unixfs: UnixFS
-  node: PBNode
-}
-
-/**
- * Entries with a `dag-cbor` or `dag-json` codec {@link CID} return JavaScript object entries
- */
-export interface ObjectNode extends Exportable<any> {
+export interface ObjectNode<T = any> extends Exportable {
   type: 'object'
+  object: T
   node: Uint8Array
 }
 
@@ -304,9 +309,11 @@ export interface ObjectNode extends Exportable<any> {
  *
  * Unless you an options object containing `offset` and `length` keys as an argument to `entry.content()`, `chunk` will be equal to `entry.node`.
  */
-export interface RawNode extends Exportable<Uint8Array> {
+export interface RawNode extends Exportable {
   type: 'raw'
   node: Uint8Array
+  size: bigint
+  content(options?: ExporterOptions): AsyncGenerator<Uint8Array, void, unknown>
 }
 
 /**
@@ -315,9 +322,11 @@ export interface RawNode extends Exportable<Uint8Array> {
  * These are entries where the data payload is stored in the CID itself,
  * otherwise they are identical to {@link RawNode}s.
  */
-export interface IdentityNode extends Exportable<Uint8Array> {
+export interface IdentityNode extends Exportable {
   type: 'identity'
   node: Uint8Array
+  size: bigint
+  content(options?: ExporterOptions): AsyncGenerator<Uint8Array, void, unknown>
 }
 
 /**
@@ -343,136 +352,19 @@ export interface UnixFSBasicEntry {
   cid: CID
 }
 
-export interface NextResult {
-  cid: CID
-  name: string
-  path: string
-  toResolve: string[]
+export interface Resolver {
+  (cid: CID, blockstore: ReadableStorage, options: ExporterOptions): Promise<UnixFSEntry>
 }
-
-export interface ResolveResult {
-  entry: UnixFSEntry
-  next?: NextResult
-}
-
-export interface Resolve { (cid: CID, name: string, path: string, toResolve: string[], depth: number, blockstore: ReadableStorage, options: ExporterOptions): Promise<ResolveResult> }
-export interface Resolver { (cid: CID, name: string, path: string, toResolve: string[], resolve: Resolve, depth: number, blockstore: ReadableStorage, options: ExporterOptions | BasicExporterOptions): Promise<ResolveResult> }
 
 export type UnixfsV1FileContent = AsyncIterable<Uint8Array> | Iterable<Uint8Array>
 export type UnixfsV1DirectoryContent = AsyncIterable<UnixFSEntry> | Iterable<UnixFSEntry>
 export type UnixfsV1Content = UnixfsV1FileContent | UnixfsV1DirectoryContent
-
-export interface UnixFsV1ContentResolver {
-  (options: ExporterOptions): UnixfsV1Content
-  (options: BasicExporterOptions): UnixFSBasicEntry
-}
-
-export interface UnixfsV1Resolver {
-  (cid: CID, node: PBNode, unixfs: UnixFS, path: string, resolve: Resolve, depth: number, blockstore: ReadableStorage): (options: ExporterOptions) => UnixfsV1Content
-}
-
-export interface ShardTraversalContext {
-  hamtDepth: number
-  rootBucket: Bucket<boolean>
-  lastBucket: Bucket<boolean>
-}
 
 /**
  * A subset of the {@link Blockstore} interface that just contains the get
  * method.
  */
 export type ReadableStorage = Pick<Blockstore, 'get'>
-
-const toPathComponents = (path: string = ''): string[] => {
-  // split on / unless escaped with \
-  return (path
-    .trim()
-    .match(/([^\\^/]|\\\/)+/g) ?? [])
-    .filter(Boolean)
-}
-
-const cidAndRest = (path: string | Uint8Array | CID): { cid: CID, toResolve: string[] } => {
-  if (path instanceof Uint8Array) {
-    return {
-      cid: CID.decode(path),
-      toResolve: []
-    }
-  }
-
-  const cid = CID.asCID(path)
-  if (cid != null) {
-    return {
-      cid,
-      toResolve: []
-    }
-  }
-
-  if (typeof path === 'string') {
-    if (path.indexOf('/ipfs/') === 0) {
-      path = path.substring(6)
-    }
-
-    const output = toPathComponents(path)
-
-    return {
-      cid: CID.parse(output[0]),
-      toResolve: output.slice(1)
-    }
-  }
-
-  throw new BadPathError(`Unknown path type ${path}`)
-}
-
-/**
- * Returns an async iterator that yields entries for all segments in a path
- *
- * @example
- *
- * ```TypeScript
- * import { walkPath } from 'ipfs-unixfs-exporter'
- *
- * const entries = []
- *
- * for await (const entry of walkPath('Qmfoo/foo/bar/baz.txt', blockstore)) {
- *   entries.push(entry)
- * }
- *
- * // entries contains 4x `entry` objects
- * ```
- */
-export function walkPath (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): AsyncGenerator<UnixFSEntry, void, any>
-export function walkPath (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): AsyncGenerator<UnixFSBasicEntry, void, any>
-export async function * walkPath (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
-  let {
-    cid,
-    toResolve
-  } = cidAndRest(path)
-  let name = cid.toString()
-  let entryPath = name
-  const startingDepth = toResolve.length
-
-  while (true) {
-    const result = await resolve(cid, name, entryPath, toResolve, startingDepth, blockstore, options)
-
-    if (result.entry == null && result.next == null) {
-      throw new NotFoundError(`Could not resolve ${path}`)
-    }
-
-    if (result.entry != null) {
-      yield result.entry
-    }
-
-    if (result.next == null) {
-      return
-    }
-
-    // resolve further parts
-    toResolve = result.next.toResolve
-    cid = result.next.cid
-    name = result.next.name
-    entryPath = result.next.path
-  }
-}
 
 /**
  * Uses the given blockstore instance to fetch an IPFS node by a CID or path.
@@ -498,16 +390,13 @@ export async function * walkPath (path: string | CID, blockstore: ReadableStorag
  * }
  * ```
  */
-export async function exporter (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): Promise<UnixFSEntry>
-export async function exporter (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): Promise<UnixFSBasicEntry>
-export async function exporter (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): Promise<UnixFSEntry> {
-  const result = await last(walkPath(path, blockstore, options))
+export async function exporter (cid: CID, blockstore: ReadableStorage, options: ExporterOptions = {}): Promise<UnixFSEntry> {
+  return resolve(cid, blockstore, options)
+}
 
-  if (result == null) {
-    throw new NotFoundError(`Could not resolve ${path}`)
-  }
-
-  return result
+export interface UnixFSRecursiveEntry extends UnixFSDirectoryEntry {
+  path: string
+  depth: number
 }
 
 /**
@@ -521,40 +410,49 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
  *
  * const entries = []
  *
- * for await (const child of recursive('Qmfoo/foo/bar', blockstore)) {
+ * for await (const child of recursive(CID.parse('Qmfoo'), blockstore)) {
  *   entries.push(entry)
  * }
  *
- * // entries contains all children of the `Qmfoo/foo/bar` directory and it's children
+ * // entries contains all children of the `Qmfoo` directory and it's children
  * ```
  */
-export function recursive (path: string | CID, blockstore: ReadableStorage, options?: ExporterOptions): AsyncGenerator<UnixFSEntry, void, any>
-export function recursive (path: string | CID, blockstore: ReadableStorage, options: BasicExporterOptions): AsyncGenerator<UnixFSBasicEntry, void, any>
-export async function * recursive (path: string | CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSEntry, void, any> {
+export async function * recursive (path: CID, blockstore: ReadableStorage, options: ExporterOptions = {}): AsyncGenerator<UnixFSRecursiveEntry, void, any> {
+  yield {
+    cid: path,
+    name: path.toString(),
+    depth: 0,
+    path: path.toString()
+  }
+
   const node = await exporter(path, blockstore, options)
 
   if (node == null) {
     return
   }
 
-  yield node
-
   if (node.type === 'directory') {
-    for await (const child of recurse(node, options)) {
+    for await (const child of recurse(node, 0, `${path}`, options)) {
       yield child
     }
   }
 
-  async function * recurse (node: UnixFSDirectory, options: ExporterOptions): AsyncGenerator<UnixFSEntry, void, any> {
-    for await (const file of node.content(options)) {
-      yield file
+  async function * recurse (node: UnixFSDirectory, depth: number, path: string, options: ExporterOptions): AsyncGenerator<UnixFSRecursiveEntry, void, any> {
+    depth++
 
-      if (file instanceof Uint8Array) {
-        continue
+    for await (const entry of node.entries(options)) {
+      const entryPath = `${path}/${entry.name}`
+
+      yield {
+        ...entry,
+        depth,
+        path: entryPath
       }
 
+      const file = await exporter(entry.cid, blockstore, options)
+
       if (file.type === 'directory') {
-        yield * recurse(file, options)
+        yield * recurse(file, depth, entryPath, options)
       }
     }
   }

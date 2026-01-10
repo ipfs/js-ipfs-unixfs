@@ -9,8 +9,10 @@ import { importer } from 'ipfs-unixfs-importer'
 import { fixedSize } from 'ipfs-unixfs-importer/chunker'
 import { balanced, flat, trickle } from 'ipfs-unixfs-importer/layout'
 import all from 'it-all'
+import filter from 'it-filter'
 import first from 'it-first'
 import last from 'it-last'
+import map from 'it-map'
 import toBuffer from 'it-to-buffer'
 // @ts-expect-error https://github.com/schnittstabil/merge-options/pull/28
 import extend from 'merge-options'
@@ -826,7 +828,7 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
-      const node = nodes.filter(node => node.type === 'directory').pop()
+      const node = await last(filter(map(nodes, async (node) => exporter(node.cid, block)), node => node.type === 'directory'))
 
       if (node == null) {
         expect.fail('no directory found')
@@ -852,7 +854,7 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
-      const node = nodes.filter(node => node.type === 'directory').pop()
+      const node = await last(filter(map(nodes, async (node) => exporter(node.cid, block)), node => node.type === 'directory'))
 
       if (node == null) {
         expect.fail('no directory found')
@@ -883,7 +885,7 @@ strategies.forEach((strategy) => {
       }], block))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
-      const node = nodes.filter(node => node.type === 'directory' && node.name === 'bar').pop()
+      const node = await last(filter(map(filter(nodes, (node) => node.name === 'bar'), async (node) => exporter(node.cid, block)), node => node.type === 'directory'))
 
       if (node == null) {
         expect.fail('no directory found')
@@ -914,7 +916,7 @@ strategies.forEach((strategy) => {
       }))
 
       const nodes = await all(recursive(entries[entries.length - 1].cid, block))
-      const node = nodes.filter(node => node.type === 'directory' && node.unixfs.type === 'hamt-sharded-directory').pop()
+      const node = await last(filter(map(nodes, async (node) => exporter(node.cid, block)), node => node.type === 'directory' && node.unixfs.type === 'hamt-sharded-directory'))
 
       if (node == null) {
         expect.fail('no hamt-sharded-directory found')

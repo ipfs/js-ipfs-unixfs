@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v15.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.0...ipfs-unixfs-exporter-15.0.1) (2026-01-10)
+
+### Bug Fixes
+
+* remove basic entry ([#451](https://github.com/ipfs/js-ipfs-unixfs/issues/451)) ([b7a7104](https://github.com/ipfs/js-ipfs-unixfs/commit/b7a71049df830d35f39f3cecbd7237d885fee1e7))
+
 ## [ipfs-unixfs-exporter-v15.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.2...ipfs-unixfs-exporter-15.0.0) (2026-01-10)
 
 ### ⚠ BREAKING CHANGES

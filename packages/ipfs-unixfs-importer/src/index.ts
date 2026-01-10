@@ -192,7 +192,6 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * If the serialized node is larger than this it might be converted to a HAMT
    * sharded directory.
    *
-   *
    * @default 262144
    */
   shardSplitThresholdBytes?: number

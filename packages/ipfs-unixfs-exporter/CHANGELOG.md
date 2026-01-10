@@ -1,3 +1,13 @@
+## [ipfs-unixfs-exporter-v15.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.2...ipfs-unixfs-exporter-15.0.0) (2026-01-10)
+
+### ⚠ BREAKING CHANGES
+
+* call `walkPath` first to resolve a path, then `exporter` to export a DAG
+
+### Features
+
+* yield HAMT sub-shards from walkPath, make export not walk path ([#450](https://github.com/ipfs/js-ipfs-unixfs/issues/450)) ([c06f023](https://github.com/ipfs/js-ipfs-unixfs/commit/c06f0231fcac37b7798b35078d9d59d6139ef67a))
+
 ## [ipfs-unixfs-exporter-v14.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-14.0.1...ipfs-unixfs-exporter-14.0.2) (2025-12-10)
 
 ### Bug Fixes

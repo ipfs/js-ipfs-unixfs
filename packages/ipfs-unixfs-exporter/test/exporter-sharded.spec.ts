@@ -166,6 +166,7 @@ describe('exporter sharded', function () {
     }
 
     expect(entry).to.have.property('name', 'file-14')
+    expect(entry).to.have.property('path', `${dirCid}/file-14`)
 
     const exported = await exporter(entry.cid, block)
     expect(exported).to.have.property('type', 'file')
@@ -183,6 +184,7 @@ describe('exporter sharded', function () {
 
     const exported = await exporter(entry.cid, block)
     expect(exported).to.have.property('type', 'file')
+    expect(entry).to.have.property('path', `${dirCid}/file-30`)
   })
 
   it('exports one file from a shard inside a shard inside a shard', async () => {
@@ -194,6 +196,7 @@ describe('exporter sharded', function () {
     }
 
     expect(entry).to.have.property('name', 'file-2567')
+    expect(entry).to.have.property('path', `${dirCid}/file-2567`)
   })
 
   it('extracts a deep folder from the sharded directory', async () => {
@@ -205,6 +208,7 @@ describe('exporter sharded', function () {
     }
 
     expect(entry).to.have.property('name', 'baz')
+    expect(entry).to.have.property('path', `${dirCid}/foo/bar/baz`)
   })
 
   it('extracts an intermediate folder from the sharded directory', async () => {
@@ -216,6 +220,7 @@ describe('exporter sharded', function () {
     }
 
     expect(entry).to.have.property('name', 'bar')
+    expect(entry).to.have.property('path', `${dirCid}/foo/bar`)
   })
 
   it('uses .path to extract all intermediate entries from the sharded directory', async () => {

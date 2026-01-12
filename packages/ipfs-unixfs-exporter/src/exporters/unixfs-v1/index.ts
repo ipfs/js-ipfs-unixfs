@@ -5,15 +5,15 @@ import { NotFoundError, NotUnixFSError } from '../../errors.js'
 import { directoryContent } from './content/directory.js'
 import { fileContent } from './content/file.js'
 import { hamtShardedDirectoryContent } from './content/hamt-sharded-directory.js'
-import type { ExporterOptions, ReadableStorage, UnixFSEntry } from '../../index.js'
+import type { ExportContentOptions, ExporterOptions, ReadableStorage, UnixFSEntry } from '../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { CID } from 'multiformats/cid'
 
-interface UnixfsV1Resolver {
-  (cid: CID, node: PBNode, unixfs: UnixFS, blockstore: ReadableStorage): (options: ExporterOptions) => any
+interface ContentExporter {
+  (cid: CID, node: PBNode, unixfs: UnixFS, path: string, blockstore: ReadableStorage): (options: ExportContentOptions) => any
 }
 
-const contentExporters: Record<string, UnixfsV1Resolver> = {
+const contentExporters: Record<string, ContentExporter> = {
   raw: fileContent,
   file: fileContent,
   directory: directoryContent,
@@ -26,7 +26,7 @@ const contentExporters: Record<string, UnixfsV1Resolver> = {
   }
 }
 
-export async function dagPbResolver (cid: CID, blockstore: ReadableStorage, options?: ExporterOptions): Promise<UnixFSEntry> {
+export async function dagPbResolver (cid: CID, name: string, path: string, blockstore: ReadableStorage, options?: ExporterOptions): Promise<UnixFSEntry> {
   const block = await toBuffer(blockstore.get(cid, options))
   let node: PBNode
 
@@ -50,7 +50,7 @@ export async function dagPbResolver (cid: CID, blockstore: ReadableStorage, opti
     throw new NotUnixFSError(err.message)
   }
 
-  const content = contentExporters[unixfs.type](cid, node, unixfs, blockstore)
+  const content = contentExporters[unixfs.type](cid, node, unixfs, path, blockstore)
 
   if (content == null) {
     throw new NotFoundError('could not find content exporter')
@@ -60,6 +60,8 @@ export async function dagPbResolver (cid: CID, blockstore: ReadableStorage, opti
     return {
       type: 'directory',
       cid,
+      name,
+      path,
       entries: content,
       unixfs,
       node
@@ -69,6 +71,8 @@ export async function dagPbResolver (cid: CID, blockstore: ReadableStorage, opti
   return {
     type: 'file',
     cid,
+    name,
+    path,
     content,
     unixfs,
     node,

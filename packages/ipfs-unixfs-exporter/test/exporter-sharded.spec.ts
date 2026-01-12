@@ -109,8 +109,8 @@ describe('exporter sharded', function () {
 
     const dirFiles = await all(
       map(exported.entries(), async file => ({
-        ...file,
-        ...await exporter(file.cid, block)
+        ...await exporter(file.cid, block),
+        ...file
       }))
     )
     expect(dirFiles.length).to.equal(Object.keys(files).length)
@@ -125,8 +125,7 @@ describe('exporter sharded', function () {
       const data = uint8ArrayConcat(await all(dirFile.content()))
 
       // validate the CID
-      // @ts-expect-error - files[dirFile.name].cid is defined
-      expect(files[dirFile.name].cid.toString()).that.deep.equals(dirFile.cid.toString())
+      expect(files[dirFile.name].cid?.toString()).that.deep.equals(dirFile.cid.toString())
 
       // validate the exported file content
       expect(files[dirFile.name].content).to.deep.equal(data)

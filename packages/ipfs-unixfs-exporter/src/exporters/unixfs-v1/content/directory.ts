@@ -1,10 +1,11 @@
 import { CustomProgressEvent } from 'progress-events'
-import type { ExporterOptions, ExportWalk, UnixFSDirectoryEntry } from '../../../index.js'
+import type { ExportContentOptions, ExportWalk, UnixFSDirectoryEntry } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
+import type { UnixFS } from 'ipfs-unixfs'
 import type { CID } from 'multiformats/cid'
 
-export function directoryContent (cid: CID, node: PBNode): (options: ExporterOptions) => AsyncGenerator<UnixFSDirectoryEntry> {
-  async function * yieldDirectoryContent (options: ExporterOptions = {}): AsyncGenerator<UnixFSDirectoryEntry> {
+export function directoryContent (cid: CID, node: PBNode, unixfs: UnixFS, path: string): (options: ExportContentOptions) => AsyncGenerator<UnixFSDirectoryEntry> {
+  async function * yieldDirectoryContent (options: ExportContentOptions = {}): AsyncGenerator<UnixFSDirectoryEntry> {
     const offset = options.offset ?? 0
     const length = options.length ?? node.Links.length
     const links = node.Links.slice(offset, length)
@@ -15,7 +16,8 @@ export function directoryContent (cid: CID, node: PBNode): (options: ExporterOpt
 
     yield * links.map(link => ({
       cid: link.Hash,
-      name: link.Name ?? ''
+      name: link.Name ?? '',
+      path: `${path}/${link.Name ?? ''}`
     }))
   }
 

@@ -1,10 +1,10 @@
 import { CustomProgressEvent } from 'progress-events'
 import { extractDataFromBlock } from './extract-data-from-block.js'
 import { validateOffsetAndLength } from './validate-offset-and-length.js'
-import type { ExporterOptions, ExportProgress } from '../../index.js'
+import type { ExportContentOptions, ExportProgress } from '../../index.js'
 
-export function rawContent (node: Uint8Array, event: string): ((options?: ExporterOptions) => AsyncGenerator<Uint8Array, void, undefined>) {
-  async function * contentGenerator (options: ExporterOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {
+export function rawContent (node: Uint8Array, event: string): ((options?: ExportContentOptions) => AsyncGenerator<Uint8Array, void, undefined>) {
+  async function * contentGenerator (options: ExportContentOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {
     const {
       start,
       end

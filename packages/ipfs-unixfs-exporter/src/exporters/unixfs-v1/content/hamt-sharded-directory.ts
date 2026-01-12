@@ -6,11 +6,11 @@ import { pipe } from 'it-pipe'
 import toBuffer from 'it-to-buffer'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.js'
-import type { ExporterOptions, ReadableStorage, ExportWalk, UnixFSDirectoryEntry } from '../../../index.js'
+import type { ReadableStorage, ExportWalk, UnixFSDirectoryEntry, ExportContentOptions } from '../../../index.js'
 import type { PBNode } from '@ipld/dag-pb'
 import type { CID } from 'multiformats'
 
-async function * listDirectory (node: PBNode, blockstore: ReadableStorage, options: ExporterOptions): AsyncGenerator<UnixFSDirectoryEntry> {
+async function * listDirectory (node: PBNode, path: string, blockstore: ReadableStorage, options: ExportContentOptions): AsyncGenerator<UnixFSDirectoryEntry> {
   const links = node.Links
 
   if (node.Data == null) {
@@ -40,7 +40,8 @@ async function * listDirectory (node: PBNode, blockstore: ReadableStorage, optio
           return {
             entries: [{
               cid: link.Hash,
-              name
+              name,
+              path: `${path}/${name}`
             }]
           }
         } else {
@@ -53,7 +54,7 @@ async function * listDirectory (node: PBNode, blockstore: ReadableStorage, optio
           }))
 
           return {
-            entries: listDirectory(node, blockstore, options)
+            entries: listDirectory(node, path, blockstore, options)
           }
         }
       }
@@ -69,13 +70,13 @@ async function * listDirectory (node: PBNode, blockstore: ReadableStorage, optio
   }
 }
 
-export function hamtShardedDirectoryContent (cid: CID, node: PBNode, unixfs: UnixFS, blockstore: ReadableStorage): (options: ExporterOptions) => AsyncGenerator<UnixFSDirectoryEntry> {
-  function yieldHamtDirectoryContent (options: ExporterOptions = {}): AsyncGenerator<UnixFSDirectoryEntry> {
+export function hamtShardedDirectoryContent (cid: CID, node: PBNode, unixfs: UnixFS, path: string, blockstore: ReadableStorage): (options: ExportContentOptions) => AsyncGenerator<UnixFSDirectoryEntry> {
+  function yieldHamtDirectoryContent (options: ExportContentOptions = {}): AsyncGenerator<UnixFSDirectoryEntry> {
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
       cid
     }))
 
-    return listDirectory(node, blockstore, options)
+    return listDirectory(node, path, blockstore, options)
   }
 
   return yieldHamtDirectoryContent

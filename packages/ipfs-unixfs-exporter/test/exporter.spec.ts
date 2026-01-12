@@ -378,6 +378,8 @@ describe('exporter', () => {
       throw new Error('Unexpected type')
     }
 
+    expect(file).to.have.property('name', cid.toString())
+    expect(file).to.have.property('path', cid.toString())
     expect(file.unixfs.fileSize()).to.equal(BigInt(ONE_MEG * 6))
   })
 
@@ -514,8 +516,15 @@ describe('exporter', () => {
     }
 
     const entries = await all(dir.entries())
-
     entries.forEach(entry => expect(entry).to.have.property('cid'))
+
+    expect(
+      entries.map((entry) => entry.path)
+    ).to.deep.equal([
+      `${importedDir.cid}/200Bytes.txt`,
+      `${importedDir.cid}/dir-another`,
+      `${importedDir.cid}/level-1`
+    ])
 
     expect(
       entries.map((entry) => entry.name)

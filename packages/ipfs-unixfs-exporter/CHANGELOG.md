@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v15.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.1...ipfs-unixfs-exporter-15.0.2) (2026-01-12)
+
+### Bug Fixes
+
+* accept string paths in exporter ([#453](https://github.com/ipfs/js-ipfs-unixfs/issues/453)) ([aa8ef8d](https://github.com/ipfs/js-ipfs-unixfs/commit/aa8ef8d37733088fd526dbb8ee5da4987b2ae43f)), closes [#450](https://github.com/ipfs/js-ipfs-unixfs/issues/450)
+
 ## [ipfs-unixfs-exporter-v15.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.0...ipfs-unixfs-exporter-15.0.1) (2026-01-10)
 
 ### Bug Fixes

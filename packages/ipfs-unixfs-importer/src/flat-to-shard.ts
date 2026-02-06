@@ -1,7 +1,7 @@
-import { DirFlat } from './dir-flat.js'
-import DirSharded from './dir-sharded.js'
-import type { DirShardedOptions } from './dir-sharded.js'
-import type { Dir } from './dir.js'
+import { DirFlat } from './dir-flat.ts'
+import DirSharded from './dir-sharded.ts'
+import type { DirShardedOptions } from './dir-sharded.ts'
+import type { Dir } from './dir.ts'
 
 export async function flatToShard (child: Dir | null, dir: Dir, threshold: number, options: DirShardedOptions): Promise<DirSharded> {
   let newDir = dir as DirSharded

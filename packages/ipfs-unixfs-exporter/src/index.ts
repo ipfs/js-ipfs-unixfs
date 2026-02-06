@@ -54,9 +54,9 @@ import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
-export * from './errors.js'
-export * from './walk-path/index.js'
-export * from './exporters/index.js'
+export * from './errors.ts'
+export * from './walk-path/index.ts'
+export * from './exporters/index.ts'
 
 export interface ExportProgress {
   /**

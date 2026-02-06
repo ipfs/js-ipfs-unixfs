@@ -1,7 +1,7 @@
 import toBuffer from 'it-to-buffer'
 import * as json from 'multiformats/codecs/json'
 import { resolveObjectPath } from './utils/resolve-object-path.ts'
-import type { ResolveResult } from './index.js'
+import type { ResolveResult } from './index.ts'
 import type { ReadableStorage, WalkPathOptions } from '../index.ts'
 import type { CID } from 'multiformats/cid'
 

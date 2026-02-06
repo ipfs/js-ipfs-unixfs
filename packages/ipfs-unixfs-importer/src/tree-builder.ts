@@ -1,9 +1,9 @@
-import { DirFlat } from './dir-flat.js'
-import { Dir } from './dir.js'
-import { flatToShard } from './flat-to-shard.js'
-import { toPathComponents } from './utils/to-path-components.js'
-import type { ImportResult, InProgressImportResult, TreeBuilder, WritableStorage } from './index.js'
-import type { PersistOptions } from './utils/persist.js'
+import { DirFlat } from './dir-flat.ts'
+import { Dir } from './dir.ts'
+import { flatToShard } from './flat-to-shard.ts'
+import { toPathComponents } from './utils/to-path-components.ts'
+import type { ImportResult, InProgressImportResult, TreeBuilder, WritableStorage } from './index.ts'
+import type { PersistOptions } from './utils/persist.ts'
 
 export interface AddToTreeOptions extends PersistOptions {
   shardSplitThresholdBytes: number

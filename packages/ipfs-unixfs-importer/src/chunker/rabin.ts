@@ -2,7 +2,7 @@
 import { create } from 'rabin-wasm'
 import { Uint8ArrayList } from 'uint8arraylist'
 import { InvalidAvgChunkSizeError, InvalidChunkSizeError, InvalidMinChunkSizeError } from '../errors.js'
-import type { Chunker } from './index.js'
+import type { Chunker } from './index.ts'
 
 const DEFAULT_MIN_CHUNK_SIZE = 262144
 const DEFAULT_MAX_CHUNK_SIZE = 262144

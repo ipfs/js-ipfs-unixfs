@@ -8,7 +8,7 @@ import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { exporter, walkPath } from '../src/index.js'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import asAsyncIterable from './helpers/as-async-iterable.ts'
 import type { UnixFSDirectory, UnixFSDirectoryEntry, UnixFSEntry } from '../src/index.js'
 import type { CID } from 'multiformats/cid'
 

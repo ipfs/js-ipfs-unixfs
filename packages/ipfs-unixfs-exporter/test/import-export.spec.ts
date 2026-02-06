@@ -7,7 +7,7 @@ import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import { flat, balanced, trickle } from 'ipfs-unixfs-importer/layout'
 import { exporter } from '../src/index.js'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import asAsyncIterable from './helpers/as-async-iterable.ts'
 import type { ImporterOptions } from 'ipfs-unixfs-importer'
 import type { FileLayout } from 'ipfs-unixfs-importer/layout'
 

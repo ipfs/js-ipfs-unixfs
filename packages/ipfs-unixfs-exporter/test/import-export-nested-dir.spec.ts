@@ -7,7 +7,7 @@ import { CID } from 'multiformats/cid'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { exporter } from '../src/index.js'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import asAsyncIterable from './helpers/as-async-iterable.ts'
 import type { UnixFSEntry } from '../src/index.js'
 import type { Blockstore } from 'interface-blockstore'
 

@@ -1,3 +1,14 @@
+## [ipfs-unixfs-exporter-v15.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.2...ipfs-unixfs-exporter-15.0.3) (2026-02-06)
+
+### Bug Fixes
+
+* use file path for file that has collapsed to single block ([#456](https://github.com/ipfs/js-ipfs-unixfs/issues/456)) ([4da90df](https://github.com/ipfs/js-ipfs-unixfs/commit/4da90df3b7076f5a18ff51065543b864ec1e90d9))
+
+### Trivial Changes
+
+* remove eslint-env ([#454](https://github.com/ipfs/js-ipfs-unixfs/issues/454)) ([82c3e3c](https://github.com/ipfs/js-ipfs-unixfs/commit/82c3e3c927c88e40dfe44cf9ee94e9730868ef6a))
+* replace .js imports with .ts ([#455](https://github.com/ipfs/js-ipfs-unixfs/issues/455)) ([e4c3959](https://github.com/ipfs/js-ipfs-unixfs/commit/e4c39598969fca51634f66f90693c2f99af02507))
+
 ## [ipfs-unixfs-exporter-v15.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.1...ipfs-unixfs-exporter-15.0.2) (2026-01-12)
 
 ### Bug Fixes

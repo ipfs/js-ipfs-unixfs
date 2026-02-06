@@ -73,10 +73,9 @@ describe('go-ipfs auto-sharding interop', function () {
   const block = new MemoryBlockstore()
   const threshold = 1343
 
-  it('uses the same shard threshold as go-unixfsnode (under threshold)', async function () {
+  it('uses the same shard threshold as go-unixfsnode with links-bytes strategy (under threshold)', async function () {
     const result = await last(importer(buildSource(threshold), block, {
-      cidVersion: 1,
-      rawLeaves: true
+      shardSplitStrategy: 'links-bytes'
     }))
 
     if (result == null) {
@@ -88,10 +87,9 @@ describe('go-ipfs auto-sharding interop', function () {
     expect(result.cid.toString()).to.be.equal('bafybeihecq4rpl4nw3cgfb2uiwltgsmw5sutouvuldv5fxn4gfbihvnalq')
   })
 
-  it('uses the same shard threshold as go-unixfsnode (over threshold)', async function () {
+  it('uses the same shard threshold as go-unixfsnode with links-bytes strategy (over threshold)', async function () {
     const result = await last(importer(buildSource(threshold + 1), block, {
-      cidVersion: 1,
-      rawLeaves: true
+      shardSplitStrategy: 'links-bytes'
     }))
 
     if (result == null) {

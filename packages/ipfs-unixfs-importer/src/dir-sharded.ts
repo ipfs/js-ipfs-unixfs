@@ -1,15 +1,18 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
+import { BlackHoleBlockstore } from 'blockstore-core'
 import { createHAMT, Bucket } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
-import { Dir, CID_V0, CID_V1 } from './dir.ts'
+import { Dir } from './dir.ts'
 import { persist } from './utils/persist.ts'
 import type { DirProps } from './dir.ts'
 import type { ImportResult, InProgressImportResult } from './index.ts'
+import type { AddToTreeOptions } from './tree-builder.ts'
 import type { PersistOptions } from './utils/persist.ts'
 import type { PBLink } from '@ipld/dag-pb'
 import type { BucketChild } from 'hamt-sharding'
 import type { Blockstore } from 'interface-blockstore'
+import type { CID } from 'multiformats/cid'
 
 async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
   return (await murmur3128.encode(buf))
@@ -24,14 +27,10 @@ async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
 const HAMT_HASH_CODE = BigInt(0x22)
 const DEFAULT_FANOUT_BITS = 8
 
-export interface DirShardedOptions extends PersistOptions {
-  shardFanoutBits: number
-}
-
 class DirSharded extends Dir {
   private readonly _bucket: Bucket<InProgressImportResult | Dir>
 
-  constructor (props: DirProps, options: DirShardedOptions) {
+  constructor (props: DirProps, options: AddToTreeOptions) {
     super(props, options)
 
     this._bucket = createHAMT({
@@ -73,12 +72,17 @@ class DirSharded extends Dir {
     }
   }
 
-  estimateNodeSize (): number {
+  async estimateNodeSize (): Promise<number> {
     if (this.nodeSize !== undefined) {
       return this.nodeSize
     }
 
-    this.nodeSize = calculateSize(this._bucket, this, this.options)
+    // use a black hole blockstore to not add garbage blocks when calculating
+    // the shard size
+    const blockstore = new BlackHoleBlockstore()
+    const result = await calculateSize(this._bucket, this, blockstore, this.options)
+
+    this.nodeSize = result.size
 
     return this.nodeSize
   }
@@ -118,7 +122,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
       }
 
       if (shard == null) {
-        throw new Error('Could not flush sharded directory, no subshard found')
+        throw new Error('Could not flush sharded directory, no sub-shard found')
       }
 
       links.push({
@@ -126,6 +130,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
         Tsize: Number(shard.size),
         Hash: shard.cid
       })
+
       childrenSize += shard.size
     } else if (isDir(child.value)) {
       const dir = child.value
@@ -199,10 +204,16 @@ function isDir (obj: any): obj is Dir {
   return typeof obj.flush === 'function'
 }
 
-function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, options: PersistOptions): number {
+interface SizeResult {
+  cid: CID
+  size: number
+}
+
+async function calculateSize (bucket: Bucket<InProgressImportResult | Dir>, shardRoot: DirSharded | null, blocks: Blockstore, options: AddToTreeOptions): Promise<SizeResult> {
   const children = bucket._children
   const padLength = (bucket.tableSize() - 1).toString(16).length
   const links: PBLink[] = []
+  let sizeEstimate = 0
 
   for (let i = 0; i < children.length; i++) {
     const child = children.get(i)
@@ -214,29 +225,35 @@ function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, optio
     const labelPrefix = i.toString(16).toUpperCase().padStart(padLength, '0')
 
     if (child instanceof Bucket) {
-      const size = calculateSize(child, null, options)
+      const {
+        size,
+        cid
+      } = await calculateSize(child, null, blocks, options)
 
       links.push({
         Name: labelPrefix,
         Tsize: Number(size),
-        Hash: options.cidVersion === 0 ? CID_V0 : CID_V1
+        Hash: cid
       })
-    } else if (typeof child.value.flush === 'function') {
+
+      sizeEstimate += labelPrefix.length + cid.byteLength
+    } else if (isDir(child.value)) {
       const dir = child.value
-      const size = dir.nodeSize()
+      const size = dir.nodeSize
+
+      if (dir.cid == null) {
+        throw new Error('Child directory has not been persisted')
+      }
 
       links.push({
         Name: labelPrefix + child.key,
         Tsize: Number(size),
-        Hash: options.cidVersion === 0 ? CID_V0 : CID_V1
+        Hash: dir.cid
       })
+
+      sizeEstimate += labelPrefix.length + dir.cid.byteLength
     } else {
       const value = child.value
-
-      if (value.cid == null) {
-        continue
-      }
-
       const label = labelPrefix + child.key
       const size = value.size
 
@@ -245,6 +262,8 @@ function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, optio
         Tsize: Number(size),
         Hash: value.cid
       })
+
+      sizeEstimate += labelPrefix.length + value.cid.byteLength
     }
   }
 
@@ -265,5 +284,10 @@ function calculateSize (bucket: Bucket<any>, shardRoot: DirSharded | null, optio
     Links: links
   }))
 
-  return buffer.length
+  const cid = await persist(buffer, blocks, options)
+
+  return {
+    cid,
+    size: options.shardSplitStrategy === 'links-bytes' ? sizeEstimate : buffer.length
+  }
 }

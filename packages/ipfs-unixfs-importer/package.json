@@ -164,6 +164,7 @@
   "dependencies": {
     "@ipld/dag-pb": "^4.1.5",
     "@multiformats/murmur3": "^2.1.8",
+    "blockstore-core": "^6.1.2",
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^6.0.1",
     "interface-store": "^7.0.0",
@@ -180,7 +181,6 @@
   },
   "devDependencies": {
     "aegir": "^47.0.16",
-    "blockstore-core": "^6.0.2",
     "it-last": "^3.0.9",
     "wherearewe": "^2.0.1"
   },

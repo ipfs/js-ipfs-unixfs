@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import { expect } from 'aegir/chai'
 import { CID } from 'multiformats/cid'
 import { balanced } from '../src/layout/balanced.js'

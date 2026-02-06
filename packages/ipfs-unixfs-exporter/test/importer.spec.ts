@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import { decode } from '@ipld/dag-pb'
 import { expect } from 'aegir/chai'
 import loadFixture from 'aegir/fixtures'

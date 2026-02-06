@@ -9,8 +9,8 @@ import drain from 'it-drain'
 import last from 'it-last'
 import toBuffer from 'it-to-buffer'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
-import { exporter, walkPath } from './../src/index.js'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import { exporter, walkPath } from './../src/index.ts'
+import asAsyncIterable from './helpers/as-async-iterable.ts'
 
 const ONE_MEG = Math.pow(1024, 2)
 

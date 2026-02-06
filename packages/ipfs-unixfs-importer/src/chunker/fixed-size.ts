@@ -1,5 +1,5 @@
 import { Uint8ArrayList } from 'uint8arraylist'
-import type { Chunker } from './index.js'
+import type { Chunker } from './index.ts'
 
 export interface FixedSizeOptions {
   chunkSize?: number

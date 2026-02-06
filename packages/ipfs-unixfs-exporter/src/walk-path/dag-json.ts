@@ -4,7 +4,7 @@ import { CID } from 'multiformats/cid'
 import { isCID } from './utils/is-cid.ts'
 import { resolveObjectPath } from './utils/resolve-object-path.ts'
 import type { WalkPathOptions, ReadableStorage } from '../index.ts'
-import type { ResolveResult } from './index.js'
+import type { ResolveResult } from './index.ts'
 
 export async function * dagJsonResolver (root: CID, path: string[], blockstore: ReadableStorage, options?: WalkPathOptions): AsyncGenerator<ResolveResult> {
   const block = await toBuffer(blockstore.get(root, options))

@@ -117,8 +117,8 @@
  * ```
  */
 
-import { InvalidTypeError, InvalidUnixFSMessageError } from './errors.js'
-import { Data as PBData } from './unixfs.js'
+import { InvalidTypeError, InvalidUnixFSMessageError } from './errors.ts'
+import { Data as PBData } from './unixfs.ts'
 
 export interface Mtime {
   secs: bigint
@@ -332,4 +332,4 @@ class UnixFS {
 }
 
 export { UnixFS }
-export * from './errors.js'
+export * from './errors.ts'

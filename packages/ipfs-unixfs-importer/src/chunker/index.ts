@@ -9,5 +9,5 @@
 
 export interface Chunker { (source: AsyncIterable<Uint8Array>): AsyncIterable<Uint8Array> }
 
-export { rabin } from './rabin.js'
-export { fixedSize } from './fixed-size.js'
+export { rabin } from './rabin.ts'
+export { fixedSize } from './fixed-size.ts'

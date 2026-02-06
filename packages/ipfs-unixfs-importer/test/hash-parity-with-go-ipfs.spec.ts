@@ -7,7 +7,7 @@ import last from 'it-last'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { importer } from '../src/index.js'
 import { balanced, flat, trickle } from '../src/layout/index.js'
-import randomByteStream from './helpers/finite-pseudorandom-byte-stream.js'
+import randomByteStream from './helpers/finite-pseudorandom-byte-stream.ts'
 import type { ImporterOptions } from '../src/index.js'
 import type { FileLayout } from '../src/layout/index.js'
 

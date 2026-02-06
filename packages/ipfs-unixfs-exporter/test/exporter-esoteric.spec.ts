@@ -11,7 +11,7 @@ import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { concat, concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { isNode } from 'wherearewe'
-import { exporter } from './../src/index.js'
+import { exporter } from './../src/index.ts'
 import type { Blockstore } from 'interface-blockstore'
 
 describe('exporter esoteric DAGs', () => {

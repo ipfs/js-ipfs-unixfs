@@ -15,7 +15,7 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { exporter, walkPath } from '../src/index.js'
 import { HAMT_FILE_BLOCK, HAMT_FILE_CID, HAMT_INTERMEDIATE_BLOCK, HAMT_INTERMEDIATE_CID, HAMT_ROOT_BLOCK, HAMT_ROOT_CID } from './fixtures/hamt.ts'
-import asAsyncIterable from './helpers/as-async-iterable.js'
+import asAsyncIterable from './helpers/as-async-iterable.ts'
 import type { ImportCandidate } from 'ipfs-unixfs-importer'
 
 const SHARD_SPLIT_THRESHOLD = 10

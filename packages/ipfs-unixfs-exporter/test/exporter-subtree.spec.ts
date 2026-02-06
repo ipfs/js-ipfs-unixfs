@@ -12,6 +12,7 @@ import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { exporter, walkPath } from './../src/index.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'
 
+const ONE_KB = 1_024
 const ONE_MEG = Math.pow(1024, 2)
 
 describe('exporter subtree', () => {
@@ -23,6 +24,44 @@ describe('exporter subtree', () => {
     const imported = await last(importer([{
       path: './200Bytes.txt',
       content: randomBytes(ONE_MEG)
+    }, {
+      path: './level-1/200Bytes.txt',
+      content: asAsyncIterable(content)
+    }], block, {
+      rawLeaves: false,
+      cidVersion: 0
+    }))
+
+    if (imported == null) {
+      throw new Error('Nothing imported')
+    }
+
+    const entry = await last(walkPath(`${imported.cid}/level-1/200Bytes.txt`, block))
+
+    if (entry == null) {
+      throw new Error('Did not walk path')
+    }
+
+    expect(entry).to.have.property('cid')
+    expect(entry).to.have.property('name', '200Bytes.txt')
+    expect(entry).to.have.property('path', `${imported.cid}/level-1/200Bytes.txt`)
+
+    const exported = await exporter(entry.cid, block)
+
+    if (exported.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    const data = uint8ArrayConcat(await all(exported.content()))
+    expect(data).to.deep.equal(content)
+  })
+
+  it('exports a small file 2 levels down', async () => {
+    const content = uint8ArrayConcat(await all(randomBytes(ONE_KB)))
+
+    const imported = await last(importer([{
+      path: './200Bytes.txt',
+      content: randomBytes(ONE_KB)
     }, {
       path: './level-1/200Bytes.txt',
       content: asAsyncIterable(content)

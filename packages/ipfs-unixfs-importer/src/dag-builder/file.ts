@@ -106,7 +106,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
 
       options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {
         cid: leaf.cid,
-        path: leaf.originalPath
+        path: file.originalPath
       }))
 
       return {
@@ -114,7 +114,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
         path: file.path,
         unixfs: leaf.unixfs,
         size: leaf.size,
-        originalPath: leaf.originalPath
+        originalPath: file.originalPath
       }
     }
 

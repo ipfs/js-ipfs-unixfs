@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import { expect } from 'aegir/chai'
 import { trickle } from '../src/layout/trickle.js'
 import asAsyncIterable from './helpers/as-async-iterable.js'

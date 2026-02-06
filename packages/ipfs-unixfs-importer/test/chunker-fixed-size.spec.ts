@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'

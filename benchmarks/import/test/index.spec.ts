@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import bufferStream from 'it-buffer-stream'

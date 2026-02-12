@@ -1,6 +1,7 @@
 import { CID } from 'multiformats/cid'
 import type { WritableStorage, ImportResult, InProgressImportResult } from './index.ts'
-import type { PersistOptions } from './utils/persist.ts'
+import type { AddToTreeOptions } from './tree-builder.ts'
+import type { Blockstore } from 'interface-blockstore'
 import type { Mtime, UnixFS } from 'ipfs-unixfs'
 
 export interface DirProps {
@@ -17,7 +18,7 @@ export interface DirProps {
 }
 
 export abstract class Dir {
-  public options: PersistOptions
+  public options: AddToTreeOptions
   public root: boolean
   public dir: boolean
   public path: string
@@ -32,7 +33,7 @@ export abstract class Dir {
   public size?: number
   public nodeSize?: number
 
-  constructor (props: DirProps, options: PersistOptions) {
+  constructor (props: DirProps, options: AddToTreeOptions) {
     this.options = options ?? {}
 
     this.root = props.root
@@ -51,13 +52,6 @@ export abstract class Dir {
   abstract get (name: string): Promise<InProgressImportResult | Dir | undefined>
   abstract eachChildSeries (): Iterable<{ key: string, child: InProgressImportResult | Dir }>
   abstract flush (blockstore: WritableStorage): AsyncGenerator<ImportResult>
-  abstract estimateNodeSize (): number
+  abstract estimateNodeSize (blockstore: Blockstore): Promise<number>
   abstract childCount (): number
 }
-
-// we use these to calculate the node size to use as a check for whether a directory
-// should be sharded or not. Since CIDs have a constant length and We're only
-// interested in the data length and not the actual content identifier we can use
-// any old CID instead of having to hash the data which is expensive.
-export const CID_V0 = CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
-export const CID_V1 = CID.parse('zdj7WbTaiJT1fgatdet9Ei9iDB5hdCxkbVyhyh8YTUnXMiwYi')

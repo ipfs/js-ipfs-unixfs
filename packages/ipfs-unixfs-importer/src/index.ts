@@ -64,7 +64,7 @@
 
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
-import { fixedSize } from './chunker/fixed-size.ts'
+import { DEFAULT_CHUNK_SIZE_1MIB, DEFAULT_CHUNK_SIZE_256KIB, fixedSize } from './chunker/fixed-size.ts'
 import { defaultBufferImporter } from './dag-builder/buffer-importer.ts'
 import { defaultDagBuilder } from './dag-builder/index.ts'
 import { defaultChunkValidator } from './dag-builder/validate-chunks.ts'
@@ -154,9 +154,26 @@ export type ImporterProgressEvents =
   ReducerProgressEvents
 
 /**
+ * Profile names as defined by IPIP-499 - https://github.com/ipfs/specs/pull/499
+ */
+export type CIDProfile = 'unixfs-v0-2025' | 'unixfs-v1-2025'
+
+/**
+ * How to determine when to shard a directory
+ */
+export type ShardSplitStrategy = 'links-bytes' | 'block-bytes'
+
+/**
  * Options to control the importer's behaviour
  */
 export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents> {
+  /**
+   * The CID profile to use when calculating CIDs - see IPIP-499 for details
+   *
+   * @see https://github.com/ipfs/specs/pull/499
+   */
+  profile?: CIDProfile
+
   /**
    * When a file would span multiple DAGNodes, if this is true the leaf nodes
    * will not be wrapped in `UnixFS` protobufs and will instead contain the
@@ -195,6 +212,13 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * @default 262144
    */
   shardSplitThresholdBytes?: number
+
+  /**
+   * Whether to estimate the size of the data that determines whether to shard
+   * the directory instead by counting link bytes, or count it accurately by
+   * calculating the size of the resulting block.
+   */
+  shardSplitStrategy?: ShardSplitStrategy
 
   /**
    * The number of bits of a hash digest used at each level of sharding to
@@ -343,8 +367,26 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     candidates = [source]
   }
 
+  let chunkSize
+  let maxChildrenPerNode
+
+  if (options.profile === 'unixfs-v0-2025') {
+    options.shardSplitStrategy = options.shardSplitStrategy ?? 'links-bytes'
+    options.cidVersion = options.cidVersion ?? 0
+    options.rawLeaves = options.rawLeaves ?? false
+    chunkSize = DEFAULT_CHUNK_SIZE_256KIB
+    maxChildrenPerNode = 174
+  } else if (options.profile === 'unixfs-v1-2025') {
+    options.shardSplitStrategy = options.shardSplitStrategy ?? 'block-bytes'
+    options.cidVersion = options.cidVersion ?? 1
+    options.rawLeaves = options.rawLeaves ?? true
+    chunkSize = DEFAULT_CHUNK_SIZE_1MIB
+    maxChildrenPerNode = 1_024
+  }
+
   const wrapWithDirectory = options.wrapWithDirectory ?? false
-  const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? 262144
+  const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? DEFAULT_CHUNK_SIZE_256KIB
+  const shardSplitStrategy = options.shardSplitStrategy ?? 'links-bytes'
   const shardFanoutBits = options.shardFanoutBits ?? 8
   const cidVersion = options.cidVersion ?? 1
   const rawLeaves = options.rawLeaves ?? true
@@ -353,13 +395,17 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const blockWriteConcurrency = options.blockWriteConcurrency ?? 10
   const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? true
 
-  const chunker = options.chunker ?? fixedSize()
+  const chunker = options.chunker ?? fixedSize({
+    chunkSize
+  })
   const chunkValidator = options.chunkValidator ?? defaultChunkValidator()
   const buildDag: DAGBuilder = options.dagBuilder ?? defaultDagBuilder({
     chunker,
     chunkValidator,
     wrapWithDirectory,
-    layout: options.layout ?? balanced(),
+    layout: options.layout ?? balanced({
+      maxChildrenPerNode
+    }),
     bufferImporter: options.bufferImporter ?? defaultBufferImporter({
       cidVersion,
       rawLeaves,
@@ -376,6 +422,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const buildTree: TreeBuilder = options.treeBuilder ?? defaultTreeBuilder({
     wrapWithDirectory,
     shardSplitThresholdBytes,
+    shardSplitStrategy,
     shardFanoutBits,
     cidVersion,
     onProgress: options.onProgress

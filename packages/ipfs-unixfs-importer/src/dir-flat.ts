@@ -1,18 +1,18 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import { Dir, CID_V0, CID_V1 } from './dir.ts'
+import { Dir } from './dir.ts'
 import { persist } from './utils/persist.ts'
 import type { DirProps } from './dir.ts'
 import type { ImportResult, InProgressImportResult } from './index.ts'
-import type { PersistOptions } from './utils/persist.ts'
-import type { PBNode } from '@ipld/dag-pb'
+import type { AddToTreeOptions } from './tree-builder.ts'
+import type { PBLink, PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { CID } from 'multiformats/cid'
 
 export class DirFlat extends Dir {
   private readonly _children: Map<string, InProgressImportResult | Dir>
 
-  constructor (props: DirProps, options: PersistOptions) {
+  constructor (props: DirProps, options: AddToTreeOptions) {
     super(props, options)
 
     this._children = new Map()
@@ -51,19 +51,56 @@ export class DirFlat extends Dir {
     }
   }
 
-  estimateNodeSize (): number {
+  marshal (): Uint8Array {
+    const unixfs = new UnixFS({
+      type: 'directory',
+      mtime: this.mtime,
+      mode: this.mode
+    })
+
+    const links: PBLink[] = []
+
+    for (const [name, child] of this._children.entries()) {
+      if (child.size == null || child.cid == null) {
+        continue
+      }
+
+      if (child.cid == null) {
+        throw new Error('Directory contents must be flushed before marshaling')
+      }
+
+      links.push({
+        Hash: child.cid,
+        Name: name,
+        Tsize: child.size == null ? undefined : Number(child.size)
+      })
+    }
+
+    const node: PBNode = {
+      Data: unixfs.marshal(),
+      Links: links
+    }
+
+    return encode(prepare(node))
+  }
+
+  async estimateNodeSize (): Promise<number> {
     if (this.nodeSize !== undefined) {
       return this.nodeSize
     }
 
     this.nodeSize = 0
 
-    // estimate size only based on DAGLink name and CID byte lengths
-    // https://github.com/ipfs/go-unixfsnode/blob/37b47f1f917f1b2f54c207682f38886e49896ef9/data/builder/directory.go#L81-L96
-    for (const [name, child] of this._children.entries()) {
-      if (child.size != null && (child.cid != null)) {
-        this.nodeSize += name.length + (this.options.cidVersion === 1 ? CID_V1.bytes.byteLength : CID_V0.bytes.byteLength)
+    if (this.options?.shardSplitStrategy === 'links-bytes') {
+      // estimate size only based on DAGLink name and CID byte lengths
+      // @see https://github.com/ipfs/go-unixfsnode/blob/37b47f1f917f1b2f54c207682f38886e49896ef9/data/builder/directory.go#L81-L96
+      for (const [name, child] of this._children.entries()) {
+        if (child.size != null && (child.cid != null)) {
+          this.nodeSize += name.length + child.cid.byteLength
+        }
       }
+    } else {
+      this.nodeSize = this.marshal().byteLength
     }
 
     return this.nodeSize

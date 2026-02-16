@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.3...ipfs-unixfs-importer-16.1.0) (2026-02-16)
+
+### Features
+
+* IPIP-499 CID profiles ([#457](https://github.com/ipfs/js-ipfs-unixfs/issues/457)) ([9ecf033](https://github.com/ipfs/js-ipfs-unixfs/commit/9ecf0337e0aa0d7f6988451b00728c40b753652e))
+
 ## [ipfs-unixfs-importer-v16.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.2...ipfs-unixfs-importer-16.0.3) (2026-02-06)
 
 ### Bug Fixes

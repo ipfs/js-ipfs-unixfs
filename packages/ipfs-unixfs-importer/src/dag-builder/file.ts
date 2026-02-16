@@ -84,8 +84,9 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
       let node: Uint8Array | PBNode = leaf.block
 
       if (isSingleBlockImport(leaf) && (file.mtime !== undefined || file.mode !== undefined)) {
-        // only one leaf node which is a raw leaf - we have metadata so convert it into a
-        // UnixFS entry otherwise we'll have nowhere to store the metadata
+        // only one leaf node which is a raw leaf - we have metadata so convert
+        // it into a UnixFS entry otherwise we'll have nowhere to store the
+        // metadata
         leaf.unixfs = new UnixFS({
           type: 'file',
           mtime: file.mtime,

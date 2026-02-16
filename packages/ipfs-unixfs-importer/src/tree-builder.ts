@@ -2,11 +2,12 @@ import { DirFlat } from './dir-flat.ts'
 import { Dir } from './dir.ts'
 import { flatToShard } from './flat-to-shard.ts'
 import { toPathComponents } from './utils/to-path-components.ts'
-import type { ImportResult, InProgressImportResult, TreeBuilder, WritableStorage } from './index.ts'
+import type { ImportResult, InProgressImportResult, ShardSplitStrategy, TreeBuilder, WritableStorage } from './index.ts'
 import type { PersistOptions } from './utils/persist.ts'
 
 export interface AddToTreeOptions extends PersistOptions {
   shardSplitThresholdBytes: number
+  shardSplitStrategy: ShardSplitStrategy
   shardFanoutBits: number
 }
 
@@ -28,7 +29,7 @@ async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddT
 
     if (last) {
       await parent.put(pathElem, elem)
-      tree = await flatToShard(null, parent, options.shardSplitThresholdBytes, options)
+      tree = await flatToShard(null, parent)
     } else {
       let dir = await parent.get(pathElem)
 

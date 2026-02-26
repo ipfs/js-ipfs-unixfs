@@ -156,7 +156,7 @@ export type ImporterProgressEvents =
 /**
  * Profile names as defined by IPIP-499 - https://github.com/ipfs/specs/pull/499
  */
-export type CIDProfile = 'unixfs-v0-2025' | 'unixfs-v1-2025'
+export type CIDProfile = 'unixfs-v0-2015' | 'unixfs-v1-2025'
 
 /**
  * How to determine when to shard a directory
@@ -370,7 +370,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   let chunkSize
   let maxChildrenPerNode
 
-  if (options.profile === 'unixfs-v0-2025') {
+  if (options.profile === 'unixfs-v0-2015') {
     options.shardSplitStrategy = options.shardSplitStrategy ?? 'links-bytes'
     options.cidVersion = options.cidVersion ?? 0
     options.rawLeaves = options.rawLeaves ?? false

@@ -6,25 +6,26 @@
  *
  * Key differences between profiles:
  *
- *   | parameter          | unixfs-v0-2015       | unixfs-v1-2025       |
- *   |--------------------|----------------------|----------------------|
- *   | CID version        | 0                    | 1                    |
- *   | raw leaves         | false (dag-pb wrap)  | true                 |
- *   | chunk size          | 256 KiB              | 1 MiB                |
- *   | max links/node     | 174                  | 1024                 |
- *   | shard split strategy | links-bytes          | block-bytes          |
- *   | HAMT threshold     | 256 KiB              | 256 KiB              |
+ * | parameter          | unixfs-v0-2015       | unixfs-v1-2025       |
+ * |--------------------|----------------------|----------------------|
+ * | CID version        | 0                    | 1                    |
+ * | raw leaves         | false (dag-pb wrap)  | true                 |
+ * | chunk size          | 256 KiB              | 1 MiB                |
+ * | max links/node     | 174                  | 1024                 |
+ * | shard split strategy | links-bytes          | block-bytes          |
+ * | HAMT threshold     | 256 KiB              | 256 KiB              |
  *
  * The shard split strategy determines how directory size is estimated when
  * deciding whether to convert from a flat directory to a HAMT shard:
  *
- *   - links-bytes: size = sum(link_name_len + cid_byte_len) for each entry.
- *     Fast but underestimates -- ignores protobuf framing overhead.
+ * - links-bytes: size = sum(link_name_len + cid_byte_len) for each entry.
+ * Fast but underestimates -- ignores protobuf framing overhead.
  *
- *   - block-bytes: size = marshal().byteLength (actual serialized protobuf).
- *     Accurate but slower -- re-serializes the full directory on every insert.
+ * - block-bytes: size = exact protobuf serialized byte length.
+ * Accurate, computed arithmetically (see src/utils/pb-size.ts).
  *
  * Expected CIDs are taken from kubo's cid_profiles_test.go.
+ *
  * @see https://github.com/ipfs/kubo/blob/master/test/cli/cid_profiles_test.go
  * @see https://github.com/ipfs/specs/pull/499
  */
@@ -33,8 +34,8 @@ import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import last from 'it-last'
 import { importer, importBytes, importDirectory } from '../src/index.js'
-import type { ImporterOptions } from '../src/index.js'
 import { deterministicRandomBytes, deterministicRandomStream, deterministicFilenames } from './helpers/deterministic.ts'
+import type { ImporterOptions } from '../src/index.js'
 
 // Profile option presets matching kubo's cidProfileExpectations.
 // v0 uses links-bytes shard estimation, v1 uses block-bytes.
@@ -42,13 +43,25 @@ const v0Options: ImporterOptions = { profile: 'unixfs-v0-2015' }
 const v1Options: ImporterOptions = { profile: 'unixfs-v1-2025' }
 
 describe('IPIP-499 CID Profiles', function () {
-  const blockstore = new MemoryBlockstore()
+  // Pre-compute deterministic filenames once (shared across tests)
+  let v0Names4096: string[]
+  let v0Names4033: string[]
+  let v1Names4766Len21: string[]
+  let v1Names4766Len22: string[]
+
+  before(async function () {
+    v0Names4096 = await deterministicFilenames(4096, 30, 30, 'hamt-unixfs-v0-2015')
+    v0Names4033 = await deterministicFilenames(4033, 31, 31, 'hamt-unixfs-v0-2015')
+    v1Names4766Len21 = await deterministicFilenames(4766, 11, 21, 'hamt-unixfs-v1-2025')
+    v1Names4766Len22 = await deterministicFilenames(4766, 11, 22, 'hamt-unixfs-v1-2025')
+  })
 
   // -- unixfs-v0-2015 profile --
   // CIDv0, dag-pb wrapped leaves, 256 KiB chunks, 174 max links,
   // links-bytes shard estimation
 
   describe('unixfs-v0-2015', function () {
+    const blockstore = new MemoryBlockstore()
     it('small file ("hello world")', async function () {
       const result = await importBytes(
         new TextEncoder().encode('hello world'),
@@ -70,7 +83,6 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('file at max links (174 x 256 KiB)', async function () {
-      this.timeout(120_000)
       const size = 174 * 262_144
       const result = await importBytes(
         { [Symbol.asyncIterator]: () => deterministicRandomStream(size, 'v0-seed')[Symbol.asyncIterator]() },
@@ -80,7 +92,6 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('file over max links (174 x 256 KiB + 1)', async function () {
-      this.timeout(120_000)
       const size = 174 * 262_144 + 1
       const result = await importBytes(
         { [Symbol.asyncIterator]: () => deterministicRandomStream(size, 'v0-seed')[Symbol.asyncIterator]() },
@@ -94,12 +105,8 @@ describe('IPIP-499 CID Profiles', function () {
     // CIDv0 is 34 bytes, so links-bytes = num_files * (name_len + 34).
 
     it('directory at HAMT threshold (basic flat dir, links-bytes)', async function () {
-      this.timeout(60_000)
       // 4096 files * (30 + 34) = 262,144 bytes -- exactly at threshold, stays basic
-      const seed = 'hamt-unixfs-v0-2015'
-      const names = await deterministicFilenames(4096, 30, 30, seed)
-
-      const source = names.map(name => ({
+      const source = v0Names4096.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120]) // "x"
       }))
@@ -111,12 +118,8 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('directory over HAMT threshold (HAMT sharded, links-bytes)', async function () {
-      this.timeout(60_000)
       // 4033 files * (31 + 34) = 262,145 bytes -- 1 byte over threshold, becomes HAMT
-      const seed = 'hamt-unixfs-v0-2015'
-      const names = await deterministicFilenames(4033, 31, 31, seed)
-
-      const source = names.map(name => ({
+      const source = v0Names4033.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120]) // "x"
       }))
@@ -133,6 +136,8 @@ describe('IPIP-499 CID Profiles', function () {
   // block-bytes shard estimation (actual protobuf serialized size)
 
   describe('unixfs-v1-2025', function () {
+    const blockstore = new MemoryBlockstore()
+
     it('small file ("hello world")', async function () {
       const result = await importBytes(
         new TextEncoder().encode('hello world'),
@@ -142,21 +147,19 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('file at chunk size (1048576 bytes)', async function () {
-      this.timeout(30_000)
       const data = await deterministicRandomBytes(1_048_576, 'chunk-v1-seed')
       const result = await importBytes(data, blockstore, v1Options)
       expect(result.cid.toString()).to.equal('bafkreiacndfy443ter6qr2tmbbdhadvxxheowwf75s6zehscklu6ezxmta')
     })
 
     it('file over chunk size (1048577 bytes)', async function () {
-      this.timeout(30_000)
       const data = await deterministicRandomBytes(1_048_577, 'chunk-v1-seed')
       const result = await importBytes(data, blockstore, v1Options)
       expect(result.cid.toString()).to.equal('bafybeigmix7t42i6jacydtquhet7srwvgpizfg7gjbq7627d35mjomtu64')
     })
 
     it('file at max links (1024 x 1 MiB)', async function () {
-      this.timeout(600_000)
+      this.timeout(120_000)
       const size = 1024 * 1_048_576
       const result = await importBytes(
         { [Symbol.asyncIterator]: () => deterministicRandomStream(size, 'v1-2025-seed')[Symbol.asyncIterator]() },
@@ -166,7 +169,7 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('file over max links (1024 x 1 MiB + 1)', async function () {
-      this.timeout(600_000)
+      this.timeout(120_000)
       const size = 1024 * 1_048_576 + 1
       const result = await importBytes(
         { [Symbol.asyncIterator]: () => deterministicRandomStream(size, 'v1-2025-seed')[Symbol.asyncIterator]() },
@@ -176,10 +179,8 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     // Directory tests use block-bytes shard estimation (v1 profile default).
-    // block-bytes size = actual serialized protobuf byte length of the
-    // directory node, including link framing overhead.
-    // This is slower (~150s for 4766 files) because the full directory is
-    // re-serialized on every file insert.
+    // block-bytes size = exact protobuf serialized byte length of the
+    // directory node, computed arithmetically (see src/utils/pb-size.ts).
     //
     // File counts and name lengths are chosen so that the serialized protobuf
     // size hits exact threshold boundaries:
@@ -187,11 +188,7 @@ describe('IPIP-499 CID Profiles', function () {
     //   over threshold: 4765 files * LinkSize(11-char, CIDv1) + 1 file * LinkSize(22-char, CIDv1) + 4 bytes overhead = 262,145
 
     it('directory at HAMT threshold (basic flat dir, block-bytes)', async function () {
-      this.timeout(600_000)
-      const seed = 'hamt-unixfs-v1-2025'
-      const names = await deterministicFilenames(4766, 11, 21, seed)
-
-      const source = names.map(name => ({
+      const source = v1Names4766Len21.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120]) // "x"
       }))
@@ -203,11 +200,7 @@ describe('IPIP-499 CID Profiles', function () {
     })
 
     it('directory over HAMT threshold (HAMT sharded, block-bytes)', async function () {
-      this.timeout(600_000)
-      const seed = 'hamt-unixfs-v1-2025'
-      const names = await deterministicFilenames(4766, 11, 22, seed)
-
-      const source = names.map(name => ({
+      const source = v1Names4766Len22.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120]) // "x"
       }))
@@ -222,6 +215,8 @@ describe('IPIP-499 CID Profiles', function () {
   // -- Profile option overrides --
 
   describe('profile option overrides', function () {
+    const blockstore = new MemoryBlockstore()
+
     it('profile with cidVersion override produces CIDv0 root for multi-chunk file', async function () {
       // rawLeaves forces leaf CIDs to v1 (raw codec can't be CIDv0), but the
       // root dag-pb node should respect the explicit cidVersion: 0 override.
@@ -248,6 +243,8 @@ describe('IPIP-499 CID Profiles', function () {
   // -- Empty directory CIDs --
 
   describe('empty directory CIDs', function () {
+    const blockstore = new MemoryBlockstore()
+
     it('empty directory with v0 profile', async function () {
       const result = await importDirectory(
         { path: 'emptyDir' },
@@ -273,8 +270,9 @@ describe('IPIP-499 CID Profiles', function () {
   // content, showing they produce different results near the threshold.
 
   describe('shard split strategy divergence', function () {
+    const blockstore = new MemoryBlockstore()
+
     it('same directory stays basic with links-bytes but becomes HAMT with block-bytes', async function () {
-      this.timeout(600_000)
       // Using the v1-2025 over-threshold directory (4766 files, 11-char + last 22-char).
       //
       // links-bytes estimate: 4765*(11+36) + 1*(22+36) = 224,010
@@ -285,10 +283,7 @@ describe('IPIP-499 CID Profiles', function () {
       //
       // This demonstrates that the two strategies disagree for the same content
       // because links-bytes ignores protobuf framing overhead.
-      const seed = 'hamt-unixfs-v1-2025'
-      const names = await deterministicFilenames(4766, 11, 22, seed)
-
-      const source = names.map(name => ({
+      const source = v1Names4766Len22.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120]) // "x"
       }))
@@ -320,13 +315,11 @@ describe('IPIP-499 CID Profiles', function () {
   // not >=).
 
   describe('shard split threshold boundaries', function () {
-    it('links-bytes: at threshold stays basic, +1 byte over becomes HAMT', async function () {
-      this.timeout(60_000)
-      const seed = 'hamt-unixfs-v0-2015'
+    const blockstore = new MemoryBlockstore()
 
+    it('links-bytes: at threshold stays basic, +1 byte over becomes HAMT', async function () {
       // links-bytes = 4096 * (30 + 34) = 262,144 -- at threshold, stays basic
-      const namesBasic = await deterministicFilenames(4096, 30, 30, seed)
-      const sourceBasic = namesBasic.map(name => ({
+      const sourceBasic = v0Names4096.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120])
       }))
@@ -338,8 +331,7 @@ describe('IPIP-499 CID Profiles', function () {
       expect(basicResult!.unixfs?.type).to.equal('directory')
 
       // links-bytes = 4033 * (31 + 34) = 262,145 -- 1 byte over, becomes HAMT
-      const namesHamt = await deterministicFilenames(4033, 31, 31, seed)
-      const sourceHamt = namesHamt.map(name => ({
+      const sourceHamt = v0Names4033.map(name => ({
         path: `rootDir/${name}`,
         content: new Uint8Array([120])
       }))

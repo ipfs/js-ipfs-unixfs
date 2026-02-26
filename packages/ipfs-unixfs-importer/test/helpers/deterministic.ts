@@ -2,9 +2,9 @@
  * Deterministic pseudo-random byte generation matching kubo's Go test helpers.
  *
  * Algorithm:
- *   1. key = sha256(utf8(seed))  -- 32 bytes
- *   2. nonce = 12 zero bytes (ChaCha20-IETF)
- *   3. return chacha20(key, nonce, zeros(size))  -- keystream XOR zeros = keystream
+ * 1. key = sha256(utf8(seed))  -- 32 bytes
+ * 2. nonce = 12 zero bytes (ChaCha20-IETF)
+ * 3. return chacha20(key, nonce, zeros(size))  -- keystream XOR zeros = keystream
  *
  * @see https://github.com/ipfs/kubo/blob/master/test/cli/testutils/random_deterministic.go
  */
@@ -56,6 +56,9 @@ export async function * deterministicRandomStream (size: number, seed: string): 
  *
  * Files 0..count-2 get `nameLen` chars, the last file gets `lastNameLen` chars.
  * Each byte from the ChaCha20 stream is mapped through AlphabetEasy modulo.
+ *
+ * Note: the stream is 1 MiB, so total bytes consumed
+ * ((count-1)*nameLen + lastNameLen) must not exceed 1,048,576.
  */
 export async function deterministicFilenames (
   count: number,

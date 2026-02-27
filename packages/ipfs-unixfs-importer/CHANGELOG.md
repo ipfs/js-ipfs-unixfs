@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.0...ipfs-unixfs-importer-16.1.1) (2026-02-27)
+
+### Bug Fixes
+
+* IPIP 499 profile name ([#459](https://github.com/ipfs/js-ipfs-unixfs/issues/459)) ([5fd116d](https://github.com/ipfs/js-ipfs-unixfs/commit/5fd116defb75eab780fd124f41883d6ab687abe9))
+
 ## [ipfs-unixfs-importer-v16.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.0.3...ipfs-unixfs-importer-16.1.0) (2026-02-16)
 
 ### Features

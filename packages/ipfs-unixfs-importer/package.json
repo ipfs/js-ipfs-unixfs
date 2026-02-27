@@ -180,7 +180,6 @@
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
-    "@noble/ciphers": "^1.2.1",
     "aegir": "^47.0.16",
     "it-last": "^3.0.9",
     "wherearewe": "^2.0.1"

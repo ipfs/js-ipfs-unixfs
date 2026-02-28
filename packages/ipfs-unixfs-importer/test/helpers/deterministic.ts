@@ -9,7 +9,7 @@
  * @see https://github.com/ipfs/kubo/blob/master/test/cli/testutils/random_deterministic.go
  */
 
-import { chacha20 } from '@noble/ciphers/chacha'
+import { chacha20 } from '@noble/ciphers/chacha.js'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 /**

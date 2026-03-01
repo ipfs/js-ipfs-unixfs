@@ -42,6 +42,10 @@
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
+  "react-native": {
+    "fs": false,
+    "index": "./dist/src/index.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",

@@ -43,9 +43,6 @@ const v0Options: ImporterOptions = { profile: 'unixfs-v0-2015' }
 const v1Options: ImporterOptions = { profile: 'unixfs-v1-2025' }
 
 describe('IPIP-499 CID Profiles', function () {
-  // TODO: remove after https://github.com/ipfs/js-ipfs-unixfs/pull/458
-  this.timeout(640_000_000)
-
   // Pre-compute deterministic filenames once (shared across tests)
   let v0Names4096: string[]
   let v0Names4033: string[]

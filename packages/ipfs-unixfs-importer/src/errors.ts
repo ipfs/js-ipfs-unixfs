@@ -52,3 +52,10 @@ export class InvalidContentError extends Error {
     super(message)
   }
 }
+
+export class InvalidShardingStrategyError extends Error {
+  static name = 'InvalidShardingStrategyError'
+  static code = 'ERR_SHARDING_STRATEGY'
+  name = InvalidContentError.name
+  code = InvalidContentError.code
+}

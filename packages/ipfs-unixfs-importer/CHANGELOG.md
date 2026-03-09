@@ -1,3 +1,13 @@
+## [ipfs-unixfs-importer-v16.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.1...ipfs-unixfs-importer-16.1.2) (2026-03-09)
+
+### Bug Fixes
+
+* import performance of directories ([#458](https://github.com/ipfs/js-ipfs-unixfs/issues/458)) ([b569843](https://github.com/ipfs/js-ipfs-unixfs/commit/b569843c49a28853c704ac17cbb701ac4b723256))
+
+### Trivial Changes
+
+* add ipip499 tests ([#460](https://github.com/ipfs/js-ipfs-unixfs/issues/460)) ([73de3d1](https://github.com/ipfs/js-ipfs-unixfs/commit/73de3d16032b3041eb94aecfb62bd20817c98672)), closes [#458](https://github.com/ipfs/js-ipfs-unixfs/issues/458)
+
 ## [ipfs-unixfs-importer-v16.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.0...ipfs-unixfs-importer-16.1.1) (2026-02-27)
 
 ### Bug Fixes

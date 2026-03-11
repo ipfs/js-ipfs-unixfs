@@ -3,10 +3,11 @@ import { murmur3128 } from '@multiformats/murmur3'
 import { BlackHoleBlockstore } from 'blockstore-core'
 import { createHAMT, Bucket } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
+import { DEFAULT_SHARD_FANOUT_BITS, DEFAULT_SHARD_HASH_CODE } from './constants.ts'
 import { Dir } from './dir.ts'
 import { persist } from './utils/persist.ts'
 import type { DirProps } from './dir.ts'
-import type { ImportResult, InProgressImportResult } from './index.ts'
+import type { ImportResult, InProgressImportResult, WritableStorage } from './index.ts'
 import type { AddToTreeOptions } from './tree-builder.ts'
 import type { PersistOptions } from './utils/persist.ts'
 import type { PBLink } from '@ipld/dag-pb'
@@ -24,18 +25,15 @@ async function hamtHashFn (buf: Uint8Array): Promise<Uint8Array> {
     .reverse()
 }
 
-const HAMT_HASH_CODE = BigInt(0x22)
-const DEFAULT_FANOUT_BITS = 8
-
 class DirSharded extends Dir {
-  private readonly _bucket: Bucket<InProgressImportResult | Dir>
+  public readonly bucket: Bucket<InProgressImportResult | Dir>
 
   constructor (props: DirProps, options: AddToTreeOptions) {
     super(props, options)
 
-    this._bucket = createHAMT({
+    this.bucket = createHAMT({
       hashFn: hamtHashFn,
-      bits: options.shardFanoutBits ?? DEFAULT_FANOUT_BITS
+      bits: options.shardFanoutBits ?? DEFAULT_SHARD_FANOUT_BITS
     })
   }
 
@@ -44,27 +42,27 @@ class DirSharded extends Dir {
     this.size = undefined
     this.nodeSize = undefined
 
-    await this._bucket.put(name, value)
+    await this.bucket.put(name, value)
   }
 
   async get (name: string): Promise<InProgressImportResult | Dir | undefined> {
-    return this._bucket.get(name)
+    return this.bucket.get(name)
   }
 
   childCount (): number {
-    return this._bucket.leafCount()
+    return this.bucket.leafCount()
   }
 
   directChildrenCount (): number {
-    return this._bucket.childrenCount()
+    return this.bucket.childrenCount()
   }
 
   onlyChild (): Bucket<InProgressImportResult | Dir> | BucketChild<InProgressImportResult | Dir> {
-    return this._bucket.onlyChild()
+    return this.bucket.onlyChild()
   }
 
   * eachChildSeries (): Generator<{ key: string, child: InProgressImportResult | Dir }> {
-    for (const { key, value } of this._bucket.eachLeafSeries()) {
+    for (const { key, value } of this.bucket.eachLeafSeries()) {
       yield {
         key,
         child: value
@@ -80,15 +78,15 @@ class DirSharded extends Dir {
     // use a black hole blockstore to not add garbage blocks when calculating
     // the shard size
     const blockstore = new BlackHoleBlockstore()
-    const result = await calculateSize(this._bucket, this, blockstore, this.options)
+    const result = await calculateSize(this.bucket, this, blockstore, this.options)
 
     this.nodeSize = result.size
 
     return this.nodeSize
   }
 
-  async * flush (blockstore: Blockstore): AsyncGenerator<ImportResult> {
-    for await (const entry of flush(this._bucket, blockstore, this, this.options)) {
+  async * flush (blockstore: WritableStorage): AsyncGenerator<ImportResult> {
+    for await (const entry of flush(this.bucket, blockstore, this, this.options)) {
       yield {
         ...entry,
         path: this.path
@@ -99,7 +97,7 @@ class DirSharded extends Dir {
 
 export default DirSharded
 
-async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore: Blockstore, shardRoot: DirSharded | null, options: PersistOptions): AsyncIterable<ImportResult> {
+async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore: WritableStorage, shardRoot: DirSharded | null, options: PersistOptions): AsyncIterable<ImportResult> {
   const children = bucket._children
   const padLength = (bucket.tableSize() - 1).toString(16).length
   const links: PBLink[] = []
@@ -180,7 +178,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
     type: 'hamt-sharded-directory',
     data,
     fanout: BigInt(bucket.tableSize()),
-    hashType: HAMT_HASH_CODE,
+    hashType: DEFAULT_SHARD_HASH_CODE,
     mtime: shardRoot?.mtime,
     mode: shardRoot?.mode
   })
@@ -274,7 +272,7 @@ async function calculateSize (bucket: Bucket<InProgressImportResult | Dir>, shar
     type: 'hamt-sharded-directory',
     data,
     fanout: BigInt(bucket.tableSize()),
-    hashType: HAMT_HASH_CODE,
+    hashType: DEFAULT_SHARD_HASH_CODE,
     mtime: shardRoot?.mtime,
     mode: shardRoot?.mode
   })

@@ -64,7 +64,8 @@
 
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
-import { DEFAULT_CHUNK_SIZE_1MIB, DEFAULT_CHUNK_SIZE_256KIB, fixedSize } from './chunker/fixed-size.ts'
+import { fixedSize } from './chunker/fixed-size.ts'
+import { DEFAULT_BLOCK_WRITE_CONCURRENCY, DEFAULT_CHUNK_SIZE_1MIB, DEFAULT_CHUNK_SIZE_256KIB, DEFAULT_CID_VERSION, DEFAULT_FILE_IMPORT_CONCURRENCY, DEFAULT_LEAF_TYPE, DEFAULT_RAW_LEAVES, DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF, DEFAULT_SHARD_FANOUT_BITS, DEFAULT_SHARD_SPLIT_STRATEGY, DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES, DEFAULT_WRAP_WITH_DIRECTORY } from './constants.ts'
 import { defaultBufferImporter } from './dag-builder/buffer-importer.ts'
 import { defaultDagBuilder } from './dag-builder/index.ts'
 import { defaultChunkValidator } from './dag-builder/validate-chunks.ts'
@@ -384,16 +385,16 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     maxChildrenPerNode = 1_024
   }
 
-  const wrapWithDirectory = options.wrapWithDirectory ?? false
-  const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? DEFAULT_CHUNK_SIZE_256KIB
-  const shardSplitStrategy = options.shardSplitStrategy ?? 'links-bytes'
-  const shardFanoutBits = options.shardFanoutBits ?? 8
-  const cidVersion = options.cidVersion ?? 1
-  const rawLeaves = options.rawLeaves ?? true
-  const leafType = options.leafType ?? 'file'
-  const fileImportConcurrency = options.fileImportConcurrency ?? 50
-  const blockWriteConcurrency = options.blockWriteConcurrency ?? 10
-  const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? true
+  const wrapWithDirectory = options.wrapWithDirectory ?? DEFAULT_WRAP_WITH_DIRECTORY
+  const shardSplitThresholdBytes = options.shardSplitThresholdBytes ?? DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES
+  const shardSplitStrategy = options.shardSplitStrategy ?? DEFAULT_SHARD_SPLIT_STRATEGY
+  const shardFanoutBits = options.shardFanoutBits ?? DEFAULT_SHARD_FANOUT_BITS
+  const cidVersion = options.cidVersion ?? DEFAULT_CID_VERSION
+  const rawLeaves = options.rawLeaves ?? DEFAULT_RAW_LEAVES
+  const leafType = options.leafType ?? DEFAULT_LEAF_TYPE
+  const fileImportConcurrency = options.fileImportConcurrency ?? DEFAULT_FILE_IMPORT_CONCURRENCY
+  const blockWriteConcurrency = options.blockWriteConcurrency ?? DEFAULT_BLOCK_WRITE_CONCURRENCY
+  const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF
 
   const chunker = options.chunker ?? fixedSize({
     chunkSize

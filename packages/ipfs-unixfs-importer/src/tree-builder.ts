@@ -6,9 +6,9 @@ import type { ImportResult, InProgressImportResult, ShardSplitStrategy, TreeBuil
 import type { PersistOptions } from './utils/persist.ts'
 
 export interface AddToTreeOptions extends PersistOptions {
-  shardSplitThresholdBytes: number
-  shardSplitStrategy: ShardSplitStrategy
-  shardFanoutBits: number
+  shardSplitThresholdBytes?: number
+  shardSplitStrategy?: ShardSplitStrategy
+  shardFanoutBits?: number
 }
 
 async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddToTreeOptions): Promise<Dir> {

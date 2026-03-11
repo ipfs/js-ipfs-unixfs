@@ -5,10 +5,9 @@ import { InvalidShardingStrategyError } from './index.ts'
 import { dataFieldSerializedSize, linkSerializedSize, utf8ByteLength } from './utils/pb-size.ts'
 import { persist } from './utils/persist.ts'
 import type { DirProps } from './dir.ts'
-import type { ImportResult, InProgressImportResult } from './index.ts'
+import type { ImportResult, InProgressImportResult, WritableStorage } from './index.ts'
 import type { AddToTreeOptions } from './tree-builder.ts'
 import type { PBLink, PBNode } from '@ipld/dag-pb'
-import type { Blockstore } from 'interface-blockstore'
 import type { CID } from 'multiformats/cid'
 
 function estimateLinkSize (nameBytes: number, child: InProgressImportResult | Dir | undefined): number {
@@ -152,7 +151,7 @@ export class DirFlat extends Dir {
     return this.nodeSize
   }
 
-  async * flush (block: Blockstore): AsyncGenerator<ImportResult> {
+  async * flush (block: WritableStorage): AsyncGenerator<ImportResult> {
     const links = []
 
     for (const [name, child] of this._children.entries()) {

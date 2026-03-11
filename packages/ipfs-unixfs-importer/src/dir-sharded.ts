@@ -1,6 +1,6 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import { BlackHoleBlockstore } from 'blockstore-core'
+import { BlackHoleBlockstore } from 'blockstore-core/black-hole'
 import { createHAMT, Bucket } from 'hamt-sharding'
 import { UnixFS } from 'ipfs-unixfs'
 import { Dir } from './dir.ts'

@@ -188,8 +188,6 @@
     "@noble/ciphers": "^2.1.1",
     "aegir": "^47.0.16",
     "it-last": "^3.0.9",
-    "protons": "^7.7.0",
-    "protons-runtime": "^5.6.0",
     "wherearewe": "^2.0.1"
   },
   "browser": {

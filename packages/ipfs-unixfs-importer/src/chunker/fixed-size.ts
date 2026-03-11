@@ -1,12 +1,10 @@
 import { Uint8ArrayList } from 'uint8arraylist'
+import { DEFAULT_CHUNK_SIZE_256KIB } from '../constants.ts'
 import type { Chunker } from './index.ts'
 
 export interface FixedSizeOptions {
   chunkSize?: number
 }
-
-export const DEFAULT_CHUNK_SIZE_256KIB = 262_144
-export const DEFAULT_CHUNK_SIZE_1MIB = 1_048_576
 
 export const fixedSize = (options: FixedSizeOptions = {}): Chunker => {
   const chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE_256KIB

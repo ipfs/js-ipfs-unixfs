@@ -54,6 +54,10 @@
     "./layout": {
       "types": "./dist/src/layout/index.d.ts",
       "import": "./dist/src/layout/index.js"
+    },
+    "./utils": {
+      "types": "./dist/src/utils/index.d.ts",
+      "import": "./dist/src/utils/index.js"
     }
   },
   "release": {
@@ -159,7 +163,8 @@
     "lint": "aegir lint",
     "dep-check": "aegir dep-check",
     "doc-check": "aegir doc-check",
-    "release": "aegir release"
+    "release": "aegir release",
+    "generate": "protons test/helpers/*.proto"
   },
   "dependencies": {
     "@ipld/dag-pb": "^4.1.5",

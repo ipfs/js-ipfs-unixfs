@@ -1,11 +1,13 @@
+import { DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES } from './constants.ts'
 import { DirFlat } from './dir-flat.ts'
 import DirSharded from './dir-sharded.ts'
 import type { Dir } from './dir.ts'
 
 export async function flatToShard (child: Dir | null, dir: Dir): Promise<DirSharded> {
   let newDir = dir as DirSharded
+  const shardSplitThresholdBytes = dir.options.shardSplitThresholdBytes ?? DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES
 
-  if (dir instanceof DirFlat && (await dir.estimateNodeSize()) > dir.options.shardSplitThresholdBytes) {
+  if (dir instanceof DirFlat && (await dir.estimateNodeSize()) > shardSplitThresholdBytes) {
     newDir = await convertToShard(dir)
   }
 

@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.1.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.3...ipfs-unixfs-importer-16.1.4) (2026-03-11)
+
+### Bug Fixes
+
+* export utils from importer ([#463](https://github.com/ipfs/js-ipfs-unixfs/issues/463)) ([6c74161](https://github.com/ipfs/js-ipfs-unixfs/commit/6c74161770b990015a444956f3f4fdfa16aa6780))
+
 ## [ipfs-unixfs-importer-v16.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.2...ipfs-unixfs-importer-16.1.3) (2026-03-11)
 
 ### Bug Fixes

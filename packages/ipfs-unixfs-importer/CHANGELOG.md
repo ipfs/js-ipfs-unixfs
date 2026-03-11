@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.1.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.2...ipfs-unixfs-importer-16.1.3) (2026-03-11)
+
+### Bug Fixes
+
+* import BlackHoleBlockstore via blockstore-core subpath ([#462](https://github.com/ipfs/js-ipfs-unixfs/issues/462)) ([75efce6](https://github.com/ipfs/js-ipfs-unixfs/commit/75efce671018de8eaf591eed5727752cf35e65c6))
+
 ## [ipfs-unixfs-importer-v16.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.1...ipfs-unixfs-importer-16.1.2) (2026-03-09)
 
 ### Bug Fixes

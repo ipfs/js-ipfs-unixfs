@@ -117,7 +117,7 @@
  * ```
  */
 
-import { InvalidTypeError, InvalidUnixFSMessageError } from './errors.ts'
+import { InvalidTypeError } from './errors.ts'
 import { Data as PBData } from './unixfs.ts'
 
 export interface Mtime {

@@ -1,3 +1,14 @@
+## [ipfs-unixfs-v12.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.0...ipfs-unixfs-12.0.1) (2026-03-17)
+
+### Bug Fixes
+
+* remove max fanout limit ([#464](https://github.com/ipfs/js-ipfs-unixfs/issues/464)) ([7fdcda6](https://github.com/ipfs/js-ipfs-unixfs/commit/7fdcda6e6db02f9554b7b0d1c80f97c94551206d))
+
+### Trivial Changes
+
+* remove eslint-env ([#454](https://github.com/ipfs/js-ipfs-unixfs/issues/454)) ([82c3e3c](https://github.com/ipfs/js-ipfs-unixfs/commit/82c3e3c927c88e40dfe44cf9ee94e9730868ef6a))
+* replace .js imports with .ts ([#455](https://github.com/ipfs/js-ipfs-unixfs/issues/455)) ([e4c3959](https://github.com/ipfs/js-ipfs-unixfs/commit/e4c39598969fca51634f66f90693c2f99af02507))
+
 ## [ipfs-unixfs-v12.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-11.2.5...ipfs-unixfs-12.0.0) (2025-10-03)
 
 ### ⚠ BREAKING CHANGES

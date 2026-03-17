@@ -5,14 +5,18 @@ import type { Blockstore } from 'interface-blockstore'
 import type { CID } from 'multiformats/cid'
 
 export async function printDag (cid: CID, blockstore: Blockstore, name?: string, prefix?: string): Promise<void> {
-  const block = await toBuffer(blockstore.get(cid))
-  const node = dagPb.decode(block)
-  let type = ''
+  let type = 'raw'
   let unix: UnixFS | undefined
+  let node: dagPb.PBNode | undefined
 
-  if (node.Data != null) {
-    unix = UnixFS.unmarshal(node.Data)
-    type = unix.type
+  if (cid.code === 0x70) {
+    const block = await toBuffer(blockstore.get(cid))
+    node = dagPb.decode(block)
+
+    if (node.Data != null) {
+      unix = UnixFS.unmarshal(node.Data)
+      type = unix.type
+    }
   }
 
   const args = [type]
@@ -30,7 +34,7 @@ export async function printDag (cid: CID, blockstore: Blockstore, name?: string,
   // eslint-disable-next-line no-console
   console.info(...args)
 
-  if (unix?.isDirectory()) {
+  if (unix?.isDirectory() && node != null) {
     for (const link of node.Links) {
       await printDag(link.Hash, blockstore, link.Name, `${prefix ?? ''}  `)
     }

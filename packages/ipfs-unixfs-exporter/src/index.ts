@@ -112,7 +112,7 @@ export interface ExporterOptions extends ProgressOptions<ExporterProgressEvents>
    *
    * @default true
    */
-  translateHamtPath?: boolean
+  translateHAMTPath?: boolean
 
   /**
    * Passed to the underlying block store - may prevent network operations if
@@ -200,7 +200,7 @@ export interface WalkPathOptions extends ProgressOptions<ExporterProgressEvents>
    *
    * @default true
    */
-  translateHamtPath?: boolean
+  translateHAMTPath?: boolean
 
   /**
    * Passed to the underlying block store - may prevent network operations if

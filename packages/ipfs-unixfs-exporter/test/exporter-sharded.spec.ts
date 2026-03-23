@@ -551,7 +551,7 @@ describe('exporter sharded', function () {
 
     const cids = await all(map(walkPath(`/ipfs/${HAMT_ROOT_CID}/FD/E3685.txt`, block, {
       yieldSubShards: true,
-      translateHamtPath: false
+      translateHAMTPath: false
     }), e => e.cid))
 
     expect(cids).to.deep.equal([

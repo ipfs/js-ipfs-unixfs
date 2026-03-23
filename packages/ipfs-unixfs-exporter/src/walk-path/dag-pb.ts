@@ -30,7 +30,7 @@ export async function * dagPbResolver (root: CID, path: string[], blockstore: Re
     throw new NotUnixFSError(err.message)
   }
 
-  if (unixfs.type === 'directory' || (unixfs.type === 'hamt-sharded-directory' && options?.translateHamtPath === false)) {
+  if (unixfs.type === 'directory' || (unixfs.type === 'hamt-sharded-directory' && options?.translateHAMTPath === false)) {
     const link = pbNode.Links.find(link => link.Name === path[0])
 
     if (link == null) {

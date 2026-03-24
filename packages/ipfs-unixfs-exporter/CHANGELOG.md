@@ -1,3 +1,14 @@
+## [ipfs-unixfs-exporter-v15.0.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.3...ipfs-unixfs-exporter-15.0.4) (2026-03-24)
+
+### Bug Fixes
+
+* typo in option name ([95d7ca7](https://github.com/ipfs/js-ipfs-unixfs/commit/95d7ca70da0cf83d62be076fdda47542927af272))
+
+### Trivial Changes
+
+* remove eslint-env ([cfe673e](https://github.com/ipfs/js-ipfs-unixfs/commit/cfe673ea7708b7edc42671ee5917b931da95e527))
+* rename path to print dag ([bd9d7d8](https://github.com/ipfs/js-ipfs-unixfs/commit/bd9d7d8104679b669a9131923f142d587c94e183))
+
 ## [ipfs-unixfs-exporter-v15.0.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.2...ipfs-unixfs-exporter-15.0.3) (2026-02-06)
 
 ### Bug Fixes

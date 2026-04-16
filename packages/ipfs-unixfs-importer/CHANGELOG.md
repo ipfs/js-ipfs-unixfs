@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v16.1.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.4...ipfs-unixfs-importer-16.1.5) (2026-04-16)
+
+### Dependencies
+
+* bump protons from 7.7.0 to 8.1.1 ([#468](https://github.com/ipfs/js-ipfs-unixfs/issues/468)) ([b6d823f](https://github.com/ipfs/js-ipfs-unixfs/commit/b6d823fe976fc85cfe3d35ad5949d99e8e5d7f5a))
+
 ## [ipfs-unixfs-importer-v16.1.4](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.3...ipfs-unixfs-importer-16.1.4) (2026-03-11)
 
 ### Bug Fixes

@@ -1,5 +1,5 @@
-import { enumeration, encodeMessage, decodeMessage, message } from 'protons-runtime'
-import type { Codec } from 'protons-runtime'
+import { decodeMessage, encodeMessage, enumeration, MaxLengthError, message, streamMessage } from 'protons-runtime'
+import type { Codec, DecodeOptions } from 'protons-runtime'
 import type { Uint8ArrayList } from 'uint8arraylist'
 
 export interface Data {
@@ -62,7 +62,7 @@ export namespace Data {
           w.uint64(obj.filesize)
         }
 
-        if (obj.blocksizes != null) {
+        if (obj.blocksizes != null && obj.blocksizes.length > 0) {
           for (const value of obj.blocksizes) {
             w.uint32(32)
             w.uint64(value)
@@ -92,7 +92,7 @@ export namespace Data {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length) => {
+      }, (reader, length, opts = {}) => {
         const obj: any = {
           blocksizes: []
         }
@@ -103,49 +103,195 @@ export namespace Data {
           const tag = reader.uint32()
 
           switch (tag >>> 3) {
-            case 1:
+            case 1: {
               obj.Type = Data.DataType.codec().decode(reader)
               break
-            case 2:
+            }
+            case 2: {
               obj.Data = reader.bytes()
               break
-            case 3:
+            }
+            case 3: {
               obj.filesize = reader.uint64()
               break
-            case 4:
+            }
+            case 4: {
+              if (opts.limits?.blocksizes != null && obj.blocksizes.length === opts.limits.blocksizes) {
+                throw new MaxLengthError('Decode error - repeated field "blocksizes" had too many elements')
+              }
+
               obj.blocksizes.push(reader.uint64())
               break
-            case 5:
+            }
+            case 5: {
               obj.hashType = reader.uint64()
               break
-            case 6:
+            }
+            case 6: {
               obj.fanout = reader.uint64()
               break
-            case 7:
+            }
+            case 7: {
               obj.mode = reader.uint32()
               break
-            case 8:
-              obj.mtime = UnixTime.codec().decode(reader, reader.uint32())
+            }
+            case 8: {
+              obj.mtime = UnixTime.codec().decode(reader, reader.uint32(), {
+                limits: opts.limits?.mtime
+              })
               break
-            default:
+            }
+            default: {
               reader.skipType(tag & 7)
               break
+            }
           }
         }
 
         return obj
+      }, function * (reader, length, prefix, opts = {}) {
+        const obj = {
+          blocksizes: 0
+        }
+
+        const end = length == null ? reader.len : reader.pos + length
+
+        while (reader.pos < end) {
+          const tag = reader.uint32()
+
+          switch (tag >>> 3) {
+            case 1: {
+              yield {
+                field: `${prefix}.Type`,
+                value: Data.DataType.codec().decode(reader)
+              }
+              break
+            }
+            case 2: {
+              yield {
+                field: `${prefix}.Data`,
+                value: reader.bytes()
+              }
+              break
+            }
+            case 3: {
+              yield {
+                field: `${prefix}.filesize`,
+                value: reader.uint64()
+              }
+              break
+            }
+            case 4: {
+              if (opts.limits?.blocksizes != null && obj.blocksizes === opts.limits.blocksizes) {
+                throw new MaxLengthError('Streaming decode error - repeated field "blocksizes" had too many elements')
+              }
+
+              yield {
+                field: `${prefix}.blocksizes[]`,
+                index: obj.blocksizes,
+                value: reader.uint64()
+              }
+
+              obj.blocksizes++
+
+              break
+            }
+            case 5: {
+              yield {
+                field: `${prefix}.hashType`,
+                value: reader.uint64()
+              }
+              break
+            }
+            case 6: {
+              yield {
+                field: `${prefix}.fanout`,
+                value: reader.uint64()
+              }
+              break
+            }
+            case 7: {
+              yield {
+                field: `${prefix}.mode`,
+                value: reader.uint32()
+              }
+              break
+            }
+            case 8: {
+              yield * UnixTime.codec().stream(reader, reader.uint32(), `${prefix}.mtime`, {
+                limits: opts.limits?.mtime
+              })
+
+              break
+            }
+            default: {
+              reader.skipType(tag & 7)
+              break
+            }
+          }
+        }
       })
     }
 
     return _codec
   }
 
-  export const encode = (obj: Partial<Data>): Uint8Array => {
+  export interface DataTypeFieldEvent {
+    field: '$.Type'
+    value: Data.DataType
+  }
+
+  export interface DataDataFieldEvent {
+    field: '$.Data'
+    value: Uint8Array
+  }
+
+  export interface DataFilesizeFieldEvent {
+    field: '$.filesize'
+    value: bigint
+  }
+
+  export interface DataBlocksizesFieldEvent {
+    field: '$.blocksizes[]'
+    index: number
+    value: bigint
+  }
+
+  export interface DataHashTypeFieldEvent {
+    field: '$.hashType'
+    value: bigint
+  }
+
+  export interface DataFanoutFieldEvent {
+    field: '$.fanout'
+    value: bigint
+  }
+
+  export interface DataModeFieldEvent {
+    field: '$.mode'
+    value: number
+  }
+
+  export interface DataMtimeSecondsFieldEvent {
+    field: '$.mtime.Seconds'
+    value: bigint
+  }
+
+  export interface DataMtimeFractionalNanosecondsFieldEvent {
+    field: '$.mtime.FractionalNanoseconds'
+    value: number
+  }
+
+  export function encode (obj: Partial<Data>): Uint8Array {
     return encodeMessage(obj, Data.codec())
   }
 
-  export const decode = (buf: Uint8Array | Uint8ArrayList): Data => {
-    return decodeMessage(buf, Data.codec())
+  export function decode (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<Data>): Data {
+    return decodeMessage(buf, Data.codec(), opts)
+  }
+
+  export function stream (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<Data>): Generator<DataTypeFieldEvent | DataDataFieldEvent | DataFilesizeFieldEvent | DataBlocksizesFieldEvent | DataHashTypeFieldEvent | DataFanoutFieldEvent | DataModeFieldEvent | DataMtimeSecondsFieldEvent | DataMtimeFractionalNanosecondsFieldEvent> {
+    return streamMessage(buf, Data.codec(), opts)
   }
 }
 
@@ -177,7 +323,7 @@ export namespace UnixTime {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length) => {
+      }, (reader, length, opts = {}) => {
         const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
@@ -186,31 +332,75 @@ export namespace UnixTime {
           const tag = reader.uint32()
 
           switch (tag >>> 3) {
-            case 1:
+            case 1: {
               obj.Seconds = reader.int64()
               break
-            case 2:
+            }
+            case 2: {
               obj.FractionalNanoseconds = reader.fixed32()
               break
-            default:
+            }
+            default: {
               reader.skipType(tag & 7)
               break
+            }
           }
         }
 
         return obj
+      }, function * (reader, length, prefix, opts = {}) {
+        const end = length == null ? reader.len : reader.pos + length
+
+        while (reader.pos < end) {
+          const tag = reader.uint32()
+
+          switch (tag >>> 3) {
+            case 1: {
+              yield {
+                field: `${prefix}.Seconds`,
+                value: reader.int64()
+              }
+              break
+            }
+            case 2: {
+              yield {
+                field: `${prefix}.FractionalNanoseconds`,
+                value: reader.fixed32()
+              }
+              break
+            }
+            default: {
+              reader.skipType(tag & 7)
+              break
+            }
+          }
+        }
       })
     }
 
     return _codec
   }
 
-  export const encode = (obj: Partial<UnixTime>): Uint8Array => {
+  export interface UnixTimeSecondsFieldEvent {
+    field: '$.Seconds'
+    value: bigint
+  }
+
+  export interface UnixTimeFractionalNanosecondsFieldEvent {
+    field: '$.FractionalNanoseconds'
+    value: number
+  }
+
+  export function encode (obj: Partial<UnixTime>): Uint8Array {
     return encodeMessage(obj, UnixTime.codec())
   }
 
-  export const decode = (buf: Uint8Array | Uint8ArrayList): UnixTime => {
-    return decodeMessage(buf, UnixTime.codec())
+  export function decode (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<UnixTime>): UnixTime {
+    return decodeMessage(buf, UnixTime.codec(), opts)
+  }
+
+  export function stream (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<UnixTime>): Generator<UnixTimeSecondsFieldEvent | UnixTimeFractionalNanosecondsFieldEvent> {
+    return streamMessage(buf, UnixTime.codec(), opts)
   }
 }
 
@@ -236,7 +426,7 @@ export namespace Metadata {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length) => {
+      }, (reader, length, opts = {}) => {
         const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
@@ -245,27 +435,58 @@ export namespace Metadata {
           const tag = reader.uint32()
 
           switch (tag >>> 3) {
-            case 1:
+            case 1: {
               obj.MimeType = reader.string()
               break
-            default:
+            }
+            default: {
               reader.skipType(tag & 7)
               break
+            }
           }
         }
 
         return obj
+      }, function * (reader, length, prefix, opts = {}) {
+        const end = length == null ? reader.len : reader.pos + length
+
+        while (reader.pos < end) {
+          const tag = reader.uint32()
+
+          switch (tag >>> 3) {
+            case 1: {
+              yield {
+                field: `${prefix}.MimeType`,
+                value: reader.string()
+              }
+              break
+            }
+            default: {
+              reader.skipType(tag & 7)
+              break
+            }
+          }
+        }
       })
     }
 
     return _codec
   }
 
-  export const encode = (obj: Partial<Metadata>): Uint8Array => {
+  export interface MetadataMimeTypeFieldEvent {
+    field: '$.MimeType'
+    value: string
+  }
+
+  export function encode (obj: Partial<Metadata>): Uint8Array {
     return encodeMessage(obj, Metadata.codec())
   }
 
-  export const decode = (buf: Uint8Array | Uint8ArrayList): Metadata => {
-    return decodeMessage(buf, Metadata.codec())
+  export function decode (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<Metadata>): Metadata {
+    return decodeMessage(buf, Metadata.codec(), opts)
+  }
+
+  export function stream (buf: Uint8Array | Uint8ArrayList, opts?: DecodeOptions<Metadata>): Generator<MetadataMimeTypeFieldEvent> {
+    return streamMessage(buf, Metadata.codec(), opts)
   }
 }

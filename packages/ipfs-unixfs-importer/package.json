@@ -163,8 +163,7 @@
     "lint": "aegir lint",
     "dep-check": "aegir dep-check",
     "doc-check": "aegir doc-check",
-    "release": "aegir release",
-    "generate": "protons test/helpers/*.proto"
+    "release": "aegir release"
   },
   "dependencies": {
     "@ipld/dag-pb": "^4.1.5",

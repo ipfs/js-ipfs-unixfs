@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v12.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.1...ipfs-unixfs-12.0.2) (2026-04-16)
+
+### Dependencies
+
+* bump protons from 7.7.0 to 8.1.1 ([#468](https://github.com/ipfs/js-ipfs-unixfs/issues/468)) ([b6d823f](https://github.com/ipfs/js-ipfs-unixfs/commit/b6d823fe976fc85cfe3d35ad5949d99e8e5d7f5a))
+
 ## [ipfs-unixfs-v12.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.0...ipfs-unixfs-12.0.1) (2026-03-17)
 
 ### Bug Fixes

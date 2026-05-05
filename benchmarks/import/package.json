@@ -12,7 +12,7 @@
     "start": "npm run build && node --expose-gc ./dist/test/index.spec.js"
   },
   "devDependencies": {
-    "aegir": "^47.0.16",
+    "aegir": "^48.0.1",
     "blockstore-core": "^6.0.2",
     "ipfs-unixfs-importer": "^16.0.0",
     "it-buffer-stream": "^3.0.11",

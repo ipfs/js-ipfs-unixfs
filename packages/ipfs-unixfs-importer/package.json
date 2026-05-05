@@ -185,7 +185,7 @@
   },
   "devDependencies": {
     "@noble/ciphers": "^2.1.1",
-    "aegir": "^47.0.16",
+    "aegir": "^48.0.1",
     "it-last": "^3.0.9",
     "wherearewe": "^2.0.1"
   },

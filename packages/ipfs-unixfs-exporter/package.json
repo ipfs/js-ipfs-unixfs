@@ -170,7 +170,7 @@
     "it-first": "^3.0.9",
     "merge-options": "^3.0.4",
     "readable-stream": "^4.7.0",
-    "sinon": "^21.0.0",
+    "sinon": "^22.0.0",
     "uint8arrays": "^5.1.0",
     "wherearewe": "^2.0.1"
   },

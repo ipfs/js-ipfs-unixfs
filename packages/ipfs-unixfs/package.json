@@ -140,7 +140,7 @@
   },
   "dependencies": {
     "protons-runtime": "^6.0.1",
-    "uint8arraylist": "^2.4.8"
+    "uint8arraylist": "^3.0.0"
   },
   "devDependencies": {
     "aegir": "^47.0.16",

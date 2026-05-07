@@ -181,7 +181,7 @@
     "progress-events": "^1.0.1",
     "rabin-wasm": "^0.1.5",
     "uint8arraylist": "^2.4.8",
-    "uint8arrays": "^5.1.0"
+    "uint8arrays": "^6.1.0"
   },
   "devDependencies": {
     "@noble/ciphers": "^2.1.1",

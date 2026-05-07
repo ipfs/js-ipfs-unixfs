@@ -151,7 +151,7 @@
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.3",
     "it-to-buffer": "^4.0.10",
-    "multiformats": "^13.3.7",
+    "multiformats": "^14.0.0",
     "p-queue": "^9.0.0",
     "progress-events": "^1.0.1"
   },

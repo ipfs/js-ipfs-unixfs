@@ -150,7 +150,7 @@
     "it-parallel": "^3.0.13",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.3",
-    "it-to-buffer": "^4.0.10",
+    "it-to-buffer": "^5.0.0",
     "multiformats": "^13.3.7",
     "p-queue": "^9.0.0",
     "progress-events": "^1.0.1"

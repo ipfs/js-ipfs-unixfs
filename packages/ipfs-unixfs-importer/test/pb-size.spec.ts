@@ -8,7 +8,7 @@ import {
   utf8ByteLength,
   linkSerializedSize,
   dataFieldSerializedSize
-} from '../src/utils/pb-size.js'
+} from '../src/utils/pb-size.ts'
 import type { PBNode } from '@ipld/dag-pb'
 
 // helper: create a CID from arbitrary bytes for testing

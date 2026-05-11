@@ -33,9 +33,9 @@
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
 import last from 'it-last'
-import { importer, importBytes, importDirectory } from '../src/index.js'
+import { importer, importBytes, importDirectory } from '../src/index.ts'
 import { deterministicRandomBytes, deterministicRandomStream, deterministicFilenames } from './helpers/deterministic.ts'
-import type { ImporterOptions } from '../src/index.js'
+import type { ImporterOptions } from '../src/index.ts'
 
 // Profile option presets matching kubo's cidProfileExpectations.
 // v0 uses links-bytes shard estimation, v1 uses block-bytes.

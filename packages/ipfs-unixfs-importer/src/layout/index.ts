@@ -6,7 +6,7 @@
  * {@link https://dag.ipfs.tech} can be used to explore different conigurations.
  */
 
-import type { InProgressImportResult } from '../index.js'
+import type { InProgressImportResult } from '../index.ts'
 
 export interface Reducer { (leaves: InProgressImportResult[]): Promise<InProgressImportResult> }
 export interface FileLayout { (source: AsyncIterable<InProgressImportResult> | Iterable<InProgressImportResult>, reducer: Reducer): Promise<InProgressImportResult> }

@@ -1,5 +1,5 @@
-import { BadPathError } from '../index.js'
-import type { WalkPathOptions, ReadableStorage } from '../index.js'
+import { BadPathError } from '../index.ts'
+import type { WalkPathOptions, ReadableStorage } from '../index.ts'
 import type { ResolveResult } from './index.ts'
 import type { CID } from 'multiformats/cid'
 

@@ -1,7 +1,7 @@
 import { encode, prepare } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import { persist } from '../utils/persist.js'
-import type { Directory, InProgressImportResult, WritableStorage } from '../index.js'
+import { persist } from '../utils/persist.ts'
+import type { Directory, InProgressImportResult, WritableStorage } from '../index.ts'
 import type { Version } from 'multiformats/cid'
 
 export interface DirBuilderOptions {

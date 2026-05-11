@@ -1,5 +1,5 @@
 import { expect } from 'aegir/chai'
-import { flat } from '../src/layout/flat.js'
+import { flat } from '../src/layout/flat.ts'
 
 function reduce (leaves: any[]): any {
   if (leaves.length > 1) {

@@ -1,5 +1,5 @@
 import { expect } from 'aegir/chai'
-import { toPathComponents } from '../src/utils/to-path-components.js'
+import { toPathComponents } from '../src/utils/to-path-components.ts'
 
 describe('toPathComponents', () => {
   it('splits on unescaped "/" characters', () => {

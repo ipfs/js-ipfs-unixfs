@@ -1,4 +1,4 @@
-import { NotFoundError } from '../index.js'
+import { NotFoundError } from '../index.ts'
 import type { ReadableStorage, WalkPathOptions } from '../index.ts'
 import type { ResolveResult } from './index.ts'
 import type { CID } from 'multiformats/cid'

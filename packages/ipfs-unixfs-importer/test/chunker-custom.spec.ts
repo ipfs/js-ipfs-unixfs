@@ -5,7 +5,7 @@ import * as Block from 'multiformats/block'
 import * as rawCodec from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { importer } from '../src/index.js'
+import { importer } from '../src/index.ts'
 import type { CID } from 'multiformats'
 
 const iter = async function * (): AsyncGenerator<Uint8Array, void, unknown> {

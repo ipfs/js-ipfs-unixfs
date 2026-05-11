@@ -1,5 +1,5 @@
 import { expect } from 'aegir/chai'
-import { trickle } from '../src/layout/trickle.js'
+import { trickle } from '../src/layout/trickle.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
 
 const createValues = (max: number): number[] => {

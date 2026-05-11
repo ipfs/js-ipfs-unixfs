@@ -1,6 +1,6 @@
 import all from 'it-all'
 import type { FileLayout } from './index.ts'
-import type { InProgressImportResult } from '../index.js'
+import type { InProgressImportResult } from '../index.ts'
 
 export function flat (): FileLayout {
   return async function flatLayout (source, reduce): Promise<InProgressImportResult> {

@@ -1,7 +1,7 @@
 import { CustomProgressEvent } from 'progress-events'
 import { extractDataFromBlock } from './extract-data-from-block.ts'
 import { validateOffsetAndLength } from './validate-offset-and-length.ts'
-import type { ExportContentOptions, ExportProgress } from '../../index.js'
+import type { ExportContentOptions, ExportProgress } from '../../index.ts'
 
 export function rawContent (node: Uint8Array, event: string): ((options?: ExportContentOptions) => AsyncGenerator<Uint8Array, void, undefined>) {
   async function * contentGenerator (options: ExportContentOptions = {}): AsyncGenerator<Uint8Array, void, undefined> {

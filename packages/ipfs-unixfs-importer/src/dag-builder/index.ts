@@ -1,12 +1,12 @@
 import { CustomProgressEvent } from 'progress-events'
-import { InvalidContentError } from '../errors.js'
+import { InvalidContentError } from '../errors.ts'
 import { defaultDirBuilder } from './dir.ts'
 import { defaultFileBuilder } from './file.ts'
 import type { DirBuilder, DirBuilderOptions } from './dir.ts'
 import type { FileBuilder, FileBuilderOptions } from './file.ts'
 import type { ChunkValidator } from './validate-chunks.ts'
-import type { Chunker } from '../chunker/index.js'
-import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.js'
+import type { Chunker } from '../chunker/index.ts'
+import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.ts'
 import type { ProgressEvent, ProgressOptions } from 'progress-events'
 
 /**

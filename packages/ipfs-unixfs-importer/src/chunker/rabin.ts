@@ -1,7 +1,7 @@
 // @ts-expect-error no types
 import { create } from 'rabin-wasm'
 import { Uint8ArrayList } from 'uint8arraylist'
-import { InvalidAvgChunkSizeError, InvalidChunkSizeError, InvalidMinChunkSizeError } from '../errors.js'
+import { InvalidAvgChunkSizeError, InvalidChunkSizeError, InvalidMinChunkSizeError } from '../errors.ts'
 import type { Chunker } from './index.ts'
 
 const DEFAULT_MIN_CHUNK_SIZE = 262144

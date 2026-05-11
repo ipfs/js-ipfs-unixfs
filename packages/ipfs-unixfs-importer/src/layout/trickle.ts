@@ -1,6 +1,6 @@
 import batch from 'it-batch'
-import type { InProgressImportResult } from '../index.js'
-import type { FileLayout, Reducer } from '../layout/index.js'
+import type { InProgressImportResult } from '../index.ts'
+import type { FileLayout, Reducer } from '../layout/index.ts'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { CID } from 'multiformats/cid'
 

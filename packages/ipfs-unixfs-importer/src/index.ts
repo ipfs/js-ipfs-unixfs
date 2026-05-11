@@ -80,14 +80,13 @@ import type { DAGBuilder, DagBuilderProgressEvents } from './dag-builder/index.t
 import type { ChunkValidator } from './dag-builder/validate-chunks.ts'
 import type { FileLayout } from './layout/index.ts'
 import type { Blockstore } from 'interface-blockstore'
-import type { AwaitIterable } from 'interface-store'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
 import type { ProgressOptions } from 'progress-events'
 
 export * from './errors.ts'
 
-export type ByteStream = AwaitIterable<Uint8Array>
+export type ByteStream = Iterable<Uint8Array> | AsyncIterable<Uint8Array>
 export type ImportContent = ByteStream | Uint8Array
 
 export type WritableStorage = Pick<Blockstore, 'put'>

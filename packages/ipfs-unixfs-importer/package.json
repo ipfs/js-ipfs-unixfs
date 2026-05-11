@@ -171,7 +171,7 @@
     "blockstore-core": "^6.1.2",
     "hamt-sharding": "^3.0.6",
     "interface-blockstore": "^6.0.1",
-    "interface-store": "^7.0.0",
+    "interface-store": "^8.0.0",
     "ipfs-unixfs": "^12.0.0",
     "it-all": "^3.0.9",
     "it-batch": "^3.0.9",

@@ -1,3 +1,13 @@
+## [ipfs-unixfs-importer-v17.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.5...ipfs-unixfs-importer-17.0.0) (2026-05-12)
+
+### ⚠ BREAKING CHANGES
+
+* the CID instances returned from this module are from `multiformats@14.x.x`
+
+### Dependencies
+
+* update to multiformats 14.x.x ([#483](https://github.com/ipfs/js-ipfs-unixfs/issues/483)) ([a2f1934](https://github.com/ipfs/js-ipfs-unixfs/commit/a2f1934554082de9e2c5786c8e3a70c85890f75b))
+
 ## [ipfs-unixfs-importer-v16.1.5](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.4...ipfs-unixfs-importer-16.1.5) (2026-04-16)
 
 ### Dependencies

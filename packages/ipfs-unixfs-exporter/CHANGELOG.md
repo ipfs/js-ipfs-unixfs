@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v16.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.0...ipfs-unixfs-exporter-16.0.1) (2026-05-12)
+
+### Bug Fixes
+
+* update sibling deps ([91c257d](https://github.com/ipfs/js-ipfs-unixfs/commit/91c257d5fdefbdf1172ce010d1c63363c7ac15c2))
+
 ## [ipfs-unixfs-exporter-v16.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-15.0.4...ipfs-unixfs-exporter-16.0.0) (2026-05-12)
 
 ### ⚠ BREAKING CHANGES

@@ -282,7 +282,7 @@ export namespace Data {
     value: number
   }
 
-  export function encode (obj: Partial<Data>): Uint8Array {
+  export function encode (obj: Partial<Data>): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, Data.codec())
   }
 
@@ -391,7 +391,7 @@ export namespace UnixTime {
     value: number
   }
 
-  export function encode (obj: Partial<UnixTime>): Uint8Array {
+  export function encode (obj: Partial<UnixTime>): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, UnixTime.codec())
   }
 
@@ -478,7 +478,7 @@ export namespace Metadata {
     value: string
   }
 
-  export function encode (obj: Partial<Metadata>): Uint8Array {
+  export function encode (obj: Partial<Metadata>): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, Metadata.codec())
   }
 

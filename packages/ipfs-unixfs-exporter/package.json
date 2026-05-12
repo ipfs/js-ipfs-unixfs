@@ -139,11 +139,11 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^9.2.4",
-    "@ipld/dag-json": "^10.2.5",
+    "@ipld/dag-cbor": "^10.0.0",
+    "@ipld/dag-json": "^11.0.0",
     "@ipld/dag-pb": "^4.1.5",
     "@multiformats/murmur3": "^2.1.8",
-    "hamt-sharding": "^3.0.6",
+    "hamt-sharding": "^3.0.8",
     "interface-blockstore": "^7.0.0",
     "ipfs-unixfs": "^12.0.0",
     "it-last": "^3.0.9",

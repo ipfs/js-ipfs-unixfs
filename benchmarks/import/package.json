@@ -13,10 +13,10 @@
   },
   "devDependencies": {
     "aegir": "^48.0.4",
-    "blockstore-core": "^7.0.0",
-    "ipfs-unixfs-importer": "^16.0.0",
+    "blockstore-core": "^7.0.1",
+    "ipfs-unixfs-importer": "^17.0.0",
     "it-buffer-stream": "^4.0.0",
-    "it-drain": "^3.0.10"
+    "it-drain": "^3.0.12"
   },
   "private": true
 }

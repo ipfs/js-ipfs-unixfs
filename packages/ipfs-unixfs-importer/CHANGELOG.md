@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v17.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-17.0.0...ipfs-unixfs-importer-17.0.1) (2026-05-12)
+
+### Bug Fixes
+
+* update sibling deps ([91c257d](https://github.com/ipfs/js-ipfs-unixfs/commit/91c257d5fdefbdf1172ce010d1c63363c7ac15c2))
+
 ## [ipfs-unixfs-importer-v17.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-16.1.5...ipfs-unixfs-importer-17.0.0) (2026-05-12)
 
 ### ⚠ BREAKING CHANGES

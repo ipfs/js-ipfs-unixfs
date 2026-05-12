@@ -1,3 +1,17 @@
+## [ipfs-unixfs-v13.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.2...ipfs-unixfs-13.0.0) (2026-05-12)
+
+### ⚠ BREAKING CHANGES
+
+* the CID instances returned from this module are from `multiformats@14.x.x`
+
+### Bug Fixes
+
+* update proto ([bb95d45](https://github.com/ipfs/js-ipfs-unixfs/commit/bb95d4525708dfeb521a2ed8390760ee6dcfcee3))
+
+### Dependencies
+
+* update to multiformats 14.x.x ([#483](https://github.com/ipfs/js-ipfs-unixfs/issues/483)) ([a2f1934](https://github.com/ipfs/js-ipfs-unixfs/commit/a2f1934554082de9e2c5786c8e3a70c85890f75b))
+
 ## [ipfs-unixfs-v12.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.1...ipfs-unixfs-12.0.2) (2026-04-16)
 
 ### Dependencies

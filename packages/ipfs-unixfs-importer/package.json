@@ -45,19 +45,23 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js"
+      "import": "./dist/src/index.js",
+      "module-sync": "./dist/src/index.js"
     },
     "./chunker": {
       "types": "./dist/src/chunker/index.d.ts",
-      "import": "./dist/src/chunker/index.js"
+      "import": "./dist/src/chunker/index.js",
+      "module-sync": "./dist/src/chunker/index.js"
     },
     "./layout": {
       "types": "./dist/src/layout/index.d.ts",
-      "import": "./dist/src/layout/index.js"
+      "import": "./dist/src/layout/index.js",
+      "module-sync": "./dist/src/layout/index.js"
     },
     "./utils": {
       "types": "./dist/src/utils/index.d.ts",
-      "import": "./dist/src/utils/index.js"
+      "import": "./dist/src/utils/index.js",
+      "module-sync": "./dist/src/utils/index.js"
     }
   },
   "release": {
@@ -168,24 +172,23 @@
   "dependencies": {
     "@ipld/dag-pb": "^4.1.5",
     "@multiformats/murmur3": "^2.1.8",
-    "blockstore-core": "^6.1.2",
+    "blockstore-core": "^7.0.0",
     "hamt-sharding": "^3.0.6",
-    "interface-blockstore": "^6.0.1",
-    "interface-store": "^7.0.0",
+    "interface-blockstore": "^7.0.0",
     "ipfs-unixfs": "^12.0.0",
     "it-all": "^3.0.9",
     "it-batch": "^3.0.9",
     "it-first": "^3.0.9",
     "it-parallel-batch": "^3.0.9",
-    "multiformats": "^13.3.7",
+    "multiformats": "^14.0.0",
     "progress-events": "^1.0.1",
     "rabin-wasm": "^0.1.5",
-    "uint8arraylist": "^2.4.8",
-    "uint8arrays": "^5.1.0"
+    "uint8arraylist": "^3.0.2",
+    "uint8arrays": "^6.1.1"
   },
   "devDependencies": {
     "@noble/ciphers": "^2.1.1",
-    "aegir": "^47.0.16",
+    "aegir": "^48.0.4",
     "it-last": "^3.0.9",
     "wherearewe": "^2.0.1"
   },

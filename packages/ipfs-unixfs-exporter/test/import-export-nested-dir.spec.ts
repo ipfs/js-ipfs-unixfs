@@ -6,9 +6,9 @@ import toBuffer from 'it-to-buffer'
 import { CID } from 'multiformats/cid'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { exporter } from '../src/index.js'
+import { exporter } from '../src/index.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
-import type { UnixFSEntry } from '../src/index.js'
+import type { UnixFSEntry } from '../src/index.ts'
 import type { Blockstore } from 'interface-blockstore'
 
 describe('import and export: directory', () => {

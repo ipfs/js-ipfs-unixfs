@@ -7,15 +7,15 @@ import * as json from 'multiformats/codecs/json'
 import * as raw from 'multiformats/codecs/raw'
 import { identity } from 'multiformats/hashes/identity'
 import { CODEC_CBOR } from '../constants.ts'
-import { InvalidParametersError, NoResolverError, NotFoundError } from '../errors.js'
-import { walkPath } from '../index.js'
+import { InvalidParametersError, NoResolverError, NotFoundError } from '../errors.ts'
+import { walkPath } from '../index.ts'
 import { dagCborResolver } from './dag-cbor.ts'
 import { dagJsonResolver } from './dag-json.ts'
 import { identityResolver } from './identity.ts'
 import { jsonResolver } from './json.ts'
 import { rawResolver } from './raw.ts'
 import { dagPbResolver } from './unixfs-v1/index.ts'
-import type { ExporterOptions, ReadableStorage, Resolver, UnixFSDirectory, UnixFSEntry, UnixFSRecursiveEntry } from '../index.js'
+import type { ExporterOptions, ReadableStorage, Resolver, UnixFSDirectory, UnixFSEntry, UnixFSRecursiveEntry } from '../index.ts'
 
 const resolvers: Record<number, Resolver> = {
   [dagPb.code]: dagPbResolver,

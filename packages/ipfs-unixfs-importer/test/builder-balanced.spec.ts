@@ -1,7 +1,7 @@
 import { expect } from 'aegir/chai'
 import { CID } from 'multiformats/cid'
-import { balanced } from '../src/layout/balanced.js'
-import type { InProgressImportResult } from '../src/index.js'
+import { balanced } from '../src/layout/balanced.ts'
+import type { InProgressImportResult } from '../src/index.ts'
 
 async function reduce (leaves: InProgressImportResult[]): Promise<InProgressImportResult> {
   if (leaves.length > 1) {

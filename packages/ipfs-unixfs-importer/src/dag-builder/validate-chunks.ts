@@ -1,5 +1,5 @@
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { InvalidContentError } from '../errors.js'
+import { InvalidContentError } from '../errors.ts'
 
 export interface ChunkValidator { (source: AsyncIterable<Uint8Array>): AsyncIterable<Uint8Array> }
 

@@ -3,7 +3,7 @@ import all from 'it-all'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { isElectronRenderer } from 'wherearewe'
-import { rabin } from '../src/chunker/rabin.js'
+import { rabin } from '../src/chunker/rabin.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
 
 const rawFile = new Uint8Array(Math.pow(2, 20)).fill(1)

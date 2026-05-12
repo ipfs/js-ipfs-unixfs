@@ -1,6 +1,6 @@
 import batch from 'it-batch'
 import type { FileLayout } from './index.ts'
-import type { InProgressImportResult } from '../index.js'
+import type { InProgressImportResult } from '../index.ts'
 
 const DEFAULT_MAX_CHILDREN_PER_NODE = 174
 

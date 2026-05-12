@@ -1,5 +1,5 @@
 import { CustomProgressEvent } from 'progress-events'
-import type { ExportContentOptions, ExportWalk, UnixFSDirectoryEntry } from '../../../index.js'
+import type { ExportContentOptions, ExportWalk, UnixFSDirectoryEntry } from '../../../index.ts'
 import type { PBNode } from '@ipld/dag-pb'
 import type { UnixFS } from 'ipfs-unixfs'
 import type { CID } from 'multiformats/cid'

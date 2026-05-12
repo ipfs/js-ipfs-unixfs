@@ -85,7 +85,7 @@ Loading this module through a script tag will make its exports available as `Ipf
 
 # API Docs
 
-- <https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs_unixfs_exporter.html>
+- <https://ipfs.github.io/js-ipfs-unixfs/modules/ipfs-unixfs-exporter.html>
 
 # License
 

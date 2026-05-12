@@ -2,7 +2,7 @@ import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { fixedSize } from '../src/chunker/fixed-size.js'
+import { fixedSize } from '../src/chunker/fixed-size.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
 
 const rawFile = new Uint8Array(Math.pow(2, 20))

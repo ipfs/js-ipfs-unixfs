@@ -7,9 +7,9 @@ import toBuffer from 'it-to-buffer'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { exporter, walkPath } from '../src/index.js'
+import { exporter, walkPath } from '../src/index.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
-import type { UnixFSDirectory, UnixFSDirectoryEntry, UnixFSEntry } from '../src/index.js'
+import type { UnixFSDirectory, UnixFSDirectoryEntry, UnixFSEntry } from '../src/index.ts'
 import type { CID } from 'multiformats/cid'
 
 describe('builder: directory sharding', () => {

@@ -1,4 +1,4 @@
-import { InvalidParametersError } from '../../errors.js'
+import { InvalidParametersError } from '../../errors.ts'
 
 export const validateOffsetAndLength = (size: number | bigint, offset: number | bigint = 0, length: number | bigint = size): { start: bigint, end: bigint } => {
   const fileSize = BigInt(size)

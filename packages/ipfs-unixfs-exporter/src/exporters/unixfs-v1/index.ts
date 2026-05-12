@@ -1,11 +1,11 @@
 import { decode } from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
 import toBuffer from 'it-to-buffer'
-import { NotFoundError, NotUnixFSError } from '../../errors.js'
+import { NotFoundError, NotUnixFSError } from '../../errors.ts'
 import { directoryContent } from './content/directory.ts'
 import { fileContent } from './content/file.ts'
 import { hamtShardedDirectoryContent } from './content/hamt-sharded-directory.ts'
-import type { ExportContentOptions, ExporterOptions, ReadableStorage, UnixFSEntry } from '../../index.js'
+import type { ExportContentOptions, ExporterOptions, ReadableStorage, UnixFSEntry } from '../../index.ts'
 import type { PBNode } from '@ipld/dag-pb'
 import type { CID } from 'multiformats/cid'
 

@@ -1,9 +1,9 @@
 import { expect } from 'aegir/chai'
 import loadFixture from 'aegir/fixtures'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { UnixFS } from '../src/index.js'
-import * as Pb from '../src/unixfs.js'
-import type { Mtime } from '../src/index.js'
+import { UnixFS } from '../src/index.ts'
+import * as Pb from '../src/unixfs.ts'
+import type { Mtime } from '../src/index.ts'
 const PBData = Pb.Data
 
 const raw = loadFixture('test/fixtures/raw.unixfs')

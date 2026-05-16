@@ -64,7 +64,8 @@ export async function dagPbResolver (cid: CID, name: string, path: string, block
       path,
       entries: content,
       unixfs,
-      node
+      node,
+      size: BigInt(block.byteLength)
     }
   }
 

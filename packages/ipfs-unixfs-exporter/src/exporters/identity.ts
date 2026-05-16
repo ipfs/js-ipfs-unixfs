@@ -12,7 +12,7 @@ export async function identityResolver (cid: CID, name: string, path: string, bl
     name,
     path,
     content: rawContent(block.digest, 'unixfs:exporter:progress:identity'),
-    size: BigInt(block.bytes.length),
+    size: BigInt(block.bytes.byteLength),
     node: block.bytes
   }
 }

@@ -284,7 +284,8 @@ describe('builder: directory sharding', () => {
       await verifyContent({
         cid: rootHash,
         name: '',
-        path: ''
+        path: '',
+        size: 0n
       })
     })
 

@@ -41,7 +41,8 @@ async function * listDirectory (node: PBNode, path: string, blockstore: Readable
             entries: [{
               cid: link.Hash,
               name,
-              path: `${path}/${name}`
+              path: `${path}/${name}`,
+              size: BigInt(link.Tsize ?? 0)
             }]
           }
         } else {

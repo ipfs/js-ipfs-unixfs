@@ -17,7 +17,8 @@ export function directoryContent (cid: CID, node: PBNode, unixfs: UnixFS, path: 
     yield * links.map(link => ({
       cid: link.Hash,
       name: link.Name ?? '',
-      path: `${path}/${link.Name ?? ''}`
+      path: `${path}/${link.Name ?? ''}`,
+      size: BigInt(link.Tsize ?? 0)
     }))
   }
 

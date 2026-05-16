@@ -13,6 +13,7 @@ export async function jsonResolver (cid: CID, name: string, path: string, blocks
     name,
     path,
     object,
+    size: BigInt(block.byteLength),
     node: block
   }
 }

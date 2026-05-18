@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v16.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.1...ipfs-unixfs-exporter-16.0.2) (2026-05-18)
+
+### Bug Fixes
+
+* include size estimate in directory listing ([#484](https://github.com/ipfs/js-ipfs-unixfs/issues/484)) ([967d70b](https://github.com/ipfs/js-ipfs-unixfs/commit/967d70bbfaead86874ebe5ed98818468078e63d4))
+
 ## [ipfs-unixfs-exporter-v16.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.0...ipfs-unixfs-exporter-16.0.1) (2026-05-12)
 
 ### Bug Fixes

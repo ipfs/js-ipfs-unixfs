@@ -110,6 +110,7 @@ export async function * recursive (path: string | CID, blockstore: ReadableStora
     cid: node.cid,
     name: node.name,
     path: node.path,
+    size: node.size,
     depth: 0
   }
 

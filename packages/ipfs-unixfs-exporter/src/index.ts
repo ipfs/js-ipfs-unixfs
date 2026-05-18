@@ -226,6 +226,12 @@ export interface UnixFSDirectoryEntry {
    * The path of the entry within the containing directory structure
    */
   path: string
+
+  /**
+   * This is the reported size of the entry - it is taken from the Tsize of the
+   * PBLink and may not be the same as the actual file size
+   */
+  size: bigint
 }
 
 export interface Exportable extends UnixFSDirectoryEntry {

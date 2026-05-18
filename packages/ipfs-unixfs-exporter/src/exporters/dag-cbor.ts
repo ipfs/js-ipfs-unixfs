@@ -13,6 +13,7 @@ export async function dagCborResolver (cid: CID, name: string, path: string, blo
     name,
     path,
     object,
-    node: block
+    node: block,
+    size: BigInt(block.byteLength)
   }
 }

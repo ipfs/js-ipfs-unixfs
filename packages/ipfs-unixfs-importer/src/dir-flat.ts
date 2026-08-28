@@ -119,7 +119,7 @@ export class DirFlat extends Dir {
       Links: links
     }
 
-    return encode(prepare(node))
+    return encode(prepare(node), this.options)
   }
 
   async estimateNodeSize (): Promise<number> {
@@ -181,7 +181,7 @@ export class DirFlat extends Dir {
     })
 
     const node: PBNode = { Data: unixfs.marshal(), Links: links }
-    const buffer = encode(prepare(node))
+    const buffer = encode(prepare(node), this.options)
     const cid = await persist(buffer, block, this.options)
     const size = buffer.length + node.Links.reduce(
       /**

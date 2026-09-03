@@ -1,3 +1,9 @@
+## [ipfs-unixfs-importer-v17.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-17.0.1...ipfs-unixfs-importer-17.1.0) (2026-09-03)
+
+### Features
+
+* support IPIP-550 data-first field order ([#486](https://github.com/ipfs/js-ipfs-unixfs/issues/486)) ([e1a2157](https://github.com/ipfs/js-ipfs-unixfs/commit/e1a21574b75b13eac9a0b56bb434bc42482fd5b1))
+
 ## [ipfs-unixfs-importer-v17.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-importer-17.0.0...ipfs-unixfs-importer-17.0.1) (2026-05-12)
 
 ### Bug Fixes

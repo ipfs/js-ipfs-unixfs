@@ -36,6 +36,7 @@ export interface BufferImporterOptions extends ProgressOptions<BufferImportProgr
   cidVersion: Version
   rawLeaves: boolean
   leafType: 'file' | 'raw'
+  fieldOrder?: dagPb.FieldOrder
 }
 
 export function defaultBufferImporter (options: BufferImporterOptions): BufferImporter {
@@ -64,7 +65,7 @@ export function defaultBufferImporter (options: BufferImporterOptions): BufferIm
           block = dagPb.encode({
             Data: unixfs.marshal(),
             Links: []
-          })
+          }, options)
         }
 
         const cid = await persist(block, blockstore, opts)

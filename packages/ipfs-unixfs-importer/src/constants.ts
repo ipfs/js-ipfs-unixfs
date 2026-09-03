@@ -11,3 +11,4 @@ export const DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF = true
 export const DEFAULT_RAW_LEAVES = true
 export const DEFAULT_WRAP_WITH_DIRECTORY = false
 export const DEFAULT_LEAF_TYPE = 'file'
+export const DEFAULT_FIELD_ORDER = 'links-first'

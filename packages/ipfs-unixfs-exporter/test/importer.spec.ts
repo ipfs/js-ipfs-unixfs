@@ -341,9 +341,7 @@ strategies.forEach((strategy) => {
     }
   }
 
-  describe('importer: ' + strategy, function () {
-    this.timeout(30 * 1000)
-
+  describe('importer: ' + strategy, () => {
     let layout: FileLayout
 
     if (strategy === 'balanced') {
@@ -551,8 +549,6 @@ strategies.forEach((strategy) => {
     })
 
     it('file bigger than a single chunk', async () => {
-      this.timeout(60 * 1000)
-
       const files = await all(importer([{
         path: '1.2MiB.txt',
         content: asAsyncIterable(bigFile)
@@ -564,8 +560,6 @@ strategies.forEach((strategy) => {
     })
 
     it('file bigger than a single chunk inside a dir', async () => {
-      this.timeout(60 * 1000)
-
       const files = await all(importer([{
         path: 'foo-big/1.2MiB.txt',
         content: asAsyncIterable(bigFile)
@@ -760,8 +754,6 @@ strategies.forEach((strategy) => {
     })
 
     it('uses raw leaf nodes when requested', async () => {
-      this.timeout(60 * 1000)
-
       const options = {
         rawLeaves: true
       }
@@ -778,8 +770,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing mtime', async () => {
-      this.timeout(60 * 1000)
-
       const options = {
         rawLeaves: true
       }
@@ -797,8 +787,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing mtime for directories', async () => {
-      this.timeout(60 * 1000)
-
       const now = new Date()
 
       const entries = await all(importer([{
@@ -811,8 +799,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing metadata for wrapping directories', async () => {
-      this.timeout(60 * 1000)
-
       const now = new Date()
       const perms = 0o0777
 
@@ -837,8 +823,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing metadata for intermediate directories', async () => {
-      this.timeout(60 * 1000)
-
       const now = new Date()
       const perms = 0o0777
 
@@ -863,8 +847,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing metadata for out of order intermediate directories', async () => {
-      this.timeout(60 * 1000)
-
       const now = new Date()
       const perms = 0o0777
 
@@ -894,8 +876,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing mtime for hamt-sharded-directories', async () => {
-      this.timeout(60 * 1000)
-
       const now = new Date()
 
       const entries = await all(importer([{
@@ -924,8 +904,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing mode', async () => {
-      this.timeout(60 * 1000)
-
       const options = {
         rawLeaves: true
       }
@@ -943,8 +921,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing mode for directories', async () => {
-      this.timeout(60 * 1000)
-
       const mode = 0o0111
 
       const entries = await all(importer([{
@@ -957,8 +933,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports passing different modes for different files', async () => {
-      this.timeout(60 * 1000)
-
       const mode1 = 0o0111
       const mode2 = 0o0222
 
@@ -980,8 +954,6 @@ strategies.forEach((strategy) => {
     })
 
     it('supports deeply nested files do not inherit custom metadata', async () => {
-      this.timeout(60 * 1000)
-
       const mode = 0o0111
 
       const entries = await all(importer([{
@@ -1001,8 +973,6 @@ strategies.forEach((strategy) => {
     })
 
     it('files and directories get default mode if not specified', async () => {
-      this.timeout(60 * 1000)
-
       const entries = await all(importer([{
         path: '/foo/file1.txt',
         content: asAsyncIterable(bigFile)
@@ -1016,8 +986,6 @@ strategies.forEach((strategy) => {
     })
 
     it('should only add metadata to the root node of a file', async () => {
-      this.timeout(60 * 1000)
-
       const mtime = { secs: 5000n, nsecs: 0 }
 
       const entries = await all(importer([{
@@ -1046,8 +1014,6 @@ strategies.forEach((strategy) => {
     })
 
     it('should add metadata to the root node of a small file without raw leaves', async () => {
-      this.timeout(60 * 1000)
-
       const mode = 511
 
       const entries = await all(importer([{

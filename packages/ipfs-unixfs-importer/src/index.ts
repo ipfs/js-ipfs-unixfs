@@ -158,9 +158,8 @@ export type ImporterProgressEvents =
  * Profile names as defined by:
  *
  * - IPIP-499 - https://github.com/ipfs/specs/pull/499
- * - IPIP-550 - https://github.com/ipfs/specs/pull/550
  */
-export type CIDProfile = 'unixfs-v0-2015' | 'unixfs-v1-2025' | 'unixfs-v1-2026'
+export type CIDProfile = 'unixfs-v0-2015' | 'unixfs-v1-2025'
 
 /**
  * How to determine when to shard a directory
@@ -392,16 +391,14 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     options.rawLeaves = options.rawLeaves ?? false
     chunkSize = DEFAULT_CHUNK_SIZE_256KIB
     maxChildrenPerNode = 174
-  } else if (options.profile === 'unixfs-v1-2025' || options.profile === 'unixfs-v1-2026') {
+    options.fieldOrder = 'links-first'
+  } else if (options.profile === 'unixfs-v1-2025') {
     options.shardSplitStrategy = options.shardSplitStrategy ?? 'block-bytes'
     options.cidVersion = options.cidVersion ?? 1
     options.rawLeaves = options.rawLeaves ?? true
     chunkSize = DEFAULT_CHUNK_SIZE_1MIB
     maxChildrenPerNode = 1_024
-
-    if (options.profile === 'unixfs-v1-2026') {
-      options.fieldOrder = 'data-first'
-    }
+    options.fieldOrder = 'links-first'
   }
 
   const wrapWithDirectory = options.wrapWithDirectory ?? DEFAULT_WRAP_WITH_DIRECTORY

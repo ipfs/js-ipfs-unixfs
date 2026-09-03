@@ -65,7 +65,7 @@
 import first from 'it-first'
 import parallelBatch from 'it-parallel-batch'
 import { fixedSize } from './chunker/fixed-size.ts'
-import { DEFAULT_BLOCK_WRITE_CONCURRENCY, DEFAULT_CHUNK_SIZE_1MIB, DEFAULT_CHUNK_SIZE_256KIB, DEFAULT_CID_VERSION, DEFAULT_FILE_IMPORT_CONCURRENCY, DEFAULT_LEAF_TYPE, DEFAULT_RAW_LEAVES, DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF, DEFAULT_SHARD_FANOUT_BITS, DEFAULT_SHARD_SPLIT_STRATEGY, DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES, DEFAULT_WRAP_WITH_DIRECTORY } from './constants.ts'
+import { DEFAULT_BLOCK_WRITE_CONCURRENCY, DEFAULT_CHUNK_SIZE_1MIB, DEFAULT_CHUNK_SIZE_256KIB, DEFAULT_CID_VERSION, DEFAULT_FIELD_ORDER, DEFAULT_FILE_IMPORT_CONCURRENCY, DEFAULT_LEAF_TYPE, DEFAULT_RAW_LEAVES, DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF, DEFAULT_SHARD_FANOUT_BITS, DEFAULT_SHARD_SPLIT_STRATEGY, DEFAULT_SHARD_SPLIT_THRESHOLD_BYTES, DEFAULT_WRAP_WITH_DIRECTORY } from './constants.ts'
 import { defaultBufferImporter } from './dag-builder/buffer-importer.ts'
 import { defaultDagBuilder } from './dag-builder/index.ts'
 import { defaultChunkValidator } from './dag-builder/validate-chunks.ts'
@@ -79,6 +79,7 @@ import type { FileBuilder, ReducerProgressEvents } from './dag-builder/file.ts'
 import type { DAGBuilder, DagBuilderProgressEvents } from './dag-builder/index.ts'
 import type { ChunkValidator } from './dag-builder/validate-chunks.ts'
 import type { FileLayout } from './layout/index.ts'
+import type { FieldOrder } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFS, Mtime } from 'ipfs-unixfs'
 import type { CID, Version as CIDVersion } from 'multiformats/cid'
@@ -154,7 +155,9 @@ export type ImporterProgressEvents =
   ReducerProgressEvents
 
 /**
- * Profile names as defined by IPIP-499 - https://github.com/ipfs/specs/pull/499
+ * Profile names as defined by:
+ *
+ * - IPIP-499 - https://github.com/ipfs/specs/pull/499
  */
 export type CIDProfile = 'unixfs-v0-2015' | 'unixfs-v1-2025'
 
@@ -228,6 +231,18 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
    * @default 8
    */
   shardFanoutBits?: number
+
+  /**
+   * By default `Links` are written before `Data` field, however this leads to
+   * inefficient HAMT shard traversal since the parameters needed to derive the
+   * hash prefix length are stored in the `Data` field, so all `Links` have to
+   * be read before any of them can be processed.
+   *
+   * Pass `data-first` here to write the `Data` field before any `Links`.
+   *
+   * @default 'links-first'
+   */
+  fieldOrder?: FieldOrder
 
   /**
    * How many files to import concurrently. For large numbers of small files this
@@ -376,12 +391,14 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     options.rawLeaves = options.rawLeaves ?? false
     chunkSize = DEFAULT_CHUNK_SIZE_256KIB
     maxChildrenPerNode = 174
+    options.fieldOrder = 'links-first'
   } else if (options.profile === 'unixfs-v1-2025') {
     options.shardSplitStrategy = options.shardSplitStrategy ?? 'block-bytes'
     options.cidVersion = options.cidVersion ?? 1
     options.rawLeaves = options.rawLeaves ?? true
     chunkSize = DEFAULT_CHUNK_SIZE_1MIB
     maxChildrenPerNode = 1_024
+    options.fieldOrder = 'links-first'
   }
 
   const wrapWithDirectory = options.wrapWithDirectory ?? DEFAULT_WRAP_WITH_DIRECTORY
@@ -394,6 +411,7 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
   const fileImportConcurrency = options.fileImportConcurrency ?? DEFAULT_FILE_IMPORT_CONCURRENCY
   const blockWriteConcurrency = options.blockWriteConcurrency ?? DEFAULT_BLOCK_WRITE_CONCURRENCY
   const reduceSingleLeafToSelf = options.reduceSingleLeafToSelf ?? DEFAULT_REDUCE_SINGLE_LEAF_TO_SELF
+  const fieldOrder = options.fieldOrder ?? DEFAULT_FIELD_ORDER
 
   const chunker = options.chunker ?? fixedSize({
     chunkSize
@@ -417,7 +435,8 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     cidVersion,
     onProgress: options.onProgress,
     dirBuilder: options.dirBuilder,
-    fileBuilder: options.fileBuilder
+    fileBuilder: options.fileBuilder,
+    fieldOrder
   })
   const buildTree: TreeBuilder = options.treeBuilder ?? defaultTreeBuilder({
     wrapWithDirectory,
@@ -425,7 +444,8 @@ export async function * importer (source: ImportCandidateStream, blockstore: Wri
     shardSplitStrategy,
     shardFanoutBits,
     cidVersion,
-    onProgress: options.onProgress
+    onProgress: options.onProgress,
+    fieldOrder
   })
 
   for await (const entry of buildTree(parallelBatch(buildDag(candidates, blockstore), fileImportConcurrency), blockstore)) {

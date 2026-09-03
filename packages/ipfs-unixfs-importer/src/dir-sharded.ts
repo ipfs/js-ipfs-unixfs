@@ -187,7 +187,7 @@ async function * flush (bucket: Bucket<Dir | InProgressImportResult>, blockstore
     Data: dir.marshal(),
     Links: links
   }
-  const buffer = encode(prepare(node))
+  const buffer = encode(prepare(node), options)
   const cid = await persist(buffer, blockstore, options)
   const size = BigInt(buffer.byteLength) + childrenSize
 
@@ -280,7 +280,7 @@ async function calculateSize (bucket: Bucket<InProgressImportResult | Dir>, shar
   const buffer = encode(prepare({
     Data: dir.marshal(),
     Links: links
-  }))
+  }), options)
 
   const cid = await persist(buffer, blocks, options)
 

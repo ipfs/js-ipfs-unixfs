@@ -170,7 +170,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-pb": "^4.1.7",
+    "@ipld/dag-pb": "^4.2.0",
     "@multiformats/murmur3": "^2.2.5",
     "blockstore-core": "^7.0.1",
     "hamt-sharding": "^3.0.8",

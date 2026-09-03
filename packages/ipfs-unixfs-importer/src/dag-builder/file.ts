@@ -6,7 +6,7 @@ import { CustomProgressEvent } from 'progress-events'
 import { persist } from '../utils/persist.ts'
 import type { BufferImporter, File, InProgressImportResult, WritableStorage, SingleBlockImportResult, ImporterProgressEvents } from '../index.ts'
 import type { FileLayout, Reducer } from '../layout/index.ts'
-import type { PBLink, PBNode } from '@ipld/dag-pb'
+import type { FieldOrder, PBLink, PBNode } from '@ipld/dag-pb'
 import type { CID, Version } from 'multiformats/cid'
 import type { ProgressOptions, ProgressEvent } from 'progress-events'
 
@@ -71,6 +71,7 @@ interface ReduceOptions extends ProgressOptions<ImporterProgressEvents> {
   reduceSingleLeafToSelf: boolean
   cidVersion: Version
   signal?: AbortSignal
+  fieldOrder?: FieldOrder
 }
 
 function isSingleBlockImport (result: any): result is SingleBlockImportResult {
@@ -96,7 +97,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
 
         node = { Data: leaf.unixfs.marshal(), Links: [] }
 
-        leaf.block = encode(prepare(node))
+        leaf.block = encode(prepare(node), options)
 
         leaf.cid = await persist(leaf.block, blockstore, {
           ...options,
@@ -169,7 +170,7 @@ const reduce = (file: File, blockstore: WritableStorage, options: ReduceOptions)
       Data: f.marshal(),
       Links: links
     }
-    const block = encode(prepare(node))
+    const block = encode(prepare(node), options)
     const cid = await persist(block, blockstore, options)
 
     options.onProgress?.(new CustomProgressEvent<LayoutLeafProgress>('unixfs:importer:progress:file:layout', {

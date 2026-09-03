@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v16.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.2...ipfs-unixfs-exporter-16.1.0) (2026-09-03)
+
+### Features
+
+* support IPIP-550 data-first field order ([#486](https://github.com/ipfs/js-ipfs-unixfs/issues/486)) ([e1a2157](https://github.com/ipfs/js-ipfs-unixfs/commit/e1a21574b75b13eac9a0b56bb434bc42482fd5b1))
+
 ## [ipfs-unixfs-exporter-v16.0.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.1...ipfs-unixfs-exporter-16.0.2) (2026-05-18)
 
 ### Bug Fixes

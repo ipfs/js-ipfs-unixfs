@@ -38,7 +38,7 @@ export abstract class Dir {
 
     this.root = props.root
     this.dir = props.dir
-    this.path = props.path
+    this.path = props.path.startsWith('/') ? props.path : `/${props.path}`
     this.dirty = props.dirty
     this.flat = props.flat
     this.parent = props.parent

@@ -100,4 +100,30 @@ describe('go-ipfs auto-sharding interop', function () {
     expect(result).to.have.nested.property('unixfs.type', 'hamt-sharded-directory')
     expect(result.cid.toString()).to.be.equal('bafybeigyvxs6og5jbmpaa43qbhhd5swklqcfzqdrtjgfh53qjon6hpjaye')
   })
+
+  it('should store the same metadata for symlinks', async () => {
+    const expected = {
+      '/bar/hello.txt': 'QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o',
+      '/bar': 'QmfLiVjH2vujCVP2e75zyzBYmpcjktmDeU1YBz6Ct8BBsc',
+      '/hello.txt': 'QmPFxdC7JLKj3Q6L6CFfVH9S9A26csjMwPx7Cmc7DFVkHC',
+      '/': 'QmRE9CD9L1LV5i2AER98EfvigN31wcRZNAU99mpkdHqj6p'
+    }
+
+    const received: Record<string, string> = {}
+
+    for await (const result of importer([{
+      path: '/bar/hello.txt',
+      content: uint8ArrayFromString('hello world\n')
+    }, {
+      path: '/hello.txt',
+      link: 'bar/hello.txt'
+    }], block, {
+      profile: 'unixfs-v0-2015',
+      wrapWithDirectory: true
+    })) {
+      received[`${result.path}`] = result.cid.toString()
+    }
+
+    expect(received).to.deep.equal(expected)
+  })
 })

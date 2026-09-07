@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v13.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-13.0.0...ipfs-unixfs-13.0.1) (2026-09-07)
+
+### Bug Fixes
+
+* omit filesize in symlinks ([#488](https://github.com/ipfs/js-ipfs-unixfs/issues/488)) ([7c17604](https://github.com/ipfs/js-ipfs-unixfs/commit/7c1760477cefa8d64f1513a410b183039dba7654)), closes [#195](https://github.com/ipfs/js-ipfs-unixfs/issues/195)
+
 ## [ipfs-unixfs-v13.0.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-12.0.2...ipfs-unixfs-13.0.0) (2026-05-12)
 
 ### ⚠ BREAKING CHANGES

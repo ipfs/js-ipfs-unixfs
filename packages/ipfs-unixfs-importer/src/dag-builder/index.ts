@@ -2,11 +2,13 @@ import { CustomProgressEvent } from 'progress-events'
 import { InvalidContentError } from '../errors.ts'
 import { defaultDirBuilder } from './dir.ts'
 import { defaultFileBuilder } from './file.ts'
+import { defaultSymlinkBuilder } from './symlink.ts'
 import type { DirBuilder, DirBuilderOptions } from './dir.ts'
 import type { FileBuilder, FileBuilderOptions } from './file.ts'
+import type { SymlinkBuilder } from './symlink.ts'
 import type { ChunkValidator } from './validate-chunks.ts'
 import type { Chunker } from '../chunker/index.ts'
-import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, WritableStorage } from '../index.ts'
+import type { Directory, File, FileCandidate, ImportCandidate, ImporterProgressEvents, InProgressImportResult, Symlink, SymlinkCandidate, WritableStorage } from '../index.ts'
 import type { ProgressEvent, ProgressOptions } from 'progress-events'
 
 /**
@@ -66,6 +68,7 @@ export interface DagBuilderOptions extends FileBuilderOptions, DirBuilderOptions
   wrapWithDirectory: boolean
   dirBuilder?: DirBuilder
   fileBuilder?: FileBuilder
+  symlinkBuilder?: SymlinkBuilder
 }
 
 export type ImporterSourceStream = AsyncIterable<ImportCandidate> | Iterable<ImportCandidate>
@@ -74,12 +77,16 @@ export interface DAGBuilder {
   (source: ImporterSourceStream, blockstore: WritableStorage): AsyncIterable<() => Promise<InProgressImportResult>>
 }
 
+function isPathCandidate (candidate: any): candidate is { path: string } {
+  return typeof candidate.path === 'string'
+}
+
 export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
   return async function * dagBuilder (source, blockstore) {
     for await (const entry of source) {
       let originalPath: string | undefined
 
-      if (entry.path != null) {
+      if (isPathCandidate(entry)) {
         originalPath = entry.path
         entry.path = entry.path
           .split('/')
@@ -114,6 +121,18 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
         const fileBuilder = options.fileBuilder ?? defaultFileBuilder
 
         yield async () => fileBuilder(file, blockstore, options)
+      } else if (isSymLinkCandidate(entry)) {
+        const symlink: Symlink = {
+          path: entry.path,
+          link: entry.link,
+          mtime: entry.mtime,
+          mode: entry.mode,
+          originalPath
+        }
+
+        const symlinkBuilder = options.symlinkBuilder ?? defaultSymlinkBuilder
+
+        yield async () => symlinkBuilder(symlink, blockstore, options)
       } else if (entry.path != null) {
         const dir: Directory = {
           path: entry.path,
@@ -134,4 +153,8 @@ export function defaultDagBuilder (options: DagBuilderOptions): DAGBuilder {
 
 function isFileCandidate (entry: any): entry is FileCandidate {
   return entry.content != null
+}
+
+function isSymLinkCandidate (entry: any): entry is SymlinkCandidate {
+  return entry.link != null
 }

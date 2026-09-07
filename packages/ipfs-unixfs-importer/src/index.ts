@@ -105,7 +105,14 @@ export interface DirectoryCandidate {
   mode?: number
 }
 
-export type ImportCandidate = FileCandidate | DirectoryCandidate
+export interface SymlinkCandidate {
+  path: string
+  link: string
+  mtime?: Mtime
+  mode?: number
+}
+
+export type ImportCandidate = FileCandidate | DirectoryCandidate | SymlinkCandidate
 
 export interface File {
   content: AsyncIterable<Uint8Array>
@@ -117,6 +124,15 @@ export interface File {
 
 export interface Directory {
   path?: string
+  mtime?: Mtime
+  mode?: number
+  originalPath?: string
+}
+
+export interface Symlink {
+  link: string
+  path: string
+  name?: string
   mtime?: Mtime
   mode?: number
   originalPath?: string
@@ -344,7 +360,7 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
   fileBuilder?: FileBuilder
 }
 
-export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
+export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandidate | SymlinkCandidate> | Iterable<FileCandidate | DirectoryCandidate | SymlinkCandidate>
 
 /**
  * The importer creates UnixFS DAGs and stores the blocks that make
@@ -374,7 +390,7 @@ export type ImportCandidateStream = AsyncIterable<FileCandidate | DirectoryCandi
  * ```
  */
 export async function * importer (source: ImportCandidateStream, blockstore: WritableStorage, options: ImporterOptions = {}): AsyncGenerator<ImportResult, void, unknown> {
-  let candidates: AsyncIterable<FileCandidate | DirectoryCandidate> | Iterable<FileCandidate | DirectoryCandidate>
+  let candidates: ImportCandidateStream
 
   if (Symbol.asyncIterator in source || Symbol.iterator in source) {
     candidates = source

@@ -314,7 +314,7 @@ class UnixFS {
     return PBData.encode({
       Type: type,
       Data: data,
-      filesize: this.isDirectory() ? undefined : this.fileSize(),
+      filesize: this.type === 'file' || this.type === 'raw' ? this.fileSize() : undefined,
       blocksizes: this.blockSizes,
       hashType: this.hashType,
       fanout: this.fanout,

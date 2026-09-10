@@ -1,3 +1,13 @@
+## [ipfs-unixfs-exporter-v16.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.1.0...ipfs-unixfs-exporter-16.2.0) (2026-09-10)
+
+### Features
+
+* use streaming export ([#490](https://github.com/ipfs/js-ipfs-unixfs/issues/490)) ([dd2a033](https://github.com/ipfs/js-ipfs-unixfs/commit/dd2a033ddc127e421b45ea1a1b154ebd4b3b90b6))
+
+### Trivial Changes
+
+* bump @types/sinon from 21.0.1 to 22.0.0 ([#485](https://github.com/ipfs/js-ipfs-unixfs/issues/485)) ([488a5ba](https://github.com/ipfs/js-ipfs-unixfs/commit/488a5ba939f68d47aafad7601a6fcb0665ae082e))
+
 ## [ipfs-unixfs-exporter-v16.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.0.2...ipfs-unixfs-exporter-16.1.0) (2026-09-03)
 
 ### Features

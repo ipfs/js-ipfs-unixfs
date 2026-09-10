@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v13.1.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-13.0.1...ipfs-unixfs-13.1.0) (2026-09-10)
+
+### Features
+
+* use streaming export ([#490](https://github.com/ipfs/js-ipfs-unixfs/issues/490)) ([dd2a033](https://github.com/ipfs/js-ipfs-unixfs/commit/dd2a033ddc127e421b45ea1a1b154ebd4b3b90b6))
+
 ## [ipfs-unixfs-v13.0.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-13.0.0...ipfs-unixfs-13.0.1) (2026-09-07)
 
 ### Bug Fixes

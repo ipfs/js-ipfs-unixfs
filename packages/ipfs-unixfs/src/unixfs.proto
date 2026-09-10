@@ -1,30 +1,59 @@
 syntax = "proto3";
 
-message Data {
-  enum DataType {
-    Raw = 0;
-    Directory = 1;
-    File = 2;
-    Metadata = 3;
-    Symlink = 4;
-    HAMTShard = 5;
+message UnixFS {
+  enum Type {
+    RAW = 0;
+    DIRECTORY = 1;
+    FILE = 2;
+    METADATA = 3;
+    SYMLINK = 4;
+    HAMT_SHARD = 5;
   }
 
-  optional DataType Type = 1;
-  optional bytes Data = 2;
-  optional uint64 filesize = 3;
-  repeated uint64 blocksizes = 4;
-  optional uint64 hashType = 5;
-  optional uint64 fanout = 6;
+  optional Type type = 1;
+  optional bytes data = 2;
+  optional uint64 file_size = 3;
+  repeated uint64 block_sizes = 4;
+  optional uint64 hash_type = 5;
+  optional uint64 fan_out = 6;
   optional uint32 mode = 7;
   optional UnixTime mtime = 8;
 }
 
 message UnixTime {
-  optional int64 Seconds = 1;
-  optional fixed32 FractionalNanoseconds = 2;
+  optional int64 seconds = 1;
+  optional fixed32 fractional_nanoseconds = 2;
 }
 
 message Metadata {
-  optional string MimeType = 1;
+  optional string mime_type = 1;
+}
+
+message Link {
+  // binary CID (with no multibase prefix) of the target object
+  optional bytes hash = 1;
+
+  // UTF-8 string name
+  optional string name = 2;
+
+  // cumulative size of target object
+  optional uint64 t_size = 3;
+}
+
+// streamable node with Data field first
+message Node {
+  // UnixFS metadata
+  optional UnixFS data = 1;
+
+  // refs to other objects
+  repeated Link links = 2;
+}
+
+// non-streamable node with Link fields first
+message LegacyNode {
+  // refs to other objects
+  repeated Link links = 2;
+
+  // UnixFS metadata
+  optional UnixFS data = 1;
 }

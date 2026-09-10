@@ -14,33 +14,43 @@ import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 import { exporter, walkPath } from '../src/index.ts'
 import { HAMT_FILE_BLOCK, HAMT_FILE_CID, HAMT_INTERMEDIATE_BLOCK, HAMT_INTERMEDIATE_CID, HAMT_ROOT_BLOCK, HAMT_ROOT_CID } from './fixtures/hamt.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
-import type { ImportCandidate } from 'ipfs-unixfs-importer'
+import type { ImportCandidate, ImporterOptions } from 'ipfs-unixfs-importer'
 
 const SHARD_SPLIT_THRESHOLD = 10
+
+const SHARD_SETTINGS: Record<string, ImporterOptions> = {
+  'links-first': {
+    fieldOrder: 'links-first'
+  },
+  'data-first': {
+    fieldOrder: 'links-first'
+  }
+}
 
 describe('exporter sharded', function () {
   this.timeout(30000)
 
   const block = new MemoryBlockstore()
 
-  const createShard = async (numFiles: number): Promise<CID> => {
-    return createShardWithFileNames(numFiles, (index) => `file-${index}`)
+  const createShard = async (numFiles: number, options?: ImporterOptions): Promise<CID> => {
+    return createShardWithFileNames(numFiles, (index) => `file-${index}`, options)
   }
 
-  const createShardWithFileNames = async (numFiles: number, fileName: (index: number) => string): Promise<CID> => {
+  const createShardWithFileNames = async (numFiles: number, fileName: (index: number) => string, options?: ImporterOptions): Promise<CID> => {
     const files = new Array(numFiles).fill(0).map((_, index) => ({
       path: fileName(index),
       content: asAsyncIterable(Uint8Array.from([0, 1, 2, 3, 4, index]))
     }))
 
-    return createShardWithFiles(files)
+    return createShardWithFiles(files, options)
   }
 
-  const createShardWithFiles = async (files: Array<{ path: string, content: AsyncIterable<Uint8Array> }>): Promise<CID> => {
+  const createShardWithFiles = async (files: Array<{ path: string, content: AsyncIterable<Uint8Array> }>, options?: ImporterOptions): Promise<CID> => {
     const result = await last(importer(files, block, {
       shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
       wrapWithDirectory: true,
-      rawLeaves: false
+      rawLeaves: false,
+      ...options
     }))
 
     if (result == null) {
@@ -50,218 +60,221 @@ describe('exporter sharded', function () {
     return result.cid
   }
 
-  it('exports a sharded directory', async () => {
-    const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
+  Object.entries(SHARD_SETTINGS).forEach(([type, options]) => {
+    it(`exports a ${type} sharded directory`, async () => {
+      const files: Record<string, { content: Uint8Array, cid?: CID }> = {}
 
-    // needs to result in a block that is larger than SHARD_SPLIT_THRESHOLD bytes
-    for (let i = 0; i < 100; i++) {
-      files[`file-${Math.random()}.txt`] = {
-        content: uint8ArrayConcat(await all(randomBytes(100)))
-      }
-    }
-
-    const imported = await all(importer(Object.keys(files).map(path => ({
-      path,
-      content: asAsyncIterable(files[path].content)
-    })), block, {
-      wrapWithDirectory: true,
-      shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
-      rawLeaves: false
-    }))
-
-    const dirCid = imported.pop()?.cid
-
-    if (dirCid == null) {
-      throw new Error('No directory CID found')
-    }
-
-    // store the CIDs, we will validate them later
-    imported.forEach(imported => {
-      if (imported.path == null) {
-        throw new Error('Imported file did not have a path')
+      // needs to result in a block that is larger than SHARD_SPLIT_THRESHOLD bytes
+      for (let i = 0; i < 100; i++) {
+        files[`file-${Math.random()}.txt`] = {
+          content: uint8ArrayConcat(await all(randomBytes(100)))
+        }
       }
 
-      files[imported.path].cid = imported.cid
+      const imported = await all(importer(Object.keys(files).map(path => ({
+        path,
+        content: asAsyncIterable(files[path].content)
+      })), block, {
+        wrapWithDirectory: true,
+        shardSplitThresholdBytes: SHARD_SPLIT_THRESHOLD,
+        rawLeaves: false,
+        ...options
+      }))
+
+      const dirCid = imported.pop()?.cid
+
+      if (dirCid == null) {
+        throw new Error('No directory CID found')
+      }
+
+      // store the CIDs, we will validate them later
+      imported.forEach(imported => {
+        if (imported.path == null) {
+          throw new Error('Imported file did not have a path')
+        }
+
+        files[imported.path].cid = imported.cid
+      })
+
+      const encodedBlock = await toBuffer(block.get(dirCid))
+      const dir = dagPb.decode(encodedBlock)
+      if (dir.Data == null) {
+        throw Error('PBNode Data undefined')
+      }
+      const dirMetadata = UnixFS.unmarshal(dir.Data)
+
+      expect(dirMetadata.type).to.equal('hamt-sharded-directory')
+
+      const exported = await exporter(dirCid, block)
+
+      expect(exported.cid.toString()).to.be.equal(dirCid.toString())
+
+      if (exported.type !== 'directory') {
+        throw new Error('Expected directory')
+      }
+
+      if (exported.entries == null) {
+        throw new Error('No content found on exported entry')
+      }
+
+      const dirFiles = await all(
+        map(exported.entries(), async file => ({
+          ...await exporter(file.cid, block),
+          ...file
+        }))
+      )
+      expect(dirFiles.length).to.equal(Object.keys(files).length)
+
+      for (let i = 0; i < dirFiles.length; i++) {
+        const dirFile = dirFiles[i]
+
+        if (dirFile.type !== 'file') {
+          throw new Error('Expected file, was ' + dirFile.type)
+        }
+
+        const data = uint8ArrayConcat(await all(dirFile.content()))
+
+        // validate the CID
+        expect(files[dirFile.name].cid?.toString()).that.deep.equals(dirFile.cid.toString())
+
+        // validate the exported file content
+        expect(files[dirFile.name].content).to.deep.equal(data)
+      }
     })
 
-    const encodedBlock = await toBuffer(block.get(dirCid))
-    const dir = dagPb.decode(encodedBlock)
-    if (dir.Data == null) {
-      throw Error('PBNode Data undefined')
-    }
-    const dirMetadata = UnixFS.unmarshal(dir.Data)
+    it(`exports all files from a ${type} sharded directory with subshards`, async () => {
+      const numFiles = 31
+      const dirCid = await createShard(numFiles, options)
+      const exported = await exporter(dirCid, block)
 
-    expect(dirMetadata.type).to.equal('hamt-sharded-directory')
-
-    const exported = await exporter(dirCid, block)
-
-    expect(exported.cid.toString()).to.be.equal(dirCid.toString())
-
-    if (exported.type !== 'directory') {
-      throw new Error('Expected directory')
-    }
-
-    if (exported.entries == null) {
-      throw new Error('No content found on exported entry')
-    }
-
-    const dirFiles = await all(
-      map(exported.entries(), async file => ({
-        ...await exporter(file.cid, block),
-        ...file
-      }))
-    )
-    expect(dirFiles.length).to.equal(Object.keys(files).length)
-
-    for (let i = 0; i < dirFiles.length; i++) {
-      const dirFile = dirFiles[i]
-
-      if (dirFile.type !== 'file') {
-        throw new Error('Expected file, was ' + dirFile.type)
-      }
-
-      const data = uint8ArrayConcat(await all(dirFile.content()))
-
-      // validate the CID
-      expect(files[dirFile.name].cid?.toString()).that.deep.equals(dirFile.cid.toString())
-
-      // validate the exported file content
-      expect(files[dirFile.name].content).to.deep.equal(data)
-    }
-  })
-
-  it('exports all files from a sharded directory with subshards', async () => {
-    const numFiles = 31
-    const dirCid = await createShard(numFiles)
-    const exported = await exporter(dirCid, block)
-
-    if (exported.type !== 'directory') {
-      throw new Error('Unexpected type')
-    }
-
-    expect(exported.unixfs.type).to.equal('hamt-sharded-directory')
-
-    const entries = await all(exported.entries())
-    expect(entries.length).to.equal(numFiles)
-
-    for (const entry of entries) {
-      const file = await exporter(entry.cid, block)
-
-      if (file.type !== 'file') {
+      if (exported.type !== 'directory') {
         throw new Error('Unexpected type')
       }
 
-      expect(file.unixfs.type).to.equal('file')
-    }
-  })
+      expect(exported.unixfs.type).to.equal('hamt-sharded-directory')
 
-  it('exports one file from a sharded directory', async () => {
-    const dirCid = await createShard(31)
-    const entry = await last(walkPath(`/ipfs/${dirCid}/file-14`, block))
+      const entries = await all(exported.entries())
+      expect(entries.length).to.equal(numFiles)
 
-    if (entry == null) {
-      throw new Error('Did not walk path to entry')
-    }
+      for (const entry of entries) {
+        const file = await exporter(entry.cid, block)
 
-    expect(entry).to.have.property('name', 'file-14')
-    expect(entry).to.have.property('path', `${dirCid}/file-14`)
+        if (file.type !== 'file') {
+          throw new Error('Unexpected type')
+        }
 
-    const exported = await exporter(entry.cid, block)
-    expect(exported).to.have.property('type', 'file')
-  })
+        expect(file.unixfs.type).to.equal('file')
+      }
+    })
 
-  it('exports one file from a sharded directory sub shard', async () => {
-    const dirCid = await createShard(31)
-    const entry = await last(walkPath(`/ipfs/${dirCid}/file-30`, block))
+    it(`exports one file from a ${type} sharded directory`, async () => {
+      const dirCid = await createShard(31, options)
+      const entry = await last(walkPath(`/ipfs/${dirCid}/file-14`, block))
 
-    if (entry == null) {
-      throw new Error('Did not walk path to entry')
-    }
+      if (entry == null) {
+        throw new Error('Did not walk path to entry')
+      }
 
-    expect(entry).to.have.property('name', 'file-30')
+      expect(entry).to.have.property('name', 'file-14')
+      expect(entry).to.have.property('path', `${dirCid}/file-14`)
 
-    const exported = await exporter(entry.cid, block)
-    expect(exported).to.have.property('type', 'file')
-    expect(entry).to.have.property('path', `${dirCid}/file-30`)
-  })
+      const exported = await exporter(entry.cid, block)
+      expect(exported).to.have.property('type', 'file')
+    })
 
-  it('exports one file from a shard inside a shard inside a shard', async () => {
-    const dirCid = await createShard(2568)
-    const entry = await last(walkPath(`/ipfs/${dirCid}/file-2567`, block))
+    it(`exports one file from a ${type} sharded directory sub shard`, async () => {
+      const dirCid = await createShard(31, options)
+      const entry = await last(walkPath(`/ipfs/${dirCid}/file-30`, block))
 
-    if (entry == null) {
-      throw new Error('Did not walk path to entry')
-    }
+      if (entry == null) {
+        throw new Error('Did not walk path to entry')
+      }
 
-    expect(entry).to.have.property('name', 'file-2567')
-    expect(entry).to.have.property('path', `${dirCid}/file-2567`)
-  })
+      expect(entry).to.have.property('name', 'file-30')
 
-  it('extracts a deep folder from the sharded directory', async () => {
-    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const entry = await last(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, block))
+      const exported = await exporter(entry.cid, block)
+      expect(exported).to.have.property('type', 'file')
+      expect(entry).to.have.property('path', `${dirCid}/file-30`)
+    })
 
-    if (entry == null) {
-      throw new Error('Did not walk path to entry')
-    }
+    it(`exports one file from a shard inside a shard inside a ${type} shard`, async () => {
+      const dirCid = await createShard(2568, options)
+      const entry = await last(walkPath(`/ipfs/${dirCid}/file-2567`, block))
 
-    expect(entry).to.have.property('name', 'baz')
-    expect(entry).to.have.property('path', `${dirCid}/foo/bar/baz`)
-  })
+      if (entry == null) {
+        throw new Error('Did not walk path to entry')
+      }
 
-  it('extracts an intermediate folder from the sharded directory', async () => {
-    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const entry = await last(walkPath(`/ipfs/${dirCid}/foo/bar`, block))
+      expect(entry).to.have.property('name', 'file-2567')
+      expect(entry).to.have.property('path', `${dirCid}/file-2567`)
+    })
 
-    if (entry == null) {
-      throw new Error('Did not walk path to entry')
-    }
+    it(`extracts a deep folder from the ${type} sharded directory`, async () => {
+      const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, options)
+      const entry = await last(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, block))
 
-    expect(entry).to.have.property('name', 'bar')
-    expect(entry).to.have.property('path', `${dirCid}/foo/bar`)
-  })
+      if (entry == null) {
+        throw new Error('Did not walk path to entry')
+      }
 
-  it('uses .path to extract all intermediate entries from the sharded directory', async () => {
-    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz/file-1`, block))
+      expect(entry).to.have.property('name', 'baz')
+      expect(entry).to.have.property('path', `${dirCid}/foo/bar/baz`)
+    })
 
-    expect(exported.length).to.equal(5)
+    it(`extracts an intermediate folder from the ${type} sharded directory`, async () => {
+      const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, options)
+      const entry = await last(walkPath(`/ipfs/${dirCid}/foo/bar`, block))
 
-    expect(exported[0].name).to.equal(dirCid.toString())
-    expect(exported[1].name).to.equal('foo')
-    expect(exported[1].path).to.equal(`${dirCid}/foo`)
-    expect(exported[2].name).to.equal('bar')
-    expect(exported[2].path).to.equal(`${dirCid}/foo/bar`)
-    expect(exported[3].name).to.equal('baz')
-    expect(exported[3].path).to.equal(`${dirCid}/foo/bar/baz`)
-    expect(exported[4].name).to.equal('file-1')
-    expect(exported[4].path).to.equal(`${dirCid}/foo/bar/baz/file-1`)
-  })
+      if (entry == null) {
+        throw new Error('Did not walk path to entry')
+      }
 
-  it('uses .path to extract all intermediate entries from the sharded directory as well as the contents', async () => {
-    const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`)
-    const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, block))
+      expect(entry).to.have.property('name', 'bar')
+      expect(entry).to.have.property('path', `${dirCid}/foo/bar`)
+    })
 
-    expect(exported.length).to.equal(4)
+    it(`uses .path to extract all intermediate entries from the ${type} sharded directory`, async () => {
+      const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, options)
+      const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz/file-1`, block))
 
-    expect(exported[1].name).to.equal('foo')
-    expect(exported[2].name).to.equal('bar')
-    expect(exported[3].name).to.equal('baz')
+      expect(exported.length).to.equal(5)
 
-    const dir = await exporter(exported[3].cid, block)
+      expect(exported[0].name).to.equal(dirCid.toString())
+      expect(exported[1].name).to.equal('foo')
+      expect(exported[1].path).to.equal(`${dirCid}/foo`)
+      expect(exported[2].name).to.equal('bar')
+      expect(exported[2].path).to.equal(`${dirCid}/foo/bar`)
+      expect(exported[3].name).to.equal('baz')
+      expect(exported[3].path).to.equal(`${dirCid}/foo/bar/baz`)
+      expect(exported[4].name).to.equal('file-1')
+      expect(exported[4].path).to.equal(`${dirCid}/foo/bar/baz/file-1`)
+    })
 
-    if (dir.type !== 'directory') {
-      throw new Error('Expected file')
-    }
+    it(`uses .path to extract all intermediate entries from the ${type} sharded directory as well as the contents`, async () => {
+      const dirCid = await createShardWithFileNames(31, (index) => `/foo/bar/baz/file-${index}`, options)
+      const exported = await all(walkPath(`/ipfs/${dirCid}/foo/bar/baz`, block))
 
-    const entries = await all(dir.entries())
+      expect(exported.length).to.equal(4)
 
-    expect(entries.length).to.equal(31)
+      expect(exported[1].name).to.equal('foo')
+      expect(exported[2].name).to.equal('bar')
+      expect(exported[3].name).to.equal('baz')
 
-    for (const entry of entries) {
-      const file = await exporter(entry.cid, block)
-      expect(file).to.have.nested.property('unixfs.type', 'file')
-    }
+      const dir = await exporter(exported[3].cid, block)
+
+      if (dir.type !== 'directory') {
+        throw new Error('Expected file')
+      }
+
+      const entries = await all(dir.entries())
+
+      expect(entries.length).to.equal(31)
+
+      for (const entry of entries) {
+        const file = await exporter(entry.cid, block)
+        expect(file).to.have.nested.property('unixfs.type', 'file')
+      }
+    })
   })
 
   it('exports a file from a sharded directory inside a regular directory inside a sharded directory', async () => {
@@ -279,7 +292,12 @@ describe('exporter sharded', function () {
     await block.put(nodeBlockCid, nodeBlockBuf)
 
     const shardNodeBuf = dagPb.encode({
-      Data: new UnixFS({ type: 'hamt-sharded-directory', fanout: 2n ** 8n }).marshal(),
+      Data: new UnixFS({
+        type: 'hamt-sharded-directory',
+        data: Uint8Array.from([0, 1, 2, 3, 4]),
+        fanout: 2n ** 8n,
+        hashType: 34n
+      }).marshal(),
       Links: [{
         Name: '75normal-dir',
         Tsize: nodeBlockBuf.length,

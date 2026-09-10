@@ -117,7 +117,7 @@ describe('exporter subtree', () => {
     const exported = await exporter(entry.cid, block)
 
     if (exported.type !== 'directory') {
-      throw new Error('Unexpected type')
+      throw new Error(`Unexpected type '${exported.type}' and not 'directory'`)
     }
 
     const files = await all(exported.entries())

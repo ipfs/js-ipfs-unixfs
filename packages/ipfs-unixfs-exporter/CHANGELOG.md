@@ -1,3 +1,13 @@
+## [ipfs-unixfs-exporter-v16.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.2.0...ipfs-unixfs-exporter-16.2.1) (2026-09-10)
+
+### Bug Fixes
+
+* offset/length in dirs ([#491](https://github.com/ipfs/js-ipfs-unixfs/issues/491)) ([b36f67a](https://github.com/ipfs/js-ipfs-unixfs/commit/b36f67a9114587d1474b6d7bca34b6c069eeb00a)), closes [#489](https://github.com/ipfs/js-ipfs-unixfs/issues/489)
+
+### Trivial Changes
+
+* remove randomness from tests ([b4cd99b](https://github.com/ipfs/js-ipfs-unixfs/commit/b4cd99b241981290b38af7e8f76cdde7fdda718a))
+
 ## [ipfs-unixfs-exporter-v16.2.0](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.1.0...ipfs-unixfs-exporter-16.2.0) (2026-09-10)
 
 ### Features

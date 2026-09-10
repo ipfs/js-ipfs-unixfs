@@ -100,7 +100,7 @@ describe('chunker: rabin', function () {
 
   it('throws when invalid avg chunk size is specified', async () => {
     const opts = {
-      avgChunkSize: 'fortytwo'
+      avgChunkSize: 'forty two'
     }
 
     try {
@@ -114,7 +114,7 @@ describe('chunker: rabin', function () {
 
   it('throws when invalid min chunk size is specified', async () => {
     const opts = {
-      minChunkSize: 'fortytwo'
+      minChunkSize: 'forty two'
     }
 
     try {
@@ -128,7 +128,7 @@ describe('chunker: rabin', function () {
 
   it('throws when invalid max chunk size is specified', async () => {
     const opts = {
-      maxChunkSize: 'fortytwo'
+      maxChunkSize: 'forty two'
     }
 
     try {

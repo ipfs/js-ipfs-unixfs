@@ -12,15 +12,15 @@ export interface AddToTreeOptions extends PersistOptions {
 }
 
 async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddToTreeOptions): Promise<Dir> {
-  const pathElems = toPathComponents(elem.path ?? '')
-  const lastIndex = pathElems.length - 1
+  const pathElements = toPathComponents(elem.path ?? '')
+  const lastIndex = pathElements.length - 1
   let parent = tree
   let currentPath = ''
 
-  for (let i = 0; i < pathElems.length; i++) {
-    const pathElem = pathElems[i]
+  for (let i = 0; i < pathElements.length; i++) {
+    const pathElement = pathElements[i]
 
-    currentPath += `${currentPath !== '' ? '/' : ''}${pathElem}`
+    currentPath += `${currentPath !== '' ? '/' : ''}${pathElement}`
 
     const last = (i === lastIndex)
     parent.dirty = true
@@ -28,17 +28,17 @@ async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddT
     parent.size = undefined
 
     if (last) {
-      await parent.put(pathElem, elem)
+      await parent.put(pathElement, elem)
       tree = await flatToShard(null, parent)
     } else {
-      let dir = await parent.get(pathElem)
+      let dir = await parent.get(pathElement)
 
       if ((dir == null) || !(dir instanceof Dir)) {
         dir = new DirFlat({
           root: false,
           dir: true,
           parent,
-          parentKey: pathElem,
+          parentKey: pathElement,
           path: currentPath,
           dirty: true,
           flat: true,
@@ -47,7 +47,7 @@ async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddT
         }, options)
       }
 
-      await parent.put(pathElem, dir)
+      await parent.put(pathElement, dir)
 
       parent = dir
     }

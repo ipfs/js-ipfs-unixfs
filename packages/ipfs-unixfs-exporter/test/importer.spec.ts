@@ -362,7 +362,7 @@ strategies.forEach((strategy) => {
     }
 
     if (strategy === 'trickle') {
-      // replicate go-ipfs behaviour
+      // replicate go-ipfs behavior
       options.leafType = 'raw'
       options.reduceSingleLeafToSelf = false
     }
@@ -405,7 +405,7 @@ strategies.forEach((strategy) => {
 
     it('doesn\'t yield anything on empty file', async () => {
       const files = await all(importer([{
-        path: 'emptyfile',
+        path: 'empty file',
         content: asAsyncIterable(new Uint8Array(0))
       }], block, options))
 
@@ -747,7 +747,7 @@ strategies.forEach((strategy) => {
       }, 0)
     })
 
-    it('does not reduce file to single node when overidden by options', async () => {
+    it('does not reduce file to single node when overridden by options', async () => {
       await checkNodeLinks(block, {
         reduceSingleLeafToSelf: false,
         rawLeaves: false
@@ -1035,7 +1035,7 @@ strategies.forEach((strategy) => {
 describe('configuration', () => {
   const block = new MemoryBlockstore()
 
-  it('alllows configuring with custom dag and tree builder', async () => {
+  it('allows configuring with custom dag and tree builder', async () => {
     let builtTree = false
     const cid = CID.parse('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn')
     const unixfs = new UnixFS({ type: 'directory' })

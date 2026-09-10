@@ -73,10 +73,10 @@ export const rabin = (options: RabinOptions = {}): Chunker => {
     avg = min
   }
 
-  const sizepow = Math.floor(Math.log2(avg))
+  const sizePow = Math.floor(Math.log2(avg))
 
   return async function * rabinChunker (source) {
-    const r = await create(sizepow, min, max, window)
+    const r = await create(sizePow, min, max, window)
 
     for await (const chunk of chunker(source, r)) {
       yield chunk

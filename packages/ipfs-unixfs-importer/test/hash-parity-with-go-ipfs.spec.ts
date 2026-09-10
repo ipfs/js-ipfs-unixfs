@@ -30,7 +30,7 @@ Object.entries(strategies).forEach(([strategy, layout]) => {
   }
 
   if (strategy === 'trickle') {
-    // replicate go-ipfs behaviour
+    // replicate go-ipfs behavior
     options.leafType = 'raw'
     options.reduceSingleLeafToSelf = false
   }

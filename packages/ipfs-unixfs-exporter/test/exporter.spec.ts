@@ -154,9 +154,9 @@ describe('exporter', () => {
     if (node.Data == null) {
       throw new Error('PBNode Data undefined')
     }
-    const unmarsh = UnixFS.unmarshal(node.Data)
+    const unmarshaled = UnixFS.unmarshal(node.Data)
 
-    expect(unmarsh.data).to.deep.equal(result.file.data)
+    expect(unmarshaled.data).to.deep.equal(result.file.data)
 
     const file = await exporter(result.cid, block)
 
@@ -167,7 +167,7 @@ describe('exporter', () => {
     }
 
     const data = uint8ArrayConcat(await all(file.content()))
-    expect(data).to.deep.equal(unmarsh.data)
+    expect(data).to.deep.equal(unmarshaled.data)
   })
 
   it('small file in a directory with an escaped slash in the title', async () => {
@@ -223,9 +223,9 @@ describe('exporter', () => {
     if (node.Data == null) {
       throw new Error('PBNode Data undefined')
     }
-    const unmarsh = UnixFS.unmarshal(node.Data)
+    const unmarshaled = UnixFS.unmarshal(node.Data)
 
-    if (unmarsh.data == null) {
+    if (unmarshaled.data == null) {
       throw new Error('Unexpected data')
     }
 
@@ -240,7 +240,7 @@ describe('exporter', () => {
       length
     })))
 
-    expect(data).to.deep.equal(unmarsh.data.slice(offset, offset + length))
+    expect(data).to.deep.equal(unmarshaled.data.slice(offset, offset + length))
   })
 
   it('exports a small file with links', async () => {
@@ -1105,14 +1105,14 @@ describe('exporter', () => {
   })
 
   it('errors we export a non-unixfs dag-pb node', async () => {
-    const dagpbBlock = dagPb.encode({
+    const dagPBBlock = dagPb.encode({
       Data: Uint8Array.from([0, 1, 2, 3, 4]),
       Links: []
     })
-    const dagpbCid = CID.createV0(await sha256.digest(dagpbBlock))
-    await block.put(dagpbCid, dagpbBlock)
+    const dagPBCid = CID.createV0(await sha256.digest(dagPBBlock))
+    await block.put(dagPBCid, dagPBBlock)
 
-    await expect(exporter(dagpbCid, block)).to.eventually.be.rejected
+    await expect(exporter(dagPBCid, block)).to.eventually.be.rejected
       .with.property('name', 'NotUnixFSError')
   })
 
@@ -1126,7 +1126,7 @@ describe('exporter', () => {
     })
     file.addBlockSize(100n)
 
-    const dagpbBuffer = dagPb.encode({
+    const dagPBBuffer = dagPb.encode({
       Data: file.marshal(),
       Links: [{
         Name: '',
@@ -1134,10 +1134,10 @@ describe('exporter', () => {
         Hash: cborCid
       }]
     })
-    const dagpbCid = CID.createV0(await sha256.digest(dagpbBuffer))
-    await block.put(dagpbCid, dagpbBuffer)
+    const dagPBCid = CID.createV0(await sha256.digest(dagPBBuffer))
+    await block.put(dagPBCid, dagPBBuffer)
 
-    const exported = await exporter(dagpbCid, block)
+    const exported = await exporter(dagPBCid, block)
 
     if (exported.type !== 'file') {
       throw new Error('Unexpected type')

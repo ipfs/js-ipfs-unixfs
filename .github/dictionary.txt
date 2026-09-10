@@ -1,0 +1,10 @@
+FSHAMT
+quxx
+chacha
+unixfsnode
+keystream
+testutils
+ello
+blockstores
+chunkers
+boxo

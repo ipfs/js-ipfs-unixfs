@@ -15,7 +15,7 @@ import type { CID } from 'multiformats/cid'
 describe('builder: directory sharding', () => {
   const block = new MemoryBlockstore()
 
-  describe('basic dirbuilder', () => {
+  describe('basic directory builder', () => {
     it('yields a non-sharded dir', async () => {
       const content = uint8ArrayFromString('i have the best bytes')
       const nodes = await all(importer([{
@@ -76,7 +76,7 @@ describe('builder: directory sharding', () => {
       expect(node.unixfs.type).to.equal('hamt-sharded-directory')
     })
 
-    it('exporting unsharded hash results in the correct files', async () => {
+    it('exporting un-sharded hash results in the correct files', async () => {
       const content = 'i have the best bytes'
       const nodes = await all(importer([{
         path: 'a/b',

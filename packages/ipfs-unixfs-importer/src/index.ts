@@ -299,13 +299,15 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
   /**
    * This option can be used to override the importer internals.
    *
-   * This function should read `{ path, content }` entries from `source` and turn them
-   * into DAGs
+   * This function should read `{ path, content }` entries from `source` and
+   * turn them into DAGs.
+   *
    * It should yield a `function` that returns a `Promise` that resolves to
-   * `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string, `unixfs`
-   * is a UnixFS entry and `node` is a `DAGNode`.
-   * Values will be pulled from this generator in parallel - the amount of parallelisation
-   * is controlled by the `fileImportConcurrency` option
+   * `{ cid, path, unixfs, node }` where `cid` is a `CID`, `path` is a string,
+   * `unixfs` is a UnixFS entry and `node` is a `DAGNode`.
+   *
+   * Values will be pulled from this generator in parallel - the amount of
+   * parallelization is controlled by the `fileImportConcurrency` option.
    *
    * @default 50
    */
@@ -324,14 +326,19 @@ export interface ImporterOptions extends ProgressOptions<ImporterProgressEvents>
   /**
    * This option can be used to override the importer internals.
    *
-   * This function should read `Buffer`s from `source` and persist them using `blockstore.put`
-   * or similar
+   * This function should read `Buffer`s from `source` and persist them using
+   * `blockstore.put` or similar.
+   *
    * `entry` is the `{ path, content }` entry, where `entry.content` is an async
-   * generator that yields Buffers
-   * It should yield functions that return a Promise that resolves to an object with
-   * the properties `{ cid, unixfs, size }` where `cid` is a [CID], `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the serialized size of the [IPLD] node that holds the buffer data.
+   * generator that yields Buffers.
+   *
+   * It should yield functions that return a Promise that resolves to an object
+   * with the properties `{ cid, unixfs, size }` where `cid` is a [CID],
+   * `unixfs` is a [UnixFS] entry and `size` is a `Number` that represents the
+   * serialized size of the [IPLD] node that holds the buffer data.
+   *
    * Values will be pulled from this generator in parallel - the amount of
-   * parallelisation is controlled by the `blockWriteConcurrency` option
+   * parallelization is controlled by the `blockWriteConcurrency` option
    */
   bufferImporter?: BufferImporter
 

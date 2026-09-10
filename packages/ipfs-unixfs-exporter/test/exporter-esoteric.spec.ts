@@ -210,7 +210,7 @@ describe('exporter esoteric DAGs', () => {
     expect(data).to.deep.equal(buf)
   })
 
-  it('errors on DAG with blocksizes that are too large', async () => {
+  it('errors on DAG with block sizes that are too large', async () => {
     const leaves = await Promise.all([
       randomBytes(5),
       randomBytes(3),
@@ -260,7 +260,7 @@ describe('exporter esoteric DAGs', () => {
       .with.property('code', 'ERR_UNDER_READ')
   })
 
-  it('errors on DAG with blocksizes that are too small', async () => {
+  it('errors on DAG with block sizes that are too small', async () => {
     const leaves = await Promise.all([
       randomBytes(5),
       randomBytes(3),
@@ -310,7 +310,7 @@ describe('exporter esoteric DAGs', () => {
       .with.property('code', 'ERR_OVER_READ')
   })
 
-  it('errors on DAG with incorrect number of blocksizes', async () => {
+  it('errors on DAG with incorrect number of block sizes', async () => {
     const leaves = await Promise.all([
       randomBytes(5),
       randomBytes(3),

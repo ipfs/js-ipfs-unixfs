@@ -1,9 +1,9 @@
 /**
  * @packageDocumentation
  *
- * Layout functions allow customising the shape of final DAGs
+ * Layout functions allow customizing the shape of final DAGs
  *
- * {@link https://dag.ipfs.tech} can be used to explore different conigurations.
+ * {@link https://dag.ipfs.tech} can be used to explore different configurations.
  */
 
 import type { InProgressImportResult } from '../index.ts'

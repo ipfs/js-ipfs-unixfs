@@ -662,8 +662,9 @@ strategies.forEach((strategy) => {
     })
 
     it('will import files with CID version 1', async () => {
+      let index = -1
       const createInputFile = (path: string, size: number): { path: string, content: Uint8Array } => {
-        const name = String(Math.random() + Date.now())
+        const name = `file-${index++}`
         path = path[path.length - 1] === '/' ? path : path + '/'
         return {
           path: path + name + '.txt',

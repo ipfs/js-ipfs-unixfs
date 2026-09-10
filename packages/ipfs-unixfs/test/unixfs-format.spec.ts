@@ -4,7 +4,7 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { UnixFS } from '../src/index.ts'
 import * as Pb from '../src/unixfs.ts'
 import type { Mtime } from '../src/index.ts'
-const PBData = Pb.Data
+const PBData = Pb.UnixFS
 
 const raw = loadFixture('test/fixtures/raw.unixfs')
 const directory = loadFixture('test/fixtures/directory.unixfs')
@@ -267,7 +267,7 @@ describe('unixfs-format', () => {
   it('does not overwrite unknown mode bits', () => {
     const mode = 0xFFFFFFF // larger than currently defined mode bits
     const buf = PBData.encode({
-      Type: PBData.DataType.File,
+      type: PBData.Type.FILE,
       mode
     })
 
@@ -305,7 +305,7 @@ describe('unixfs-format', () => {
   it('respects high bits in mode read from buffer', () => {
     const mode = 0o0100644 // similar to output from fs.stat
     const buf = PBData.encode({
-      Type: PBData.DataType.File,
+      type: PBData.Type.FILE,
       mode
     })
 
@@ -349,6 +349,7 @@ describe('unixfs-format', () => {
     const marshaled = entry.marshal()
     const unmarshaled = UnixFS.unmarshal(marshaled)
 
+    expect(entry).to.have.property('type', 'metadata')
     expect(unmarshaled).to.have.property('type', 'metadata')
   })
 

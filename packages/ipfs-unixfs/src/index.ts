@@ -117,8 +117,9 @@
  * ```
  */
 
+import { withArrayBuffer } from 'uint8arrays/with-array-buffer'
 import { InvalidTypeError } from './errors.ts'
-import { Data as PBData } from './unixfs.ts'
+import { UnixFS as PBData } from './unixfs.ts'
 
 export interface Mtime {
   secs: bigint
@@ -130,12 +131,12 @@ export type MtimeLike = Mtime | { Seconds: number, FractionalNanoseconds?: numbe
 export type UnixFSType = 'raw' | 'directory' | 'file' | 'metadata' | 'symlink' | 'hamt-sharded-directory'
 
 const types: Record<string, UnixFSType> = {
-  Raw: 'raw',
-  Directory: 'directory',
-  File: 'file',
-  Metadata: 'metadata',
-  Symlink: 'symlink',
-  HAMTShard: 'hamt-sharded-directory'
+  RAW: 'raw',
+  DIRECTORY: 'directory',
+  FILE: 'file',
+  METADATA: 'metadata',
+  SYMLINK: 'symlink',
+  HAMT_SHARD: 'hamt-sharded-directory'
 }
 
 const dirTypes = [
@@ -164,17 +165,17 @@ class UnixFS {
     const message = PBData.decode(marshaled)
 
     const data = new UnixFS({
-      type: types[message.Type != null ? message.Type.toString() : 'File'],
-      data: message.Data,
-      blockSizes: message.blocksizes,
+      type: types[message.type != null ? message.type.toString() : 'FILE'],
+      data: message.data,
+      blockSizes: message.blockSizes,
       mode: message.mode,
       mtime: message.mtime != null
         ? {
-            secs: message.mtime.Seconds ?? 0n,
-            nsecs: message.mtime.FractionalNanoseconds
+            secs: message.mtime.seconds ?? 0n,
+            nsecs: message.mtime.fractionalNanoseconds
           }
         : undefined,
-      fanout: message.fanout
+      fanout: message.fanOut
     })
 
     // make sure we honour the original mode
@@ -184,7 +185,7 @@ class UnixFS {
   }
 
   public type: string
-  public data?: Uint8Array
+  public data?: Uint8Array<ArrayBuffer>
   public blockSizes: bigint[]
   public hashType?: bigint
   public fanout?: bigint
@@ -211,13 +212,16 @@ class UnixFS {
     }
 
     this.type = type ?? 'file'
-    this.data = data
     this.hashType = hashType
     this.fanout = fanout
     this.blockSizes = blockSizes ?? []
     this._originalMode = 0
     this.mode = mode
     this.mtime = mtime
+
+    if (data != null) {
+      this.data = withArrayBuffer(data)
+    }
   }
 
   set mode (mode: number | undefined) {
@@ -272,12 +276,12 @@ class UnixFS {
     let type
 
     switch (this.type) {
-      case 'raw': type = PBData.DataType.Raw; break
-      case 'directory': type = PBData.DataType.Directory; break
-      case 'file': type = PBData.DataType.File; break
-      case 'metadata': type = PBData.DataType.Metadata; break
-      case 'symlink': type = PBData.DataType.Symlink; break
-      case 'hamt-sharded-directory': type = PBData.DataType.HAMTShard; break
+      case 'raw': type = PBData.Type.RAW; break
+      case 'directory': type = PBData.Type.DIRECTORY; break
+      case 'file': type = PBData.Type.FILE; break
+      case 'metadata': type = PBData.Type.METADATA; break
+      case 'symlink': type = PBData.Type.SYMLINK; break
+      case 'hamt-sharded-directory': type = PBData.Type.HAMT_SHARD; break
       default:
         throw new InvalidTypeError(`Type: ${type} is not valid`)
     }
@@ -306,18 +310,18 @@ class UnixFS {
 
     if (this.mtime != null) {
       mtime = {
-        Seconds: this.mtime.secs,
-        FractionalNanoseconds: this.mtime.nsecs
+        seconds: this.mtime.secs,
+        fractionalNanoseconds: this.mtime.nsecs
       }
     }
 
     return PBData.encode({
-      Type: type,
-      Data: data,
-      filesize: this.type === 'file' || this.type === 'raw' ? this.fileSize() : undefined,
-      blocksizes: this.blockSizes,
+      type,
+      data,
+      fileSize: this.type === 'file' || this.type === 'raw' ? this.fileSize() : undefined,
+      blockSizes: this.blockSizes,
       hashType: this.hashType,
-      fanout: this.fanout,
+      fanOut: this.fanout,
       mode,
       mtime
     })
@@ -326,3 +330,4 @@ class UnixFS {
 
 export { UnixFS }
 export * from './errors.ts'
+export * from './unixfs.ts'

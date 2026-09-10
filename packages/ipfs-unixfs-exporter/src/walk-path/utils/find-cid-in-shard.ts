@@ -1,12 +1,11 @@
-import { decode } from '@ipld/dag-pb'
 import { murmur3128 } from '@multiformats/murmur3'
-import { Bucket, createHAMT } from 'hamt-sharding'
-import { UnixFS } from 'ipfs-unixfs'
+import { Bucket } from 'hamt-sharding'
 import toBuffer from 'it-to-buffer'
 import { NotUnixFSError } from '../../errors.ts'
+import { isValidLink, isValidUnixFSHAMTMetadata, unixFsStream } from './unixfs-stream.ts'
+import type { Link, UnixFSEntity, UnixFSHAMTMetadata } from './unixfs-stream.ts'
 import type { ReadableStorage, WalkPathOptions } from '../../index.ts'
 import type { ResolveResult } from '../index.ts'
-import type { PBLink, PBNode } from '@ipld/dag-pb'
 import type { BucketPosition } from 'hamt-sharding'
 
 interface ShardTraversalContext {
@@ -26,16 +25,12 @@ const hashFn = async function (buf: Uint8Array): Promise<Uint8Array> {
     .reverse()
 }
 
-const addLinksToHamtBucket = async (links: PBLink[], bucket: Bucket<boolean>, rootBucket: Bucket<boolean>): Promise<void> => {
+const addLinksToHamtBucket = async (links: Link[], bucket: Bucket<boolean>, rootBucket: Bucket<boolean>): Promise<void> => {
   const padLength = (bucket.tableSize() - 1).toString(16).length
   await Promise.all(
     links.map(async link => {
-      if (link.Name == null) {
-        // TODO(@rvagg): what do? this is technically possible
-        throw new Error('Unexpected Link without a Name')
-      }
-      if (link.Name.length === padLength) {
-        const pos = parseInt(link.Name, 16)
+      if (link.name.length === padLength) {
+        const pos = parseInt(link.name, 16)
 
         bucket._putObjectAt(pos, new Bucket({
           hash: rootBucket._options.hash,
@@ -44,7 +39,7 @@ const addLinksToHamtBucket = async (links: PBLink[], bucket: Bucket<boolean>, ro
         return
       }
 
-      await rootBucket.put(link.Name.substring(2), true)
+      await rootBucket.put(link.name.substring(padLength), true)
     })
   )
 }
@@ -72,42 +67,40 @@ const toBucketPath = (position: BucketPosition<boolean>): Array<Bucket<boolean>>
   return path.reverse()
 }
 
-export async function * findShardCid (node: PBNode, name: string, rest: string[], blockstore: ReadableStorage, context?: ShardTraversalContext, options?: WalkPathOptions): AsyncGenerator<ResolveResult> {
-  if (context == null) {
-    if (node.Data == null) {
-      throw new NotUnixFSError('No data in PBNode')
-    }
-
-    let dir: UnixFS
-    try {
-      dir = UnixFS.unmarshal(node.Data)
-    } catch (err: any) {
-      throw new NotUnixFSError(err.message)
-    }
-
-    if (dir.type !== 'hamt-sharded-directory') {
-      throw new NotUnixFSError('Not a HAMT')
-    }
-
-    if (dir.fanout == null) {
-      throw new NotUnixFSError('Missing fanout')
-    }
-
-    const rootBucket = createHAMT<boolean>({
-      hashFn,
-      bits: Math.log2(Number(dir.fanout))
-    })
-
-    context = {
-      rootBucket,
-      hamtDepth: 1,
-      lastBucket: rootBucket
-    }
-  }
-
+export async function * findShardCid (meta: UnixFSHAMTMetadata, generator: Iterable<UnixFSEntity>, name: string, rest: string[], blockstore: ReadableStorage, context: ShardTraversalContext, options?: WalkPathOptions): AsyncGenerator<ResolveResult> {
   const padLength = (context.lastBucket.tableSize() - 1).toString(16).length
+  let links: Link[] = []
 
-  await addLinksToHamtBucket(node.Links, context.lastBucket, context.rootBucket)
+  for (const link of generator) {
+    if (!isValidLink(link)) {
+      throw new NotUnixFSError('Invalid link')
+    }
+
+    links.push(link)
+
+    if (link.name.length === padLength) {
+      // sub-shard
+      const pos = parseInt(link.name, 16)
+
+      context.lastBucket._putObjectAt(pos, new Bucket({
+        hash: context.lastBucket._options.hash,
+        bits: context.lastBucket._options.bits
+      }, context.lastBucket, pos))
+    }
+
+    if (link.name.substring(padLength) === name) {
+      // can abort early
+      yield {
+        cid: link.hash,
+        name,
+        rest
+      }
+
+      return
+    }
+
+    await context.rootBucket.put(link.name.substring(padLength), true)
+  }
 
   const position = await context.rootBucket._findNewBucketAndPos(name)
   let prefix = toPrefix(position.pos, padLength)
@@ -119,53 +112,65 @@ export async function * findShardCid (node: PBNode, name: string, rest: string[]
     prefix = toPrefix(context.lastBucket._posAtParent, padLength)
   }
 
-  const link = node.Links.find(link => {
-    if (link.Name == null) {
+  const link = links.find(link => {
+    if (link.name == null) {
       return false
     }
 
-    const entryPrefix = link.Name.substring(0, padLength)
-    const entryName = link.Name.substring(padLength)
-
-    if (entryPrefix !== prefix) {
-      // not the entry or subshard we're looking for
-      return false
+    if (link.name === prefix) {
+      return true
     }
 
-    if (entryName !== '' && entryName !== name) {
-      // not the entry we're looking for
-      return false
-    }
-
-    return true
+    return false
   })
 
   if (link == null) {
     return
   }
 
-  if (link.Name != null && link.Name.substring(padLength) === name) {
-    yield {
-      cid: link.Hash,
-      name: link.Name.substring(padLength),
-      rest
-    }
-
-    return
-  }
-
   context.hamtDepth++
 
-  const block = await toBuffer(blockstore.get(link.Hash, options))
-  node = decode(block)
+  const block = await toBuffer(blockstore.get(link.hash, options))
 
   if (options?.yieldSubShards === true) {
     yield {
-      cid: link.Hash,
-      name: link.Name ?? '',
+      cid: link.hash,
+      name: link.name,
       rest: [name, ...rest]
     }
   }
 
-  yield * findShardCid(node, name, rest, blockstore, context, options)
+  const gen = unixFsStream(block)
+  const { value } = gen.next()
+  links = []
+
+  if (value != null) {
+    // new-school data-first - we can return early
+    if (isValidUnixFSHAMTMetadata(value)) {
+      yield * findShardCid(value, gen, name, rest, blockstore, context, options)
+      return
+    }
+
+    if (!isValidLink(value)) {
+      throw new NotUnixFSError('Did not read Link or Data from dag-pb block')
+    }
+
+    // legacy links-first, collect all the links before we can use them
+    links.push(value)
+
+    for (const link of gen) {
+      // reached data entry, examine links
+      if (isValidUnixFSHAMTMetadata(link)) {
+        yield * findShardCid(link, links, name, rest, blockstore, context, options)
+        return
+      }
+
+      if (!isValidLink(link)) {
+        throw new NotUnixFSError('Did not read Link or Data from dag-pb block')
+      }
+
+      // old-school links-first, collect all the links
+      links.push(link)
+    }
+  }
 }

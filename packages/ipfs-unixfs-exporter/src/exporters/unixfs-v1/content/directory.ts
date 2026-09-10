@@ -8,7 +8,7 @@ export function directoryContent (cid: CID, node: PBNode, unixfs: UnixFS, path: 
   async function * yieldDirectoryContent (options: ExportContentOptions = {}): AsyncGenerator<UnixFSDirectoryEntry> {
     const offset = options.offset ?? 0
     const length = options.length ?? node.Links.length
-    const links = node.Links.slice(offset, length)
+    const links = node.Links.slice(offset, offset + length)
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:directory', {
       cid

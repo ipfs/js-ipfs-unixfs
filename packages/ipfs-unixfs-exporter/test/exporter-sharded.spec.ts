@@ -167,6 +167,23 @@ describe('exporter sharded', function () {
       }
     })
 
+    it(`should limit ${type} sharded directory entries`, async () => {
+      const dirCid = await createShard(5, options)
+      const dir = await exporter(dirCid, block)
+
+      if (dir.type !== 'directory') {
+        throw new Error(`Unexpected type '${dir.type}'`)
+      }
+
+      const files = await all(dir.entries({
+        offset: 2,
+        length: 1
+      }))
+
+      expect(files).to.have.lengthOf(1)
+      expect(files).to.have.nested.property('[0].path', `${dirCid}/file-2`)
+    })
+
     it(`exports one file from a ${type} sharded directory`, async () => {
       const dirCid = await createShard(31, options)
       const entry = await last(walkPath(`/ipfs/${dirCid}/file-14`, block))

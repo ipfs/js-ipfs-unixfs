@@ -1,73 +1,60 @@
-import { decode } from '@ipld/dag-pb'
-import { UnixFS } from 'ipfs-unixfs'
-import map from 'it-map'
-import parallel from 'it-parallel'
-import { pipe } from 'it-pipe'
+import { UnixFS, Node } from 'ipfs-unixfs'
 import toBuffer from 'it-to-buffer'
+import { CID } from 'multiformats'
 import { CustomProgressEvent } from 'progress-events'
 import { NotUnixFSError } from '../../../errors.ts'
 import type { ReadableStorage, ExportWalk, UnixFSDirectoryEntry, ExportContentOptions } from '../../../index.ts'
 import type { PBNode } from '@ipld/dag-pb'
-import type { CID } from 'multiformats'
 
-async function * listDirectory (node: PBNode, path: string, blockstore: ReadableStorage, options: ExportContentOptions): AsyncGenerator<UnixFSDirectoryEntry> {
-  const links = node.Links
+async function * listDirectory (cid: CID, path: string, blockstore: ReadableStorage, options: ExportContentOptions): AsyncGenerator<UnixFSDirectoryEntry> {
+  let index = -1
+  let yielded = 0
 
-  if (node.Data == null) {
-    throw new NotUnixFSError('no data in PBNode')
+  for await (const entry of list(cid, path, blockstore, options)) {
+    index++
+
+    if (options.offset != null && options.offset < index) {
+      continue
+    }
+
+    yield entry
+    yielded++
+
+    if (options.length != null && options.length === yielded) {
+      return
+    }
   }
+}
 
-  let dir: UnixFS
-  try {
-    dir = UnixFS.unmarshal(node.Data)
-  } catch (err: any) {
-    throw new NotUnixFSError(err.message)
-  }
+async function * list (cid: CID, path: string, blockstore: ReadableStorage, options: ExportContentOptions): AsyncGenerator<UnixFSDirectoryEntry> {
+  const block = await toBuffer(blockstore.get(cid, options))
+  const node = Node.decode(block)
 
-  if (dir.fanout == null) {
+  if (node.data?.fanOut == null) {
     throw new NotUnixFSError('missing fanout')
   }
 
-  const padLength = (dir.fanout - 1n).toString(16).length
+  const prefixLength = (node.data.fanOut - 1n).toString(16).length
 
-  const results = pipe(
-    links,
-    source => map(source, link => {
-      return async () => {
-        const name = link.Name != null ? link.Name.substring(padLength) : null
+  for (const link of node.links) {
+    if (link.name == null || link.hash == null) {
+      continue
+    }
 
-        if (name != null && name !== '') {
-          return {
-            entries: [{
-              cid: link.Hash,
-              name,
-              path: `${path}/${name}`,
-              size: BigInt(link.Tsize ?? 0)
-            }]
-          }
-        } else {
-          // descend into subshard
-          const block = await toBuffer(blockstore.get(link.Hash, options))
-          node = decode(block)
+    const cid = CID.decode(link.hash)
 
-          options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:hamt-sharded-directory', {
-            cid: link.Hash
-          }))
+    if (link.name.length === prefixLength) {
+      yield * list(cid, path, blockstore, options)
+    } else {
+      const name = link.name.substring(prefixLength)
 
-          return {
-            entries: listDirectory(node, path, blockstore, options)
-          }
-        }
+      yield {
+        cid,
+        name: link.name.substring(prefixLength),
+        path: `${path}/${name}`,
+        size: BigInt(link.tSize ?? 0)
       }
-    }),
-    source => parallel(source, {
-      ordered: true,
-      concurrency: options.blockReadConcurrency
-    })
-  )
-
-  for await (const { entries } of results) {
-    yield * entries
+    }
   }
 }
 
@@ -77,7 +64,7 @@ export function hamtShardedDirectoryContent (cid: CID, node: PBNode, unixfs: Uni
       cid
     }))
 
-    return listDirectory(node, path, blockstore, options)
+    return listDirectory(cid, path, blockstore, options)
   }
 
   return yieldHamtDirectoryContent

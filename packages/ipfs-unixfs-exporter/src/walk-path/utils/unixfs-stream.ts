@@ -45,7 +45,7 @@ export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {
   for (const evt of Node.stream(block)) {
     switch (evt.field) {
       case '.data': {
-        if (evt.type == 'start') {
+        if (evt.type === 'start') {
           data = {}
         }
 
@@ -54,8 +54,6 @@ export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {
             yield data
             return
           }
-
-          console.info(link, data, evt)
 
           throw new NotUnixFSError('PBNode Data was not a directory or a HAMT shard')
         }
@@ -80,7 +78,7 @@ export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {
       }
 
       case '.links[]': {
-        if (evt.type == 'start') {
+        if (evt.type === 'start') {
           link = {
             type: 'LINK'
           }
@@ -100,6 +98,7 @@ export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {
         link.hash = CID.decode(evt.value)
         break
       }
+      default:
     }
   }
 }

@@ -1,4 +1,3 @@
-import { murmur3128 } from '@multiformats/murmur3'
 import { Bucket } from 'hamt-sharding'
 import toBuffer from 'it-to-buffer'
 import { NotUnixFSError } from '../../errors.ts'
@@ -12,36 +11,6 @@ interface ShardTraversalContext {
   hamtDepth: number
   rootBucket: Bucket<boolean>
   lastBucket: Bucket<boolean>
-}
-
-// FIXME: this is copy/pasted from ipfs-unixfs-importer/src/options.js
-const hashFn = async function (buf: Uint8Array): Promise<Uint8Array> {
-  return (await murmur3128.encode(buf))
-    // Murmur3 outputs 128 bit but, accidentally, IPFS Go's
-    // implementation only uses the first 64, so we must do the same
-    // for parity..
-    .slice(0, 8)
-    // Invert buffer because that's how Go impl does it
-    .reverse()
-}
-
-const addLinksToHamtBucket = async (links: Link[], bucket: Bucket<boolean>, rootBucket: Bucket<boolean>): Promise<void> => {
-  const padLength = (bucket.tableSize() - 1).toString(16).length
-  await Promise.all(
-    links.map(async link => {
-      if (link.name.length === padLength) {
-        const pos = parseInt(link.name, 16)
-
-        bucket._putObjectAt(pos, new Bucket({
-          hash: rootBucket._options.hash,
-          bits: rootBucket._options.bits
-        }, bucket, pos))
-        return
-      }
-
-      await rootBucket.put(link.name.substring(padLength), true)
-    })
-  )
 }
 
 const toPrefix = (position: number, padLength: number): string => {

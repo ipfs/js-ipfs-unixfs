@@ -1,3 +1,13 @@
+## [ipfs-unixfs-exporter-v16.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.2.1...ipfs-unixfs-exporter-16.2.2) (2026-09-11)
+
+### Bug Fixes
+
+* emit non-dir types ([#493](https://github.com/ipfs/js-ipfs-unixfs/issues/493)) ([6a6e61a](https://github.com/ipfs/js-ipfs-unixfs/commit/6a6e61a777e4c1ace1e1f5a1bf7a7eb3bed43cc4))
+
+### Trivial Changes
+
+* fix spelling ([7dbb3fc](https://github.com/ipfs/js-ipfs-unixfs/commit/7dbb3fcceae3ea13e69575e889c98961891f4993))
+
 ## [ipfs-unixfs-exporter-v16.2.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.2.0...ipfs-unixfs-exporter-16.2.1) (2026-09-10)
 
 ### Bug Fixes

@@ -2,7 +2,7 @@ import * as dagCbor from '@ipld/dag-cbor'
 import * as dagJson from '@ipld/dag-json'
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
-import { importer } from 'ipfs-unixfs-importer'
+import { importBytes, importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import drain from 'it-drain'
 import { CID } from 'multiformats/cid'
@@ -608,6 +608,19 @@ describe('walkPath', () => {
         ],
         remainder: []
       }])
+    })
+
+    it('should fail walk path under file', async () => {
+      const {
+        cid: fileCid
+      } = await importBytes(Uint8Array.from([0, 1, 2, 3, 4]), blockstore, {
+        rawLeaves: false
+      })
+
+      await expect(
+        drain(walkPath(`/ipfs/${fileCid}/ipfs/${fileCid}`, blockstore))
+      ).to.eventually.be.rejected
+        .with.property('name', 'NotFoundError')
     })
   })
 })

@@ -3,9 +3,11 @@ import { MemoryBlockstore } from 'blockstore-core'
 import { importer } from 'ipfs-unixfs-importer'
 import all from 'it-all'
 import last from 'it-last'
+import toBuffer from 'it-to-buffer'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { exporter } from '../src/index.ts'
 import type { Blockstore } from 'interface-blockstore'
+import type { ImporterOptions } from 'ipfs-unixfs-importer'
 import type { CID } from 'multiformats/cid'
 
 describe('export - directories', () => {
@@ -15,25 +17,15 @@ describe('export - directories', () => {
     block = new MemoryBlockstore()
   })
 
-  async function createDirectory (files: number): Promise<CID> {
-    const result = await last(importer([{
-      path: '/file1.txt',
-      content: uint8ArrayFromString('file 1')
-    }, {
-      path: '/file2.txt',
-      content: uint8ArrayFromString('file 2')
-    }, {
-      path: '/file3.txt',
-      content: uint8ArrayFromString('file 3')
-    }, {
-      path: '/file4.txt',
-      content: uint8ArrayFromString('file 4')
-    }, {
-      path: '/file5.txt',
-      content: uint8ArrayFromString('file 5')
-    }], block, {
-      wrapWithDirectory: true
-    }))
+  async function createDirectory (files: number, options?: ImporterOptions): Promise<CID> {
+    const result = await last(importer(
+      new Array(files).fill(0).map((_, i) => ({
+        path: `/file${i}.txt`,
+        content: uint8ArrayFromString(`file ${i}`)
+      })), block, {
+        wrapWithDirectory: true,
+        ...options
+      }))
 
     if (result == null) {
       throw new Error('Import failed')
@@ -56,6 +48,20 @@ describe('export - directories', () => {
     }))
 
     expect(files).to.have.lengthOf(1)
-    expect(files).to.have.nested.property('[0].path', `${cid}/file3.txt`)
+    expect(files).to.have.nested.property('[0].path', `${cid}/file2.txt`)
+  })
+
+  it('should export a file', async () => {
+    const cid = await createDirectory(1, {
+      rawLeaves: false
+    })
+    const file = await exporter(`/ipfs/${cid}/file0.txt`, block)
+
+    if (file.type !== 'file') {
+      throw new Error(`Unexpected type '${file.type}'`)
+    }
+
+    const content = await toBuffer(file.content())
+    expect(content).to.equalBytes(uint8ArrayFromString('file 0'))
   })
 })

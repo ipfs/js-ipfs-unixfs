@@ -8,6 +8,18 @@ export interface Link {
   hash: CID
 }
 
+export interface UnixFSFile {
+  type: 'FILE'
+}
+
+export interface UnixFSRaw {
+  type: 'RAW'
+}
+
+export interface UnixFSSymLink {
+  type: 'SYMLINK'
+}
+
 export interface UnixFSDirectoryMetadata {
   type: 'DIRECTORY'
 }
@@ -19,12 +31,24 @@ export interface UnixFSHAMTMetadata {
   fanOut: number
 }
 
-export type UnixFSEntity = UnixFSDirectoryMetadata | UnixFSHAMTMetadata | Link
+export type UnixFSEntity = UnixFSDirectoryMetadata | UnixFSHAMTMetadata | UnixFSFile | UnixFSRaw | UnixFSSymLink | Link
 
 export type UnixFSDirectory = UnixFSDirectoryMetadata | UnixFSHAMTMetadata
 
 export function isValidUnixFSDirectoryMetadata (obj: Record<string, any>): obj is UnixFSDirectoryMetadata {
   return obj.type === 'DIRECTORY'
+}
+
+export function isValidUnixFSFile (obj: Record<string, any>): obj is UnixFSFile {
+  return obj.type === 'FILE'
+}
+
+export function isValidUnixFSRaw (obj: Record<string, any>): obj is UnixFSRaw {
+  return obj.type === 'RAW'
+}
+
+export function isValidUnixFSSymlink (obj: Record<string, any>): obj is UnixFSSymLink {
+  return obj.type === 'SYMLINK'
 }
 
 export function isValidUnixFSHAMTMetadata (obj: Record<string, any>): obj is UnixFSHAMTMetadata {
@@ -50,12 +74,12 @@ export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {
         }
 
         if (evt.type === 'end') {
-          if (isValidUnixFSDirectoryMetadata(data) || isValidUnixFSHAMTMetadata(data)) {
+          if (isValidUnixFSDirectoryMetadata(data) || isValidUnixFSHAMTMetadata(data) || isValidUnixFSFile(data) || isValidUnixFSRaw(data) || isValidUnixFSSymlink(data)) {
             yield data
             return
           }
 
-          throw new NotUnixFSError('PBNode Data was not a directory or a HAMT shard')
+          throw new NotUnixFSError('PBNode Data was not a valid UnixFS type')
         }
 
         break

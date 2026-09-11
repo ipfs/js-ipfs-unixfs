@@ -4,7 +4,7 @@ import toBuffer from 'it-to-buffer'
 import { CID } from 'multiformats/cid'
 import { NotFoundError, NotUnixFSError } from '../errors.ts'
 import { findShardCid } from './utils/find-cid-in-shard.ts'
-import { unixFsStream, isValidUnixFSDirectoryMetadata, isValidUnixFSHAMTMetadata, isValidLink } from './utils/unixfs-stream.ts'
+import { unixFsStream, isValidUnixFSDirectoryMetadata, isValidUnixFSHAMTMetadata, isValidLink, isValidUnixFSFile, isValidUnixFSRaw, isValidUnixFSSymlink } from './utils/unixfs-stream.ts'
 import type { WalkPathOptions, ReadableStorage } from '../index.ts'
 import type { ResolveResult } from './index.ts'
 import type { Link, UnixFSEntity, UnixFSHAMTMetadata } from './utils/unixfs-stream.ts'
@@ -74,6 +74,16 @@ export async function * dagPbResolver (root: CID, path: string[], blockstore: Re
   if (value != null) {
     isDirectory = isValidUnixFSDirectoryMetadata(value)
     isHAMT = isValidUnixFSHAMTMetadata(value)
+
+    if (isValidUnixFSFile(value) || isValidUnixFSRaw(value) || isValidUnixFSSymlink(value)) {
+      yield {
+        cid: root,
+        name: path[0],
+        rest: path.slice(1)
+      }
+
+      return
+    }
 
     // new-school data-first - we can return early
     if (isDirectory || (isHAMT && options?.translateHAMTPath === false)) {

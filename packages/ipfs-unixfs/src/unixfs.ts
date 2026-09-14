@@ -149,7 +149,7 @@ export namespace UnixFS {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const obj = {
           blockSizes: 0
         }
@@ -226,7 +226,7 @@ export namespace UnixFS {
               break
             }
             case 8: {
-              yield * UnixTime.codec().stream(reader, `${prefix}mtime.`, reader.uint32(), {
+              yield * UnixTime.codec().stream(reader, reader.uint32(), `${prefix}mtime.`, {
                 limits: opts.limits?.mtime
               })
 
@@ -374,7 +374,7 @@ export namespace UnixTime {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const end = length == null ? reader.len : reader.pos + length
 
         if (prefix !== '.') {
@@ -489,7 +489,7 @@ export namespace Metadata {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const end = length == null ? reader.len : reader.pos + length
 
         if (prefix !== '.') {
@@ -612,7 +612,7 @@ export namespace Link {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const end = length == null ? reader.len : reader.pos + length
 
         if (prefix !== '.') {
@@ -761,7 +761,7 @@ export namespace Node {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const obj = {
           links: 0
         }
@@ -781,7 +781,7 @@ export namespace Node {
 
           switch (tag >>> 3) {
             case 1: {
-              yield * UnixFS.codec().stream(reader, `${prefix}data.`, reader.uint32(), {
+              yield * UnixFS.codec().stream(reader, reader.uint32(), `${prefix}data.`, {
                 limits: opts.limits?.data
               })
 
@@ -792,7 +792,7 @@ export namespace Node {
                 throw new MaxLengthError('Streaming decode error - repeated field "links" had too many elements')
               }
 
-              for (const evt of Link.codec().stream(reader, `${prefix}links[].`, reader.uint32(), {
+              for (const evt of Link.codec().stream(reader, reader.uint32(), `${prefix}links[].`, {
                 limits: opts.limits?.links$
               })) {
                 yield {
@@ -1001,7 +1001,7 @@ export namespace LegacyNode {
         }
 
         return obj
-      }, function * (reader, prefix, length, opts = {}) {
+      }, function * (reader, length, prefix, opts = {}) {
         const obj = {
           links: 0
         }
@@ -1025,7 +1025,7 @@ export namespace LegacyNode {
                 throw new MaxLengthError('Streaming decode error - repeated field "links" had too many elements')
               }
 
-              for (const evt of Link.codec().stream(reader, `${prefix}links[].`, reader.uint32(), {
+              for (const evt of Link.codec().stream(reader, reader.uint32(), `${prefix}links[].`, {
                 limits: opts.limits?.links$
               })) {
                 yield {
@@ -1039,7 +1039,7 @@ export namespace LegacyNode {
               break
             }
             case 1: {
-              yield * UnixFS.codec().stream(reader, `${prefix}data.`, reader.uint32(), {
+              yield * UnixFS.codec().stream(reader, reader.uint32(), `${prefix}data.`, {
                 limits: opts.limits?.data
               })
 

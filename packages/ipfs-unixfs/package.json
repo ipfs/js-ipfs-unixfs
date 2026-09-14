@@ -140,13 +140,13 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "protons-runtime": "^7.0.0",
+    "protons-runtime": "^7.1.1",
     "uint8arraylist": "^3.0.2",
     "uint8arrays": "^6.1.1"
   },
   "devDependencies": {
     "aegir": "^48.0.4",
-    "protons": "^9.0.1"
+    "protons": "^9.1.1"
   },
   "browser": {
     "fs": false

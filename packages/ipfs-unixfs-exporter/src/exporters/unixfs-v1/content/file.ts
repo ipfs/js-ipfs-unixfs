@@ -14,6 +14,7 @@ import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.
 import type { ReadableStorage, ExportProgress, ExportWalk, ExportContentOptions } from '../../../index.ts'
 import type { Pushable } from 'it-pushable'
 import type { CID } from 'multiformats/cid'
+import { DEFAULT_BLOCK_READ_CONCURRENCY } from '../../../constants.ts'
 
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExportContentOptions): Promise<void> {
   // a `raw` node
@@ -88,7 +89,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
     }),
     (source) => parallel(source, {
       ordered: true,
-      concurrency: options.blockReadConcurrency
+      concurrency: options.blockReadConcurrency ?? DEFAULT_BLOCK_READ_CONCURRENCY
     }),
     async (source) => {
       for await (const { link, block, blockStart } of source) {

@@ -8,13 +8,13 @@ import toBuffer from 'it-to-buffer'
 import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
+import { DEFAULT_BLOCK_READ_CONCURRENCY } from '../../../constants.ts'
 import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.ts'
 import { extractDataFromBlock } from '../../utils/extract-data-from-block.ts'
 import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.ts'
 import type { ReadableStorage, ExportProgress, ExportWalk, ExportContentOptions } from '../../../index.ts'
 import type { Pushable } from 'it-pushable'
 import type { CID } from 'multiformats/cid'
-import { DEFAULT_BLOCK_READ_CONCURRENCY } from '../../../constants.ts'
 
 async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExportContentOptions): Promise<void> {
   // a `raw` node

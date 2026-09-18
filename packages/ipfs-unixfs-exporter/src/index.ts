@@ -155,14 +155,16 @@ export interface ExportContentOptions extends ProgressOptions<ExporterProgressEv
   signal?: AbortSignal
 
   /**
-   * When a DAG layer is encountered, all child nodes are loaded in parallel but
-   * processed as they arrive. This allows us to load sibling nodes in advance
-   * of yielding their bytes. Pass a value here to control the number of blocks
-   * loaded in parallel. If a strict depth-first traversal is required, this
-   * value should be set to `1`, otherwise the traversal order will tend to
-   * resemble a breadth-first fan-out with stable ordering.
+   * When a DAG layer is encountered, child nodes are loaded in parallel up to
+   * this limit but processed as they arrive. This allows us to load sibling
+   * nodes in advance of yielding their bytes. Pass a value here to control the
+   * number of blocks loaded in parallel.
    *
-   * @default undefined
+   * If a strict depth-first traversal is required, this value should be set to
+   * `1`, otherwise the traversal order will tend to resemble a breadth-first
+   * fan-out with stable ordering.
+   *
+   * @default 10
    */
   blockReadConcurrency?: number
 

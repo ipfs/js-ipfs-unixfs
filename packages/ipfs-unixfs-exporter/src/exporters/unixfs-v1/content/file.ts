@@ -8,6 +8,7 @@ import toBuffer from 'it-to-buffer'
 import * as raw from 'multiformats/codecs/raw'
 import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
+import { DEFAULT_BLOCK_READ_CONCURRENCY } from '../../../constants.ts'
 import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.ts'
 import { extractDataFromBlock } from '../../utils/extract-data-from-block.ts'
 import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.ts'
@@ -88,7 +89,7 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
     }),
     (source) => parallel(source, {
       ordered: true,
-      concurrency: options.blockReadConcurrency
+      concurrency: options.blockReadConcurrency ?? DEFAULT_BLOCK_READ_CONCURRENCY
     }),
     async (source) => {
       for await (const { link, block, blockStart } of source) {

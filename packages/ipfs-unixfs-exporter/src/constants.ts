@@ -1,1 +1,2 @@
 export const CODEC_CBOR = 0x51
+export const DEFAULT_BLOCK_READ_CONCURRENCY = 10

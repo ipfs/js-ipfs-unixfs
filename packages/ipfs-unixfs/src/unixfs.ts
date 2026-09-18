@@ -13,6 +13,17 @@ export interface UnixFS {
   mtime?: UnixTime
 }
 
+export interface UnixFSInput {
+  type?: UnixFS.Type
+  data?: Uint8Array
+  fileSize?: bigint
+  blockSizes?: bigint[]
+  hashType?: bigint
+  fanOut?: bigint
+  mode?: number
+  mtime?: UnixTimeInput
+}
+
 export namespace UnixFS {
   export enum Type {
     RAW = 'RAW',
@@ -33,16 +44,16 @@ export namespace UnixFS {
   }
 
   export namespace Type {
-    export const codec = (): Codec<Type> => {
+    export const codec = (): Codec<Type, Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
 
-  let _codec: Codec<UnixFS>
+  let _codec: Codec<UnixFS, UnixFSInput>
 
-  export const codec = (): Codec<UnixFS> => {
+  export const codec = (): Codec<UnixFS, UnixFSInput> => {
     if (_codec == null) {
-      _codec = message<UnixFS>((obj, w, opts = {}) => {
+      _codec = message<UnixFS, UnixFSInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -92,27 +103,27 @@ export namespace UnixFS {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length, opts = {}) => {
         const obj: any = {
           blockSizes: []
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              obj.type = UnixFS.Type.codec().decode(reader)
+              obj.type = UnixFS.Type.codec().decode(r)
               break
             }
             case 2: {
-              obj.data = reader.bytes()
+              obj.data = r.bytes()
               break
             }
             case 3: {
-              obj.fileSize = reader.uint64()
+              obj.fileSize = r.uint64()
               break
             }
             case 4: {
@@ -120,41 +131,41 @@ export namespace UnixFS {
                 throw new MaxLengthError('Decode error - repeated field "blockSizes" had too many elements')
               }
 
-              obj.blockSizes.push(reader.uint64())
+              obj.blockSizes.push(r.uint64())
               break
             }
             case 5: {
-              obj.hashType = reader.uint64()
+              obj.hashType = r.uint64()
               break
             }
             case 6: {
-              obj.fanOut = reader.uint64()
+              obj.fanOut = r.uint64()
               break
             }
             case 7: {
-              obj.mode = reader.uint32()
+              obj.mode = r.uint32()
               break
             }
             case 8: {
-              obj.mtime = UnixTime.codec().decode(reader, reader.uint32(), {
+              obj.mtime = UnixTime.codec().decode(r, r.uint32(), {
                 limits: opts.limits?.mtime
               })
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
+      }, function * (r, length, prefix, opts = {}) {
         const obj = {
           blockSizes: 0
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -164,28 +175,28 @@ export namespace UnixFS {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
               yield {
                 field: `${prefix}type`,
-                value: UnixFS.Type.codec().decode(reader)
+                value: UnixFS.Type.codec().decode(r)
               }
               break
             }
             case 2: {
               yield {
                 field: `${prefix}data`,
-                value: reader.bytes()
+                value: r.bytes()
               }
               break
             }
             case 3: {
               yield {
                 field: `${prefix}fileSize`,
-                value: reader.uint64()
+                value: r.uint64()
               }
               break
             }
@@ -197,7 +208,7 @@ export namespace UnixFS {
               yield {
                 field: `${prefix}blockSizes[]`,
                 index: obj.blockSizes,
-                value: reader.uint64()
+                value: r.uint64()
               }
 
               obj.blockSizes++
@@ -207,33 +218,33 @@ export namespace UnixFS {
             case 5: {
               yield {
                 field: `${prefix}hashType`,
-                value: reader.uint64()
+                value: r.uint64()
               }
               break
             }
             case 6: {
               yield {
                 field: `${prefix}fanOut`,
-                value: reader.uint64()
+                value: r.uint64()
               }
               break
             }
             case 7: {
               yield {
                 field: `${prefix}mode`,
-                value: reader.uint32()
+                value: r.uint32()
               }
               break
             }
             case 8: {
-              yield * UnixTime.codec().stream(reader, reader.uint32(), `${prefix}mtime.`, {
+              yield * UnixTime.codec().stream(r, r.uint32(), `${prefix}mtime.`, {
                 limits: opts.limits?.mtime
               })
 
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -308,7 +319,7 @@ export namespace UnixFS {
     value: number
   }
 
-  export function encode (obj: Partial<UnixFS>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: UnixFSInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, UnixFS.codec())
   }
 
@@ -326,12 +337,17 @@ export interface UnixTime {
   fractionalNanoseconds?: number
 }
 
-export namespace UnixTime {
-  let _codec: Codec<UnixTime>
+export interface UnixTimeInput {
+  seconds?: bigint
+  fractionalNanoseconds?: number
+}
 
-  export const codec = (): Codec<UnixTime> => {
+export namespace UnixTime {
+  let _codec: Codec<UnixTime, UnixTimeInput>
+
+  export const codec = (): Codec<UnixTime, UnixTimeInput> => {
     if (_codec == null) {
-      _codec = message<UnixTime>((obj, w, opts = {}) => {
+      _codec = message<UnixTime, UnixTimeInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -349,33 +365,33 @@ export namespace UnixTime {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length) => {
         const obj: any = {}
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              obj.seconds = reader.int64()
+              obj.seconds = r.int64()
               break
             }
             case 2: {
-              obj.fractionalNanoseconds = reader.fixed32()
+              obj.fractionalNanoseconds = r.fixed32()
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
-        const end = length == null ? reader.len : reader.pos + length
+      }, function * (r, length, prefix) {
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -385,26 +401,26 @@ export namespace UnixTime {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
               yield {
                 field: `${prefix}seconds`,
-                value: reader.int64()
+                value: r.int64()
               }
               break
             }
             case 2: {
               yield {
                 field: `${prefix}fractionalNanoseconds`,
-                value: reader.fixed32()
+                value: r.fixed32()
               }
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -433,7 +449,7 @@ export namespace UnixTime {
     value: number
   }
 
-  export function encode (obj: Partial<UnixTime>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: UnixTimeInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, UnixTime.codec())
   }
 
@@ -450,12 +466,16 @@ export interface Metadata {
   mimeType?: string
 }
 
-export namespace Metadata {
-  let _codec: Codec<Metadata>
+export interface MetadataInput {
+  mimeType?: string
+}
 
-  export const codec = (): Codec<Metadata> => {
+export namespace Metadata {
+  let _codec: Codec<Metadata, MetadataInput>
+
+  export const codec = (): Codec<Metadata, MetadataInput> => {
     if (_codec == null) {
-      _codec = message<Metadata>((obj, w, opts = {}) => {
+      _codec = message<Metadata, MetadataInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -468,29 +488,29 @@ export namespace Metadata {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length) => {
         const obj: any = {}
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              obj.mimeType = reader.string()
+              obj.mimeType = r.string()
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
-        const end = length == null ? reader.len : reader.pos + length
+      }, function * (r, length, prefix) {
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -500,19 +520,19 @@ export namespace Metadata {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
               yield {
                 field: `${prefix}mimeType`,
-                value: reader.string()
+                value: r.string()
               }
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -536,7 +556,7 @@ export namespace Metadata {
     value: string
   }
 
-  export function encode (obj: Partial<Metadata>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: MetadataInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, Metadata.codec())
   }
 
@@ -555,12 +575,18 @@ export interface Link {
   tSize?: bigint
 }
 
-export namespace Link {
-  let _codec: Codec<Link>
+export interface LinkInput {
+  hash?: Uint8Array
+  name?: string
+  tSize?: bigint
+}
 
-  export const codec = (): Codec<Link> => {
+export namespace Link {
+  let _codec: Codec<Link, LinkInput>
+
+  export const codec = (): Codec<Link, LinkInput> => {
     if (_codec == null) {
-      _codec = message<Link>((obj, w, opts = {}) => {
+      _codec = message<Link, LinkInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -583,37 +609,37 @@ export namespace Link {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length) => {
         const obj: any = {}
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              obj.hash = reader.bytes()
+              obj.hash = r.bytes()
               break
             }
             case 2: {
-              obj.name = reader.string()
+              obj.name = r.string()
               break
             }
             case 3: {
-              obj.tSize = reader.uint64()
+              obj.tSize = r.uint64()
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
-        const end = length == null ? reader.len : reader.pos + length
+      }, function * (r, length, prefix) {
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -623,33 +649,33 @@ export namespace Link {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
               yield {
                 field: `${prefix}hash`,
-                value: reader.bytes()
+                value: r.bytes()
               }
               break
             }
             case 2: {
               yield {
                 field: `${prefix}name`,
-                value: reader.string()
+                value: r.string()
               }
               break
             }
             case 3: {
               yield {
                 field: `${prefix}tSize`,
-                value: reader.uint64()
+                value: r.uint64()
               }
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -683,7 +709,7 @@ export namespace Link {
     value: bigint
   }
 
-  export function encode (obj: Partial<Link>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: LinkInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, Link.codec())
   }
 
@@ -701,12 +727,17 @@ export interface Node {
   links: Link[]
 }
 
-export namespace Node {
-  let _codec: Codec<Node>
+export interface NodeInput {
+  data?: UnixFSInput
+  links?: LinkInput[]
+}
 
-  export const codec = (): Codec<Node> => {
+export namespace Node {
+  let _codec: Codec<Node, NodeInput>
+
+  export const codec = (): Codec<Node, NodeInput> => {
     if (_codec == null) {
-      _codec = message<Node>((obj, w, opts = {}) => {
+      _codec = message<Node, NodeInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -726,19 +757,19 @@ export namespace Node {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length, opts = {}) => {
         const obj: any = {
           links: []
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              obj.data = UnixFS.codec().decode(reader, reader.uint32(), {
+              obj.data = UnixFS.codec().decode(r, r.uint32(), {
                 limits: opts.limits?.data
               })
               break
@@ -748,25 +779,25 @@ export namespace Node {
                 throw new MaxLengthError('Decode error - repeated field "links" had too many elements')
               }
 
-              obj.links.push(Link.codec().decode(reader, reader.uint32(), {
+              obj.links.push(Link.codec().decode(r, r.uint32(), {
                 limits: opts.limits?.links$
               }))
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
+      }, function * (r, length, prefix, opts = {}) {
         const obj = {
           links: 0
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -776,12 +807,12 @@ export namespace Node {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 1: {
-              yield * UnixFS.codec().stream(reader, reader.uint32(), `${prefix}data.`, {
+              yield * UnixFS.codec().stream(r, r.uint32(), `${prefix}data.`, {
                 limits: opts.limits?.data
               })
 
@@ -792,7 +823,7 @@ export namespace Node {
                 throw new MaxLengthError('Streaming decode error - repeated field "links" had too many elements')
               }
 
-              for (const evt of Link.codec().stream(reader, reader.uint32(), `${prefix}links[].`, {
+              for (const evt of Link.codec().stream(r, r.uint32(), `${prefix}links[].`, {
                 limits: opts.limits?.links$
               })) {
                 yield {
@@ -806,7 +837,7 @@ export namespace Node {
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -923,7 +954,7 @@ export namespace Node {
     message: string
   }
 
-  export function encode (obj: Partial<Node>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: NodeInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, Node.codec())
   }
 
@@ -941,12 +972,17 @@ export interface LegacyNode {
   data?: UnixFS
 }
 
-export namespace LegacyNode {
-  let _codec: Codec<LegacyNode>
+export interface LegacyNodeInput {
+  links?: LinkInput[]
+  data?: UnixFSInput
+}
 
-  export const codec = (): Codec<LegacyNode> => {
+export namespace LegacyNode {
+  let _codec: Codec<LegacyNode, LegacyNodeInput>
+
+  export const codec = (): Codec<LegacyNode, LegacyNodeInput> => {
     if (_codec == null) {
-      _codec = message<LegacyNode>((obj, w, opts = {}) => {
+      _codec = message<LegacyNode, LegacyNodeInput>((obj, w, opts = {}) => {
         if (opts.lengthDelimited !== false) {
           w.fork()
         }
@@ -966,15 +1002,15 @@ export namespace LegacyNode {
         if (opts.lengthDelimited !== false) {
           w.ldelim()
         }
-      }, (reader, length, opts = {}) => {
+      }, (r, length, opts = {}) => {
         const obj: any = {
           links: []
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 2: {
@@ -982,31 +1018,31 @@ export namespace LegacyNode {
                 throw new MaxLengthError('Decode error - repeated field "links" had too many elements')
               }
 
-              obj.links.push(Link.codec().decode(reader, reader.uint32(), {
+              obj.links.push(Link.codec().decode(r, r.uint32(), {
                 limits: opts.limits?.links$
               }))
               break
             }
             case 1: {
-              obj.data = UnixFS.codec().decode(reader, reader.uint32(), {
+              obj.data = UnixFS.codec().decode(r, r.uint32(), {
                 limits: opts.limits?.data
               })
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
         }
 
         return obj
-      }, function * (reader, length, prefix, opts = {}) {
+      }, function * (r, length, prefix, opts = {}) {
         const obj = {
           links: 0
         }
 
-        const end = length == null ? reader.len : reader.pos + length
+        const end = length == null ? r.len : r.pos + length
 
         if (prefix !== '.') {
           yield {
@@ -1016,8 +1052,8 @@ export namespace LegacyNode {
           }
         }
 
-        while (reader.pos < end) {
-          const tag = reader.uint32()
+        while (r.pos < end) {
+          const tag = r.uint32()
 
           switch (tag >>> 3) {
             case 2: {
@@ -1025,7 +1061,7 @@ export namespace LegacyNode {
                 throw new MaxLengthError('Streaming decode error - repeated field "links" had too many elements')
               }
 
-              for (const evt of Link.codec().stream(reader, reader.uint32(), `${prefix}links[].`, {
+              for (const evt of Link.codec().stream(r, r.uint32(), `${prefix}links[].`, {
                 limits: opts.limits?.links$
               })) {
                 yield {
@@ -1039,14 +1075,14 @@ export namespace LegacyNode {
               break
             }
             case 1: {
-              yield * UnixFS.codec().stream(reader, reader.uint32(), `${prefix}data.`, {
+              yield * UnixFS.codec().stream(r, r.uint32(), `${prefix}data.`, {
                 limits: opts.limits?.data
               })
 
               break
             }
             default: {
-              reader.skipType(tag & 7)
+              r.skipType(tag & 7)
               break
             }
           }
@@ -1163,7 +1199,7 @@ export namespace LegacyNode {
     value: number
   }
 
-  export function encode (obj: Partial<LegacyNode>): Uint8Array<ArrayBuffer> {
+  export function encode (obj: LegacyNodeInput): Uint8Array<ArrayBuffer> {
     return encodeMessage(obj, LegacyNode.codec())
   }
 

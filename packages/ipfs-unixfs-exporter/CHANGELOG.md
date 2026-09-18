@@ -1,3 +1,9 @@
+## [ipfs-unixfs-exporter-v16.2.3](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.2.2...ipfs-unixfs-exporter-16.2.3) (2026-09-18)
+
+### Bug Fixes
+
+* limit block read concurrency ([#495](https://github.com/ipfs/js-ipfs-unixfs/issues/495)) ([91ee424](https://github.com/ipfs/js-ipfs-unixfs/commit/91ee4241d30ef24f50cd33b07666207779b1aef6))
+
 ## [ipfs-unixfs-exporter-v16.2.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-exporter-16.2.1...ipfs-unixfs-exporter-16.2.2) (2026-09-11)
 
 ### Bug Fixes

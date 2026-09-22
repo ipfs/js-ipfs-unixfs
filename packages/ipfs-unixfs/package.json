@@ -146,7 +146,7 @@
   },
   "devDependencies": {
     "aegir": "^48.0.4",
-    "protons": "^9.1.1"
+    "protons": "^10.0.5"
   },
   "browser": {
     "fs": false

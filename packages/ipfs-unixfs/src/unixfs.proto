@@ -13,7 +13,7 @@ message UnixFS {
   optional Type type = 1;
   optional bytes data = 2;
   optional uint64 file_size = 3;
-  repeated uint64 block_sizes = 4;
+  repeated uint64 block_sizes = 4 [packed=false];
   optional uint64 hash_type = 5;
   optional uint64 fan_out = 6;
   optional uint32 mode = 7;

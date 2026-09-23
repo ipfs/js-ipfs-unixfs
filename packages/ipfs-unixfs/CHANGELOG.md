@@ -1,3 +1,9 @@
+## [ipfs-unixfs-v13.1.2](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-13.1.1...ipfs-unixfs-13.1.2) (2026-09-23)
+
+### Dependencies
+
+* update protons ([#496](https://github.com/ipfs/js-ipfs-unixfs/issues/496)) ([ea97f81](https://github.com/ipfs/js-ipfs-unixfs/commit/ea97f81057a03294d316ae9a5a83bf5e285e8d89))
+
 ## [ipfs-unixfs-v13.1.1](https://github.com/ipfs/js-ipfs-unixfs/compare/ipfs-unixfs-13.1.0...ipfs-unixfs-13.1.1) (2026-09-14)
 
 ### Bug Fixes

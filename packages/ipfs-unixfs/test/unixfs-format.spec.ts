@@ -60,6 +60,43 @@ describe('unixfs-format', () => {
     expect(data.fileSize()).to.deep.equal(unmarshaled.fileSize())
   })
 
+  for (const change of ['none', 'mode', 'mtime']) {
+    it(`preserves the HAMT hash type when changing ${change}`, () => {
+      const data = new UnixFS({
+        type: 'hamt-sharded-directory',
+        data: Uint8Array.from([1]),
+        hashType: 0x22n,
+        fanout: 256n
+      })
+      const unmarshaled = UnixFS.unmarshal(data.marshal())
+
+      if (change === 'mode') {
+        unmarshaled.mode = 0o700
+      } else if (change === 'mtime') {
+        unmarshaled.mtime = { secs: 10n, nsecs: 20 }
+      }
+
+      expect(unmarshaled.hashType).to.equal(0x22n)
+      const message = PBData.decode(unmarshaled.marshal())
+      expect(message.hashType).to.equal(0x22n)
+      expect(message.fanOut).to.equal(256n)
+      expect(message.data).to.deep.equal(data.data)
+
+      if (change === 'mode') {
+        expect(message.mode).to.equal(0o700)
+      } else if (change === 'mtime') {
+        expect(message.mtime).to.deep.equal({ seconds: 10n, fractionalNanoseconds: 20 })
+      }
+    })
+  }
+
+  it('does not add a hash type when one was not encoded', () => {
+    const unmarshaled = UnixFS.unmarshal(new UnixFS({ type: 'file' }).marshal())
+
+    expect(unmarshaled.hashType).to.be.undefined()
+    expect(PBData.decode(unmarshaled.marshal()).hashType).to.be.undefined()
+  })
+
   it('file', () => {
     const data = new UnixFS({
       type: 'file',

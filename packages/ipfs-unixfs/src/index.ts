@@ -168,6 +168,7 @@ class UnixFS {
       type: types[message.type != null ? message.type.toString() : 'FILE'],
       data: message.data,
       blockSizes: message.blockSizes,
+      hashType: message.hashType,
       mode: message.mode,
       mtime: message.mtime != null
         ? {

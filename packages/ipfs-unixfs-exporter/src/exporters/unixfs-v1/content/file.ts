@@ -1,29 +1,79 @@
 import * as dagPb from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
-import map from 'it-map'
 import parallel from 'it-parallel'
-import { pipe } from 'it-pipe'
-import { pushable } from 'it-pushable'
 import toBuffer from 'it-to-buffer'
 import * as raw from 'multiformats/codecs/raw'
-import PQueue from 'p-queue'
 import { CustomProgressEvent } from 'progress-events'
 import { DEFAULT_BLOCK_READ_CONCURRENCY } from '../../../constants.ts'
 import { NotUnixFSError, OverReadError, UnderReadError } from '../../../errors.ts'
 import { extractDataFromBlock } from '../../utils/extract-data-from-block.ts'
 import { validateOffsetAndLength } from '../../utils/validate-offset-and-length.ts'
 import type { ReadableStorage, ExportProgress, ExportWalk, ExportContentOptions } from '../../../index.ts'
-import type { Pushable } from 'it-pushable'
 import type { CID } from 'multiformats/cid'
 
-async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, queue: Pushable<Uint8Array>, streamPosition: bigint, start: bigint, end: bigint, options: ExportContentOptions): Promise<void> {
+interface Child {
+  cid: CID
+  node: dagPb.PBNode | Uint8Array
+  blockStart: bigint
+}
+
+/**
+ * Yields the file data in `[start, end)` in DAG order. Blocks are fetched as
+ * the consumer pulls, with up to `blockReadConcurrency` siblings read ahead
+ * per level. Uses an explicit stack instead of recursion so deep DAGs cannot
+ * overflow the call stack.
+ */
+async function * walkDAG (blockstore: ReadableStorage, root: dagPb.PBNode, start: bigint, end: bigint, options: ExportContentOptions): AsyncGenerator<Uint8Array> {
+  const stack: Array<AsyncGenerator<Child>> = []
+  let next: { node: dagPb.PBNode | Uint8Array, blockStart: bigint } | undefined = { node: root, blockStart: 0n }
+
+  try {
+    while (next != null) {
+      const { data, children } = visitNode(blockstore, next.node, next.blockStart, start, end, options)
+
+      if (data != null) {
+        yield data
+      }
+
+      if (children != null) {
+        stack.push(children)
+      }
+
+      next = undefined
+
+      while (stack.length > 0) {
+        const result = await stack[stack.length - 1].next()
+
+        if (result.done === true) {
+          stack.pop()
+          continue
+        }
+
+        options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
+          cid: result.value.cid
+        }))
+
+        next = result.value
+        break
+      }
+    }
+  } finally {
+    // stop each level from starting new reads. In-flight reads are not
+    // aborted because a blockstore may share them with other callers
+    while (stack.length > 0) {
+      await stack.pop()?.return(undefined)
+    }
+  }
+}
+
+/**
+ * Returns the node's data trimmed to `[start, end)` and a lazy, ordered
+ * iterator that fetches the children overlapping that range
+ */
+function visitNode (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array, streamPosition: bigint, start: bigint, end: bigint, options: ExportContentOptions): { data?: Uint8Array, children?: AsyncGenerator<Child> } {
   // a `raw` node
   if (node instanceof Uint8Array) {
-    const buf = extractDataFromBlock(node, streamPosition, start, end)
-
-    queue.push(buf)
-
-    return
+    return { data: extractDataFromBlock(node, streamPosition, start, end) }
   }
 
   if (node.Data == null) {
@@ -38,14 +88,12 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
     throw new NotUnixFSError(err.message)
   }
 
+  let data: Uint8Array | undefined
+
   // might be a unixfs `raw` node or have data on intermediate nodes
   if (file.data != null) {
-    const data = file.data
-    const buf = extractDataFromBlock(data, streamPosition, start, end)
-
-    queue.push(buf)
-
-    streamPosition += BigInt(buf.byteLength)
+    data = extractDataFromBlock(file.data, streamPosition, start, end)
+    streamPosition += BigInt(data.byteLength)
   }
 
   const childOps: Array<{ link: dagPb.PBLink, blockStart: bigint }> = []
@@ -75,65 +123,27 @@ async function walkDAG (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8A
     }
   }
 
-  await pipe(
-    childOps,
-    (source) => map(source, (op) => {
-      return async () => {
-        const block = await toBuffer(blockstore.get(op.link.Hash, options))
-
-        return {
-          ...op,
-          block
-        }
-      }
-    }),
-    (source) => parallel(source, {
-      ordered: true,
-      concurrency: options.blockReadConcurrency ?? DEFAULT_BLOCK_READ_CONCURRENCY
-    }),
-    async (source) => {
-      for await (const { link, block, blockStart } of source) {
-        let child: dagPb.PBNode | Uint8Array
-        switch (link.Hash.code) {
-          case dagPb.code:
-            child = dagPb.decode(block)
-            break
-          case raw.code:
-            child = block
-            break
-          default:
-            queue.end(new NotUnixFSError(`Unsupported codec: ${link.Hash.code}`))
-            return
-        }
-
-        // create a queue for this child - we use a queue instead of recursion
-        // to avoid overflowing the stack
-        const childQueue = new PQueue({
-          concurrency: 1
-        })
-        // if any of the child jobs error, end the read queue with the error
-        childQueue.on('error', error => {
-          queue.end(error)
-        })
-
-        // if the job rejects the 'error' event will be emitted on the child queue
-        void childQueue.add(async () => {
-          options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
-            cid: link.Hash
-          }))
-
-          await walkDAG(blockstore, child, queue, blockStart, start, end, options)
-        })
-
-        // wait for this child to complete before moving on to the next
-        await childQueue.onIdle()
-      }
-    }
-  )
-
-  if (streamPosition >= end) {
-    queue.end()
+  if (childOps.length === 0) {
+    return { data }
   }
+
+  const children = parallel(childOps.map(({ link, blockStart }) => async (): Promise<Child> => {
+    const block = await toBuffer(blockstore.get(link.Hash, options))
+
+    switch (link.Hash.code) {
+      case dagPb.code:
+        return { cid: link.Hash, node: dagPb.decode(block), blockStart }
+      case raw.code:
+        return { cid: link.Hash, node: block, blockStart }
+      default:
+        throw new NotUnixFSError(`Unsupported codec: ${link.Hash.code}`)
+    }
+  }), {
+    ordered: true,
+    concurrency: options.blockReadConcurrency ?? DEFAULT_BLOCK_READ_CONCURRENCY
+  })
+
+  return { data, children }
 }
 
 export function fileContent (cid: CID, node: dagPb.PBNode, unixfs: UnixFS, path: string, blockstore: ReadableStorage): (options: ExportContentOptions) => AsyncGenerator<Uint8Array> {
@@ -155,31 +165,16 @@ export function fileContent (cid: CID, node: dagPb.PBNode, unixfs: UnixFS, path:
 
     let read = 0n
     const wanted = end - start
-    const queue = pushable()
 
     options.onProgress?.(new CustomProgressEvent<ExportWalk>('unixfs:exporter:walk:file', {
       cid
     }))
 
-    void walkDAG(blockstore, node, queue, 0n, start, end, options)
-      .catch(err => {
-        queue.end(err)
-      })
-
-    for await (const buf of queue) {
-      if (buf == null) {
-        continue
-      }
-
+    for await (const buf of walkDAG(blockstore, node, start, end, options)) {
       read += BigInt(buf.byteLength)
 
       if (read > wanted) {
-        queue.end()
         throw new OverReadError('Read too many bytes - the file size reported by the UnixFS data in the root node may be incorrect')
-      }
-
-      if (read === wanted) {
-        queue.end()
       }
 
       options.onProgress?.(new CustomProgressEvent<ExportProgress>('unixfs:exporter:progress:unixfs:file', {
@@ -189,6 +184,10 @@ export function fileContent (cid: CID, node: dagPb.PBNode, unixfs: UnixFS, path:
       }))
 
       yield buf
+
+      if (read === wanted) {
+        break
+      }
     }
 
     if (read < wanted) {

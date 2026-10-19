@@ -28,6 +28,7 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { isNode } from 'wherearewe'
 import { exporter, recursive, walkPath } from '../src/index.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
+import type { UnixFSFile } from '../src/index.ts'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFSType } from 'ipfs-unixfs'
@@ -856,6 +857,22 @@ describe('exporter', () => {
     await checkBytesThatSpanBlocks(trickle())
   })
 
+  it('reads a multi-layer trickle DAG in full and in ranges', async () => {
+    const cid = await addTestFile({
+      file: smallFile,
+      chunker: fixedSize({ chunkSize: 10 }),
+      layout: trickle({ maxChildrenPerNode: 2, layerRepeat: 1 })
+    })
+    const entry = await exporter(cid, block)
+
+    if (entry.type !== 'file') {
+      throw new Error('File expected')
+    }
+
+    expect(await toBuffer(entry.content())).to.equalBytes(smallFile)
+    expect(await toBuffer(entry.content({ offset: 15, length: 150 }))).to.equalBytes(smallFile.subarray(15, 165))
+  })
+
   it('fails on non existent hash', async () => {
     // This hash doesn't exist in the repo
     const hash = CID.parse('bafybeidu2qqwriogfndznz32swi5r4p2wruf6ztu5k7my53tsezwhncs5y')
@@ -1441,6 +1458,138 @@ describe('exporter', () => {
 
     // ensure exported bytes are the same
     expect(contentWithDefaultBlockConcurrency).to.equalBytes(contentWitSmallBlockConcurrency)
+  })
+
+  describe('file reads follow the consumer', () => {
+    // 200 bytes in 20 raw leaves of 10 bytes under a single root node
+    async function importTwentyLeaves (): Promise<{ blockstore: MemoryBlockstore, cid: CID, leaves: CID[] }> {
+      const blockstore = new MemoryBlockstore()
+      const imported = await first(importer([{
+        content: asAsyncIterable(smallFile)
+      }], blockstore, {
+        rawLeaves: true,
+        chunker: fixedSize({ chunkSize: 10 })
+      }))
+
+      if (imported == null) {
+        throw new Error('Nothing imported')
+      }
+
+      const root = dagPb.decode(await toBuffer(blockstore.get(imported.cid)))
+      expect(root.Links).to.have.lengthOf(20)
+
+      return { blockstore, cid: imported.cid, leaves: root.Links.map(link => link.Hash) }
+    }
+
+    async function exportFile (cid: CID, blockstore: Pick<Blockstore, 'get'>): Promise<UnixFSFile> {
+      const file = await exporter(cid, blockstore)
+
+      if (file.type !== 'file') {
+        throw new Error('File expected')
+      }
+
+      return file
+    }
+
+    // the in-memory blockstore only uses promise callbacks, so one turn of the
+    // event loop lets a walk running in the background read all it is going to
+    async function settle (): Promise<void> {
+      await delay(0)
+    }
+
+    // `it-parallel` frees a read slot before the consumer resumes, so up to
+    // `blockReadConcurrency + 1` blocks can be read ahead
+    const MAX_READ_AHEAD = 3
+
+    it('stops reading blocks when the consumer stops after the first chunk', async () => {
+      const { blockstore, cid } = await importTwentyLeaves()
+      const file = await exportFile(cid, blockstore)
+      const blockReadSpy = Sinon.spy(blockstore, 'get')
+
+      const buf = await first(file.content({ blockReadConcurrency: 2 }))
+      await settle()
+
+      expect(buf).to.equalBytes(smallFile.subarray(0, 10))
+      expect(blockReadSpy.callCount).to.be.at.most(MAX_READ_AHEAD)
+    })
+
+    it('does not abort in-flight block reads when the consumer stops', async () => {
+      const { blockstore, cid } = await importTwentyLeaves()
+      const file = await exportFile(cid, blockstore)
+      const blockReadSpy = Sinon.spy(blockstore, 'get')
+
+      await first(file.content({ blockReadConcurrency: 2 }))
+
+      // a blockstore may share an in-flight read between callers, so aborting
+      // it for one caller could fail it for another
+      expect(blockReadSpy.callCount).to.be.greaterThan(0)
+      for (const call of blockReadSpy.getCalls()) {
+        expect(call.args[1]?.signal?.aborted ?? false).to.be.false()
+      }
+    })
+
+    it('stops reading blocks when the consumer breaks part way through', async () => {
+      const { blockstore, cid } = await importTwentyLeaves()
+      const file = await exportFile(cid, blockstore)
+      const blockReadSpy = Sinon.spy(blockstore, 'get')
+      let chunks = 0
+
+      for await (const buf of file.content({ blockReadConcurrency: 2 })) {
+        expect(buf).to.equalBytes(smallFile.subarray(chunks * 10, (chunks + 1) * 10))
+
+        if (++chunks === 10) {
+          break
+        }
+      }
+
+      await settle()
+
+      expect(chunks).to.equal(10)
+      expect(blockReadSpy.callCount).to.be.at.least(10)
+      expect(blockReadSpy.callCount).to.be.at.most(10 + MAX_READ_AHEAD)
+    })
+
+    it('does not read ahead of a paused consumer', async () => {
+      const { blockstore, cid } = await importTwentyLeaves()
+      const file = await exportFile(cid, blockstore)
+      const blockReadSpy = Sinon.spy(blockstore, 'get')
+      const iterator = file.content({ blockReadConcurrency: 2 })[Symbol.asyncIterator]()
+
+      const result = await iterator.next()
+      await settle()
+
+      expect(result.value).to.equalBytes(smallFile.subarray(0, 10))
+      expect(blockReadSpy.callCount).to.be.at.most(MAX_READ_AHEAD)
+
+      await iterator.return?.()
+    })
+
+    it('yields every chunk before a failed block, then the error', async () => {
+      const { blockstore, cid, leaves } = await importTwentyLeaves()
+      const failing: Pick<Blockstore, 'get'> = {
+        get: (key, options) => {
+          if (key.equals(leaves[10])) {
+            throw new Error('missing block')
+          }
+
+          return blockstore.get(key, options)
+        }
+      }
+      const file = await exportFile(cid, failing)
+      const chunks: Uint8Array[] = []
+
+      await expect((async () => {
+        for await (const buf of file.content({ blockReadConcurrency: 2 })) {
+          chunks.push(buf)
+          // yield after each chunk, so a walk running ahead of the consumer
+          // reaches the failed block before the earlier chunks have been read
+          await settle()
+        }
+      })()).to.eventually.be.rejectedWith('missing block')
+
+      expect(chunks).to.have.lengthOf(10)
+      expect(uint8ArrayConcat(chunks)).to.equalBytes(smallFile.subarray(0, 100))
+    })
   })
 
   it('exports directory contents', async () => {

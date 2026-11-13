@@ -20,8 +20,13 @@ interface Child {
 /**
  * Yields the file data in `[start, end)` in DAG order. Blocks are fetched as
  * the consumer pulls, with up to `blockReadConcurrency` siblings read ahead
- * per level. Uses an explicit stack instead of recursion so deep DAGs cannot
- * overflow the call stack.
+ * per level. `it-parallel` can free a slot as soon as a child is taken, before
+ * its data reaches the consumer, so each level fetches at most
+ * `blockReadConcurrency + 1` blocks whose data the consumer has not received.
+ * This holds for `blockReadConcurrency >= 1`: `it-parallel` treats lower values
+ * as unbounded.
+ * Uses an explicit stack instead of recursion so deep DAGs cannot overflow the
+ * call stack.
  */
 async function * walkDAG (blockstore: ReadableStorage, root: dagPb.PBNode, start: bigint, end: bigint, options: ExportContentOptions): AsyncGenerator<Uint8Array> {
   const stack: Array<AsyncGenerator<Child>> = []
@@ -58,8 +63,10 @@ async function * walkDAG (blockstore: ReadableStorage, root: dagPb.PBNode, start
       }
     }
   } finally {
-    // stop each level from starting new reads. In-flight reads are not
-    // aborted because a blockstore may share them with other callers
+    // stop each level from starting new reads. `return()` does not wait for
+    // in-flight reads: they finish and their results (or errors) are dropped.
+    // They are not aborted because a blockstore may share them with other
+    // callers
     while (stack.length > 0) {
       await stack.pop()?.return(undefined)
     }
@@ -107,9 +114,9 @@ function visitNode (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array
     const childStart = streamPosition // inclusive
     const childEnd = childStart + file.blockSizes[i] // exclusive
 
-    if ((start >= childStart && start < childEnd) || // child has offset byte
-        (end >= childStart && end <= childEnd) || // child has end byte
-        (start < childStart && end > childEnd)) { // child is between offset and end bytes
+    // `[childStart, childEnd)` overlaps `[start, end)`. A child that starts
+    // exactly at `end` holds none of the wanted bytes
+    if (childStart < end && childEnd > start) {
       childOps.push({
         link: childLink,
         blockStart: streamPosition
@@ -118,7 +125,7 @@ function visitNode (blockstore: ReadableStorage, node: dagPb.PBNode | Uint8Array
 
     streamPosition = childEnd
 
-    if (streamPosition > end) {
+    if (streamPosition >= end) {
       break
     }
   }

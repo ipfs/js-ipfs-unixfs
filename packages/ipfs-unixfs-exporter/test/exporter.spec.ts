@@ -1497,16 +1497,18 @@ describe('exporter', () => {
       await delay(0)
     }
 
+    const BLOCK_READ_CONCURRENCY = 2
+
     // `it-parallel` frees a read slot before the consumer resumes, so up to
     // `blockReadConcurrency + 1` blocks can be read ahead
-    const MAX_READ_AHEAD = 3
+    const MAX_READ_AHEAD = BLOCK_READ_CONCURRENCY + 1
 
     it('stops reading blocks when the consumer stops after the first chunk', async () => {
       const { blockstore, cid } = await importTwentyLeaves()
       const file = await exportFile(cid, blockstore)
       const blockReadSpy = Sinon.spy(blockstore, 'get')
 
-      const buf = await first(file.content({ blockReadConcurrency: 2 }))
+      const buf = await first(file.content({ blockReadConcurrency: BLOCK_READ_CONCURRENCY }))
       await settle()
 
       expect(buf).to.equalBytes(smallFile.subarray(0, 10))
@@ -1518,14 +1520,37 @@ describe('exporter', () => {
       const file = await exportFile(cid, blockstore)
       const blockReadSpy = Sinon.spy(blockstore, 'get')
 
-      await first(file.content({ blockReadConcurrency: 2 }))
+      const signal = new AbortController().signal
+
+      await first(file.content({ blockReadConcurrency: BLOCK_READ_CONCURRENCY, signal }))
+      // an abort deferred to a later tick would show up too
+      await settle()
 
       // a blockstore may share an in-flight read between callers, so aborting
-      // it for one caller could fail it for another
+      // it for one caller could fail it for another. Any signal a read gets,
+      // the caller's or one derived from it, must still be live
       expect(blockReadSpy.callCount).to.be.greaterThan(0)
       for (const call of blockReadSpy.getCalls()) {
-        expect(call.args[1]?.signal?.aborted ?? false).to.be.false()
+        expect(call.args[1]?.signal).to.be.ok()
+        expect(call.args[1]?.signal?.aborted).to.be.false()
       }
+    })
+
+    it('does not read the block after a range that ends on a block boundary', async () => {
+      const { blockstore, cid, leaves } = await importTwentyLeaves()
+      const file = await exportFile(cid, blockstore)
+      const blockReadSpy = Sinon.spy(blockstore, 'get')
+
+      // read ahead is on, so a child that starts exactly at the end of the
+      // range would be fetched if it counted as overlapping
+      const buf = await toBuffer(file.content({ offset: 10, length: 20 }))
+      await settle()
+
+      expect(buf).to.equalBytes(smallFile.subarray(10, 30))
+      expect(blockReadSpy.getCalls().map(call => call.args[0].toString())).to.deep.equal([
+        leaves[1].toString(),
+        leaves[2].toString()
+      ])
     })
 
     it('stops reading blocks when the consumer breaks part way through', async () => {
@@ -1534,7 +1559,7 @@ describe('exporter', () => {
       const blockReadSpy = Sinon.spy(blockstore, 'get')
       let chunks = 0
 
-      for await (const buf of file.content({ blockReadConcurrency: 2 })) {
+      for await (const buf of file.content({ blockReadConcurrency: BLOCK_READ_CONCURRENCY })) {
         expect(buf).to.equalBytes(smallFile.subarray(chunks * 10, (chunks + 1) * 10))
 
         if (++chunks === 10) {
@@ -1553,7 +1578,7 @@ describe('exporter', () => {
       const { blockstore, cid } = await importTwentyLeaves()
       const file = await exportFile(cid, blockstore)
       const blockReadSpy = Sinon.spy(blockstore, 'get')
-      const iterator = file.content({ blockReadConcurrency: 2 })[Symbol.asyncIterator]()
+      const iterator = file.content({ blockReadConcurrency: BLOCK_READ_CONCURRENCY })[Symbol.asyncIterator]()
 
       const result = await iterator.next()
       await settle()
@@ -1579,7 +1604,7 @@ describe('exporter', () => {
       const chunks: Uint8Array[] = []
 
       await expect((async () => {
-        for await (const buf of file.content({ blockReadConcurrency: 2 })) {
+        for await (const buf of file.content({ blockReadConcurrency: BLOCK_READ_CONCURRENCY })) {
           chunks.push(buf)
           // yield after each chunk, so a walk running ahead of the consumer
           // reaches the failed block before the earlier chunks have been read

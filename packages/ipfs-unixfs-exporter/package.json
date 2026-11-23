@@ -139,7 +139,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^10.0.0",
+    "@ipld/dag-cbor": "^11.0.0",
     "@ipld/dag-json": "^11.0.0",
     "@ipld/dag-pb": "^4.2.0",
     "@multiformats/murmur3": "^2.2.5",

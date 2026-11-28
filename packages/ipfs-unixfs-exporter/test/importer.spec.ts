@@ -876,6 +876,40 @@ strategies.forEach((strategy) => {
       expect(node).to.have.nested.property('unixfs.mode', perms)
     })
 
+    it('keeps the contents of a directory when its entry arrives after them', async () => {
+      const now = new Date()
+      const perms = 0o0755
+
+      const entries = await all(importer([{
+        path: '/foo/bar/qux.txt',
+        content: asAsyncIterable(smallFile)
+      }, {
+        path: '/foo/bar',
+        mtime: dateToTimespec(now),
+        mode: perms
+      }, {
+        path: '/foo'
+      }], block))
+
+      const nodes = await all(recursive(entries[entries.length - 1].cid, block))
+      // paths are relative to the root CID
+      const paths = nodes.map(node => node.path.split('/').slice(1).join('/'))
+
+      // the file added before its directory entry must survive
+      expect(paths).to.include('bar/qux.txt')
+      expect(paths).to.include('bar')
+
+      const bar = await last(filter(map(filter(nodes, (node) => node.name === 'bar'), async (node) => exporter(node.cid, block)), node => node.type === 'directory'))
+
+      if (bar == null) {
+        expect.fail('no directory found')
+      }
+
+      // and the late directory entry still contributes its metadata
+      expect(bar).to.have.deep.nested.property('unixfs.mtime', dateToTimespec(now))
+      expect(bar).to.have.nested.property('unixfs.mode', perms)
+    })
+
     it('supports passing mtime for hamt-sharded-directories', async () => {
       const now = new Date()
 

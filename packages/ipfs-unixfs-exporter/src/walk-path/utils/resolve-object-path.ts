@@ -1,5 +1,5 @@
 import { BadPathError } from '../../errors.ts'
-import { isCID } from './is-cid.ts'
+import { CID } from 'multiformats/cid'
 
 export interface ObjectPathResult {
   /**
@@ -35,8 +35,12 @@ export function resolveObjectPath (object: any, path: string[]): ObjectPathResul
     value = object[key]
     object = value
 
-    // allow resolver to traverse DAG
-    if (isCID(value)) {
+    // allow resolver to traverse DAG, use the CID returned by asCID so a CID
+    // from another compatible copy of multiformats becomes one of ours
+    const cid = CID.asCID(value)
+
+    if (cid != null) {
+      value = cid
       break
     }
   }

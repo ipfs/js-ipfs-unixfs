@@ -185,6 +185,11 @@ describe('exporter', () => {
     expect(data).to.equalBytes(result.file.data)
   })
 
+  it('rejects a path that is not a string or CID', async () => {
+    await expect(exporter({} as any, block)).to.eventually.be.rejected
+      .with.property('name', 'InvalidParametersError')
+  })
+
   it('small file in a directory with an escaped slash in the title', async () => {
     const fileName = `small-\\/file-${Math.random()}.txt`
     const filePath = `/foo/${fileName}`

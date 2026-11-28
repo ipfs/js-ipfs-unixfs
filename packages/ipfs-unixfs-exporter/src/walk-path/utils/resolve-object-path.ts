@@ -1,5 +1,5 @@
-import { BadPathError } from '../../errors.ts'
 import { CID } from 'multiformats/cid'
+import { BadPathError } from '../../errors.ts'
 
 export interface ObjectPathResult {
   /**

@@ -5,5 +5,5 @@ export function isCID (obj?: any): obj is CID {
     return false
   }
 
-  return CID.asCID(obj) === obj
+  return CID.asCID(obj) != null
 }

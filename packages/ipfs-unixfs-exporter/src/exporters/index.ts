@@ -65,11 +65,17 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
     cid = entry.cid
     name = entry.name
     path = entry.path
-  } else if (CID.asCID(path) === path || path instanceof CID) {
-    cid = path
-    name = path = cid.toString()
   } else {
-    throw new InvalidParametersError('Path must be string or CID')
+    // accept CIDs from other compatible copies of multiformats too, asCID
+    // returns an instance of this copy's CID class for them
+    const asCID = CID.asCID(path)
+
+    if (asCID == null) {
+      throw new InvalidParametersError('Path must be string or CID')
+    }
+
+    cid = asCID
+    name = path = cid.toString()
   }
 
   const resolver = resolvers[cid.code]

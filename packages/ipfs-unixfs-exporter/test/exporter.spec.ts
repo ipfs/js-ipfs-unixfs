@@ -28,6 +28,7 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { isNode } from 'wherearewe'
 import { exporter, recursive, walkPath } from '../src/index.ts'
 import asAsyncIterable from './helpers/as-async-iterable.ts'
+import { foreignCID } from './helpers/foreign-cid.ts'
 import type { PBNode } from '@ipld/dag-pb'
 import type { Blockstore } from 'interface-blockstore'
 import type { UnixFSType } from 'ipfs-unixfs'
@@ -168,6 +169,25 @@ describe('exporter', () => {
 
     const data = uint8ArrayConcat(await all(file.content()))
     expect(data).to.deep.equal(unmarshaled.data)
+  })
+
+  it('exports a file from a CID created by another copy of multiformats', async () => {
+    const result = await dagPut()
+    const file = await exporter(foreignCID(result.cid), block)
+
+    expect(file.cid.equals(result.cid)).to.be.true()
+
+    if (file.type !== 'file') {
+      throw new Error('Unexpected type')
+    }
+
+    const data = uint8ArrayConcat(await all(file.content()))
+    expect(data).to.equalBytes(result.file.data)
+  })
+
+  it('rejects a path that is not a string or CID', async () => {
+    await expect(exporter({} as any, block)).to.eventually.be.rejected
+      .with.property('name', 'InvalidParametersError')
   })
 
   it('small file in a directory with an escaped slash in the title', async () => {

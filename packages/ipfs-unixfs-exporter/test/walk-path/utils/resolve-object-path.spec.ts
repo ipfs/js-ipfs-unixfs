@@ -1,6 +1,7 @@
 import { expect } from 'aegir/chai'
 import { CID } from 'multiformats/cid'
 import { resolveObjectPath } from '../../../src/walk-path/utils/resolve-object-path.ts'
+import { foreignCID } from '../../helpers/foreign-cid.ts'
 
 describe('resolve-object-path', () => {
   it('should resolve property path', () => {
@@ -39,6 +40,21 @@ describe('resolve-object-path', () => {
     ])
 
     expect(result).to.have.property('value', cid)
+    expect(result).to.have.deep.property('rest', ['baz'])
+  })
+
+  it('should resolve a CID from another copy of multiformats to a CID', () => {
+    const cid = CID.parse('QmWHMpCtdNjemT2F3SjyrmnBXQXwEohaZd4apcbFBhbFRC')
+
+    const result = resolveObjectPath({
+      foo: foreignCID(cid)
+    }, [
+      'foo',
+      'baz'
+    ])
+
+    expect(result.value).to.be.an.instanceOf(CID)
+    expect(result.value.equals(cid)).to.be.true()
     expect(result).to.have.deep.property('rest', ['baz'])
   })
 

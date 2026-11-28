@@ -66,7 +66,8 @@ export async function exporter (path: string | CID, blockstore: ReadableStorage,
     name = entry.name
     path = entry.path
   } else {
-    // accept CIDs created by any copy of multiformats, not just this one
+    // accept CIDs from other compatible copies of multiformats too, asCID
+    // returns an instance of this copy's CID class for them
     const asCID = CID.asCID(path)
 
     if (asCID == null) {

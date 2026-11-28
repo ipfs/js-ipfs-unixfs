@@ -1,8 +1,9 @@
 import type { CID } from 'multiformats/cid'
 
 /**
- * Returns a copy of the passed CID that is not an instance of this copy of the
- * `CID` class, the same as a CID created by a different copy of multiformats
+ * Returns a minimal CID-like object with the same fields as the passed CID. It
+ * is not an instance of this copy's `CID` class but `CID.asCID` recognises it,
+ * like a CID created by a different copy of multiformats
  */
 export function foreignCID (cid: CID): CID {
   const foreign: any = {

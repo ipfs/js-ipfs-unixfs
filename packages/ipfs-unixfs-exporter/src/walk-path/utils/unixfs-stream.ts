@@ -59,7 +59,7 @@ export function isValidUnixFSHAMTMetadata (obj: Record<string, any>): obj is Uni
 }
 
 export function isValidLink (obj: Record<string, any>): obj is Link {
-  return typeof obj.name === 'string' && CID.asCID(obj.hash) === obj.hash
+  return typeof obj.name === 'string' && CID.asCID(obj.hash) != null
 }
 
 export function * unixFsStream (block: Uint8Array): Generator<UnixFSEntity> {

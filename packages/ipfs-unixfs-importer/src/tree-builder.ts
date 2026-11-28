@@ -28,7 +28,21 @@ async function addToTree (elem: InProgressImportResult, tree: Dir, options: AddT
     parent.size = undefined
 
     if (last) {
-      await parent.put(pathElement, elem)
+      const existing = await parent.get(pathElement)
+
+      if (elem.unixfs?.isDirectory() === true && existing instanceof Dir) {
+        // the directory entry arrived after some of its contents - keep the
+        // directory we have already built and apply the entry's metadata to it
+        existing.mode = elem.unixfs.mode ?? existing.mode
+        existing.mtime = elem.unixfs.mtime ?? existing.mtime
+        existing.dirty = true
+        existing.cid = undefined
+        existing.size = undefined
+        existing.nodeSize = undefined
+      } else {
+        await parent.put(pathElement, elem)
+      }
+
       tree = await flatToShard(null, parent)
     } else {
       let dir = await parent.get(pathElement)
